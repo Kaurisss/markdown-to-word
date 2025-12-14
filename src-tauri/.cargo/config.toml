@@ -1,0 +1,14 @@
+# 项目级 Cargo 配置 - 使用备用镜像源
+[source.crates-io]
+# 使用官方源（如果网络条件允许）
+# replace-with = 'ustc'
+
+[source.ustc]
+registry = "sparse+https://mirrors.ustc.edu.cn/crates.io-index/"
+
+[source.tuna]
+registry = "sparse+https://mirrors.tuna.tsinghua.edu.cn/crates.io-index/"
+
+[net]
+retry = 5
+git-fetch-with-cli = true
