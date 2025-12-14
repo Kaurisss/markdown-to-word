@@ -1,7 +1,7 @@
 # 简阅转档 | Markdown to Word
 
 <div align="center">
-  <img src="logo.png" width="128" height="128" alt="简阅转档 Logo" />
+  <img src="logo.svg" width="128" height="128" alt="简阅转档 Logo" />
   
   **一个纯前端的 Markdown 转 Word 工具**
   
