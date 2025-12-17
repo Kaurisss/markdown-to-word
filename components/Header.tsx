@@ -78,6 +78,11 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
       {/* Right Section: Actions */}
       <div className="flex items-center justify-end w-7/12 sm:w-1/2 space-x-3">
         
+        {/* Export Hint */}
+        <span className="text-xs text-gray-500 hidden xl:inline-block mr-2">
+            当前仅支持导出默认主题
+        </span>
+
         {/* Import Button */}
         <button
           onClick={() => fileInputRef.current?.click()}
@@ -127,7 +132,7 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
               ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200' 
               : 'bg-brand-600 hover:bg-brand-700 text-white border border-transparent'}
           `}
-          title="保存为 Word 文档"
+          title="保存为 Word 文档 (当前仅支持默认主题)"
         >
           {isExporting ? (
             <>
