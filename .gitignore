@@ -17,6 +17,7 @@ dist-ssr
 
 # Tauri
 src-tauri/target/
+src-tauri/binaries/
 
 # Editor directories and files
 .vscode/*
@@ -28,6 +29,16 @@ src-tauri/target/
 *.njsproj
 *.sln
 *.sw?
+
+# Testing
+.hypothesis/
+.pytest_cache/
+__pycache__/
+*.pyc
+
+# Test output files
+test_output_*.docx
+*.spec
 
 # Temporary files
 logo_1024.png
