@@ -6,6 +6,52 @@
     "main"
   ],
   "permissions": [
-    "core:default"
+    "core:default",
+    "core:path:default",
+    "dialog:default",
+    "fs:default",
+    "fs:allow-appcache-read",
+    "fs:allow-appcache-read-recursive",
+    "fs:allow-appcache-write",
+    "fs:allow-appcache-write-recursive",
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        {
+          "name": "binaries/md2word",
+          "sidecar": true,
+          "args": [
+            "--input",
+            {
+              "validator": ".+"
+            },
+            "--output",
+            {
+              "validator": ".+"
+            },
+            "--config",
+            {
+              "validator": "[\\s\\S]*"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "identifier": "fs:allow-write-text-file",
+      "allow": [
+        {
+          "path": "$APPCACHE/**"
+        }
+      ]
+    },
+    {
+      "identifier": "fs:allow-remove",
+      "allow": [
+        {
+          "path": "$APPCACHE/**"
+        }
+      ]
+    }
   ]
 }

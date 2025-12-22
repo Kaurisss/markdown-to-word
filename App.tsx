@@ -2,15 +2,18 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import Header from './components/Header';
 import Editor from './components/Editor';
 import Preview from './components/Preview';
-import { generateDocxBlob } from './services/docxGenerator';
-import saveAs from 'file-saver';
+import { save as saveDialog } from '@tauri-apps/plugin-dialog';
 import { DEFAULT_MARKDOWN } from './constants';
 import { ViewMode } from './types';
+import { DEFAULT_CONFIG } from './config/defaultConfig';
+import { DocumentConfig } from './interfaces/Config';
+import { exportWithPython, formatErrorMessage } from './services/pythonBackend';
 
 const App: React.FC = () => {
   const [content, setContent] = useState<string>(DEFAULT_MARKDOWN);
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<ViewMode>('split');
+  const [cfg, setCfg] = useState<DocumentConfig>(DEFAULT_CONFIG);
 
   // 滚动同步相关 refs
   const editorRef = useRef<HTMLTextAreaElement>(null);
@@ -23,46 +26,32 @@ const App: React.FC = () => {
   }, []);
 
   // Handle Export Logic
+  // Requirements: 1.1 - Invoke Python_Backend with Markdown_Content and Style_Config
+  // Requirements: 2.1 - Serialize Style_Config to JSON format
+  // Requirements: 2.2 - Apply all specified styles to the generated document
   const handleExport = useCallback(async () => {
     if (!content.trim()) return;
 
     setIsExporting(true);
     try {
-      // 1. Generate Blob
-      const blob = await generateDocxBlob(content);
-
-      // 2. Determine Filename
       const headingMatch = content.match(/^#\s+(.+)$/m);
-      const fileName = headingMatch ? headingMatch[1].trim() : `文档_${new Date().toISOString().slice(0, 10)}`;
-      const fullFileName = `${fileName}.docx`;
+      const suggested = headingMatch ? `${headingMatch[1].trim()}.docx` : `文档_${new Date().toISOString().slice(0, 10)}.docx`;
+      const outPath = await saveDialog({
+        filters: [{ name: 'Word', extensions: ['docx'] }],
+        defaultPath: suggested
+      });
+      if (!outPath) return;
 
-      let fileSaved = false;
+      const result = await exportWithPython({
+        markdown: content,
+        outputPath: outPath,
+        config: cfg
+      });
 
-      // 3. Try File System Access API
-      if ('showSaveFilePicker' in window) {
-        try {
-          const handle = await (window as any).showSaveFilePicker({
-            suggestedName: fullFileName,
-            types: [{
-              description: 'Word Document',
-              accept: { 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'] },
-            }],
-          });
-          const writable = await handle.createWritable();
-          await writable.write(blob);
-          await writable.close();
-          fileSaved = true;
-        } catch (err: any) {
-          if (err.name === 'AbortError') {
-            fileSaved = true;
-          } else {
-            console.warn("File System Access API not available. Falling back to download.", err);
-          }
-        }
-      }
-
-      if (!fileSaved) {
-        saveAs(blob, fullFileName);
+      if (!result.success) {
+        const errorMessage = formatErrorMessage(result);
+        console.error("导出失败:", errorMessage);
+        alert(errorMessage);
       }
 
     } catch (error) {
@@ -71,7 +60,7 @@ const App: React.FC = () => {
     } finally {
       setIsExporting(false);
     }
-  }, [content]);
+  }, [content, cfg]);
 
   // 同步滚动 effect：仅在分屏模式下启用
   useEffect(() => {
@@ -122,27 +111,29 @@ const App: React.FC = () => {
   const showPreview = viewMode === 'preview' || viewMode === 'split';
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden text-gray-800 font-sans">
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-gray-50 text-gray-800 font-sans selection:bg-brand-100 selection:text-brand-900">
       <Header
         isExporting={isExporting}
         onExport={handleExport}
         onImport={handleImport}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
+        cfg={cfg}
+        onCfgChange={setCfg}
       />
 
       <main className="flex-1 flex flex-row overflow-hidden relative">
         {/* Left Pane: Editor */}
         {showEditor && (
-          <div className={`h-full bg-white relative z-0 border-r border-gray-200 ${viewMode === 'split' ? 'w-1/2' : 'w-full'}`}>
+          <div className={`h-full bg-white relative z-0 transition-all duration-300 ease-in-out ${viewMode === 'split' ? 'w-1/2' : 'w-full'}`}>
             <Editor ref={editorRef} value={content} onChange={setContent} />
           </div>
         )}
 
         {/* Right Pane: Preview */}
         {showPreview && (
-          <div className={`h-full bg-gray-100 relative z-0 ${viewMode === 'split' ? 'w-1/2' : 'w-full'}`}>
-            <Preview ref={previewRef} markdown={content} />
+          <div className={`h-full bg-gray-100 relative z-0 transition-all duration-300 ease-in-out ${viewMode === 'split' ? 'w-1/2' : 'w-full'}`}>
+            <Preview ref={previewRef} markdown={content} cfg={cfg} />
           </div>
         )}
       </main>

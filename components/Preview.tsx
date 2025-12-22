@@ -1,60 +1,94 @@
-import React, { forwardRef } from 'react';
+import React, { CSSProperties, forwardRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { PreviewProps } from '../types';
 
-const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown }, ref) => {
-  return (
-    <div className="flex flex-col h-full bg-gray-100 overflow-hidden">
-      <div className="px-4 py-2 bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wider select-none z-10">
-        预览效果 (Word 样式)
-      </div>
+function ptToPx(pt: number): string {
+  return `${(pt * 96) / 72}px`;
+}
 
-      {/* 
-         Style Overrides:
-         1. Remove backticks from inline code (Tailwind Typography default).
-         2. Reset styling for code blocks (pre > code) to avoid inheriting inline code styles (pink/red).
-         3. 行内代码自动换行
-         4. 表格样式
-      */}
+function hexToRgba(hex: string, alpha: number): string {
+  const s = hex.trim().replace(/^#/, '');
+  const normalized = s.length === 3 ? s.split('').map((c) => c + c).join('') : s;
+  if (!/^[0-9a-fA-F]{6}$/.test(normalized)) return `rgba(0, 0, 0, ${alpha})`;
+  const r = parseInt(normalized.slice(0, 2), 16);
+  const g = parseInt(normalized.slice(2, 4), 16);
+  const b = parseInt(normalized.slice(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function buildFontFamily(cfg: PreviewProps['cfg'], elementFontFamily?: string): string {
+  const baseCn = cfg.global.baseFontCn?.trim() || 'SimSun';
+  const baseEn = cfg.global.baseFontEn?.trim() || 'Times New Roman';
+  const parts: string[] = [];
+
+  if (elementFontFamily?.trim()) parts.push(`"${elementFontFamily.trim()}"`);
+  parts.push(`"${baseEn}"`, `"${baseCn}"`, '"Microsoft YaHei"', '"Heiti SC"', 'sans-serif');
+  return parts.join(', ');
+}
+
+function elementStyleToCss(cfg: PreviewProps['cfg'], style: PreviewProps['cfg']['styles']['body']): CSSProperties {
+  return {
+    fontFamily: buildFontFamily(cfg, style.fontFamily),
+    fontSize: ptToPx(style.fontSize),
+    color: style.color,
+    fontWeight: style.bold ? 700 : 400,
+    fontStyle: style.italic ? 'italic' : 'normal',
+    lineHeight: style.lineSpacing,
+    marginTop: ptToPx(style.spaceBefore),
+    marginBottom: ptToPx(style.spaceAfter),
+    textAlign: style.alignment,
+    textIndent: style.firstLineIndent ? `${style.firstLineIndent}em` : undefined,
+    backgroundColor: style.backgroundColor
+  };
+}
+
+const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref) => {
+  const pagePaddingCm = cfg.global.pageMargin * 2.54;
+  const pageStyle: CSSProperties = {
+    fontFamily: buildFontFamily(cfg),
+    padding: `${pagePaddingCm}cm`,
+  };
+
+  const bodyStyle = elementStyleToCss(cfg, cfg.styles.body);
+  const h1Style = elementStyleToCss(cfg, cfg.styles.h1);
+  const h2Style = elementStyleToCss(cfg, cfg.styles.h2);
+  const h3Style = elementStyleToCss(cfg, cfg.styles.h3);
+  const quoteStyle = elementStyleToCss(cfg, cfg.styles.quote);
+  const codeTextColor = cfg.styles.code.color || '#374151';
+  const bodyTextColor = cfg.styles.body.color || '#374151';
+  const quoteTextColor = cfg.styles.quote.color || '#6b7280';
+  const codeBg = cfg.styles.code.backgroundColor || hexToRgba(codeTextColor, 0.08);
+  const quoteBg = cfg.styles.quote.backgroundColor || hexToRgba(quoteTextColor, 0.06);
+
+  const inlineCodeStyle: CSSProperties = {
+    ...elementStyleToCss(cfg, cfg.styles.code),
+    backgroundColor: codeBg,
+    padding: '0.1em 0.35em',
+    borderRadius: '0.25rem',
+    whiteSpace: 'pre-wrap',
+    wordBreak: 'break-word',
+    overflowWrap: 'break-word'
+  };
+  const codeBlockStyle: CSSProperties = {
+    ...elementStyleToCss(cfg, cfg.styles.code),
+    backgroundColor: codeBg,
+    borderRadius: '0.125rem',
+    padding: '1rem',
+    overflowX: 'auto'
+  };
+  const tableBorder = `1px solid ${hexToRgba(bodyTextColor, 0.25)}`;
+  const tableHeadBg = hexToRgba(bodyTextColor, 0.06);
+
+  return (
+    <div className="flex flex-col h-full bg-gray-100/50 overflow-hidden relative">
+      {/* Background pattern or subtle gradient could go here */}
       <style>{`
         .prose code::before { content: none !important; }
         .prose code::after { content: none !important; }
-        
-        /* Reset code inside pre blocks to neutral style */
-        .prose pre code {
-          background-color: transparent !important;
-          color: inherit !important;
-          padding: 0 !important;
-          border-radius: 0 !important;
-          font-weight: 500 !important;
-        }
-        
-        /* 行内代码自动换行 */
-        .prose code {
-          word-break: break-word !important;
-          overflow-wrap: break-word !important;
-          white-space: pre-wrap !important;
-        }
-        
-        /* 表格样式 */
-        .prose table {
-          width: 100%;
-          border-collapse: collapse;
-          margin: 1em 0;
-        }
-        .prose th, .prose td {
-          border: 1px solid #d1d5db;
-          padding: 0.5rem 0.75rem;
-          text-align: left;
-        }
-        .prose th {
-          background-color: #f3f4f6;
-          font-weight: 600;
-        }
-        .prose tr:nth-child(even) {
-          background-color: #f9fafb;
-        }
+        .prose p:empty { display: none !important; }
+        .prose > *:first-child { margin-top: 0 !important; }
+        .prose > *:last-child { margin-bottom: 0 !important; }
       `}</style>
 
       {/* 
@@ -62,7 +96,7 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown }, ref) => 
       */}
       <div
         ref={ref}
-        className="flex-1 overflow-auto p-4 md:p-8 bg-gray-100"
+        className="flex-1 overflow-auto p-4 md:p-8 custom-scrollbar"
       >
         {/* 
           A4 Paper Simulation: 
@@ -70,38 +104,105 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown }, ref) => 
           min-h-full 确保至少填满容器高度，h-fit 让高度随内容增长
         */}
         <div
-          className="bg-white shadow-sm border border-gray-200 w-full max-w-[21cm] min-h-full h-fit p-6 md:p-[2.54cm] text-gray-900 mx-auto"
-          style={{ fontFamily: '"Microsoft YaHei", "Heiti SC", sans-serif' }}
+          className="bg-white shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-gray-200/50 w-full max-w-[21cm] min-h-[29.7cm] h-fit p-6 md:p-[2.54cm] text-gray-900 mx-auto transition-transform duration-200"
+          style={pageStyle}
         >
 
-          <div className="
-            prose max-w-none 
-            prose-headings:text-brand-600 prose-headings:font-bold
-            prose-h1:text-2xl prose-h1:mb-6 prose-h1:pb-2 prose-h1:border-b-0
-            prose-h2:text-xl prose-h2:mt-8 prose-h2:mb-4
-            prose-h3:text-lg prose-h3:mt-6 prose-h3:mb-2
-            prose-p:text-gray-700 prose-p:leading-relaxed prose-p:my-3
-            prose-li:text-gray-700 prose-li:my-1
-            prose-strong:text-gray-900 prose-strong:font-bold
-            
-            /* Inline Code Styles */
-            prose-code:text-[#c7254e] prose-code:bg-[#f9f2f4] prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:text-[0.9em] prose-code:font-normal
-            
-            /* Code Block Wrapper (pre) */
-            prose-pre:bg-[#f3f4f6] prose-pre:text-gray-800 prose-pre:border-none prose-pre:rounded-sm prose-pre:p-4 prose-pre:overflow-x-auto
-            
-            /* Blockquote */
-            prose-blockquote:border-l-[4px] prose-blockquote:border-gray-300 prose-blockquote:pl-4 prose-blockquote:bg-transparent prose-blockquote:text-gray-600 prose-blockquote:not-italic prose-blockquote:font-normal
-            
-            /* Links */
-            prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline
-            
-            /* Lists */
-            prose-ul:list-disc prose-ul:pl-5
-            prose-ol:list-decimal prose-ol:pl-5
-          ">
+          <div className="prose max-w-none">
             {markdown ? (
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  h1: (props) => <h1 {...props} style={{ ...h1Style, textIndent: undefined }} />,
+                  h2: (props) => <h2 {...props} style={{ ...h2Style, textIndent: undefined }} />,
+                  h3: (props) => <h3 {...props} style={{ ...h3Style, textIndent: undefined }} />,
+                  h4: (props) => <h4 {...props} style={{ ...h3Style, textIndent: undefined }} />,
+                  h5: (props) => <h5 {...props} style={{ ...h3Style, textIndent: undefined }} />,
+                  h6: (props) => <h6 {...props} style={{ ...h3Style, textIndent: undefined }} />,
+                  p: ({ children, ...props }) => {
+                    const firstChild = Array.isArray(children) ? children[0] : children;
+                    const isTextStart = typeof firstChild === 'string';
+                    // If paragraph starts with a non-string (Element), it likely starts with MD tag (Bold, etc).
+                    // In this case, disable the first-line indent.
+                    const style = isTextStart
+                      ? bodyStyle
+                      : { ...bodyStyle, textIndent: 0 };
+                    return <p {...props} style={style}>{children}</p>;
+                  },
+                  li: (props) => <li {...props} style={{ ...bodyStyle, marginTop: 0, marginBottom: 0, textIndent: 0 }} />,
+                  ul: (props) => <ul {...props} style={{ ...bodyStyle, paddingLeft: '1.5em', listStyleType: 'disc', marginTop: 0, marginBottom: ptToPx(cfg.styles.body.spaceAfter) }} />,
+                  ol: (props) => <ol {...props} style={{ ...bodyStyle, paddingLeft: '1.5em', listStyleType: 'decimal', marginTop: 0, marginBottom: ptToPx(cfg.styles.body.spaceAfter) }} />,
+                  blockquote: (props) => (
+                    <blockquote
+                      {...props}
+                      style={{
+                        ...quoteStyle,
+                        borderLeft: `4px solid ${hexToRgba(quoteTextColor, 0.35)}`,
+                        paddingLeft: '1rem',
+                        backgroundColor: quoteBg,
+                        textIndent: undefined
+                      }}
+                    />
+                  ),
+                  code: ({ className, children, ...props }) => {
+                    const text =
+                      typeof children === 'string'
+                        ? children
+                        : Array.isArray(children)
+                          ? children.map((c) => (typeof c === 'string' ? c : '')).join('')
+                          : '';
+                    const isBlock = Boolean(className && /language-/.test(className)) || text.includes('\n');
+                    return (
+                      <code
+                        {...props}
+                        className={className}
+                        style={
+                          isBlock
+                            ? {
+                              ...elementStyleToCss(cfg, cfg.styles.code),
+                              fontFamily: buildFontFamily(cfg, cfg.styles.code.fontFamily),
+                              backgroundColor: 'transparent',
+                              padding: 0,
+                              borderRadius: 0
+                            }
+                            : inlineCodeStyle
+                        }
+                      >
+                        {children}
+                      </code>
+                    );
+                  },
+                  pre: (props) => <pre {...props} style={codeBlockStyle} />,
+                  table: (props) => <table {...props} style={{ width: '100%', borderCollapse: 'collapse' }} />,
+                  thead: (props) => <thead {...props} />,
+                  tbody: (props) => <tbody {...props} />,
+                  tr: (props) => <tr {...props} />,
+                  th: (props) => (
+                    <th
+                      {...props}
+                      style={{
+                        ...bodyStyle,
+                        border: tableBorder,
+                        padding: '0.5rem 0.75rem',
+                        backgroundColor: tableHeadBg,
+                        fontWeight: 600,
+                        textIndent: undefined
+                      }}
+                    />
+                  ),
+                  td: (props) => (
+                    <td
+                      {...props}
+                      style={{
+                        ...bodyStyle,
+                        border: tableBorder,
+                        padding: '0.5rem 0.75rem',
+                        textIndent: undefined
+                      }}
+                    />
+                  )
+                }}
+              >
                 {markdown}
               </ReactMarkdown>
             ) : (

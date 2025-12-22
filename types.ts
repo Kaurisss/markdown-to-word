@@ -17,6 +17,7 @@ export interface EditorProps {
 
 export interface PreviewProps {
   markdown: string;
+  cfg: import('./interfaces/Config').DocumentConfig;
 }
 
 // 定义视图模式：仅编辑 | 分栏 | 仅预览
@@ -28,4 +29,6 @@ export interface HeaderProps {
   onImport: (content: string) => void; // 新增导入回调
   viewMode: ViewMode;
   onViewModeChange: (mode: ViewMode) => void;
+  cfg: import('./interfaces/Config').DocumentConfig;
+  onCfgChange: (next: import('./interfaces/Config').DocumentConfig) => void;
 }
