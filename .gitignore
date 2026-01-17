@@ -1,5 +1,9 @@
-# Logs
-logs
+# ================================
+# 简阅转档 - .gitignore
+# ================================
+
+# ======== 日志文件 ========
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -7,28 +11,82 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Dependencies
-node_modules
+# ======== 依赖目录 ========
+node_modules/
 
-# Build outputs
-dist
-dist-ssr
+# ======== 构建产物 ========
+dist/
+dist-ssr/
 *.local
+build/
 
-# Tauri
+# ======== Tauri ========
 src-tauri/target/
+src-tauri/WixTools/
+src-tauri/*.msi
+src-tauri/*.exe
+src-tauri/*.nsis
+*.bundle
 
-# Editor directories and files
+# ======== Python ========
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+venv/
+env/
+*.egg
+*.egg-info/
+.eggs/
+
+# ======== Python 测试 ========
+.hypothesis/
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# ======== 编辑器/IDE ========
 .vscode/*
 !.vscode/extensions.json
-.idea
-.DS_Store
+!.vscode/settings.json
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+*.swp
+*.swo
+*~
 
-# Temporary files
+# ======== 系统文件 ========
+.DS_Store
+.DS_Store?
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ======== 环境变量 ========
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+
+# ======== 测试输出 ========
+test_output*.docx
+*.test.docx
+
+# ======== 临时文件 ========
 logo_1024.png
 内容.md
+*.tmp
+*.temp
+*.bak
+
+# ======== Kiro/其他工具 ========
+.kiro/

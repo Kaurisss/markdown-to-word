@@ -1,0 +1,82 @@
+{
+  "global": {
+    "pageMargin": 1.0,
+    "baseFontCn": "SimSun",
+    "baseFontEn": "Times New Roman"
+  },
+  "styles": {
+    "h1": {
+      "fontFamily": "SimSun",
+      "fontSize": 24,
+      "color": "#1F2937",
+      "bold": true,
+      "italic": false,
+      "lineSpacing": 1.2,
+      "spaceBefore": 12,
+      "spaceAfter": 6,
+      "alignment": "left",
+      "firstLineIndent": 0
+    },
+    "h2": {
+      "fontFamily": "SimSun",
+      "fontSize": 20,
+      "color": "#1F2937",
+      "bold": true,
+      "italic": false,
+      "lineSpacing": 1.2,
+      "spaceBefore": 12,
+      "spaceAfter": 6,
+      "alignment": "left",
+      "firstLineIndent": 0
+    },
+    "h3": {
+      "fontFamily": "SimSun",
+      "fontSize": 18,
+      "color": "#1F2937",
+      "bold": true,
+      "italic": false,
+      "lineSpacing": 1.2,
+      "spaceBefore": 12,
+      "spaceAfter": 6,
+      "alignment": "left",
+      "firstLineIndent": 0
+    },
+    "body": {
+      "fontFamily": "SimSun",
+      "fontSize": 12,
+      "color": "#000000",
+      "bold": false,
+      "italic": false,
+      "lineSpacing": 1.6,
+      "spaceBefore": 0,
+      "spaceAfter": 8,
+      "alignment": "left",
+      "firstLineIndent": 2
+    },
+    "code": {
+      "fontFamily": "Courier New",
+      "fontSize": 10,
+      "color": "#374151",
+      "bold": false,
+      "italic": false,
+      "lineSpacing": 1.2,
+      "spaceBefore": 0,
+      "spaceAfter": 0,
+      "alignment": "left",
+      "firstLineIndent": 0
+    },
+    "quote": {
+      "fontFamily": "SimSun",
+      "fontSize": 12,
+      "color": "#4B5563",
+      "bold": false,
+      "italic": true,
+      "lineSpacing": 1.4,
+      "spaceBefore": 8,
+      "spaceAfter": 8,
+      "alignment": "left",
+      "firstLineIndent": 0
+    }
+  }
+}
+
