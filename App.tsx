@@ -13,7 +13,17 @@ const App: React.FC = () => {
   const [content, setContent] = useState<string>(DEFAULT_MARKDOWN);
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<ViewMode>('split');
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [cfg, setCfg] = useState<DocumentConfig>(DEFAULT_CONFIG);
+
+  // Apply theme to document
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
 
   // 滚动同步相关 refs
   const editorRef = useRef<HTMLTextAreaElement>(null);
@@ -111,13 +121,15 @@ const App: React.FC = () => {
   const showPreview = viewMode === 'preview' || viewMode === 'split';
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-gray-50 text-gray-800 font-sans selection:bg-brand-100 selection:text-brand-900">
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-gray-50 dark:bg-dark-bg text-gray-800 dark:text-gray-100 font-sans selection:bg-brand-100 selection:text-brand-900">
       <Header
         isExporting={isExporting}
         onExport={handleExport}
         onImport={handleImport}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
+        theme={theme}
+        onThemeChange={setTheme}
         cfg={cfg}
         onCfgChange={setCfg}
       />
@@ -125,14 +137,14 @@ const App: React.FC = () => {
       <main className="flex-1 flex flex-row overflow-hidden relative">
         {/* Left Pane: Editor */}
         {showEditor && (
-          <div className={`h-full bg-white relative z-0 transition-all duration-300 ease-in-out ${viewMode === 'split' ? 'w-1/2' : 'w-full'}`}>
+          <div className={`h-full bg-white dark:bg-dark-bg relative z-0 transition-all duration-300 ease-in-out ${viewMode === 'split' ? 'w-1/2' : 'w-full'}`}>
             <Editor ref={editorRef} value={content} onChange={setContent} />
           </div>
         )}
 
         {/* Right Pane: Preview */}
         {showPreview && (
-          <div className={`h-full bg-gray-100 relative z-0 transition-all duration-300 ease-in-out ${viewMode === 'split' ? 'w-1/2' : 'w-full'}`}>
+          <div className={`h-full bg-gray-100 dark:bg-dark-bg relative z-0 transition-all duration-300 ease-in-out ${viewMode === 'split' ? 'w-1/2' : 'w-full'}`}>
             <Preview ref={previewRef} markdown={content} cfg={cfg} />
           </div>
         )}

@@ -81,7 +81,7 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
   const tableHeadBg = hexToRgba(bodyTextColor, 0.06);
 
   return (
-    <div className="flex flex-col h-full bg-gray-100/50 overflow-hidden relative">
+    <div className="flex flex-col h-full bg-gray-100/50 dark:bg-dark-bg overflow-hidden relative transition-colors duration-200">
       {/* Background pattern or subtle gradient could go here */}
       <style>{`
         .prose code::before { content: none !important; }

@@ -1,6 +1,7 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { HeaderProps } from '../types';
 import { ElementStyle } from '../interfaces/Config';
+import { Palette } from 'lucide-react';
 
 // Word 风格字号
 const FONT_SIZES: { label: string; value: number }[] = [
@@ -56,9 +57,9 @@ const STANDARD_COLORS = [
   '#C00000', '#FF0000', '#FFC000', '#FFFF00', '#92D050', '#00B050', '#00B0F0', '#0070C0', '#002060', '#7030A0'
 ];
 
-const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMode, onViewModeChange, cfg, onCfgChange }) => {
+const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMode, onViewModeChange, theme, onThemeChange, cfg, onCfgChange }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [activeTab, setActiveTab] = useState<'home' | 'layout'>('home');
+  const [activeTab, setActiveTab] = useState<'file' | 'view' | 'home' | 'layout'>('home');
   const [activeStyle, setActiveStyle] = useState<'body' | 'h1' | 'h2' | 'h3' | 'code' | 'quote'>('body');
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -84,9 +85,9 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
     });
   };
 
-  const selectClass = "h-7 px-2 text-xs border border-gray-300 rounded bg-white hover:border-gray-400 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none";
-  const btnClass = "h-7 px-2 flex items-center justify-center border border-transparent rounded hover:bg-gray-100 active:bg-gray-200 transition-colors";
-  const btnActiveClass = "bg-brand-100 text-brand-700 border-brand-300";
+  const selectClass = "h-7 px-2 text-xs border border-gray-300 dark:border-dark-border rounded bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100 hover:border-gray-400 dark:hover:border-gray-500 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-colors";
+  const btnClass = "h-7 px-2 flex items-center justify-center border border-transparent rounded hover:bg-gray-100 dark:hover:bg-dark-surface active:bg-gray-200 dark:active:bg-gray-600 transition-colors text-gray-700 dark:text-gray-200";
+  const btnActiveClass = "bg-brand-100 dark:bg-brand-900 text-brand-700 dark:text-brand-300 border-brand-300 dark:border-brand-700";
 
   const [openMenu, setOpenMenu] = useState<'file' | 'edit' | null>(null);
   const [showColorPicker, setShowColorPicker] = useState(false);
@@ -119,12 +120,12 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
   }, []);
 
   return (
-    <div className="flex-shrink-0 bg-gray-50 border-b border-gray-200">
+    <div className="relative z-50 flex-shrink-0 bg-white dark:bg-dark-bg border-b border-gray-200 dark:border-dark-border transition-colors duration-200">
       {/* VS Code 风格单行标题栏 */}
-      <div className="h-8 bg-white border-b border-gray-100 flex items-stretch">
+      <div className="h-10 bg-white dark:bg-dark-bg border-b border-gray-100 dark:border-dark-border flex items-stretch transition-colors duration-200">
         {/* 左侧可拖动区域：Logo + 菜单项 */}
         <div
-          className="flex-1 flex items-center text-xs text-gray-600 select-none min-w-0"
+          className="flex-1 flex items-center text-xs text-gray-600 dark:text-gray-300 select-none min-w-0"
           data-tauri-drag-region
           onDoubleClick={() => void runWindowAction('toggleMaximize')}
         >
@@ -137,79 +138,22 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
           <div className="flex items-center" onMouseDown={(e) => e.stopPropagation()}>
             <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".md,.txt,.markdown" className="hidden" />
 
-            {/* 文件菜单 */}
-            <div className="relative">
-              <button
-                onClick={() => setOpenMenu(openMenu === 'file' ? null : 'file')}
-                className={`px-3 py-1 rounded hover:bg-gray-100 ${openMenu === 'file' ? 'bg-gray-100' : ''}`}
-              >
-                文件(F)
-              </button>
-              {openMenu === 'file' && (
-                <div className="absolute top-full left-0 mt-0.5 w-40 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-50">
-                  <button onClick={() => { fileInputRef.current?.click(); setOpenMenu(null); }} className={menuItemClass}>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-                    <span>导入 Markdown</span>
-                  </button>
-                  <div className="border-t border-gray-100 my-1"></div>
-                  <button
-                    onClick={() => { onExport(); setOpenMenu(null); }}
-                    disabled={isExporting}
-                    className={`${menuItemClass} ${isExporting ? 'text-gray-400' : ''}`}
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
-                    <span>{isExporting ? '导出中...' : '导出为 Word'}</span>
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* 视图菜单 */}
-            <div className="relative">
-              <button
-                onClick={() => setOpenMenu(openMenu === 'edit' ? null : 'edit')}
-                className={`px-3 py-1 rounded hover:bg-gray-100 ${openMenu === 'edit' ? 'bg-gray-100' : ''}`}
-              >
-                视图(V)
-              </button>
-              {openMenu === 'edit' && (
-                <div className="absolute top-full left-0 mt-0.5 w-36 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-50">
-                  {(['editor', 'split', 'preview'] as const).map(mode => (
-                    <button
-                      key={mode}
-                      onClick={() => { onViewModeChange(mode); setOpenMenu(null); }}
-                      className={`${menuItemClass} ${viewMode === mode ? 'bg-brand-50 text-brand-700' : ''}`}
-                    >
-                      {viewMode === mode && (
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
-                      )}
-                      {viewMode !== mode && <span className="w-4"></span>}
-                      <span>{{ editor: '仅编辑器', split: '双栏视图', preview: '仅预览' }[mode]}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* 分隔符 */}
-            <div className="h-4 w-px bg-gray-200 mx-1"></div>
-
-            {/* Ribbon 选项卡 */}
-            {(['home', 'layout'] as const).map(tab => (
+            {/* 功能栏切换按钮 */}
+            {(['file', 'view', 'home', 'layout'] as const).map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`px-3 py-1 text-xs font-medium rounded transition-colors ${activeTab === tab
-                  ? 'bg-brand-50 text-brand-600'
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                  ? 'bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700'
                   }`}
               >
-                {{ home: '开始', layout: '布局' }[tab]}
+                {{ file: '文件', view: '视图', home: '开始', layout: '布局' }[tab]}
               </button>
             ))}
           </div>
 
-          {/* 点击外部关闭菜单 */}
+          {/* 点击外部关闭菜单 - 保留用于颜色选择器等 */}
           {openMenu && (
             <div className="fixed inset-0 z-40" onClick={() => setOpenMenu(null)}></div>
           )}
@@ -223,7 +167,7 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
           <button
             type="button"
             onClick={() => void runWindowAction('minimize')}
-            className="w-10 grid place-items-center text-gray-600 hover:bg-gray-100 active:bg-gray-200 transition-colors"
+            className="w-12 grid place-items-center text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 active:bg-gray-200 dark:active:bg-gray-600 transition-colors"
             aria-label="最小化"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
@@ -233,7 +177,7 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
           <button
             type="button"
             onClick={() => void runWindowAction('toggleMaximize')}
-            className="w-10 grid place-items-center text-gray-600 hover:bg-gray-100 active:bg-gray-200 transition-colors"
+            className="w-12 grid place-items-center text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 active:bg-gray-200 dark:active:bg-gray-600 transition-colors"
             aria-label="最大化/还原"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
@@ -243,7 +187,7 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
           <button
             type="button"
             onClick={() => void runWindowAction('close')}
-            className="w-10 grid place-items-center text-gray-600 hover:bg-red-500 hover:text-white active:bg-red-600 transition-colors"
+            className="w-12 grid place-items-center text-gray-600 dark:text-gray-400 hover:bg-red-500 hover:text-white active:bg-red-600 transition-colors"
             aria-label="关闭"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
@@ -254,20 +198,84 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
       </div>
 
 
+
       {/* Ribbon Content - Compact Layout */}
-      <div className="h-14 bg-gray-50 flex items-center px-2 py-1 gap-2 flex-nowrap">
+      <div className="h-14 bg-white dark:bg-dark-bg flex items-center px-2 py-1 gap-2 flex-nowrap transition-colors duration-200">
+
+        {/* 文件操作 */}
+        {activeTab === 'file' && (
+          <div className="flex items-center gap-2 h-full animate-slide-in-left">
+            <button
+              onClick={() => onImport('')}
+              className={`${btnClass} gap-1.5`}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+              <span className="text-xs">新建</span>
+            </button>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className={`${btnClass} gap-1.5`}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+              <span className="text-xs">导入</span>
+            </button>
+            <button
+              onClick={onExport}
+              disabled={isExporting}
+              className={`${btnClass} gap-1.5 ${isExporting ? 'opacity-50' : ''}`}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
+              <span className="text-xs">{isExporting ? '导出中...' : '导出 Word'}</span>
+            </button>
+          </div>
+        )}
+
+        {/* 视图切换 */}
+        {activeTab === 'view' && (
+          <div className="flex items-center gap-2 h-full animate-slide-in-left">
+            {(['editor', 'split', 'preview'] as const).map(mode => (
+              <button
+                key={mode}
+                onClick={() => onViewModeChange(mode)}
+                className={`${btnClass} gap-1.5 ${viewMode === mode ? btnActiveClass : ''}`}
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 16 16">
+                  {mode === 'editor' && <path d="M2 2h12v12H2zm1 1v10h10V3z" />}
+                  {mode === 'split' && <path d="M2 2h12v12H2zm1 1v10h4V3zm5 0v10h4V3z" />}
+                  {mode === 'preview' && <path d="M2 2h12v12H2zm1 1v10h10V3zm2 2h6v1H5zm0 2h6v1H5zm0 2h4v1H5z" />}
+                </svg>
+                <span className="text-xs">{{ editor: '编辑器', split: '双栏', preview: '预览' }[mode]}</span>
+              </button>
+            ))}
+            
+            <div className="w-px h-6 bg-gray-200 mx-1"></div>
+            
+            <button
+              onClick={() => onThemeChange(theme === 'dark' ? 'light' : 'dark')}
+              className={`${btnClass} gap-1.5`}
+              title={theme === 'dark' ? '切换到浅色模式' : '切换到深色模式'}
+            >
+              {theme === 'dark' ? (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+              )}
+              <span className="text-xs">{theme === 'dark' ? '浅色' : '深色'}</span>
+            </button>
+          </div>
+        )}
 
         {activeTab === 'home' && (
-          <>
+          <div className="flex items-center gap-2 h-full animate-slide-in-left">
             {/* Style Selector */}
-            <div className="flex items-center gap-1 pr-2 border-r border-gray-200">
+            <div className="flex items-center gap-1 pr-2 border-r border-gray-200 dark:border-dark-border">
               {(['body', 'h1', 'h2', 'h3', 'code', 'quote'] as const).map(s => (
                 <button
                   key={s}
                   onClick={() => setActiveStyle(s)}
                   className={`px-1.5 py-0.5 text-[11px] rounded transition-colors ${activeStyle === s
-                    ? 'bg-brand-100 text-brand-700'
-                    : 'text-gray-600 hover:bg-gray-100'
+                    ? 'bg-brand-100 dark:bg-brand-900 text-brand-700 dark:text-brand-300'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-surface'
                     }`}
                 >
                   {{ body: '正文', h1: 'H1', h2: 'H2', h3: 'H3', code: '代码', quote: '引用' }[s]}
@@ -299,16 +307,19 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
             <div className="relative">
               <button
                 onClick={() => setShowColorPicker(!showColorPicker)}
-                className="w-7 h-7 rounded border border-gray-300 cursor-pointer p-0.5 flex items-center justify-center hover:border-gray-400"
+                className="w-7 h-7 rounded border border-gray-300 dark:border-dark-border cursor-pointer p-0.5 flex items-center justify-center hover:border-gray-400 dark:hover:border-gray-500"
                 title="字体颜色"
               >
-                <div className="w-full h-full rounded-sm" style={{ backgroundColor: currentStyle.color }}></div>
+                <div className="flex flex-col items-center justify-center h-full w-full">
+                  <span className="font-sans text-lg leading-none translate-y-[-1px]" style={{ color: 'currentColor' }}>A</span>
+                  <div className="h-[3px] w-3.5 rounded-sm translate-y-[-2px]" style={{ backgroundColor: currentStyle.color || '#000000' }}></div>
+                </div>
               </button>
               {showColorPicker && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setShowColorPicker(false)}></div>
-                  <div className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 p-2 z-50 w-56">
-                    <div className="text-[10px] text-gray-500 mb-1">主题颜色</div>
+                  <div className="absolute top-full left-0 mt-1 bg-white dark:bg-dark-surface rounded-lg shadow-lg border border-gray-200 dark:border-dark-border p-2 z-50 w-56 animate-menu-in">
+                    <div className="text-[10px] text-gray-500 dark:text-gray-400 mb-1">主题颜色</div>
                     <div className="space-y-0.5">
                       {THEME_COLORS.map((row, rowIndex) => (
                         <div key={rowIndex} className="flex gap-0.5">
@@ -316,7 +327,7 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
                             <button
                               key={color}
                               onClick={() => { updateStyle({ color }); setShowColorPicker(false); }}
-                              className="w-5 h-5 rounded-sm border border-gray-200 hover:border-gray-400 hover:scale-110 transition-transform"
+                              className="w-5 h-5 rounded-sm border border-gray-200 dark:border-dark-border hover:border-gray-400 dark:hover:border-gray-400 hover:scale-110 transition-transform"
                               style={{ backgroundColor: color }}
                               title={color}
                             />
@@ -324,20 +335,20 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
                         </div>
                       ))}
                     </div>
-                    <div className="text-[10px] text-gray-500 mt-2 mb-1">标准色</div>
+                    <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-2 mb-1">标准色</div>
                     <div className="flex gap-0.5">
                       {STANDARD_COLORS.map((color) => (
                         <button
                           key={color}
                           onClick={() => { updateStyle({ color }); setShowColorPicker(false); }}
-                          className="w-5 h-5 rounded-sm border border-gray-200 hover:border-gray-400 hover:scale-110 transition-transform"
+                          className="w-5 h-5 rounded-sm border border-gray-200 dark:border-dark-border hover:border-gray-400 dark:hover:border-gray-400 hover:scale-110 transition-transform"
                           style={{ backgroundColor: color }}
                           title={color}
                         />
                       ))}
                     </div>
-                    <div className="border-t border-gray-100 mt-2 pt-2">
-                      <label className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer hover:text-gray-900">
+                    <div className="border-t border-gray-100 dark:border-dark-border mt-2 pt-2">
+                      <label className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300 cursor-pointer hover:text-gray-900 dark:hover:text-gray-100">
                         <input
                           type="color"
                           value={currentStyle.color}
@@ -356,24 +367,27 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
             <div className="relative">
               <button
                 onClick={() => setShowBgColorPicker(!showBgColorPicker)}
-                className="w-7 h-7 rounded border border-gray-300 cursor-pointer p-0.5 flex items-center justify-center hover:border-gray-400"
+                className="w-7 h-7 rounded border border-gray-300 dark:border-dark-border cursor-pointer p-0.5 flex items-center justify-center hover:border-gray-400 dark:hover:border-gray-500"
                 title="背景颜色"
               >
-                <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                <div 
+                  className="w-full h-full flex items-center justify-center rounded-sm"
+                  style={{ backgroundColor: currentStyle.backgroundColor || undefined }}
+                >
                   {currentStyle.backgroundColor ? (
-                    <div className="w-4 h-4 rounded-sm shadow-sm" style={{ backgroundColor: currentStyle.backgroundColor }}></div>
+                     <Palette className="w-4 h-4 text-black/20 dark:text-white/20" />
                   ) : (
-                    <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
-                    </svg>
+                    <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-dark-surface rounded-sm">
+                      <Palette className="w-5 h-5 text-gray-400" />
+                    </div>
                   )}
                 </div>
               </button>
               {showBgColorPicker && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setShowBgColorPicker(false)}></div>
-                  <div className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 p-2 z-50 w-56">
-                    <div className="text-[10px] text-gray-500 mb-1">背景颜色</div>
+                  <div className="absolute top-full left-0 mt-1 bg-white dark:bg-dark-surface rounded-lg shadow-lg border border-gray-200 dark:border-dark-border p-2 z-50 w-56 animate-menu-in">
+                    <div className="text-[10px] text-gray-500 dark:text-gray-400 mb-1">背景颜色</div>
                     {/* Theme Colors - same as text but for background */}
                     <div className="space-y-0.5">
                       {THEME_COLORS.map((row, rowIndex) => (
@@ -382,7 +396,7 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
                             <button
                               key={color}
                               onClick={() => { updateStyle({ backgroundColor: color }); setShowBgColorPicker(false); }}
-                              className="w-5 h-5 rounded-sm border border-gray-200 hover:border-gray-400 hover:scale-110 transition-transform"
+                              className="w-5 h-5 rounded-sm border border-gray-200 dark:border-dark-border hover:border-gray-400 dark:hover:border-gray-400 hover:scale-110 transition-transform"
                               style={{ backgroundColor: color }}
                               title={color}
                             />
@@ -390,8 +404,8 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
                         </div>
                       ))}
                     </div>
-                    <div className="border-t border-gray-100 mt-2 pt-2 flex items-center justify-between">
-                      <label className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer hover:text-gray-900">
+                    <div className="border-t border-gray-100 dark:border-dark-border mt-2 pt-2 flex items-center justify-between">
+                      <label className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300 cursor-pointer hover:text-gray-900 dark:hover:text-gray-100">
                         <input
                           type="color"
                           value={currentStyle.backgroundColor || '#ffffff'}
@@ -404,7 +418,7 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
                         onClick={() => { updateStyle({ backgroundColor: undefined }); setShowBgColorPicker(false); }}
                         className="text-xs text-red-500 hover:text-red-700 px-2 py-0.5 rounded hover:bg-red-50"
                       >
-                        无填充
+                        无颜色
                       </button>
                     </div>
                   </div>
@@ -438,22 +452,36 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
                 className={`${btnClass} w-7 h-7 ${currentStyle.alignment === align ? btnActiveClass : ''}`}
                 title={{ left: '左对齐', center: '居中', right: '右对齐', justify: '两端对齐' }[align]}
               >
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 16 16">
-                  {align === 'left' && <path d="M2 3h12v1H2zm0 3h8v1H2zm0 3h10v1H2zm0 3h6v1H2z" />}
-                  {align === 'center' && <path d="M2 3h12v1H2zm2 3h8v1H4zm1 3h6v1H5zm2 3h2v1H7z" />}
-                  {align === 'right' && <path d="M2 3h12v1H2zm4 3h8v1H6zm2 3h6v1H8zm4 3h2v1h-2z" />}
-                  {align === 'justify' && <path d="M2 3h12v1H2zm0 3h12v1H2zm0 3h12v1H2zm0 3h12v1H2z" />}
-                </svg>
+                {align === 'left' && (
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h10M4 18h14" />
+                  </svg>
+                )}
+                {align === 'center' && (
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M7 12h10M5 18h14" />
+                  </svg>
+                )}
+                {align === 'right' && (
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M10 12h10M6 18h14" />
+                  </svg>
+                )}
+                {align === 'justify' && (
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                )}
               </button>
             ))}
-          </>
+          </div>
         )}
 
         {activeTab === 'layout' && (
-          <>
+          <div className="flex items-center gap-2 h-full animate-slide-in-left">
             {/* Page Margin */}
-            <div className="flex items-center gap-1 pr-2 border-r border-gray-200">
-              <span className="text-[10px] text-gray-500">页边距</span>
+            <div className="flex items-center gap-1 pr-2 border-r border-gray-200 dark:border-gray-700">
+              <span className="text-[10px] text-gray-500 dark:text-gray-400">页边距</span>
               <input
                 type="number"
                 step="0.1"
@@ -461,12 +489,12 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
                 value={cfg.global.pageMargin}
                 onChange={(e) => onCfgChange({ ...cfg, global: { ...cfg.global, pageMargin: Number(e.target.value) } })}
               />
-              <span className="text-[10px] text-gray-500">英寸</span>
+              <span className="text-[10px] text-gray-500 dark:text-gray-400">英寸</span>
             </div>
 
             {/* English/Number Font Setting */}
-            <div className="flex items-center gap-1 pr-2 border-r border-gray-200">
-              <span className="text-[10px] text-gray-500">英文/数字字体</span>
+            <div className="flex items-center gap-1 pr-2 border-r border-gray-200 dark:border-gray-700">
+              <span className="text-[10px] text-gray-500 dark:text-gray-400">英文/数字字体</span>
               <select
                 className={`${selectClass} w-48`}
                 value={cfg.global.baseFontEn}
@@ -478,13 +506,13 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
             </div>
 
             {/* Line Spacing - for current style */}
-            <div className="flex items-center gap-1 border-r border-gray-200 pr-2 mr-2">
-              <span className="text-[10px] text-gray-500">行距</span>
-              <div className="flex items-center border border-gray-300 rounded bg-white overflow-hidden h-7">
+            <div className="flex items-center gap-1 border-r border-gray-200 dark:border-gray-700 pr-2 mr-2">
+              <span className="text-[10px] text-gray-500 dark:text-gray-400">行距</span>
+              <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 overflow-hidden h-7">
                 <input
                   type="number"
                   step="0.1"
-                  className="w-12 text-xs border-0 p-1 text-center focus:ring-0 outline-none h-full"
+                  className="w-12 text-xs border-0 p-1 text-center focus:ring-0 outline-none h-full bg-transparent dark:text-gray-100"
                   value={(() => {
                     const val = currentStyle.lineSpacing;
                     if (typeof val === 'string' && val.endsWith('pt')) {
@@ -502,7 +530,7 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
                   title="行距值"
                 />
                 <select
-                  className="text-[10px] border-l border-gray-200 bg-gray-50 h-full px-1 focus:outline-none cursor-pointer hover:bg-gray-100"
+                  className="text-[10px] border-l border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-600 h-full px-1 focus:outline-none cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-500 dark:text-gray-200"
                   value={typeof currentStyle.lineSpacing === 'string' && currentStyle.lineSpacing.endsWith('pt') ? 'pt' : 'times'}
                   onChange={(e) => {
                     const newUnit = e.target.value;
@@ -541,9 +569,9 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
 
             {/* Indent */}
             <div className="flex items-center gap-1">
-              <span className="text-[10px] text-gray-500">首行缩进</span>
+              <span className="text-[10px] text-gray-500 dark:text-gray-400">首行缩进</span>
               <select
-                className={`${selectClass} w-16`}
+                className={`${selectClass} w-24`}
                 value={currentStyle.firstLineIndent}
                 onChange={(e) => updateStyle({ firstLineIndent: Number(e.target.value) })}
               >
@@ -556,9 +584,9 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
 
             {/* Spacing Before/After */}
             <div className="flex items-center gap-1">
-              <span className="text-[10px] text-gray-500">段前</span>
+              <span className="text-[10px] text-gray-500 dark:text-gray-400">段前</span>
               <select
-                className={`${selectClass} w-14`}
+                className={`${selectClass} w-20`}
                 value={currentStyle.spaceBefore}
                 onChange={(e) => updateStyle({ spaceBefore: Number(e.target.value) })}
               >
@@ -570,9 +598,9 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
               </select>
             </div>
             <div className="flex items-center gap-1">
-              <span className="text-[10px] text-gray-500">段后</span>
+              <span className="text-[10px] text-gray-500 dark:text-gray-400">段后</span>
               <select
-                className={`${selectClass} w-14`}
+                className={`${selectClass} w-20`}
                 value={currentStyle.spaceAfter}
                 onChange={(e) => updateStyle({ spaceAfter: Number(e.target.value) })}
               >
@@ -583,7 +611,7 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
                 <option value={18}>18 磅</option>
               </select>
             </div>
-          </>
+          </div>
         )}
       </div>
     </div>

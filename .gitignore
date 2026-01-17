@@ -80,6 +80,7 @@ Desktop.ini
 # ======== 测试输出 ========
 test_output*.docx
 *.test.docx
+*.docx
 
 # ======== 临时文件 ========
 logo_1024.png

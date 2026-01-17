@@ -29,6 +29,8 @@ export interface HeaderProps {
   onImport: (content: string) => void; // 新增导入回调
   viewMode: ViewMode;
   onViewModeChange: (mode: ViewMode) => void;
+  theme: 'light' | 'dark';
+  onThemeChange: (theme: 'light' | 'dark') => void;
   cfg: import('./interfaces/Config').DocumentConfig;
   onCfgChange: (next: import('./interfaces/Config').DocumentConfig) => void;
 }

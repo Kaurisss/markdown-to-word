@@ -49,7 +49,7 @@ export const DEFAULT_CONFIG: DocumentConfig = {
       color: '#000000',
       bold: false,
       italic: false,
-      lineSpacing: 1.6,
+      lineSpacing: 1.5,
       spaceBefore: 0,
       spaceAfter: 8,
       alignment: 'left',
