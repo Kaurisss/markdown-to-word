@@ -283,6 +283,7 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
               ))}
             </div>
 
+            <div key={activeStyle} className="flex items-center gap-2 h-full animate-slide-in-left">
             {/* Font Family */}
             <select
               className={`${selectClass} w-48`}
@@ -458,6 +459,7 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
                 {align === 'justify' && <AlignJustify className="w-5 h-5" strokeWidth={2} />}
               </button>
             ))}
+            </div>
           </div>
         )}
 
