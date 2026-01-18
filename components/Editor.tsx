@@ -4,8 +4,8 @@ import { EditorProps } from '../types';
 const Editor = forwardRef<HTMLTextAreaElement, EditorProps>(({ value, onChange }, ref) => {
   return (
     <div className="flex flex-col h-full bg-white dark:bg-dark-bg relative group transition-colors duration-200">
-      {/* Subtle indicator for active focus or just decoration */}
-      <div className="absolute top-0 left-0 w-1 h-full bg-brand-500 opacity-0 transition-opacity duration-300 group-focus-within:opacity-100"></div>
+      {/* Subtle indicator for active focus or just decoration - Removed as requested */}
+
 
       <textarea
         ref={ref}

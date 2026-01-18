@@ -295,7 +295,7 @@ def load_config(args) -> Dict[str, Any]:
         "global": {
             "pageMargin": 1.0,
             "baseFontCn": "SimSun",
-            "baseFontEn": "Times New Roman",
+            "baseFontEn": "",
         },
         "styles": {
             "h1": {"fontSize": 24, "color": "#1F2937", "bold": True, "italic": False, "lineSpacing": 1.2, "spaceBefore": 12, "spaceAfter": 6, "alignment": "left", "firstLineIndent": 0},
@@ -484,14 +484,19 @@ def add_quote(doc: Document, text: str, conf: Dict[str, Any]) -> None:
 
 
 def add_list_item(doc: Document, text: str, ordered: bool, conf: Dict[str, Any]) -> None:
-    style = conf["styles"]["body"]
+    style = conf["styles"]["body"].copy()
+    # Reset first line indent for list items to avoid double indentation
+    style["firstLineIndent"] = 0
+    
     p = doc.add_paragraph()
     apply_paragraph_fmt(p, style)
+    
     # 使用内置样式简化项目符号/编号
     try:
         p.style = "List Number" if ordered else "List Bullet"
     except Exception:
         pass
+    
     code_style = conf["styles"].get("code", {})
     add_formatted_runs(p, text, style, conf["global"], code_style)
 
@@ -649,19 +654,27 @@ def add_table(doc: Document, table_data: list[list[str]], conf: Dict[str, Any], 
             if row_idx == 0:
                 _set_cell_shading(cell, "E5E7EB")  # Light gray background
             
-            # Add text to cell
+            # Add text to cell with inline formatting support
             paragraph = cell.paragraphs[0]
-            run = paragraph.add_run(cell_text)
-            apply_run_fmt(run, style, global_conf)
+            
+            # Apply base style to paragraph, but without first line indent for table cells
+            table_style = style.copy()
+            table_style["firstLineIndent"] = 0
+            apply_paragraph_fmt(paragraph, table_style)
+            
+            # Use add_formatted_runs to support inline formatting like **bold**
+            code_style = conf["styles"].get("code", {})
+            add_formatted_runs(paragraph, cell_text, table_style, global_conf, code_style)
 
             if alignments and col_idx < len(alignments):
                 align = _get_alignment(alignments[col_idx])
                 if align is not None:
                     paragraph.alignment = align
             
-            # Bold for header row
+            # Bold for header row - apply to all runs
             if row_idx == 0:
-                run.bold = True
+                for run in paragraph.runs:
+                    run.bold = True
 
 
 def set_page_margins(doc: Document, margin_inch: float) -> None:

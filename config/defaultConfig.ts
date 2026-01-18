@@ -4,7 +4,7 @@ export const DEFAULT_CONFIG: DocumentConfig = {
   global: {
     pageMargin: 1.0,
     baseFontCn: 'SimSun',
-    baseFontEn: 'Times New Roman',
+    baseFontEn: '',
   },
   styles: {
     h1: {
