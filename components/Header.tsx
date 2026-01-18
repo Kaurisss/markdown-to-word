@@ -1,7 +1,7 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { HeaderProps } from '../types';
 import { ElementStyle } from '../interfaces/Config';
-import { Palette } from 'lucide-react';
+import { Palette, AlignLeft, AlignCenter, AlignRight, AlignJustify } from 'lucide-react';
 
 // Word 风格字号
 const FONT_SIZES: { label: string; value: number }[] = [
@@ -310,9 +310,9 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
                 className="w-7 h-7 rounded border border-gray-300 dark:border-dark-border cursor-pointer p-0.5 flex items-center justify-center hover:border-gray-400 dark:hover:border-gray-500"
                 title="字体颜色"
               >
-                <div className="flex flex-col items-center justify-center h-full w-full">
-                  <span className="font-sans text-lg leading-none translate-y-[-1px]" style={{ color: 'currentColor' }}>A</span>
-                  <div className="h-[3px] w-3.5 rounded-sm translate-y-[-2px]" style={{ backgroundColor: currentStyle.color || '#000000' }}></div>
+                <div className="flex flex-col items-center justify-center">
+                  <span className="font-sans text-base font-medium leading-none" style={{ color: 'currentColor' }}>A</span>
+                  <div className="h-[3px] w-3.5 rounded-sm mt-[1px]" style={{ backgroundColor: currentStyle.color || '#000000' }}></div>
                 </div>
               </button>
               {showColorPicker && (
@@ -378,7 +378,7 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
                      <Palette className="w-4 h-4 text-black/20 dark:text-white/20" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-dark-surface rounded-sm">
-                      <Palette className="w-5 h-5 text-gray-400" />
+                      <Palette className="w-4 h-4 text-gray-400" />
                     </div>
                   )}
                 </div>
@@ -452,26 +452,10 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
                 className={`${btnClass} w-7 h-7 ${currentStyle.alignment === align ? btnActiveClass : ''}`}
                 title={{ left: '左对齐', center: '居中', right: '右对齐', justify: '两端对齐' }[align]}
               >
-                {align === 'left' && (
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h10M4 18h14" />
-                  </svg>
-                )}
-                {align === 'center' && (
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M7 12h10M5 18h14" />
-                  </svg>
-                )}
-                {align === 'right' && (
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M10 12h10M6 18h14" />
-                  </svg>
-                )}
-                {align === 'justify' && (
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
-                )}
+                {align === 'left' && <AlignLeft className="w-5 h-5" strokeWidth={2} />}
+                {align === 'center' && <AlignCenter className="w-5 h-5" strokeWidth={2} />}
+                {align === 'right' && <AlignRight className="w-5 h-5" strokeWidth={2} />}
+                {align === 'justify' && <AlignJustify className="w-5 h-5" strokeWidth={2} />}
               </button>
             ))}
           </div>
