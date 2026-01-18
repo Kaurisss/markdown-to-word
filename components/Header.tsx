@@ -92,8 +92,34 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
   const [openMenu, setOpenMenu] = useState<'file' | 'edit' | null>(null);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showBgColorPicker, setShowBgColorPicker] = useState(false);
+  const [isMaximized, setIsMaximized] = useState(false);
 
   const menuItemClass = "w-full text-left px-3 py-1.5 text-xs hover:bg-gray-100 flex items-center space-x-2";
+
+  React.useEffect(() => {
+    let unlisten: (() => void) | undefined;
+
+    const setupWindowListener = async () => {
+      try {
+        const { getCurrentWindow } = await import('@tauri-apps/api/window');
+        const win = getCurrentWindow();
+
+        setIsMaximized(await win.isMaximized());
+
+        unlisten = await win.listen('tauri://resize', async () => {
+          setIsMaximized(await win.isMaximized());
+        });
+      } catch (e) {
+        console.error('Failed to setup window listener:', e);
+      }
+    };
+
+    setupWindowListener();
+
+    return () => {
+      if (unlisten) unlisten();
+    };
+  }, []);
 
   const runWindowAction = useCallback(async (action: 'minimize' | 'toggleMaximize' | 'close') => {
     console.log('Window action triggered:', action);
@@ -178,11 +204,18 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
             type="button"
             onClick={() => void runWindowAction('toggleMaximize')}
             className="w-12 grid place-items-center text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 active:bg-gray-200 dark:active:bg-gray-600 transition-colors"
-            aria-label="最大化/还原"
+            aria-label={isMaximized ? "还原" : "最大化"}
           >
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M4 4h16v16H4zm2 4v10h12V8z" />
-            </svg>
+            {isMaximized ? (
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M8 8V4H20V16H16" />
+                <rect x="4" y="8" width="12" height="12" />
+              </svg>
+            ) : (
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M4 4h16v16H4zm2 4v10h12V8z" />
+              </svg>
+            )}
           </button>
           <button
             type="button"
