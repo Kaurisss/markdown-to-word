@@ -41,4 +41,5 @@ export interface HeaderProps {
   cfg: import('./interfaces/Config').DocumentConfig;
   onCfgChange: (next: import('./interfaces/Config').DocumentConfig) => void;
   onSearchClick?: () => void; // 新增搜索回调
+  onShowToast?: (message: string, type?: 'success' | 'error' | 'info') => void;
 }

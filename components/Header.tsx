@@ -9,7 +9,19 @@ import { HomeTab } from './header/tabs/HomeTab';
 import { LayoutTab } from './header/tabs/LayoutTab';
 import { AITab } from './header/tabs/AITab';
 
-const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMode, onViewModeChange, theme, onThemeChange, cfg, onCfgChange, onSearchClick }) => {
+const Header: React.FC<HeaderProps> = ({ 
+  isExporting, 
+  onExport, 
+  onImport, 
+  viewMode, 
+  onViewModeChange, 
+  theme, 
+  onThemeChange, 
+  cfg, 
+  onCfgChange, 
+  onSearchClick, 
+  onShowToast 
+}) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const [activeStyle, setActiveStyle] = useState<'body' | 'h1' | 'h2' | 'h3' | 'code' | 'quote'>('body');
@@ -93,7 +105,10 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
           <AITab 
             aiProviders={aiProviders} 
             selectedModel={selectedModel} 
-            setShowAIConfig={setShowAIConfig} 
+            setShowAIConfig={setShowAIConfig}
+            cfg={cfg}
+            onCfgChange={onCfgChange}
+            onShowToast={onShowToast}
           />
         )}
       </div>

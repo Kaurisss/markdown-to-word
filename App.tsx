@@ -3,6 +3,7 @@ import Header from './components/Header';
 import Editor from './components/Editor';
 import Preview from './components/Preview';
 import SearchPopover from './components/SearchPopover';
+import Toast, { ToastType } from './components/Toast';
 import { StatusBar } from './components/StatusBar';
 import { save as saveDialog } from '@tauri-apps/plugin-dialog';
 import { DEFAULT_MARKDOWN } from './constants';
@@ -24,6 +25,15 @@ const App: React.FC = () => {
   const [caseSensitive, setCaseSensitive] = useState<boolean>(false);
   const [wholeWord, setWholeWord] = useState<boolean>(false);
   const [useRegex, setUseRegex] = useState<boolean>(false);
+  const [toast, setToast] = useState<{ message: string; type: ToastType; visible: boolean }>({
+    message: '',
+    type: 'success',
+    visible: false
+  });
+
+  const showToast = useCallback((message: string, type: ToastType = 'success') => {
+    setToast({ message, type, visible: true });
+  }, []);
 
   const closeSearch = useCallback(() => {
     setShowSearch(false);
@@ -113,12 +123,14 @@ const App: React.FC = () => {
       if (!result.success) {
         const errorMessage = formatErrorMessage(result);
         console.error("导出失败:", errorMessage);
-        alert(errorMessage);
+        showToast(errorMessage, 'error');
+      } else {
+        showToast("生成成功！文档已保存。");
       }
 
     } catch (error) {
       console.error("导出失败:", error);
-      alert("导出过程中发生错误，请检查控制台详情。");
+      showToast("导出过程中发生错误，请检查控制台详情。", 'error');
     } finally {
       setIsExporting(false);
     }
@@ -185,6 +197,7 @@ const App: React.FC = () => {
         cfg={cfg}
         onCfgChange={setCfg}
         onSearchClick={() => setShowSearch(true)}
+        onShowToast={showToast}
       />
 
       <main className="flex-1 flex flex-row overflow-hidden relative">
@@ -231,6 +244,14 @@ const App: React.FC = () => {
       </main>
 
       <StatusBar content={content} onSearchClick={() => setShowSearch(true)} />
+      
+      {toast.visible && (
+        <Toast 
+          message={toast.message} 
+          type={toast.type} 
+          onClose={() => setToast(prev => ({ ...prev, visible: false }))} 
+        />
+      )}
     </div>
   );
 };
