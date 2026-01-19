@@ -17,6 +17,7 @@ export interface DocumentConfig {
     pageMargin: number;
     baseFontCn: string;
     baseFontEn: string;
+    horizontalRule: 'default' | 'page_break' | 'hidden';
   };
   styles: {
     h1: ElementStyle;

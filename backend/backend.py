@@ -510,8 +510,18 @@ def add_code_block(doc: Document, lines: list[str], conf: Dict[str, Any]) -> Non
         apply_run_fmt(run, style, conf["global"])
 
 
-def add_horizontal_rule(doc: Document) -> None:
+def add_horizontal_rule(doc: Document, conf: Dict[str, Any]) -> None:
     """Add a horizontal rule (line divider) to the document."""
+    mode = conf.get("global", {}).get("horizontalRule", "default")
+    
+    if mode == "hidden":
+        return
+        
+    if mode == "page_break":
+        doc.add_page_break()
+        return
+
+    # Default behavior: Add horizontal line
     p = doc.add_paragraph()
     p.paragraph_format.space_before = Pt(6)
     p.paragraph_format.space_after = Pt(6)
@@ -832,7 +842,7 @@ def convert(input_path: str, output_path: str, conf: Dict[str, Any]) -> None:
             continue
         # Horizontal rule: ---, ***, ___
         if re.match(r"^\s*([-*_])\s*\1\s*\1\s*$", line.strip()):
-            add_horizontal_rule(doc)
+            add_horizontal_rule(doc, conf)
             i += 1
             continue
         if line.strip() == "":

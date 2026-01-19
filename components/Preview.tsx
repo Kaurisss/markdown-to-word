@@ -119,6 +119,64 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
                   h4: (props) => <h4 {...props} style={{ ...h3Style, textIndent: undefined }} />,
                   h5: (props) => <h5 {...props} style={{ ...h3Style, textIndent: undefined }} />,
                   h6: (props) => <h6 {...props} style={{ ...h3Style, textIndent: undefined }} />,
+                  a: ({ href, onClick, ...props }) => {
+                    const safeHref = typeof href === 'string' ? href : '';
+                    const handleClick: React.MouseEventHandler<HTMLAnchorElement> = async (e) => {
+                      onClick?.(e);
+
+                      // For in-page anchors, keep default behavior.
+                      if (!safeHref || safeHref.startsWith('#')) return;
+
+                      // Prevent navigating inside the preview webview (otherwise user can't go back).
+                      e.preventDefault();
+                      e.stopPropagation();
+
+                      // Ask for confirmation before opening external link
+                      let confirmed = false;
+                      try {
+                        const dialog = await import('@tauri-apps/plugin-dialog');
+                        if (typeof dialog.ask === 'function') {
+                          confirmed = await dialog.ask(`是否在浏览器中打开此链接？\n\n${safeHref}`, {
+                            title: '打开外部链接',
+                            kind: 'info',
+                            okLabel: '打开',
+                            cancelLabel: '取消'
+                          });
+                        } else {
+                          // Fallback to browser confirm
+                          confirmed = window.confirm(`是否在浏览器中打开此链接？\n\n${safeHref}`);
+                        }
+                      } catch {
+                        // Not running in Tauri / plugin unavailable
+                        confirmed = window.confirm(`是否在浏览器中打开此链接？\n\n${safeHref}`);
+                      }
+
+                      if (!confirmed) return;
+
+                      // Open in system default browser (Tauri) or new tab (browser)
+                      try {
+                        const shell = await import('@tauri-apps/plugin-shell');
+                        if (typeof shell.open === 'function') {
+                          await shell.open(safeHref);
+                          return;
+                        }
+                      } catch {
+                        // Not running in Tauri / plugin unavailable.
+                      }
+
+                      window.open(safeHref, '_blank', 'noopener,noreferrer');
+                    };
+
+                    return (
+                      <a
+                        {...props}
+                        href={safeHref}
+                        onClick={handleClick}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      />
+                    );
+                  },
                   p: ({ children, ...props }) => {
                     const firstChild = Array.isArray(children) ? children[0] : children;
                     const isTextStart = typeof firstChild === 'string';
@@ -173,6 +231,22 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
                     );
                   },
                   pre: (props) => <pre {...props} style={codeBlockStyle} />,
+                  hr: (props) => {
+                    const mode = cfg.global.horizontalRule || 'default';
+                    if (mode === 'hidden') return null;
+                    if (mode === 'page_break') {
+                      return (
+                        <div
+                          {...props}
+                          className="my-8 border-t border-dashed border-brand-300 relative h-0 select-none print:break-before-page"
+                          title="此处将插入分页符"
+                        >
+                          <span className="absolute left-1/2 -top-2.5 -translate-x-1/2 bg-white dark:bg-dark-bg px-2 text-[10px] text-brand-400 font-mono tracking-widest uppercase">换页符</span>
+                        </div>
+                      );
+                    }
+                    return <hr {...props} className="my-6 border-t border-gray-300" />;
+                  },
                   table: (props) => <table {...props} style={{ width: '100%', borderCollapse: 'collapse' }} />,
                   thead: (props) => <thead {...props} />,
                   tbody: (props) => <tbody {...props} />,

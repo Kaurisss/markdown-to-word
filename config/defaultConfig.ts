@@ -5,6 +5,7 @@ export const DEFAULT_CONFIG: DocumentConfig = {
     pageMargin: 1.0,
     baseFontCn: 'SimSun',
     baseFontEn: '',
+    horizontalRule: 'default',
   },
   styles: {
     h1: {

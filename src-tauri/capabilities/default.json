@@ -16,6 +16,7 @@
     "core:window:allow-toggle-maximize",
     "core:window:allow-close",
     "dialog:default",
+    "shell:allow-open",
     "fs:default",
     "fs:allow-appcache-read",
     "fs:allow-appcache-read-recursive",

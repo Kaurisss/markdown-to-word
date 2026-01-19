@@ -264,8 +264,8 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
                 <rect x="4" y="8" width="12" height="12" />
               </svg>
             ) : (
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M4 4h16v16H4zm2 4v10h12V8z" />
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="5" y="5" width="14" height="14" />
               </svg>
             )}
           </button>
@@ -519,7 +519,7 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
                             onChange={(e) => { updateStyle({ backgroundColor: e.target.value }); }}
                             className="w-5 h-5 rounded border-0 p-0 cursor-pointer"
                           />
-                          <span>选择...</span>
+                          <span>其它颜色...</span>
                         </label>
                         <button
                           onClick={() => { updateStyle({ backgroundColor: undefined }); setShowBgColorPicker(false); }}
@@ -585,6 +585,23 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
                   options={[
                     { label: '跟随中文', value: '' },
                     ...FONTS_EN.map(f => ({ label: FONT_LABELS[f] || f, value: f }))
+                  ]}
+                />
+              </div>
+            </div>
+
+            {/* Horizontal Rule Setup */}
+            <div className={groupClass}>
+              <div className="flex flex-col gap-0.5">
+                <span className={labelClass}>分割线</span>
+                <Select
+                  className="w-24"
+                  value={cfg.global.horizontalRule || 'default'}
+                  onChange={(val) => onCfgChange({ ...cfg, global: { ...cfg.global, horizontalRule: val as any } })}
+                  options={[
+                    { label: '默认', value: 'default' },
+                    { label: '换页', value: 'page_break' },
+                    { label: '隐藏', value: 'hidden' },
                   ]}
                 />
               </div>
@@ -753,6 +770,8 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
         onClose={() => setShowAIConfig(false)}
         providers={aiProviders}
         onUpdateProviders={setAiProviders}
+        currentModel={selectedModel}
+        onSelectModel={setSelectedModel}
       />
     </div>
   );

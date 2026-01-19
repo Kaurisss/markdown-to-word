@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Plus, Play, Trash2, Settings2 } from 'lucide-react';
+import { X, Plus, Play, Trash2, Settings2, Check, Loader2 } from 'lucide-react';
 import { AIProvider, AIModel, DEFAULT_PROVIDERS } from '../interfaces/AI';
 
 interface AIConfigModalProps {
@@ -7,6 +7,14 @@ interface AIConfigModalProps {
   onClose: () => void;
   providers: AIProvider[];
   onUpdateProviders: (providers: AIProvider[]) => void;
+  currentModel?: { providerId: string; modelId: string } | null;
+  onSelectModel: (model: { providerId: string; modelId: string }) => void;
+}
+
+interface TestResult {
+  status: 'success' | 'error';
+  message: string;
+  time?: number;
 }
 
 export const AIConfigModal: React.FC<AIConfigModalProps> = ({
@@ -14,14 +22,123 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
   onClose,
   providers,
   onUpdateProviders,
+  currentModel,
+  onSelectModel,
 }) => {
   const [selectedProviderId, setSelectedProviderId] = useState<string>(providers[0]?.id || '');
   const [showAddPlatform, setShowAddPlatform] = useState(false);
   const [newPlatformName, setNewPlatformName] = useState('');
   const [newPlatformUrl, setNewPlatformUrl] = useState('');
   const [newModelId, setNewModelId] = useState('');
+  
+  const [testingModelId, setTestingModelId] = useState<string | null>(null);
+  const [testResults, setTestResults] = useState<Record<string, TestResult>>({});
+
+  // Animation states
+  const [shouldRender, setShouldRender] = useState(isOpen);
+  const [isClosing, setIsClosing] = useState(false);
+  const [isAddPlatformClosing, setIsAddPlatformClosing] = useState(false);
+
+  React.useEffect(() => {
+    if (isOpen) {
+      setShouldRender(true);
+      setIsClosing(false);
+    } else {
+      setIsClosing(true);
+      const timer = setTimeout(() => {
+        setShouldRender(false);
+        setIsClosing(false);
+      }, 200);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
+  const closeAddPlatform = () => {
+    setIsAddPlatformClosing(true);
+    setTimeout(() => {
+      setShowAddPlatform(false);
+      setIsAddPlatformClosing(false);
+    }, 200);
+  };
 
   const selectedProvider = providers.find(p => p.id === selectedProviderId);
+
+  const handleTestModel = async (modelId: string) => {
+    if (!selectedProvider) return;
+    if (!selectedProvider.apiKey) {
+      setTestResults(prev => ({
+        ...prev,
+        [modelId]: { status: 'error', message: '请先配置 API Key' }
+      }));
+      return;
+    }
+
+    setTestingModelId(modelId);
+    setTestResults(prev => {
+      const next = { ...prev };
+      delete next[modelId];
+      return next;
+    });
+
+    const startTime = Date.now();
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+
+      const response = await fetch(selectedProvider.baseUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${selectedProvider.apiKey}`
+        },
+        body: JSON.stringify({
+          model: modelId,
+          messages: [{ role: 'user', content: 'Say "Test success"' }],
+          max_tokens: 10,
+          stream: false
+        }),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+      const endTime = Date.now();
+      const duration = endTime - startTime;
+
+      if (!response.ok) {
+        let errorMsg = `HTTP ${response.status}`;
+        try {
+          const errorData = await response.json();
+          if (errorData.error?.message) {
+            errorMsg = errorData.error.message;
+          }
+        } catch (e) {
+          // ignore
+        }
+        throw new Error(errorMsg);
+      }
+
+      setTestResults(prev => ({
+        ...prev,
+        [modelId]: {
+          status: 'success',
+          message: '测试成功',
+          time: duration
+        }
+      }));
+
+    } catch (error: any) {
+      setTestResults(prev => ({
+        ...prev,
+        [modelId]: {
+          status: 'error',
+          message: error.message || '连接失败'
+        }
+      }));
+    } finally {
+      setTestingModelId(null);
+    }
+  };
+
 
   const handleToggleProvider = (id: string, checked: boolean) => {
     const updated = providers.map(p => p.id === id ? { ...p, isEnabled: checked } : p);
@@ -63,16 +180,22 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
     };
     onUpdateProviders([...providers, newProvider]);
     setSelectedProviderId(newId);
-    setShowAddPlatform(false);
+    closeAddPlatform();
     setNewPlatformName('');
     setNewPlatformUrl('');
   };
 
-  if (!isOpen) return null;
+  if (!shouldRender) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white dark:bg-dark-surface w-[800px] h-[500px] rounded-xl shadow-2xl flex overflow-hidden border border-gray-200 dark:border-dark-border animate-scale-in">
+    <div 
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm ${isClosing ? 'animate-fade-out' : 'animate-fade-in'}`}
+      onClick={onClose}
+    >
+      <div 
+        className={`bg-white dark:bg-dark-surface w-[800px] h-[500px] rounded-xl shadow-2xl flex overflow-hidden border border-gray-200 dark:border-dark-border ${isClosing ? 'animate-scale-out' : 'animate-scale-in'}`}
+        onClick={(e) => e.stopPropagation()}
+      >
         
         {/* Sidebar */}
         <div className="w-64 bg-gray-50 dark:bg-dark-bg border-r border-gray-200 dark:border-dark-border flex flex-col">
@@ -190,20 +313,72 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
                       <div className="p-4 text-center text-xs text-gray-400">暂无模型，请添加</div>
                     )}
                     {selectedProvider.models.map(model => (
-                      <div key={model.id} className="flex items-center justify-between px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-dark-bg transition-colors group">
-                        <span className="text-xs text-gray-700 dark:text-gray-300 font-medium">{model.name}</span>
-                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button className="p-1 text-gray-400 hover:text-brand-500 transition-colors" title="测试运行">
-                            <Play className="w-3.5 h-3.5" />
-                          </button>
-                          <button 
-                            onClick={() => handleDeleteModel(model.id)}
-                            className="p-1 text-gray-400 hover:text-red-500 transition-colors"
-                            title="删除"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                      <div key={model.id}>
+                        <div 
+                          className="flex items-center justify-between px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-dark-bg transition-colors group rounded-lg cursor-pointer"
+                          onClick={() => onSelectModel({ providerId: selectedProvider.id, modelId: model.id })}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-gray-700 dark:text-gray-300 font-medium">{model.name}</span>
+                            {currentModel?.providerId === selectedProvider.id && currentModel?.modelId === model.id && (
+                              <span className="text-[10px] text-blue-500 bg-blue-50 dark:bg-blue-900/30 px-1.5 py-0.5 rounded">当前使用</span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); handleTestModel(model.id); }}
+                              disabled={testingModelId === model.id}
+                              className={`p-1 transition-colors ${testingModelId === model.id ? 'text-brand-500 cursor-wait' : 'text-gray-400 hover:text-brand-500'}`}
+                              title="测试运行"
+                            >
+                              {testingModelId === model.id ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <Play className="w-3.5 h-3.5" />
+                              )}
+                            </button>
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); handleDeleteModel(model.id); }}
+                              className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                              title="删除"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </div>
+                        
+                        {/* Test Result Message */}
+                        {testResults[model.id] && (
+                          <div className={`mx-3 mb-2 p-2 rounded text-xs flex items-center justify-between animate-fade-in ${
+                            testResults[model.id].status === 'success' 
+                              ? 'bg-green-50 text-green-700 border border-green-100 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800' 
+                              : 'bg-red-50 text-red-700 border border-red-100 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800'
+                          }`}>
+                            <div className="flex items-center gap-1.5">
+                              {testResults[model.id].status === 'success' ? (
+                                <Check className="w-3.5 h-3.5" />
+                              ) : (
+                                <X className="w-3.5 h-3.5" />
+                              )}
+                              <span>
+                                {testResults[model.id].status === 'success' 
+                                  ? `连接成功！响应: "${testResults[model.id].message}" 响应时间: ${testResults[model.id].time}ms`
+                                  : `连接失败: ${testResults[model.id].message}`
+                                }
+                              </span>
+                            </div>
+                            <button 
+                              onClick={() => setTestResults(prev => {
+                                const next = { ...prev };
+                                delete next[model.id];
+                                return next;
+                              })}
+                              className="ml-2 hover:opacity-70"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -219,9 +394,18 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
       </div>
 
       {/* Add Platform Modal Overlay */}
-      {showAddPlatform && (
-        <div className="absolute inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="bg-white dark:bg-dark-surface w-[400px] rounded-xl shadow-2xl p-6 space-y-4 animate-scale-in">
+      {(showAddPlatform || isAddPlatformClosing) && (
+        <div 
+          className={`absolute inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm ${isAddPlatformClosing ? 'animate-fade-out' : 'animate-fade-in'}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            closeAddPlatform();
+          }}
+        >
+          <div 
+            className={`bg-white dark:bg-dark-surface w-[400px] rounded-xl shadow-2xl p-6 space-y-4 ${isAddPlatformClosing ? 'animate-scale-out' : 'animate-scale-in'}`}
+            onClick={(e) => e.stopPropagation()}
+          >
             <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">添加新平台</h3>
             
             <div className="space-y-1.5">
@@ -248,7 +432,7 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
 
             <div className="flex justify-end gap-3 pt-2">
               <button
-                onClick={() => setShowAddPlatform(false)}
+                onClick={closeAddPlatform}
                 className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 transition-colors"
               >
                 取消
