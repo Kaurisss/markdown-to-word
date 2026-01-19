@@ -54,6 +54,7 @@ const documentConfigArb: fc.Arbitrary<DocumentConfig> = fc.record({
     pageMargin: fc.double({ min: 0.5, max: 3.0, noNaN: true }),
     baseFontCn: fontFamilyArb,
     baseFontEn: fontFamilyArb,
+    horizontalRule: fc.constantFrom('default', 'page_break', 'hidden'),
   }),
   styles: fc.record({
     h1: elementStyleArb,
