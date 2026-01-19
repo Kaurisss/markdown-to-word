@@ -1,5 +1,5 @@
 import React from 'react';
-import { ViewMode } from '../../types';
+import { ViewMode } from '../../../types';
 import { STYLES } from '../constants';
 
 interface ViewTabProps {

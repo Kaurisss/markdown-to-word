@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+﻿import React, { useState, useCallback, useRef, useEffect } from 'react';
 import Header from './components/Header';
 import Editor from './components/Editor';
 import Preview from './components/Preview';
@@ -11,12 +11,50 @@ import { ViewMode } from './types';
 import { DEFAULT_CONFIG } from './config/defaultConfig';
 import { DocumentConfig } from './interfaces/Config';
 import { exportWithPython, formatErrorMessage } from './services/pythonBackend';
+import { ContextMenu, ContextMenuItem } from './components/ui/ContextMenu';
+import { Copy, Clipboard, Scissors, CheckSquare } from 'lucide-react';
+import { AIConfigWindow } from './components/AIConfigWindow';
+import { useAIConfigStore } from './services/aiConfigStore';
+
+const INVALID_FILENAME_CHARS = /[<>:"/\\|?*\u0000-\u001F]/g;
+const MAX_BASENAME_LENGTH = 80;
+
+function sanitizeFilename(input: string, fallback: string): string {
+  const trimmed = input.trim().replace(INVALID_FILENAME_CHARS, '_');
+  const normalized = trimmed.replace(/\s+/g, ' ').replace(/_+/g, '_');
+  const safe = normalized.replace(/[. ]+$/g, '');
+  const clipped = safe.slice(0, MAX_BASENAME_LENGTH).replace(/[. ]+$/g, '');
+  return clipped.length > 0 ? clipped : fallback;
+}
 
 const App: React.FC = () => {
+  // Simple router based on URL search params
+  const [isConfigWindow, setIsConfigWindow] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('window') === 'config') {
+        setIsConfigWindow(true);
+      }
+    }
+  }, []);
+
+  const { providers, updateProviders, selectedModel, updateSelectedModel } = useAIConfigStore();
+
   const [content, setContent] = useState<string>(DEFAULT_MARKDOWN);
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<ViewMode>('split');
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof window === 'undefined') return 'light';
+    const params = new URLSearchParams(window.location.search);
+    const queryTheme = params.get('theme');
+    if (queryTheme === 'dark' || queryTheme === 'light') {
+      return queryTheme;
+    }
+    const stored = localStorage.getItem('app_theme');
+    return stored === 'dark' || stored === 'light' ? stored : 'light';
+  });
   const [cfg, setCfg] = useState<DocumentConfig>(DEFAULT_CONFIG);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [showSearch, setShowSearch] = useState<boolean>(false);
@@ -35,6 +73,304 @@ const App: React.FC = () => {
     setToast({ message, type, visible: true });
   }, []);
 
+  const buildSearchRegex = useCallback((query: string): RegExp | null => {
+    if (!query) return null;
+    try {
+      let pattern = query;
+      if (!useRegex) {
+        pattern = pattern.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');
+      }
+      if (wholeWord && !useRegex) {
+        pattern = `\\\\b${pattern}\\\\b`;
+      }
+      const flags = caseSensitive ? 'g' : 'gi';
+      return new RegExp(pattern, flags);
+    } catch {
+      return null;
+    }
+  }, [caseSensitive, wholeWord, useRegex]);
+
+  const getMatches = useCallback((text: string) => {
+    if (!searchQuery || !searchQuery.trim()) return [];
+    const regex = buildSearchRegex(searchQuery.trim());
+    if (!regex) return [];
+    const found: { index: number; length: number }[] = [];
+    let match: RegExpExecArray | null;
+    regex.lastIndex = 0;
+    while ((match = regex.exec(text)) !== null) {
+      found.push({ index: match.index, length: match[0].length });
+      if (match[0].length === 0) {
+        regex.lastIndex++;
+      }
+    }
+    return found;
+  }, [searchQuery, buildSearchRegex]);
+
+  const handleReplace = useCallback(() => {
+    if (!searchQuery || !searchQuery.trim() || !replaceText) return;
+    const matches = getMatches(content);
+    if (matches.length === 0) return;
+    const index = Math.min(Math.max(currentMatchIndex, 0), matches.length - 1);
+    const match = matches[index];
+    const next = `${content.slice(0, match.index)}${replaceText}${content.slice(match.index + match.length)}`;
+    setContent(next);
+    const newMatches = getMatches(next);
+    if (newMatches.length === 0) {
+      setCurrentMatchIndex(0);
+    } else {
+      setCurrentMatchIndex(Math.min(index, newMatches.length - 1));
+    }
+  }, [searchQuery, replaceText, content, currentMatchIndex, getMatches]);
+
+  const handleReplaceAll = useCallback(() => {
+    if (!searchQuery || !searchQuery.trim() || !replaceText) return;
+    const regex = buildSearchRegex(searchQuery.trim());
+    if (!regex) return;
+    const next = content.replace(regex, replaceText);
+    setContent(next);
+    setCurrentMatchIndex(0);
+  }, [searchQuery, replaceText, content, buildSearchRegex]);
+
+  // Context Menu State
+  const [contextMenu, setContextMenu] = useState<{ visible: boolean; x: number; y: number; items: ContextMenuItem[] }>({
+    visible: false,
+    x: 0,
+    y: 0,
+    items: []
+  });
+  const lastSelectionRef = useRef<Range | null>(null);
+  const lastSelectionRootRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (isConfigWindow) {
+      return;
+    }
+    const handleSelectionChange = () => {
+      const selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0 || selection.isCollapsed) return;
+      const anchorNode = selection.anchorNode;
+      const anchorElement = anchorNode instanceof Element ? anchorNode : anchorNode?.parentElement;
+      const editableRoot = anchorElement?.closest('[contenteditable="true"]') as HTMLElement | null;
+      if (!editableRoot) return;
+      lastSelectionRef.current = selection.getRangeAt(0).cloneRange();
+      lastSelectionRootRef.current = editableRoot;
+    };
+
+    document.addEventListener('selectionchange', handleSelectionChange);
+    return () => {
+      document.removeEventListener('selectionchange', handleSelectionChange);
+    };
+  }, [isConfigWindow]);
+
+  const handleContextMenu = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    const selection = window.getSelection();
+    const target = e.target as HTMLElement;
+    const textField = target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement ? target : null;
+    const editableRoot = target.closest('[contenteditable="true"]') as HTMLElement | null;
+    const isEditable = editableRoot !== null || textField !== null;
+    if (!isEditable) return;
+
+    const fieldSelectionStart = textField?.selectionStart ?? 0;
+    const fieldSelectionEnd = textField?.selectionEnd ?? 0;
+    const fieldSelectionText = textField?.value.slice(fieldSelectionStart, fieldSelectionEnd) ?? '';
+
+    const getEditableRange = () => {
+      if (textField || !editableRoot) return null;
+      if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        if (editableRoot.contains(range.startContainer)) {
+          return range;
+        }
+      }
+      if (lastSelectionRef.current && lastSelectionRootRef.current === editableRoot) {
+        return lastSelectionRef.current;
+      }
+      return null;
+    };
+
+    const rangeToRestore = getEditableRange();
+    let effectiveRange = rangeToRestore;
+    let selectionStart = fieldSelectionStart;
+    let selectionEnd = fieldSelectionEnd;
+    let selectionText = fieldSelectionText;
+
+    if (!textField && editableRoot && effectiveRange) {
+      const preRange = effectiveRange.cloneRange();
+      preRange.selectNodeContents(editableRoot);
+      preRange.setEnd(effectiveRange.startContainer, effectiveRange.startOffset);
+      selectionStart = preRange.toString().length;
+      selectionText = effectiveRange.toString();
+      selectionEnd = selectionStart + selectionText.length;
+    }
+
+    if (!textField && !selectionText && editableRoot && lastSelectionRef.current && lastSelectionRootRef.current === editableRoot) {
+      effectiveRange = lastSelectionRef.current;
+      const preRange = effectiveRange.cloneRange();
+      preRange.selectNodeContents(editableRoot);
+      preRange.setEnd(effectiveRange.startContainer, effectiveRange.startOffset);
+      selectionStart = preRange.toString().length;
+      selectionText = effectiveRange.toString();
+      selectionEnd = selectionStart + selectionText.length;
+    }
+
+    const hasSelection = selectionEnd > selectionStart;
+
+    const setEditableSelection = (start: number, end: number) => {
+      if (textField) {
+        textField.focus();
+        textField.setSelectionRange(start, end);
+        return;
+      }
+      if (!editableRoot || !selection) return;
+
+      const totalLength = editableRoot.textContent?.length ?? 0;
+      const clamp = (value: number) => Math.max(0, Math.min(value, totalLength));
+      const startOffset = clamp(start);
+      const endOffset = clamp(end);
+
+      const resolveNode = (offset: number) => {
+        const walker = document.createTreeWalker(editableRoot, NodeFilter.SHOW_TEXT);
+        let node = walker.nextNode() as Text | null;
+        let current = 0;
+        while (node) {
+          const length = node.textContent?.length ?? 0;
+          if (current + length >= offset) {
+            return { node, offset: offset - current };
+          }
+          current += length;
+          node = walker.nextNode() as Text | null;
+        }
+        return null;
+      };
+
+      const startLoc = resolveNode(startOffset);
+      const endLoc = resolveNode(endOffset) ?? startLoc;
+      const range = document.createRange();
+
+      if (!startLoc) {
+        range.setStart(editableRoot, 0);
+        range.collapse(true);
+      } else {
+        range.setStart(startLoc.node, startLoc.offset);
+        if (endLoc) {
+          range.setEnd(endLoc.node, endLoc.offset);
+        } else {
+          range.collapse(true);
+        }
+      }
+
+      selection.removeAllRanges();
+      selection.addRange(range);
+      editableRoot.focus();
+    };
+
+    const replaceTextFieldRange = (value: string) => {
+      if (!textField) return;
+      textField.focus();
+      textField.setRangeText(value, selectionStart, selectionEnd, 'end');
+      textField.dispatchEvent(new Event('input', { bubbles: true }));
+    };
+
+    const applyContentReplacement = (insertText: string) => {
+      const next = `${content.slice(0, selectionStart)}${insertText}${content.slice(selectionEnd)}`;
+      setContent(next);
+      const nextOffset = selectionStart + insertText.length;
+      requestAnimationFrame(() => {
+        setEditableSelection(nextOffset, nextOffset);
+      });
+    };
+
+    const menuItems: ContextMenuItem[] = [
+      {
+        label: '复制',
+        icon: <Copy className="w-4 h-4" />,
+        shortcut: 'Ctrl+C',
+        disabled: !hasSelection,
+        action: async () => {
+          if (selectionText) {
+            await navigator.clipboard.writeText(selectionText);
+          }
+        }
+      },
+      {
+        label: '剪切',
+        icon: <Scissors className="w-4 h-4" />,
+        shortcut: 'Ctrl+X',
+        disabled: !hasSelection || !isEditable,
+        action: async () => {
+          if (!selectionText) return;
+          await navigator.clipboard.writeText(selectionText);
+          if (textField) {
+            replaceTextFieldRange('');
+          } else {
+            applyContentReplacement('');
+          }
+        }
+      },
+      {
+        label: '粘贴',
+        icon: <Clipboard className="w-4 h-4" />,
+        shortcut: 'Ctrl+V',
+        disabled: !isEditable,
+        action: async () => {
+          try {
+            const text = await navigator.clipboard.readText();
+            if (!text) return;
+            if (textField) {
+              replaceTextFieldRange(text);
+            } else {
+              applyContentReplacement(text);
+            }
+          } catch (err) {
+            console.error('Failed to read clipboard:', err);
+            showToast('无法读取剪贴板', 'error');
+          }
+        }
+      },
+      { separator: true },
+      {
+        label: '全选',
+        icon: <CheckSquare className="w-4 h-4" />,
+        shortcut: 'Ctrl+A',
+        action: () => {
+          if (textField) {
+            textField.focus();
+            textField.select();
+            return;
+          }
+          if (editableRoot) {
+            setEditableSelection(0, content.length);
+          }
+        }
+      }
+    ];
+
+    setContextMenu({
+      visible: true,
+      x: e.clientX,
+      y: e.clientY,
+      items: menuItems
+    });
+
+    if (!textField && editableRoot && selection && effectiveRange) {
+      requestAnimationFrame(() => {
+        selection.removeAllRanges();
+        selection.addRange(effectiveRange);
+        editableRoot.focus();
+      });
+    } else if (textField) {
+      requestAnimationFrame(() => {
+        textField.focus();
+        textField.setSelectionRange(selectionStart, selectionEnd);
+      });
+    }
+  }, [content, showToast, setContent]);
+
+  const closeContextMenu = useCallback(() => {
+    setContextMenu(prev => ({ ...prev, visible: false }));
+  }, []);
+
   const closeSearch = useCallback(() => {
     setShowSearch(false);
     setSearchQuery('');
@@ -48,6 +384,9 @@ const App: React.FC = () => {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
+    }
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('app_theme', theme);
     }
   }, [theme]);
 
@@ -107,7 +446,10 @@ const App: React.FC = () => {
     setIsExporting(true);
     try {
       const headingMatch = content.match(/^#\s+(.+)$/m);
-      const suggested = headingMatch ? `${headingMatch[1].trim()}.docx` : `文档_${new Date().toISOString().slice(0, 10)}.docx`;
+      const dateStamp = new Date().toISOString().slice(0, 10);
+      const fallbackName = `鏂囨。_${dateStamp}`;
+      const title = headingMatch ? headingMatch[1] : fallbackName;
+      const suggested = `${sanitizeFilename(title, fallbackName)}.docx`;
       const outPath = await saveDialog({
         filters: [{ name: 'Word', extensions: ['docx'] }],
         defaultPath: suggested
@@ -134,7 +476,7 @@ const App: React.FC = () => {
     } finally {
       setIsExporting(false);
     }
-  }, [content, cfg]);
+  }, [content, cfg, showToast]);
 
   // 同步滚动 effect：仅在分屏模式下启用
   useEffect(() => {
@@ -184,8 +526,13 @@ const App: React.FC = () => {
   const showEditor = viewMode === 'editor' || viewMode === 'split';
   const showPreview = viewMode === 'preview' || viewMode === 'split';
 
-  return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-gray-50 dark:bg-dark-bg text-gray-800 dark:text-gray-100 font-sans selection:bg-brand-100 selection:text-brand-900">
+  return isConfigWindow ? (
+    <AIConfigWindow />
+  ) : (
+    <div
+      className="flex flex-col h-screen w-screen overflow-hidden bg-gray-50 dark:bg-dark-bg text-gray-800 dark:text-gray-100 font-sans selection:bg-brand-100 selection:text-brand-900"
+      onContextMenu={handleContextMenu}
+    >
       <Header
         isExporting={isExporting}
         onExport={handleExport}
@@ -215,6 +562,8 @@ const App: React.FC = () => {
           setWholeWord={setWholeWord}
           useRegex={useRegex}
           setUseRegex={setUseRegex}
+          onReplace={handleReplace}
+          onReplaceAll={handleReplaceAll}
           onClose={closeSearch}
         />
 
@@ -252,6 +601,14 @@ const App: React.FC = () => {
           onClose={() => setToast(prev => ({ ...prev, visible: false }))} 
         />
       )}
+
+      <ContextMenu
+        visible={contextMenu.visible}
+        x={contextMenu.x}
+        y={contextMenu.y}
+        items={contextMenu.items}
+        onClose={closeContextMenu}
+      />
     </div>
   );
 };

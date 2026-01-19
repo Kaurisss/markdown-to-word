@@ -1,9 +1,9 @@
 import React from 'react';
-import { 
-  Search, 
-  X, 
-  ChevronUp, 
-  ChevronDown, 
+import {
+  Search,
+  X,
+  ChevronUp,
+  ChevronDown,
   ArrowLeftRight
 } from 'lucide-react';
 
@@ -21,6 +21,8 @@ export type SearchPopoverProps = {
   setWholeWord: React.Dispatch<React.SetStateAction<boolean>>;
   useRegex: boolean;
   setUseRegex: React.Dispatch<React.SetStateAction<boolean>>;
+  onReplace: () => void;
+  onReplaceAll: () => void;
   onClose: () => void;
 };
 
@@ -38,18 +40,20 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
   setWholeWord,
   useRegex,
   setUseRegex,
+  onReplace,
+  onReplaceAll,
   onClose,
 }) => {
   return (
     <div
       className={`absolute top-4 right-4 z-50 transition-all duration-300 ease-out transform ${
-        visible 
-          ? 'opacity-100 translate-y-0 scale-100' 
+        visible
+          ? 'opacity-100 translate-y-0 scale-100'
           : 'opacity-0 -translate-y-2 scale-95 pointer-events-none'
       }`}
     >
       <div className="w-[380px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl p-3 flex flex-col gap-3 backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95">
-        
+
         {/* Search Row */}
         <div className="flex items-center gap-2">
           {/* Search Input Wrapper */}
@@ -72,7 +76,7 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
               autoFocus={visible}
               className="w-full h-9 pl-9 pr-24 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
             />
-            
+
             {/* Input Actions (Clear + Toggles) */}
             <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-0.5">
               {searchQuery && (
@@ -84,14 +88,14 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
                   <X className="w-3 h-3" />
                 </button>
               )}
-              
+
               <div className="w-px h-4 bg-gray-200 dark:bg-gray-700 mx-0.5" />
 
               <button
                 onClick={() => setCaseSensitive((prev) => !prev)}
                 className={`p-1 rounded-md transition-colors ${
-                  caseSensitive 
-                    ? 'text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/30' 
+                  caseSensitive
+                    ? 'text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/30'
                     : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                 }`}
                 title="区分大小写 (Alt+C)"
@@ -102,11 +106,11 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
               <button
                 onClick={() => setWholeWord((prev) => !prev)}
                 className={`p-1 rounded-md transition-colors ${
-                  wholeWord 
-                    ? 'text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/30' 
+                  wholeWord
+                    ? 'text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/30'
                     : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                 }`}
-                title="全字匹配 (Alt+W)"
+                title="全词匹配 (Alt+W)"
               >
                 <span className="font-mono font-bold text-[10px] leading-none">ab</span>
               </button>
@@ -114,8 +118,8 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
               <button
                 onClick={() => setUseRegex((prev) => !prev)}
                 className={`p-1 rounded-md transition-colors ${
-                  useRegex 
-                    ? 'text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/30' 
+                  useRegex
+                    ? 'text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/30'
                     : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                 }`}
                 title="使用正则表达式 (Alt+R)"
@@ -166,6 +170,15 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
               type="text"
               value={replaceText}
               onChange={(e) => setReplaceText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key !== 'Enter') return;
+                e.preventDefault();
+                if (e.ctrlKey || e.metaKey) {
+                  onReplaceAll();
+                } else {
+                  onReplace();
+                }
+              }}
               placeholder="替换..."
               className="w-full h-9 pl-9 pr-8 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
             />
@@ -186,6 +199,7 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
               disabled={!searchQuery || !replaceText}
               className="h-9 px-3 text-xs font-medium text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm active:scale-95"
               title="替换 (Enter)"
+              onClick={onReplace}
             >
               替换
             </button>
@@ -193,6 +207,7 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
               disabled={!searchQuery || !replaceText}
               className="h-9 px-3 text-xs font-medium text-brand-50 dark:text-brand-50 bg-brand-600 hover:bg-brand-700 border border-transparent rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm active:scale-95"
               title="全部替换 (Ctrl+Enter)"
+              onClick={onReplaceAll}
             >
               全部替换
             </button>
@@ -204,4 +219,3 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
 };
 
 export default SearchPopover;
-

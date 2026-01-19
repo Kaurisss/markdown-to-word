@@ -1,13 +1,13 @@
 import React, { useRef, useState } from 'react';
 import { HeaderProps } from '../types';
 import { AIProvider, DEFAULT_PROVIDERS } from '../interfaces/AI';
-import { AIConfigModal } from './AIConfigModal';
 import { WindowBar, TabType } from './header/WindowBar';
 import { FileTab } from './header/tabs/FileTab';
 import { ViewTab } from './header/tabs/ViewTab';
 import { HomeTab } from './header/tabs/HomeTab';
 import { LayoutTab } from './header/tabs/LayoutTab';
 import { AITab } from './header/tabs/AITab';
+import { useAIConfigStore } from '../services/aiConfigStore';
 
 const Header: React.FC<HeaderProps> = ({ 
   isExporting, 
@@ -26,32 +26,44 @@ const Header: React.FC<HeaderProps> = ({
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const [activeStyle, setActiveStyle] = useState<'body' | 'h1' | 'h2' | 'h3' | 'code' | 'quote'>('body');
 
-  const [showAIConfig, setShowAIConfig] = useState(false);
-  const [aiProviders, setAiProviders] = useState<AIProvider[]>(DEFAULT_PROVIDERS);
-  const [selectedModel, setSelectedModel] = useState<{providerId: string, modelId: string} | null>(null);
+  const { providers: aiProviders, selectedModel } = useAIConfigStore();
 
-  // Initialize selected model if not set or if current selection is disabled
-  React.useEffect(() => {
-    // If we have a selection, check if it's still valid (provider enabled)
-    if (selectedModel) {
-      const provider = aiProviders.find(p => p.id === selectedModel.providerId);
-      if (!provider || !provider.isEnabled) {
-        // Current selection invalid, try to find new one
-        const firstEnabled = aiProviders.find(p => p.isEnabled);
-        if (firstEnabled && firstEnabled.models.length > 0) {
-          setSelectedModel({ providerId: firstEnabled.id, modelId: firstEnabled.models[0].id });
-        } else {
-          setSelectedModel(null);
-        }
-      }
-    } else {
-      // No selection, try to select first enabled
-      const firstEnabled = aiProviders.find(p => p.isEnabled);
-      if (firstEnabled && firstEnabled.models.length > 0) {
-        setSelectedModel({ providerId: firstEnabled.id, modelId: firstEnabled.models[0].id });
-      }
+  const openAIConfigWindow = async () => {
+    try {
+      // Check if window exists
+      const label = 'ai-config';
+      // Use dynamic import for Tauri API to avoid SSR/build issues if not in Tauri env
+      const { WebviewWindow } = await import('@tauri-apps/api/webviewWindow');
+      
+      const url = `/?window=config&theme=${encodeURIComponent(theme)}`;
+      const webview = new WebviewWindow(label, {
+        url,
+        title: 'AI 配置',
+        width: 800,
+        height: 500,
+        decorations: false,
+        resizable: true,
+        center: true
+      });
+
+      webview.once('tauri://created', function () {
+        // webview window successfully created
+      });
+      
+      webview.once('tauri://error', function (e) {
+        // an error occurred during webview window creation
+        console.error('Failed to create AI config window:', e);
+        // If window already exists, focus it
+        import('@tauri-apps/api/window').then(({ Window }) => {
+          const win = new Window(label);
+          win.setFocus();
+        });
+      });
+
+    } catch (e) {
+      console.error('Failed to open AI config window:', e);
     }
-  }, [aiProviders, selectedModel]);
+  };
 
   return (
     <div className="relative z-50 flex-shrink-0 bg-white dark:bg-dark-bg border-b border-gray-200 dark:border-dark-border transition-colors duration-200">
@@ -98,29 +110,21 @@ const Header: React.FC<HeaderProps> = ({
             cfg={cfg} 
             onCfgChange={onCfgChange} 
             activeStyle={activeStyle} 
+            onSearchClick={onSearchClick}
           />
         )}
 
         {activeTab === 'ai' && (
           <AITab 
-            aiProviders={aiProviders} 
-            selectedModel={selectedModel} 
-            setShowAIConfig={setShowAIConfig}
+            aiProviders={aiProviders}
+            selectedModel={selectedModel}
+            setShowAIConfig={() => openAIConfigWindow()}
             cfg={cfg}
             onCfgChange={onCfgChange}
             onShowToast={onShowToast}
           />
         )}
       </div>
-      
-      <AIConfigModal 
-        isOpen={showAIConfig}
-        onClose={() => setShowAIConfig(false)}
-        providers={aiProviders}
-        onUpdateProviders={setAiProviders}
-        currentModel={selectedModel}
-        onSelectModel={setSelectedModel}
-      />
     </div>
   );
 };

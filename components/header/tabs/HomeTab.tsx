@@ -21,9 +21,27 @@ export const HomeTab: React.FC<HomeTabProps> = ({
 }) => {
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showBgColorPicker, setShowBgColorPicker] = useState(false);
+  const [isColorRendered, setIsColorRendered] = useState(false);
+  const [isBgColorRendered, setIsBgColorRendered] = useState(false);
   
   const colorPickerRef = useRef<HTMLDivElement>(null);
   const bgColorPickerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (showColorPicker) setIsColorRendered(true);
+  }, [showColorPicker]);
+
+  useEffect(() => {
+    if (showBgColorPicker) setIsBgColorRendered(true);
+  }, [showBgColorPicker]);
+
+  const handleColorAnimationEnd = () => {
+    if (!showColorPicker) setIsColorRendered(false);
+  };
+
+  const handleBgColorAnimationEnd = () => {
+    if (!showBgColorPicker) setIsBgColorRendered(false);
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -127,8 +145,11 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               <span className="text-sm font-serif font-bold leading-none text-gray-700 dark:text-gray-300">A</span>
               <div className="w-4 h-1 rounded-sm border border-gray-200 dark:border-gray-600" style={{ backgroundColor: currentStyle.color || '#000000' }}></div>
             </button>
-            {showColorPicker && (
-              <div className="absolute top-full left-0 mt-1 bg-white dark:bg-dark-surface rounded-lg shadow-lg border border-gray-200 dark:border-dark-border p-2 z-50 w-56 animate-menu-in">
+            {isColorRendered && (
+              <div 
+                className={`absolute top-full left-0 mt-1 bg-white dark:bg-dark-surface rounded-lg shadow-lg border border-gray-200 dark:border-dark-border p-2 z-50 w-56 ${showColorPicker ? 'animate-menu-in' : 'animate-menu-out'}`}
+                onAnimationEnd={handleColorAnimationEnd}
+              >
                 <div className="text-[10px] text-gray-500 dark:text-gray-400 mb-1">主题颜色</div>
                 <div className="space-y-0.5">
                   {THEME_COLORS.map((row, rowIndex) => (
@@ -184,8 +205,11 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                 <div className="w-4 h-1 rounded-sm border border-gray-200 dark:border-gray-600" style={{ backgroundColor: currentStyle.backgroundColor || 'transparent' }}></div>
               </div>
             </button>
-            {showBgColorPicker && (
-              <div className="absolute top-full left-0 mt-1 bg-white dark:bg-dark-surface rounded-lg shadow-lg border border-gray-200 dark:border-dark-border p-2 z-50 w-56 animate-menu-in">
+            {isBgColorRendered && (
+              <div 
+                className={`absolute top-full left-0 mt-1 bg-white dark:bg-dark-surface rounded-lg shadow-lg border border-gray-200 dark:border-dark-border p-2 z-50 w-56 ${showBgColorPicker ? 'animate-menu-in' : 'animate-menu-out'}`}
+                onAnimationEnd={handleBgColorAnimationEnd}
+              >
                 <div className="text-[10px] text-gray-500 dark:text-gray-400 mb-1">背景颜色</div>
                 {/* Theme Colors - same as text but for background */}
                 <div className="space-y-0.5">

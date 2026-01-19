@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "简阅转档",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "identifier": "com.kauriss.markdown-to-word",
   "build": {
     "frontendDist": "../dist",
@@ -28,10 +28,8 @@
     }
   },
   "bundle": {
-    "active": true,
-    "targets": [
-      "nsis"
-    ],
+    "active": false,
+    "targets": [],
     "externalBin": [
       "binaries/md2word"
     ],
@@ -45,16 +43,7 @@
     "windows": {
       "certificateThumbprint": null,
       "digestAlgorithm": "sha256",
-      "timestampUrl": "",
-      "nsis": {
-        "headerImage": "icons/header.bmp",
-        "sidebarImage": "icons/sidebar.bmp",
-        "installerIcon": "icons/icon.ico",
-        "displayLanguageSelector": false,
-        "languages": [
-          "SimpChinese"
-        ]
-      }
+      "timestampUrl": ""
     }
   }
 }

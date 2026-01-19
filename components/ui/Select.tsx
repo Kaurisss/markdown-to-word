@@ -26,9 +26,22 @@ export const Select: React.FC<SelectProps> = ({
   variant = 'default',
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isRendered, setIsRendered] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const selectedOption = options.find(opt => opt.value === value);
+
+  useEffect(() => {
+    if (isOpen) {
+      setIsRendered(true);
+    }
+  }, [isOpen]);
+
+  const handleAnimationEnd = () => {
+    if (!isOpen) {
+      setIsRendered(false);
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -88,8 +101,11 @@ export const Select: React.FC<SelectProps> = ({
       </button>
 
       {/* Dropdown Menu */}
-      {isOpen && (
-        <div className="absolute left-0 top-full mt-1 w-full min-w-[120px] max-h-60 overflow-auto bg-white dark:bg-dark-surface border border-gray-200 dark:border-dark-border rounded shadow-lg z-50 animate-menu-in custom-scrollbar">
+      {isRendered && (
+        <div 
+          className={`absolute left-0 top-full mt-1 w-full min-w-[120px] max-h-60 overflow-auto bg-white dark:bg-dark-surface border border-gray-200 dark:border-dark-border rounded shadow-lg z-50 custom-scrollbar ${isOpen ? 'animate-menu-in' : 'animate-menu-out'}`}
+          onAnimationEnd={handleAnimationEnd}
+        >
           <div className="py-1">
             {options.map((option) => (
               <button

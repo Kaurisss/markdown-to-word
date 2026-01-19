@@ -1,4 +1,5 @@
 import React, { useCallback, useRef, useState, useEffect } from 'react';
+import logoUrl from '../../logo.png';
 
 export type TabType = 'file' | 'view' | 'home' | 'layout' | 'ai';
 
@@ -77,7 +78,7 @@ export const WindowBar: React.FC<WindowBarProps> = ({
       >
         {/* Logo 图标 - 可拖动 */}
         <div className="flex items-center justify-center w-10 h-full" data-tauri-drag-region>
-          <img src="/logo.png" alt="Logo" className="w-5 h-5 pointer-events-none border border-gray-200 dark:border-gray-600 rounded-sm" />
+          <img src={logoUrl} alt="Logo" className="w-5 h-5 pointer-events-none rounded-sm" />
         </div>
 
         {/* 菜单项 - 不可拖动 */}
