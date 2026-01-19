@@ -13,11 +13,18 @@ export interface MdNode {
 export interface EditorProps {
   value: string;
   onChange: (value: string) => void;
+  searchQuery?: string;
+  showSearch?: boolean;
+  currentMatchIndex?: number;
+  caseSensitive?: boolean;
+  wholeWord?: boolean;
+  useRegex?: boolean;
 }
 
 export interface PreviewProps {
   markdown: string;
   cfg: import('./interfaces/Config').DocumentConfig;
+  searchQuery?: string;
 }
 
 // 定义视图模式：仅编辑 | 分栏 | 仅预览
@@ -33,4 +40,5 @@ export interface HeaderProps {
   onThemeChange: (theme: 'light' | 'dark') => void;
   cfg: import('./interfaces/Config').DocumentConfig;
   onCfgChange: (next: import('./interfaces/Config').DocumentConfig) => void;
+  onSearchClick?: () => void; // 新增搜索回调
 }

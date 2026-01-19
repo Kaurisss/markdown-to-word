@@ -60,7 +60,7 @@ const STANDARD_COLORS = [
   '#C00000', '#FF0000', '#FFC000', '#FFFF00', '#92D050', '#00B050', '#00B0F0', '#0070C0', '#002060', '#7030A0'
 ];
 
-const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMode, onViewModeChange, theme, onThemeChange, cfg, onCfgChange }) => {
+const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMode, onViewModeChange, theme, onThemeChange, cfg, onCfgChange, onSearchClick }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeTab, setActiveTab] = useState<'file' | 'view' | 'home' | 'layout' | 'ai'>('home');
   const [activeStyle, setActiveStyle] = useState<'body' | 'h1' | 'h2' | 'h3' | 'code' | 'quote'>('body');
@@ -341,6 +341,20 @@ const Header: React.FC<HeaderProps> = ({ isExporting, onExport, onImport, viewMo
                   </button>
                 ))}
               </div>
+            </div>
+            
+            {/* 搜索 */}
+            <div className={groupClass}>
+              <button
+                onClick={onSearchClick}
+                className={`${btnClass} flex-col gap-0.5 h-12 w-12 !px-1`}
+                title="搜索 (Ctrl+F)"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <span className="text-[10px] scale-90">搜索</span>
+              </button>
             </div>
             
             {/* 主题设置 */}

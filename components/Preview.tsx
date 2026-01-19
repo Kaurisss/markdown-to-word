@@ -113,12 +113,24 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
-                  h1: (props) => <h1 {...props} style={{ ...h1Style, textIndent: undefined }} />,
-                  h2: (props) => <h2 {...props} style={{ ...h2Style, textIndent: undefined }} />,
-                  h3: (props) => <h3 {...props} style={{ ...h3Style, textIndent: undefined }} />,
-                  h4: (props) => <h4 {...props} style={{ ...h3Style, textIndent: undefined }} />,
-                  h5: (props) => <h5 {...props} style={{ ...h3Style, textIndent: undefined }} />,
-                  h6: (props) => <h6 {...props} style={{ ...h3Style, textIndent: undefined }} />,
+                  h1: ({ children, ...props }) => {
+                    return <h1 {...props} style={{ ...h1Style, textIndent: undefined }}>{children}</h1>;
+                  },
+                  h2: ({ children, ...props }) => {
+                    return <h2 {...props} style={{ ...h2Style, textIndent: undefined }}>{children}</h2>;
+                  },
+                  h3: ({ children, ...props }) => {
+                    return <h3 {...props} style={{ ...h3Style, textIndent: undefined }}>{children}</h3>;
+                  },
+                  h4: ({ children, ...props }) => {
+                    return <h4 {...props} style={{ ...h3Style, textIndent: undefined }}>{children}</h4>;
+                  },
+                  h5: ({ children, ...props }) => {
+                    return <h5 {...props} style={{ ...h3Style, textIndent: undefined }}>{children}</h5>;
+                  },
+                  h6: ({ children, ...props }) => {
+                    return <h6 {...props} style={{ ...h3Style, textIndent: undefined }}>{children}</h6>;
+                  },
                   a: ({ href, onClick, ...props }) => {
                     const safeHref = typeof href === 'string' ? href : '';
                     const handleClick: React.MouseEventHandler<HTMLAnchorElement> = async (e) => {
@@ -185,6 +197,7 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
                     const style = isTextStart
                       ? bodyStyle
                       : { ...bodyStyle, textIndent: 0 };
+                    
                     return <p {...props} style={style}>{children}</p>;
                   },
                   li: (props) => <li {...props} style={{ ...bodyStyle, marginTop: 0, marginBottom: 0, textIndent: 0 }} />,

@@ -145,3 +145,15 @@ body {
 .animate-scale-out {
   animation: scale-out 0.2s ease-in forwards;
 }
+
+/* ContentEditable Placeholder */
+[contenteditable][data-placeholder]:empty:before {
+  content: attr(data-placeholder);
+  color: #d1d5db;
+  pointer-events: none;
+  position: absolute;
+}
+
+.dark [contenteditable][data-placeholder]:empty:before {
+  color: #4b5563;
+}
