@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { X, Plus, Play, Trash2, Settings2, Check, Loader2, Pencil, Copy } from 'lucide-react';
+import { X, Plus, Play, Trash2, Settings2, Check, Loader2, Pencil, Copy, Eye, EyeOff } from 'lucide-react';
 import { AIProvider, AIModel } from '../interfaces/AI';
 import { useAIConfigStore } from '../services/aiConfigStore';
 
@@ -35,6 +35,7 @@ export const AIConfigWindow: React.FC = () => {
   const [editingModel, setEditingModel] = useState<AIModel | null>(null);
   const [editModelId, setEditModelId] = useState('');
   const [editModelName, setEditModelName] = useState('');
+  const [showApiKey, setShowApiKey] = useState(false);
 
   // Initialize selected provider
   useEffect(() => {
@@ -251,8 +252,16 @@ export const AIConfigWindow: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-gray-50 dark:bg-dark-bg text-gray-800 dark:text-gray-100 font-sans select-none">
-
+    <div
+      className="flex h-screen w-screen overflow-hidden bg-gray-50 dark:bg-dark-bg text-gray-800 dark:text-gray-100 font-sans select-none"
+      onContextMenu={(e) => {
+        // Only prevent default if not on a model card (which has its own context menu)
+        const target = e.target as HTMLElement;
+        if (!target.closest('[data-model-card]')) {
+          e.preventDefault();
+        }
+      }}
+    >
       {/* Sidebar */}
       <div className="w-64 bg-gray-50 dark:bg-dark-bg border-r border-gray-200 dark:border-dark-border flex flex-col">
         <div className="h-14 px-4 flex items-center justify-between border-b border-gray-200 dark:border-dark-border bg-gray-100 dark:bg-dark-surface/50" data-tauri-drag-region>
@@ -271,8 +280,8 @@ export const AIConfigWindow: React.FC = () => {
               key={provider.id}
               onClick={() => setSelectedProviderId(provider.id)}
               className={`flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer transition-colors text-xs ${selectedProviderId === provider.id
-                ? 'bg-blue-50 dark:bg-blue-900/20 text-brand-600 dark:text-brand-400'
-                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                ? 'bg-blue-50/80 dark:bg-blue-900/20 text-brand-600 dark:text-brand-400'
+                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100/80 dark:hover:bg-gray-800/80'
                 }`}
             >
               <span className="font-medium truncate pr-2">{provider.name}</span>
@@ -328,13 +337,23 @@ export const AIConfigWindow: React.FC = () => {
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-medium text-gray-500 dark:text-gray-400">API Key</label>
-                  <input
-                    type="password"
-                    value={selectedProvider.apiKey}
-                    onChange={(e) => handleUpdateProvider(selectedProvider.id, { apiKey: e.target.value })}
-                    className="w-full h-9 px-3 text-xs rounded border border-gray-200 dark:border-dark-border bg-gray-50 dark:bg-dark-bg focus:bg-white dark:focus:bg-dark-surface focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-colors"
-                    placeholder="请输入 API Key"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showApiKey ? 'text' : 'password'}
+                      value={selectedProvider.apiKey}
+                      onChange={(e) => handleUpdateProvider(selectedProvider.id, { apiKey: e.target.value })}
+                      className="w-full h-9 px-3 pr-9 text-xs rounded border border-gray-200 dark:border-dark-border bg-gray-50 dark:bg-dark-bg focus:bg-white dark:focus:bg-dark-surface focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-colors"
+                      placeholder="请输入 API Key"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowApiKey(!showApiKey)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                      title={showApiKey ? '隐藏 API Key' : '显示 API Key'}
+                    >
+                      {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                 </div>
 
                 <div className="space-y-1.5">
@@ -367,7 +386,8 @@ export const AIConfigWindow: React.FC = () => {
                   {selectedProvider.models.map(model => (
                     <div
                       key={model.id}
-                      className="flex items-center justify-between p-2 bg-gray-50 dark:bg-dark-bg rounded border border-gray-100 dark:border-dark-border group cursor-context-menu"
+                      data-model-card
+                      className="flex items-center justify-between p-2 bg-gray-50 dark:bg-dark-bg rounded border border-gray-100 dark:border-dark-border group cursor-context-menu hover:border-gray-200 dark:hover:border-gray-600 transition-colors"
                       onContextMenu={(e) => handleModelContextMenu(e, model)}
                     >
                       <div className="flex flex-col">
@@ -376,40 +396,7 @@ export const AIConfigWindow: React.FC = () => {
                           <span className="text-[10px] font-mono text-gray-400 dark:text-gray-500">{model.id}</span>
                         )}
                       </div>
-                      <div className="flex items-center gap-2">
-                        {/* Test Button */}
-                        <button
-                          onClick={() => handleTestModel(model.id)}
-                          disabled={testingModelId === model.id}
-                          className={`
-                            flex items-center gap-1 px-2 py-1 rounded text-[10px] font-medium transition-colors
-                            ${testResults[model.id]?.status === 'success'
-                              ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                              : testResults[model.id]?.status === 'error'
-                                ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700'
-                            }
-                          `}
-                        >
-                          {testingModelId === model.id ? (
-                            <Loader2 className="w-3 h-3 animate-spin" />
-                          ) : testResults[model.id]?.status === 'success' ? (
-                            <Check className="w-3 h-3" />
-                          ) : (
-                            <Play className="w-3 h-3" />
-                          )}
-                          <span>
-                            {testingModelId === model.id ? '测试中...' : '测试'}
-                          </span>
-                        </button>
-
-                        <button
-                          onClick={() => handleDeleteModel(model.id)}
-                          className="p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded opacity-0 group-hover:opacity-100 transition-all"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
+                      <span className="text-[10px] text-gray-400 dark:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">右键菜单</span>
                     </div>
                   ))}
                   {selectedProvider.models.length === 0 && (

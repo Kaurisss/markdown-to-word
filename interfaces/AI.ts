@@ -18,7 +18,7 @@ export const DEFAULT_PROVIDERS: AIProvider[] = [
   {
     id: 'dashscope',
     name: '阿里云百炼',
-    description: '阿里云大模型服务平台，专为企业打造的大模型服务与应用开发平台',
+    description: '阿里云大模型服务平台，提供 Qwen 系列模型',
     isEnabled: false,
     apiKey: '',
     baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',
@@ -31,19 +31,21 @@ export const DEFAULT_PROVIDERS: AIProvider[] = [
   {
     id: 'siliconflow',
     name: '硅基流动',
-    description: '全场景产品矩阵，支撑 AI 应用全流程落地，助力用户一站式实现 AI 能力与应用的快速对接',
+    description: '硅基流动服务商，提供 Qwen 系列模型 与 DeepSeek 模型',
     isEnabled: false,
     apiKey: '',
     baseUrl: 'https://api.siliconflow.cn/v1/chat/completions',
     models: [
       { id: 'Qwen/Qwen2.5-7B-Instruct', name: 'Qwen2.5-7B-Instruct' },
       { id: 'Qwen/Qwen3-8B', name: 'Qwen3-8B' },
+      { id: 'deepseek-ai/DeepSeek-R1', name: 'DeepSeek-R1' },
+      { id: 'deepseek-ai/DeepSeek-V3', name: 'DeepSeek-V3' },
     ]
   },
   {
     id: 'zhipu',
     name: '智谱开放平台',
-    description: 'Z智谱·一站式大模型开发平台',
+    description: '智谱开放平台服务商，提供 GLM 系列模型',
     isEnabled: false,
     apiKey: '',
     baseUrl: 'https://open.bigmodel.cn/api/paas/v4/chat/completions',
@@ -55,47 +57,51 @@ export const DEFAULT_PROVIDERS: AIProvider[] = [
   },
   {
     id: 'deepseek',
-    name: 'DeepSeek',
-    description: '专注于代码理解与生成的国产模型',
+    name: '深度求索',
+    description: 'DeepSeek服务商，提供DeepSeek-Chat 与 DeepSeek-Reasoner 模型',
     isEnabled: false,
     apiKey: '',
     baseUrl: 'https://api.deepseek.com/chat/completions',
     models: [
-      { id: 'deepseek-chat', name: 'deepseek-chat' },
-      { id: 'deepseek-coder', name: 'deepseek-coder' },
+      { id: 'deepseek-chat', name: 'Deepseek-Chat' },
+      { id: 'deepseek-reasoner', name: 'Deepseek-Reasoner' },
     ]
   },
   {
     id: 'moonshot',
-    name: 'Moonshot AI',
-    description: 'Kimi 技术提供商，支持长文本处理',
+    name: '月之暗面',
+    description: '月之暗面服务商，提供 Kimi 模型 与 Moonshot 模型',
     isEnabled: false,
     apiKey: '',
     baseUrl: 'https://api.moonshot.cn/v1/chat/completions',
-    models: []
+    models: [
+      { id: 'kimi-k2-0711-preview', name: 'Kimi-K2-0711-Preview' },
+      { id: 'moonshot-v1-auto', name: 'Moonshot-V1-Auto' },
+    ]
   },
   {
     id: 'openai',
     name: 'OpenAI',
-    description: 'ChatGPT 开发商，提供 GPT 系列模型',
+    description: 'OpenAI服务商，提供 GPT 系列模型 与 o系列 模型',
     isEnabled: false,
     apiKey: '',
     baseUrl: 'https://api.openai.com/v1/chat/completions',
     models: [
-      { id: 'gpt-4o', name: 'gpt-4o' },
-      { id: 'gpt-3.5-turbo', name: 'gpt-3.5-turbo' },
+      { id: 'gpt-4o', name: 'GPT-4o' },
+      { id: 'gpt-4o-mini', name: 'GPT-4o-mini' },
+      { id: 'o4-mini', name: 'o4-mini' },
     ]
   },
   {
     id: 'google',
     name: 'Google Gemini',
-    description: 'Google 的下一代多模态模型',
+    description: 'Google Gemini 服务商，提供 Gemini 系列模型',
     isEnabled: false,
     apiKey: '',
     baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
     models: [
-      { id: 'gemini-1.5-pro', name: 'gemini-1.5-pro' },
-      { id: 'gemini-1.5-flash', name: 'gemini-1.5-flash' },
+      { id: 'gemini-1.5-pro', name: 'Gemini-1.5-Pro' },
+      { id: 'gemini-1.5-flash', name: 'Gemini-1.5-Flash' },
     ]
   }
 ];
