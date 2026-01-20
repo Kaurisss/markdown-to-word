@@ -30,16 +30,13 @@ function sanitizeFilename(input: string, fallback: string): string {
 
 const App: React.FC = () => {
   // Simple router based on URL search params
-  const [isConfigWindow, setIsConfigWindow] = useState(false);
-
-  useEffect(() => {
+  const [isConfigWindow, setIsConfigWindow] = useState(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
-      if (params.get('window') === 'config') {
-        setIsConfigWindow(true);
-      }
+      return params.get('window') === 'config';
     }
-  }, []);
+    return false;
+  });
 
   const { providers, updateProviders, selectedModel, updateSelectedModel } = useAIConfigStore();
 
