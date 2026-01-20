@@ -44,5 +44,11 @@ export interface HeaderProps {
   cfg: import('./interfaces/Config').DocumentConfig;
   onCfgChange: (next: import('./interfaces/Config').DocumentConfig) => void;
   onSearchClick?: () => void; // 新增搜索回调
+  onReplaceClick?: () => void; // 新增替换回调
+  onUndo?: () => void;
+  onRedo?: () => void;
+  onCut?: () => void;
+  onCopy?: () => void;
+  onPaste?: () => void;
   onShowToast?: (message: string, type?: 'success' | 'error' | 'info') => void;
 }

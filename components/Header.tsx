@@ -3,24 +3,31 @@ import { HeaderProps } from '../types';
 import { AIProvider, DEFAULT_PROVIDERS } from '../interfaces/AI';
 import { WindowBar, TabType } from './header/WindowBar';
 import { FileTab } from './header/tabs/FileTab';
+import { EditTab } from './header/tabs/EditTab';
 import { ViewTab } from './header/tabs/ViewTab';
 import { HomeTab } from './header/tabs/HomeTab';
 import { LayoutTab } from './header/tabs/LayoutTab';
 import { AITab } from './header/tabs/AITab';
 import { useAIConfigStore } from '../services/aiConfigStore';
 
-const Header: React.FC<HeaderProps> = ({ 
-  isExporting, 
-  onExport, 
-  onImport, 
-  viewMode, 
-  onViewModeChange, 
-  theme, 
-  onThemeChange, 
-  cfg, 
-  onCfgChange, 
-  onSearchClick, 
-  onShowToast 
+const Header: React.FC<HeaderProps> = ({
+  isExporting,
+  onExport,
+  onImport,
+  viewMode,
+  onViewModeChange,
+  theme,
+  onThemeChange,
+  cfg,
+  onCfgChange,
+  onSearchClick,
+  onReplaceClick,
+  onUndo,
+  onRedo,
+  onCut,
+  onCopy,
+  onPaste,
+  onShowToast
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeTab, setActiveTab] = useState<TabType>('home');
@@ -34,7 +41,7 @@ const Header: React.FC<HeaderProps> = ({
       const label = 'ai-config';
       // Use dynamic import for Tauri API to avoid SSR/build issues if not in Tauri env
       const { WebviewWindow } = await import('@tauri-apps/api/webviewWindow');
-      
+
       const url = `/?window=config&theme=${encodeURIComponent(theme)}`;
       const webview = new WebviewWindow(label, {
         url,
@@ -49,7 +56,7 @@ const Header: React.FC<HeaderProps> = ({
       webview.once('tauri://created', function () {
         // webview window successfully created
       });
-      
+
       webview.once('tauri://error', function (e) {
         // an error occurred during webview window creation
         console.error('Failed to create AI config window:', e);
@@ -67,55 +74,67 @@ const Header: React.FC<HeaderProps> = ({
 
   return (
     <div className="relative z-50 flex-shrink-0 bg-white dark:bg-dark-bg border-b border-gray-200 dark:border-dark-border transition-colors duration-200">
-      <WindowBar 
-        activeTab={activeTab} 
-        setActiveTab={setActiveTab} 
-        onImport={onImport} 
-        fileInputRef={fileInputRef} 
+      <WindowBar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        onImport={onImport}
+        fileInputRef={fileInputRef}
       />
 
       {/* Ribbon Content - Compact Layout */}
       <div className="h-14 bg-white dark:bg-dark-bg flex items-center px-2 py-1 gap-2 flex-nowrap transition-colors duration-200">
-        
+
         {activeTab === 'file' && (
-          <FileTab 
-            onImport={onImport} 
-            onExport={onExport} 
-            isExporting={isExporting} 
-            fileInputRef={fileInputRef} 
+          <FileTab
+            onImport={onImport}
+            onExport={onExport}
+            isExporting={isExporting}
+            fileInputRef={fileInputRef}
+          />
+        )}
+
+        {activeTab === 'edit' && (
+          <EditTab
+            onUndo={onUndo}
+            onRedo={onRedo}
+            onCut={onCut}
+            onCopy={onCopy}
+            onPaste={onPaste}
+            onSearchClick={onSearchClick}
+            onReplaceClick={onReplaceClick}
           />
         )}
 
         {activeTab === 'view' && (
-          <ViewTab 
-            viewMode={viewMode} 
-            onViewModeChange={onViewModeChange} 
-            theme={theme} 
-            onThemeChange={onThemeChange} 
+          <ViewTab
+            viewMode={viewMode}
+            onViewModeChange={onViewModeChange}
+            theme={theme}
+            onThemeChange={onThemeChange}
           />
         )}
 
         {activeTab === 'home' && (
-          <HomeTab 
-            cfg={cfg} 
-            onCfgChange={onCfgChange} 
-            activeStyle={activeStyle} 
-            setActiveStyle={setActiveStyle} 
-            onSearchClick={onSearchClick} 
+          <HomeTab
+            cfg={cfg}
+            onCfgChange={onCfgChange}
+            activeStyle={activeStyle}
+            setActiveStyle={setActiveStyle}
+            onSearchClick={onSearchClick}
           />
         )}
 
         {activeTab === 'layout' && (
-          <LayoutTab 
-            cfg={cfg} 
-            onCfgChange={onCfgChange} 
-            activeStyle={activeStyle} 
+          <LayoutTab
+            cfg={cfg}
+            onCfgChange={onCfgChange}
+            activeStyle={activeStyle}
             onSearchClick={onSearchClick}
           />
         )}
 
         {activeTab === 'ai' && (
-          <AITab 
+          <AITab
             aiProviders={aiProviders}
             selectedModel={selectedModel}
             setShowAIConfig={() => openAIConfigWindow()}

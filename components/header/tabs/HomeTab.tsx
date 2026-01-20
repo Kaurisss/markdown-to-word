@@ -12,18 +12,18 @@ interface HomeTabProps {
   onSearchClick?: () => void;
 }
 
-export const HomeTab: React.FC<HomeTabProps> = ({ 
-  cfg, 
-  onCfgChange, 
-  activeStyle, 
+export const HomeTab: React.FC<HomeTabProps> = ({
+  cfg,
+  onCfgChange,
+  activeStyle,
   setActiveStyle,
-  onSearchClick 
+  onSearchClick
 }) => {
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showBgColorPicker, setShowBgColorPicker] = useState(false);
   const [isColorRendered, setIsColorRendered] = useState(false);
   const [isBgColorRendered, setIsBgColorRendered] = useState(false);
-  
+
   const colorPickerRef = useRef<HTMLDivElement>(null);
   const bgColorPickerRef = useRef<HTMLDivElement>(null);
 
@@ -60,7 +60,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
   }, []);
 
   const currentStyle = cfg.styles[activeStyle];
-  
+
   const updateStyle = (patch: Partial<ElementStyle>) => {
     onCfgChange({
       ...cfg,
@@ -134,7 +134,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             <span className="italic text-sm font-serif">I</span>
           </button>
           <div className="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-0.5"></div>
-          
+
           {/* Color Picker */}
           <div className="relative" ref={colorPickerRef}>
             <button
@@ -146,7 +146,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               <div className="w-4 h-1 rounded-sm border border-gray-200 dark:border-gray-600" style={{ backgroundColor: currentStyle.color || '#000000' }}></div>
             </button>
             {isColorRendered && (
-              <div 
+              <div
                 className={`absolute top-full left-0 mt-1 bg-white dark:bg-dark-surface rounded-lg shadow-lg border border-gray-200 dark:border-dark-border p-2 z-50 w-56 ${showColorPicker ? 'animate-menu-in' : 'animate-menu-out'}`}
                 onAnimationEnd={handleColorAnimationEnd}
               >
@@ -206,7 +206,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               </div>
             </button>
             {isBgColorRendered && (
-              <div 
+              <div
                 className={`absolute top-full left-0 mt-1 bg-white dark:bg-dark-surface rounded-lg shadow-lg border border-gray-200 dark:border-dark-border p-2 z-50 w-56 ${showBgColorPicker ? 'animate-menu-in' : 'animate-menu-out'}`}
                 onAnimationEnd={handleBgColorAnimationEnd}
               >
@@ -269,19 +269,6 @@ export const HomeTab: React.FC<HomeTabProps> = ({
         </div>
       </div>
 
-      {/* 搜索 */}
-      <div className={STYLES.groupClass}>
-        <button
-          onClick={onSearchClick}
-          className={`${STYLES.btnClass} flex-col gap-0.5 h-12 w-12 !px-1`}
-          title="搜索 (Ctrl+F)"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <span className="text-[10px] scale-90">搜索</span>
-        </button>
-      </div>
     </div>
   );
 };

@@ -62,6 +62,7 @@ const App: React.FC = () => {
   const [cfg, setCfg] = useState<DocumentConfig>(DEFAULT_CONFIG);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [showSearch, setShowSearch] = useState<boolean>(false);
+  const [showReplace, setShowReplace] = useState<boolean>(false);
   const [currentMatchIndex, setCurrentMatchIndex] = useState<number>(0);
   const [replaceText, setReplaceText] = useState<string>('');
   const [caseSensitive, setCaseSensitive] = useState<boolean>(false);
@@ -188,6 +189,68 @@ const App: React.FC = () => {
     setCurrentMatchIndex(0);
   }, [searchQuery, replaceText, content, buildSearchRegex, updateContent]);
 
+  // Toolbar Actions
+  const handleCopy = useCallback(async () => {
+    const textarea = editorRef.current;
+    if (!textarea) return;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value.slice(start, end);
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      showToast('已复制', 'success');
+    } catch (err) {
+      console.error('Failed to copy:', err);
+      showToast('复制失败', 'error');
+    }
+  }, [showToast]);
+
+  const handleCut = useCallback(async () => {
+    const textarea = editorRef.current;
+    if (!textarea) return;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value.slice(start, end);
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      const next = textarea.value.slice(0, start) + textarea.value.slice(end);
+      updateContent(next);
+      // Restore cursor
+      requestAnimationFrame(() => {
+        textarea.focus();
+        textarea.setSelectionRange(start, start);
+      });
+      showToast('已剪切', 'success');
+    } catch (err) {
+      console.error('Failed to cut:', err);
+      showToast('剪切失败', 'error');
+    }
+  }, [updateContent, showToast]);
+
+  const handlePaste = useCallback(async () => {
+    const textarea = editorRef.current;
+    if (!textarea) return;
+    try {
+      const text = await navigator.clipboard.readText();
+      if (!text) return;
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const next = textarea.value.slice(0, start) + text + textarea.value.slice(end);
+      updateContent(next);
+      // Move cursor to end of pasted text
+      const nextPos = start + text.length;
+      requestAnimationFrame(() => {
+        textarea.focus();
+        textarea.setSelectionRange(nextPos, nextPos);
+      });
+    } catch (err) {
+      console.error('Failed to paste:', err);
+      showToast('无法读取剪贴板', 'error');
+    }
+  }, [updateContent, showToast]);
+
   // Context Menu State
   const [contextMenu, setContextMenu] = useState<{ visible: boolean; x: number; y: number; items: ContextMenuItem[] }>({
     visible: false,
@@ -204,7 +267,7 @@ const App: React.FC = () => {
     }
     const handleSelectionChange = () => {
       const selection = window.getSelection();
-      if (!selection || selection.rangeCount === 0 || selection.isCollapsed) return;
+      if (!selection || selection.rangeCount === 0) return;
       const anchorNode = selection.anchorNode;
       const anchorElement = anchorNode instanceof Element ? anchorNode : anchorNode?.parentElement;
       const editableRoot = anchorElement?.closest('[contenteditable="true"]') as HTMLElement | null;
@@ -453,6 +516,7 @@ const App: React.FC = () => {
 
   const closeSearch = useCallback(() => {
     setShowSearch(false);
+    setShowReplace(false);
     setSearchQuery('');
     setReplaceText('');
     setCurrentMatchIndex(0);
@@ -625,11 +689,22 @@ const App: React.FC = () => {
         onCfgChange={setCfg}
         onSearchClick={() => setShowSearch(true)}
         onShowToast={showToast}
+        onUndo={undo}
+        onRedo={redo}
+        onCut={handleCut}
+        onCopy={handleCopy}
+        onPaste={handlePaste}
+        onReplaceClick={() => {
+          setShowSearch(true);
+          setShowReplace(true);
+        }}
       />
 
       <main className="flex-1 flex flex-row overflow-hidden relative">
         <SearchPopover
           visible={showSearch}
+          showReplace={showReplace}
+          setShowReplace={setShowReplace}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           currentMatchIndex={currentMatchIndex}
@@ -650,10 +725,10 @@ const App: React.FC = () => {
         {/* Left Pane: Editor */}
         {showEditor && (
           <div className={`h-full bg-white dark:bg-dark-bg relative z-0 transition-all duration-300 ease-in-out ${viewMode === 'split' ? 'w-1/2' : 'w-full'}`}>
-            <Editor 
-              ref={editorRef} 
-              value={content} 
-              onChange={updateContent} 
+            <Editor
+              ref={editorRef}
+              value={content}
+              onChange={updateContent}
               onKeyDown={handleEditorKeyDown}
               searchQuery={searchQuery}
               showSearch={showSearch}
@@ -674,12 +749,12 @@ const App: React.FC = () => {
       </main>
 
       <StatusBar content={content} onSearchClick={() => setShowSearch(true)} />
-      
+
       {toast.visible && (
-        <Toast 
-          message={toast.message} 
-          type={toast.type} 
-          onClose={() => setToast(prev => ({ ...prev, visible: false }))} 
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(prev => ({ ...prev, visible: false }))}
         />
       )}
 

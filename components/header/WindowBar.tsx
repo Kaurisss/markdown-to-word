@@ -1,7 +1,7 @@
 import React, { useCallback, useRef, useState, useEffect } from 'react';
 import logoUrl from '../../logo.png';
 
-export type TabType = 'file' | 'view' | 'home' | 'layout' | 'ai';
+export type TabType = 'file' | 'edit' | 'view' | 'home' | 'layout' | 'ai';
 
 interface WindowBarProps {
   activeTab: TabType;
@@ -10,11 +10,11 @@ interface WindowBarProps {
   fileInputRef: React.RefObject<HTMLInputElement>;
 }
 
-export const WindowBar: React.FC<WindowBarProps> = ({ 
-  activeTab, 
-  setActiveTab, 
+export const WindowBar: React.FC<WindowBarProps> = ({
+  activeTab,
+  setActiveTab,
   onImport,
-  fileInputRef 
+  fileInputRef
 }) => {
   const [isMaximized, setIsMaximized] = useState(false);
   const [openMenu, setOpenMenu] = useState<'file' | 'edit' | null>(null);
@@ -86,7 +86,7 @@ export const WindowBar: React.FC<WindowBarProps> = ({
           <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".md,.txt,.markdown" className="hidden" />
 
           {/* 功能栏切换按钮 */}
-          {(['file', 'view', 'home', 'layout', 'ai'] as const).map(tab => (
+          {(['file', 'edit', 'view', 'home', 'layout', 'ai'] as const).map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -95,7 +95,7 @@ export const WindowBar: React.FC<WindowBarProps> = ({
                 : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700'
                 }`}
             >
-              {{ file: '文件', view: '视图', home: '开始', layout: '布局', ai: '智能' }[tab]}
+              {{ file: '文件', edit: '编辑', view: '视图', home: '开始', layout: '布局', ai: '智能' }[tab]}
             </button>
           ))}
         </div>
