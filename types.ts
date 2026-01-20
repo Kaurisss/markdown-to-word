@@ -1,3 +1,5 @@
+import type React from 'react';
+
 // Simplified AST Node types based on unist/mdast
 export interface MdNode {
   type: string;
@@ -13,6 +15,7 @@ export interface MdNode {
 export interface EditorProps {
   value: string;
   onChange: (value: string) => void;
+  onKeyDown?: (event: React.KeyboardEvent<HTMLTextAreaElement>) => void;
   searchQuery?: string;
   showSearch?: boolean;
   currentMatchIndex?: number;

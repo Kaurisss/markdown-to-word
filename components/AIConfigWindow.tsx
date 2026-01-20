@@ -162,7 +162,7 @@ export const AIConfigWindow: React.FC = () => {
       
       {/* Sidebar */}
       <div className="w-64 bg-gray-50 dark:bg-dark-bg border-r border-gray-200 dark:border-dark-border flex flex-col">
-        <div className="p-4 flex items-center justify-between border-b border-gray-200 dark:border-dark-border bg-gray-100 dark:bg-dark-surface/50" data-tauri-drag-region>
+        <div className="h-14 px-4 flex items-center justify-between border-b border-gray-200 dark:border-dark-border bg-gray-100 dark:bg-dark-surface/50" data-tauri-drag-region>
           <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200 pointer-events-none">AI 平台管理</h2>
           <button 
             onClick={() => setShowAddPlatform(true)}

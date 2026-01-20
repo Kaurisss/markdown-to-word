@@ -12,12 +12,13 @@ import { DEFAULT_CONFIG } from './config/defaultConfig';
 import { DocumentConfig } from './interfaces/Config';
 import { exportWithPython, formatErrorMessage } from './services/pythonBackend';
 import { ContextMenu, ContextMenuItem } from './components/ui/ContextMenu';
-import { Copy, Clipboard, Scissors, CheckSquare } from 'lucide-react';
+import { Copy, Clipboard, Scissors, CheckSquare, Undo2, Redo2 } from 'lucide-react';
 import { AIConfigWindow } from './components/AIConfigWindow';
 import { useAIConfigStore } from './services/aiConfigStore';
 
 const INVALID_FILENAME_CHARS = /[<>:"/\\|?*\u0000-\u001F]/g;
 const MAX_BASENAME_LENGTH = 80;
+const MAX_HISTORY = 100;
 
 function sanitizeFilename(input: string, fallback: string): string {
   const trimmed = input.trim().replace(INVALID_FILENAME_CHARS, '_');
@@ -43,6 +44,9 @@ const App: React.FC = () => {
   const { providers, updateProviders, selectedModel, updateSelectedModel } = useAIConfigStore();
 
   const [content, setContent] = useState<string>(DEFAULT_MARKDOWN);
+  const lastContentRef = useRef<string>(DEFAULT_MARKDOWN);
+  const undoStackRef = useRef<string[]>([]);
+  const redoStackRef = useRef<string[]>([]);
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<ViewMode>('split');
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
@@ -72,6 +76,59 @@ const App: React.FC = () => {
   const showToast = useCallback((message: string, type: ToastType = 'success') => {
     setToast({ message, type, visible: true });
   }, []);
+
+  const applyContent = useCallback((next: string) => {
+    lastContentRef.current = next;
+    setContent(next);
+  }, []);
+
+  const updateContent = useCallback((next: string) => {
+    const prev = lastContentRef.current;
+    if (next !== prev) {
+      undoStackRef.current.push(prev);
+      if (undoStackRef.current.length > MAX_HISTORY) {
+        undoStackRef.current.shift();
+      }
+      redoStackRef.current = [];
+    }
+    applyContent(next);
+  }, [applyContent]);
+
+  const undo = useCallback(() => {
+    if (undoStackRef.current.length === 0) return;
+    const previous = undoStackRef.current.pop();
+    if (previous === undefined) return;
+    const current = lastContentRef.current;
+    redoStackRef.current.push(current);
+    applyContent(previous);
+  }, [applyContent]);
+
+  const redo = useCallback(() => {
+    if (redoStackRef.current.length === 0) return;
+    const next = redoStackRef.current.pop();
+    if (next === undefined) return;
+    const current = lastContentRef.current;
+    undoStackRef.current.push(current);
+    applyContent(next);
+  }, [applyContent]);
+
+  const handleEditorKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (!(e.ctrlKey || e.metaKey)) return;
+    const key = e.key.toLowerCase();
+    if (key === 'z') {
+      e.preventDefault();
+      if (e.shiftKey) {
+        redo();
+      } else {
+        undo();
+      }
+      return;
+    }
+    if (key === 'y') {
+      e.preventDefault();
+      redo();
+    }
+  }, [redo, undo]);
 
   const buildSearchRegex = useCallback((query: string): RegExp | null => {
     if (!query) return null;
@@ -113,23 +170,23 @@ const App: React.FC = () => {
     const index = Math.min(Math.max(currentMatchIndex, 0), matches.length - 1);
     const match = matches[index];
     const next = `${content.slice(0, match.index)}${replaceText}${content.slice(match.index + match.length)}`;
-    setContent(next);
+    updateContent(next);
     const newMatches = getMatches(next);
     if (newMatches.length === 0) {
       setCurrentMatchIndex(0);
     } else {
       setCurrentMatchIndex(Math.min(index, newMatches.length - 1));
     }
-  }, [searchQuery, replaceText, content, currentMatchIndex, getMatches]);
+  }, [searchQuery, replaceText, content, currentMatchIndex, getMatches, updateContent]);
 
   const handleReplaceAll = useCallback(() => {
     if (!searchQuery || !searchQuery.trim() || !replaceText) return;
     const regex = buildSearchRegex(searchQuery.trim());
     if (!regex) return;
     const next = content.replace(regex, replaceText);
-    setContent(next);
+    updateContent(next);
     setCurrentMatchIndex(0);
-  }, [searchQuery, replaceText, content, buildSearchRegex]);
+  }, [searchQuery, replaceText, content, buildSearchRegex, updateContent]);
 
   // Context Menu State
   const [contextMenu, setContextMenu] = useState<{ visible: boolean; x: number; y: number; items: ContextMenuItem[] }>({
@@ -274,14 +331,37 @@ const App: React.FC = () => {
 
     const applyContentReplacement = (insertText: string) => {
       const next = `${content.slice(0, selectionStart)}${insertText}${content.slice(selectionEnd)}`;
-      setContent(next);
+      updateContent(next);
       const nextOffset = selectionStart + insertText.length;
       requestAnimationFrame(() => {
         setEditableSelection(nextOffset, nextOffset);
       });
     };
 
+    const isEditorField = textField === editorRef.current;
+    const canUndo = isEditorField && undoStackRef.current.length > 0;
+    const canRedo = isEditorField && redoStackRef.current.length > 0;
+
     const menuItems: ContextMenuItem[] = [
+      {
+        label: '撤回',
+        icon: <Undo2 className="w-4 h-4" />,
+        shortcut: 'Ctrl+Z',
+        disabled: !canUndo,
+        action: () => {
+          undo();
+        }
+      },
+      {
+        label: '重做',
+        icon: <Redo2 className="w-4 h-4" />,
+        shortcut: 'Ctrl+Y',
+        disabled: !canRedo,
+        action: () => {
+          redo();
+        }
+      },
+      { separator: true },
       {
         label: '复制',
         icon: <Copy className="w-4 h-4" />,
@@ -365,7 +445,7 @@ const App: React.FC = () => {
         textField.setSelectionRange(selectionStart, selectionEnd);
       });
     }
-  }, [content, showToast, setContent]);
+  }, [content, showToast, updateContent, undo, redo]);
 
   const closeContextMenu = useCallback(() => {
     setContextMenu(prev => ({ ...prev, visible: false }));
@@ -433,8 +513,8 @@ const App: React.FC = () => {
 
   // Handle Import Logic
   const handleImport = useCallback((newContent: string) => {
-    setContent(newContent);
-  }, []);
+    updateContent(newContent);
+  }, [updateContent]);
 
   // Handle Export Logic
   // Requirements: 1.1 - Invoke Python_Backend with Markdown_Content and Style_Config
@@ -573,7 +653,8 @@ const App: React.FC = () => {
             <Editor 
               ref={editorRef} 
               value={content} 
-              onChange={setContent} 
+              onChange={updateContent} 
+              onKeyDown={handleEditorKeyDown}
               searchQuery={searchQuery}
               showSearch={showSearch}
               currentMatchIndex={currentMatchIndex}
