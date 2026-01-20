@@ -262,6 +262,7 @@ export const AIConfigWindow: React.FC = () => {
         }
       }}
     >
+
       {/* Sidebar */}
       <div className="w-64 bg-gray-50 dark:bg-dark-bg border-r border-gray-200 dark:border-dark-border flex flex-col">
         <div className="h-14 px-4 flex items-center justify-between border-b border-gray-200 dark:border-dark-border bg-gray-100 dark:bg-dark-surface/50" data-tauri-drag-region>
@@ -280,8 +281,8 @@ export const AIConfigWindow: React.FC = () => {
               key={provider.id}
               onClick={() => setSelectedProviderId(provider.id)}
               className={`flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer transition-colors text-xs ${selectedProviderId === provider.id
-                ? 'bg-blue-50/80 dark:bg-blue-900/20 text-brand-600 dark:text-brand-400'
-                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100/80 dark:hover:bg-gray-800/80'
+                ? 'bg-blue-50 dark:bg-blue-900/20 text-brand-600 dark:text-brand-400'
+                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                 }`}
             >
               <span className="font-medium truncate pr-2">{provider.name}</span>
