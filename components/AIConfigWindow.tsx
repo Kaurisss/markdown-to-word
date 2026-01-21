@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useLayoutEffect, useRef } from 'react';
 import { X, Plus, Play, Trash2, Settings2, Check, Loader2, Pencil, Copy, Eye, EyeOff } from 'lucide-react';
 import { AIProvider, AIModel } from '../interfaces/AI';
 import { useAIConfigStore } from '../services/aiConfigStore';
@@ -29,6 +29,7 @@ export const AIConfigWindow: React.FC = () => {
     y: 0,
     model: null
   });
+  const modelContextMenuRef = useRef<HTMLDivElement | null>(null);
 
   // Edit model state
   const [showEditModel, setShowEditModel] = useState(false);
@@ -221,6 +222,19 @@ export const AIConfigWindow: React.FC = () => {
     document.addEventListener('click', handleClick);
     return () => document.removeEventListener('click', handleClick);
   }, [modelContextMenu.visible, closeModelContextMenu]);
+
+  useLayoutEffect(() => {
+    if (!modelContextMenu.visible || !modelContextMenuRef.current) return;
+    const { offsetWidth, offsetHeight } = modelContextMenuRef.current;
+    const padding = 8;
+    const maxX = window.innerWidth - offsetWidth - padding;
+    const maxY = window.innerHeight - offsetHeight - padding;
+    const nextX = Math.max(padding, Math.min(modelContextMenu.x, maxX));
+    const nextY = Math.max(padding, Math.min(modelContextMenu.y, maxY));
+    if (nextX !== modelContextMenu.x || nextY !== modelContextMenu.y) {
+      setModelContextMenu(prev => prev.visible ? { ...prev, x: nextX, y: nextY } : prev);
+    }
+  }, [modelContextMenu.visible, modelContextMenu.x, modelContextMenu.y]);
 
   const handleAddPlatform = () => {
     if (!newPlatformName.trim()) return;
@@ -516,6 +530,7 @@ export const AIConfigWindow: React.FC = () => {
           className="fixed z-[70] bg-white dark:bg-dark-surface rounded-lg shadow-xl border border-gray-200 dark:border-dark-border py-1 min-w-[140px] animate-scale-in"
           style={{ left: modelContextMenu.x, top: modelContextMenu.y }}
           onClick={(e) => e.stopPropagation()}
+          ref={modelContextMenuRef}
         >
           <button
             onClick={handleEditModel}
