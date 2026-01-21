@@ -49,7 +49,7 @@ const Header: React.FC<HeaderProps> = ({
         width: 600,
         height: 800,
         decorations: false,
-        resizable: true,
+        resizable: false,
         center: true
       });
 
