@@ -267,11 +267,11 @@ def apply_run_fmt(run, style_config: Dict[str, Any], global_config: Dict[str, An
     base_cn = (global_config.get("baseFontCn") or "SimSun")
     base_en = (global_config.get("baseFontEn") or base_cn)
     
-    # 如果样式指定了 fontFamily，则覆盖中文字体
+    # 如果样式指定了 fontFamily，则同时覆盖中英文字体
     ff = style_config.get("fontFamily")
     if ff:
         # 用户自定义字体同时用于中文和英文
-        _ensure_east_asia_font(run, ff, base_en if base_en else ff)
+        _ensure_east_asia_font(run, ff, ff)
     else:
         _ensure_east_asia_font(run, base_cn, base_en if base_en else base_cn)
 
@@ -461,9 +461,10 @@ def add_formatted_runs(paragraph, text: str, base_style: Dict[str, Any], global_
             if segment['italic']:
                 run.italic = True
             if segment['code']:
-                # Use monospace font for inline code
-                run.font.name = 'Courier New'
-                _ensure_east_asia_font(run, global_config.get('baseFontCn', 'SimSun'), 'Courier New')
+                # Use configured font for inline code, fallback to Courier New
+                code_font = code_style.get('fontFamily', 'Courier New') if code_style else 'Courier New'
+                run.font.name = code_font
+                _ensure_east_asia_font(run, global_config.get('baseFontCn', 'SimSun'), code_font)
 
 
 def add_heading(doc: Document, text: str, level: int, conf: Dict[str, Any]) -> None:
@@ -942,13 +943,19 @@ def convert(input_path: str, output_path: str, conf: Dict[str, Any]) -> None:
             add_quote(doc, text, conf)
             i += 1
             continue
-        # Unordered list: detect indent level (each 2 spaces or 1 tab = 1 level)
-        ul_match = re.match(r"^(\s*)-\s+(.*)$", line)
+        # Horizontal rule: ---, ***, ___ (must check before list to avoid * * * being matched as list)
+        if re.match(r"^\s*([-*_])\s*\1\s*\1\s*$", line.strip()):
+            add_horizontal_rule(doc, conf)
+            i += 1
+            continue
+        # Unordered list: support -, *, + markers; detect indent level
+        ul_match = re.match(r"^(\s*)[-*+]\s+(.*)$", line)
         if ul_match:
             indent = ul_match.group(1)
             text = ul_match.group(2)
-            # Calculate level: 2 spaces or 1 tab per level
-            level = len(indent.replace('\t', '  ')) // 2
+            # Calculate level: 2 spaces or 1 tab per level (matches common usage like 3-space indent)
+            indent_len = len(indent.replace('\t', '  '))
+            level = indent_len // 2
             add_list_item(doc, text, ordered=False, conf=conf, level=level)
             i += 1
             continue
@@ -957,13 +964,10 @@ def convert(input_path: str, output_path: str, conf: Dict[str, Any]) -> None:
         if ol_match:
             indent = ol_match.group(1)
             text = ol_match.group(2)
-            level = len(indent.replace('\t', '  ')) // 2
+            # Calculate level: 2 spaces or 1 tab per level
+            indent_len = len(indent.replace('\t', '  '))
+            level = indent_len // 2
             add_list_item(doc, text, ordered=True, conf=conf, level=level)
-            i += 1
-            continue
-        # Horizontal rule: ---, ***, ___
-        if re.match(r"^\s*([-*_])\s*\1\s*\1\s*$", line.strip()):
-            add_horizontal_rule(doc, conf)
             i += 1
             continue
         if line.strip() == "":

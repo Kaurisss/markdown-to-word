@@ -101,7 +101,11 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             placeholder="字体"
             options={[
               { label: '默认字体', value: '' },
-              ...FONTS_CN.concat(FONTS_EN).map(f => ({ label: FONT_LABELS[f] || f, value: f }))
+              ...FONTS_CN.concat(FONTS_EN).map(f => ({
+                label: FONT_LABELS[f] || f,
+                value: f,
+                fontFamily: f
+              }))
             ]}
           />
         </div>

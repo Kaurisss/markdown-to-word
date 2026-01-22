@@ -4,6 +4,7 @@ import { ChevronDown, Check } from 'lucide-react';
 export interface SelectOption {
   label: string;
   value: string | number;
+  fontFamily?: string;
 }
 
 interface SelectProps {
@@ -30,6 +31,7 @@ export const Select: React.FC<SelectProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
 
   const selectedOption = options.find(opt => opt.value === value);
+  const selectedFontStyle = selectedOption?.fontFamily ? { fontFamily: `"${selectedOption.fontFamily}"` } : undefined;
 
   useEffect(() => {
     if (isOpen) {
@@ -94,7 +96,10 @@ export const Select: React.FC<SelectProps> = ({
         `}
         disabled={disabled}
       >
-        <span className={`truncate ${!selectedOption ? 'text-gray-400' : 'text-gray-900 dark:text-gray-100'}`}>
+        <span
+          className={`truncate ${!selectedOption ? 'text-gray-400' : 'text-gray-900 dark:text-gray-100'}`}
+          style={selectedFontStyle}
+        >
           {selectedOption ? selectedOption.label : placeholder}
         </span>
         <ChevronDown className={`w-3.5 h-3.5 ml-1 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
@@ -121,7 +126,12 @@ export const Select: React.FC<SelectProps> = ({
                   }
                 `}
               >
-                <span className="truncate">{option.label}</span>
+                <span
+                  className="truncate"
+                  style={option.fontFamily ? { fontFamily: `"${option.fontFamily}"` } : undefined}
+                >
+                  {option.label}
+                </span>
                 {option.value === value && (
                   <Check className="w-3.5 h-3.5 ml-2 flex-shrink-0" />
                 )}

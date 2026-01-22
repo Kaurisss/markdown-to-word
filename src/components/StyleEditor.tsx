@@ -230,10 +230,18 @@ export default function StyleEditor({ label, value, onChange }: Props) {
           <select className={inputClassName} value={value.fontFamily || ''} onChange={(e) => set({ fontFamily: e.target.value })}>
             <option value="">(默认)</option>
             <optgroup label="中文字体">
-              {FONTS_CN.map(f => <option key={f} value={f}>{FONT_LABELS[f] || f}</option>)}
+              {FONTS_CN.map(f => (
+                <option key={f} value={f} style={{ fontFamily: `"${f}"` }}>
+                  {FONT_LABELS[f] || f}
+                </option>
+              ))}
             </optgroup>
             <optgroup label="英文字体">
-              {FONTS_EN.map(f => <option key={f} value={f}>{FONT_LABELS[f] || f}</option>)}
+              {FONTS_EN.map(f => (
+                <option key={f} value={f} style={{ fontFamily: `"${f}"` }}>
+                  {FONT_LABELS[f] || f}
+                </option>
+              ))}
             </optgroup>
           </select>
         </div>

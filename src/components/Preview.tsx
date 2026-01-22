@@ -19,7 +19,8 @@ function hexToRgba(hex: string, alpha: number): string {
 
 function buildFontFamily(cfg: PreviewProps['cfg'], elementFontFamily?: string): string {
   const baseCn = cfg.global.baseFontCn?.trim() || 'SimSun';
-  const baseEn = cfg.global.baseFontEn?.trim() || 'Times New Roman';
+  // Match backend behavior: fallback to baseFontCn when baseFontEn is empty
+  const baseEn = cfg.global.baseFontEn?.trim() || baseCn;
   const parts: string[] = [];
 
   if (elementFontFamily?.trim()) parts.push(`"${elementFontFamily.trim()}"`);
@@ -80,6 +81,19 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
   const tableBorder = `1px solid ${hexToRgba(bodyTextColor, 0.25)}`;
   const tableHeadBg = hexToRgba(bodyTextColor, 0.06);
 
+  // Track heading IDs to handle duplicates - create fresh counter each render
+  // Using a ref that gets reset at render start ensures consistent IDs
+  const headingIdCounterRef = React.useRef<Map<string, number>>(new Map());
+  // Reset counter at the start of each render to ensure consistent IDs
+  headingIdCounterRef.current = new Map();
+
+  const generateUniqueId = (baseId: string): string => {
+    const counter = headingIdCounterRef.current;
+    const count = counter.get(baseId) || 0;
+    counter.set(baseId, count + 1);
+    return count === 0 ? baseId : `${baseId}-${count}`;
+  };
+
   return (
     <div className="flex flex-col h-full bg-gray-100/50 dark:bg-dark-bg overflow-hidden relative transition-colors duration-200">
       {/* Background pattern or subtle gradient could go here */}
@@ -114,27 +128,88 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
                 remarkPlugins={[remarkGfm]}
                 components={{
                   h1: ({ children, ...props }) => {
-                    const id = typeof children === 'string' ? children.toLowerCase().replace(/\s+/g, '-') : undefined;
+                    // Extract text from children recursively to support formatted headings
+                    const extractText = (node: React.ReactNode): string => {
+                      if (typeof node === 'string') return node;
+                      if (Array.isArray(node)) return node.map(extractText).join('');
+                      if (node && typeof node === 'object' && 'props' in node) {
+                        return extractText((node as React.ReactElement).props.children);
+                      }
+                      return '';
+                    };
+                    const text = extractText(children);
+                    const baseId = text ? text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\u00C0-\u024F\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af-]/g, '') || 'heading' : 'heading';
+                    const id = baseId ? generateUniqueId(baseId) : undefined;
                     return <h1 {...props} id={id} style={{ ...h1Style, textIndent: undefined }}>{children}</h1>;
                   },
                   h2: ({ children, ...props }) => {
-                    const id = typeof children === 'string' ? children.toLowerCase().replace(/\s+/g, '-') : undefined;
+                    const extractText = (node: React.ReactNode): string => {
+                      if (typeof node === 'string') return node;
+                      if (Array.isArray(node)) return node.map(extractText).join('');
+                      if (node && typeof node === 'object' && 'props' in node) {
+                        return extractText((node as React.ReactElement).props.children);
+                      }
+                      return '';
+                    };
+                    const text = extractText(children);
+                    const baseId = text ? text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\u00C0-\u024F\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af-]/g, '') || 'heading' : 'heading';
+                    const id = baseId ? generateUniqueId(baseId) : undefined;
                     return <h2 {...props} id={id} style={{ ...h2Style, textIndent: undefined }}>{children}</h2>;
                   },
                   h3: ({ children, ...props }) => {
-                    const id = typeof children === 'string' ? children.toLowerCase().replace(/\s+/g, '-') : undefined;
+                    const extractText = (node: React.ReactNode): string => {
+                      if (typeof node === 'string') return node;
+                      if (Array.isArray(node)) return node.map(extractText).join('');
+                      if (node && typeof node === 'object' && 'props' in node) {
+                        return extractText((node as React.ReactElement).props.children);
+                      }
+                      return '';
+                    };
+                    const text = extractText(children);
+                    const baseId = text ? text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\u00C0-\u024F\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af-]/g, '') || 'heading' : 'heading';
+                    const id = baseId ? generateUniqueId(baseId) : undefined;
                     return <h3 {...props} id={id} style={{ ...h3Style, textIndent: undefined }}>{children}</h3>;
                   },
                   h4: ({ children, ...props }) => {
-                    const id = typeof children === 'string' ? children.toLowerCase().replace(/\s+/g, '-') : undefined;
+                    const extractText = (node: React.ReactNode): string => {
+                      if (typeof node === 'string') return node;
+                      if (Array.isArray(node)) return node.map(extractText).join('');
+                      if (node && typeof node === 'object' && 'props' in node) {
+                        return extractText((node as React.ReactElement).props.children);
+                      }
+                      return '';
+                    };
+                    const text = extractText(children);
+                    const baseId = text ? text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\u00C0-\u024F\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af-]/g, '') || 'heading' : 'heading';
+                    const id = baseId ? generateUniqueId(baseId) : undefined;
                     return <h4 {...props} id={id} style={{ ...h3Style, textIndent: undefined }}>{children}</h4>;
                   },
                   h5: ({ children, ...props }) => {
-                    const id = typeof children === 'string' ? children.toLowerCase().replace(/\s+/g, '-') : undefined;
+                    const extractText = (node: React.ReactNode): string => {
+                      if (typeof node === 'string') return node;
+                      if (Array.isArray(node)) return node.map(extractText).join('');
+                      if (node && typeof node === 'object' && 'props' in node) {
+                        return extractText((node as React.ReactElement).props.children);
+                      }
+                      return '';
+                    };
+                    const text = extractText(children);
+                    const baseId = text ? text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\u00C0-\u024F\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af-]/g, '') || 'heading' : 'heading';
+                    const id = baseId ? generateUniqueId(baseId) : undefined;
                     return <h5 {...props} id={id} style={{ ...h3Style, textIndent: undefined }}>{children}</h5>;
                   },
                   h6: ({ children, ...props }) => {
-                    const id = typeof children === 'string' ? children.toLowerCase().replace(/\s+/g, '-') : undefined;
+                    const extractText = (node: React.ReactNode): string => {
+                      if (typeof node === 'string') return node;
+                      if (Array.isArray(node)) return node.map(extractText).join('');
+                      if (node && typeof node === 'object' && 'props' in node) {
+                        return extractText((node as React.ReactElement).props.children);
+                      }
+                      return '';
+                    };
+                    const text = extractText(children);
+                    const baseId = text ? text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\u00C0-\u024F\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af-]/g, '') || 'heading' : 'heading';
+                    const id = baseId ? generateUniqueId(baseId) : undefined;
                     return <h6 {...props} id={id} style={{ ...h3Style, textIndent: undefined }}>{children}</h6>;
                   },
                   a: ({ href, onClick, ...props }) => {
@@ -223,15 +298,14 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
                     />
                   ),
                   code: ({ className, children, node, ...props }) => {
-                    // Check if this code is inside a <pre> element (fenced code block)
-                    // react-markdown passes the node with parent info
-                    const isBlock = node?.position?.start?.line !== node?.position?.end?.line ||
-                      Boolean(className && /language-/.test(className)) ||
-                      // Check if parent is a 'pre' element by examining the node structure
-                      (node as any)?.tagName === 'code' && (node as any)?.properties?.className;
+                    // Detect if this is a fenced code block by checking:
+                    // 1. node.position spans multiple lines (fenced blocks have opening/closing ```)
+                    // 2. has language class
+                    // 3. contains newlines in text
+                    const startLine = node?.position?.start?.line ?? 0;
+                    const endLine = node?.position?.end?.line ?? 0;
+                    const spansMultipleLines = endLine > startLine;
 
-                    // More reliable: fenced code blocks are wrapped in <pre>, so if this code
-                    // component is rendered and has className or multi-line content, treat as block
                     const text =
                       typeof children === 'string'
                         ? children
@@ -239,16 +313,12 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
                           ? children.map((c) => (typeof c === 'string' ? c : '')).join('')
                           : '';
 
-                    // Fenced code blocks (even single line without language) will have the code
-                    // rendered inside a <pre> tag. The key insight is that inline code never has
-                    // className, while fenced blocks may or may not have one.
-                    // Since we can't easily detect <pre> parent here, we use a different approach:
-                    // - If className exists (language-xxx), it's a block
-                    // - If text contains newline, it's a block
-                    // - If node spans multiple lines in source, it's likely a block
                     const hasNewline = text.includes('\n');
                     const hasLanguageClass = Boolean(className && /language-/.test(className));
-                    const isFencedBlock = hasLanguageClass || hasNewline || (className !== undefined);
+
+                    // Fenced code blocks (``` ... ```) always span at least 3 lines in source,
+                    // or have a language class, or contain newlines
+                    const isFencedBlock = spansMultipleLines || hasLanguageClass || hasNewline;
 
                     return (
                       <code
