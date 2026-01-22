@@ -86,18 +86,32 @@ export const WindowBar: React.FC<WindowBarProps> = ({
           <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".md,.txt,.markdown" className="hidden" />
 
           {/* 功能栏切换按钮 */}
-          {(['file', 'edit', 'view', 'home', 'layout', 'ai'] as const).map(tab => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-3 py-1 text-xs font-medium rounded transition-colors ${activeTab === tab
-                ? 'bg-brand-100 dark:bg-brand-900/50 text-brand-700 dark:text-brand-300'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700'
-                }`}
-            >
-              {{ file: '文件', edit: '编辑', view: '视图', home: '开始', layout: '布局', ai: '智能' }[tab]}
-            </button>
-          ))}
+          {(['file', 'edit', 'view', 'home', 'layout', 'ai'] as const).map(tab => {
+            const isActive = activeTab === tab;
+            const label = ({ file: '文件', edit: '编辑', view: '视图', home: '开始', layout: '布局', ai: '智能' } as const)[tab];
+
+            return (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-3 py-1 text-xs font-medium transition-colors relative ${isActive
+                  ? 'text-brand-700 dark:text-brand-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded'
+                  }`}
+                aria-current={isActive ? 'page' : undefined}
+              >
+                <span className="relative inline-block">
+                  {label}
+                  {isActive && (
+                    <span
+                      aria-hidden="true"
+                      className="pointer-events-none absolute left-1/2 -translate-x-1/2 top-full mt-0.5 w-4 h-0.5 rounded-full bg-brand-600 dark:bg-brand-400"
+                    />
+                  )}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         {/* 点击外部关闭菜单 - 保留用于颜色选择器等 */}

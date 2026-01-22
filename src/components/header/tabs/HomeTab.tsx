@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useLayoutEffect, useCallback } from 'react';
 import { Palette, AlignLeft, AlignCenter, AlignRight, AlignJustify } from 'lucide-react';
 import { Select } from '../../ui/Select';
 import { ElementStyle, DocumentConfig } from '../../../interfaces/Config';
@@ -26,6 +26,35 @@ export const HomeTab: React.FC<HomeTabProps> = ({
 
   const colorPickerRef = useRef<HTMLDivElement>(null);
   const bgColorPickerRef = useRef<HTMLDivElement>(null);
+
+  // Slider animation state
+  const [sliderStyle, setSliderStyle] = useState<{ left: number; width: number }>({ left: 0, width: 0 });
+  const tabContainerRef = useRef<HTMLDivElement>(null);
+  const tabRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
+
+  // Calculate slider position
+  const updateSliderPosition = useCallback(() => {
+    const container = tabContainerRef.current;
+    const activeButton = tabRefs.current.get(activeStyle);
+    if (container && activeButton) {
+      const containerRect = container.getBoundingClientRect();
+      const buttonRect = activeButton.getBoundingClientRect();
+      setSliderStyle({
+        left: buttonRect.left - containerRect.left,
+        width: buttonRect.width
+      });
+    }
+  }, [activeStyle]);
+
+  useLayoutEffect(() => {
+    updateSliderPosition();
+  }, [activeStyle, updateSliderPosition]);
+
+  // Update on resize
+  useEffect(() => {
+    window.addEventListener('resize', updateSliderPosition);
+    return () => window.removeEventListener('resize', updateSliderPosition);
+  }, [updateSliderPosition]);
 
   useEffect(() => {
     if (showColorPicker) setIsColorRendered(true);
@@ -73,16 +102,29 @@ export const HomeTab: React.FC<HomeTabProps> = ({
 
   return (
     <div className="flex items-center h-full animate-slide-in-left">
-      {/* 样式选择 */}
+      {/* 样式选择 - 带滑块动画 */}
       <div className={STYLES.groupClass}>
-        <div className="flex bg-gray-100 dark:bg-gray-800 p-0.5 rounded-md">
+        <div
+          ref={tabContainerRef}
+          className="relative flex bg-gray-100 dark:bg-gray-800 p-0.5 rounded-md"
+        >
+          {/* 滑动指示器 */}
+          <div
+            className="absolute top-0.5 bottom-0.5 bg-white dark:bg-dark-surface rounded-sm shadow-sm transition-all duration-300 ease-out"
+            style={{
+              left: sliderStyle.left,
+              width: sliderStyle.width,
+              opacity: sliderStyle.width > 0 ? 1 : 0
+            }}
+          />
           {(['body', 'h1', 'h2', 'h3', 'code', 'quote'] as const).map(s => (
             <button
               key={s}
+              ref={(el) => { if (el) tabRefs.current.set(s, el); }}
               onClick={() => setActiveStyle(s)}
-              className={`px-2 py-1 text-xs rounded-sm transition-all ${activeStyle === s
-                ? 'bg-white dark:bg-dark-surface text-brand-600 dark:text-brand-400 shadow-sm font-medium'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-200/50 dark:hover:bg-gray-700/50'
+              className={`relative z-10 px-2 py-1 text-xs rounded-sm transition-colors duration-200 ${activeStyle === s
+                  ? 'text-brand-600 dark:text-brand-400 font-medium'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
                 }`}
             >
               {{ body: '正文', h1: 'H1', h2: 'H2', h3: 'H3', code: '代码', quote: '引用' }[s]}

@@ -27,6 +27,14 @@
     "fs:allow-appcache-write",
     "fs:allow-appcache-write-recursive",
     {
+      "identifier": "fs:scope",
+      "allow": [
+        {
+          "path": "$HOME/**"
+        }
+      ]
+    },
+    {
       "identifier": "shell:allow-execute",
       "allow": [
         {
