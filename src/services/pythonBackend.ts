@@ -65,7 +65,7 @@ export function parseBackendError(stderr: string, exitCode: number): { message: 
   // Extract the error message from stderr
   const errorMatch = stderr.match(/^Error:\s*(.+)$/m);
   const errorText = errorMatch ? errorMatch[1].trim() : stderr.trim();
-  
+
   // Map exit codes to user-friendly messages
   switch (exitCode) {
     case BackendErrorCode.FILE_NOT_FOUND:
@@ -73,31 +73,31 @@ export function parseBackendError(stderr: string, exitCode: number): { message: 
         message: '文件未找到',
         details: errorText || '输入文件不存在或无法访问'
       };
-    
+
     case BackendErrorCode.PERMISSION_ERROR:
       return {
         message: '权限错误',
         details: errorText || '无法写入输出文件，请检查文件权限'
       };
-    
+
     case BackendErrorCode.CONFIG_ERROR:
       return {
         message: '配置错误',
         details: errorText || '样式配置格式无效'
       };
-    
+
     case BackendErrorCode.MARKDOWN_PARSE_ERROR:
       return {
         message: 'Markdown 解析失败',
         details: errorText || '无法解析 Markdown 内容'
       };
-    
+
     case BackendErrorCode.DOCX_GENERATION_ERROR:
       return {
         message: '文档生成失败',
         details: errorText || '生成 Word 文档时发生错误'
       };
-    
+
     default:
       return {
         message: '导出失败',
@@ -129,7 +129,7 @@ function generateTempFilename(): string {
  */
 export async function exportWithPython(options: ExportOptions): Promise<ExportResult> {
   const { markdown, outputPath, config } = options;
-  
+
   // Validate input
   if (!markdown || !markdown.trim()) {
     return {
@@ -138,7 +138,7 @@ export async function exportWithPython(options: ExportOptions): Promise<ExportRe
       details: '请输入要转换的 Markdown 内容'
     };
   }
-  
+
   if (!outputPath) {
     return {
       success: false,
@@ -146,34 +146,38 @@ export async function exportWithPython(options: ExportOptions): Promise<ExportRe
       details: '请指定有效的输出文件路径'
     };
   }
-  
+
   // Generate unique temp filename to avoid conflicts
   const tempFilename = generateTempFilename();
+  const configFilename = `md2word-config-${Date.now()}-${Math.random().toString(36).substring(2, 8)}.json`;
   let tempFilePath: string | null = null;
-  
+  let configFilePath: string | null = null;
+
   try {
     // Create temporary input file in app cache directory
     // Requirements: 5.1 - Create output in designated temporary directory
     await writeTextFile(tempFilename, markdown, { baseDir: BaseDirectory.AppCache });
-    
+
     // Get the full path to the temp file
     const cacheDir = await appCacheDir();
     tempFilePath = await join(cacheDir, tempFilename);
-    
-    // Serialize config to JSON
-    // Requirements: 2.1 - Serialize Style_Config to JSON format
+
+    // Write config to a temporary JSON file instead of passing via command line
+    // This avoids UTF-8 encoding issues with Chinese characters in shell arguments
     const configJson = JSON.stringify(config);
-    
+    await writeTextFile(configFilename, configJson, { baseDir: BaseDirectory.AppCache });
+    configFilePath = await join(cacheDir, configFilename);
+
     // Invoke the Python backend sidecar
     // Requirements: 1.1 - Invoke Python_Backend with Markdown_Content and Style_Config
     const cmd = Command.sidecar('binaries/md2word', [
       '--input', tempFilePath,
       '--output', outputPath,
-      '--config', configJson
+      '--config-file', configFilePath
     ]);
-    
+
     const result = await cmd.execute();
-    
+
     // Check for errors
     if (result.code !== 0) {
       // Requirements: 6.3 - Display error message in user-friendly format
@@ -184,13 +188,13 @@ export async function exportWithPython(options: ExportOptions): Promise<ExportRe
         details: details
       };
     }
-    
+
     // Requirements: 1.2, 1.4 - Return file path on success
     return {
       success: true,
       filePath: outputPath
     };
-    
+
   } catch (error) {
     // Handle unexpected errors
     const errorMessage = error instanceof Error ? error.message : String(error);
@@ -199,7 +203,7 @@ export async function exportWithPython(options: ExportOptions): Promise<ExportRe
       error: '导出过程中发生错误',
       details: errorMessage
     };
-    
+
   } finally {
     // Requirements: 5.3 - Clean up temporary files
     if (tempFilePath) {
@@ -208,6 +212,14 @@ export async function exportWithPython(options: ExportOptions): Promise<ExportRe
       } catch {
         // Ignore cleanup errors - file may not exist or already be deleted
         console.warn(`Failed to clean up temp file: ${tempFilename}`);
+      }
+    }
+    if (configFilePath) {
+      try {
+        await remove(configFilename, { baseDir: BaseDirectory.AppCache });
+      } catch {
+        // Ignore cleanup errors
+        console.warn(`Failed to clean up config file: ${configFilename}`);
       }
     }
   }
@@ -223,7 +235,7 @@ export function formatErrorMessage(result: ExportResult): string {
   if (result.success) {
     return '';
   }
-  
+
   let message = result.error || '未知错误';
   if (result.details) {
     message += `\n${result.details}`;

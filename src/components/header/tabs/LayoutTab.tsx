@@ -75,6 +75,22 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({ cfg, onCfgChange, activeSt
         </div>
       </div>
 
+      {/* Table of Contents Toggle */}
+      <div className={STYLES.groupClass}>
+        <div className="flex flex-col gap-0.5">
+          <span className={STYLES.labelClass}>目录</span>
+          <label className="flex items-center gap-2 cursor-pointer h-7 px-2 rounded border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-surface hover:border-gray-400 dark:hover:border-gray-500 transition-colors">
+            <input
+              type="checkbox"
+              checked={cfg.global.includeTableOfContents || false}
+              onChange={(e) => onCfgChange({ ...cfg, global: { ...cfg.global, includeTableOfContents: e.target.checked } })}
+              className="rounded text-brand-500 focus:ring-brand-500 border-gray-300 dark:border-gray-600"
+            />
+            <span className="text-xs text-gray-700 dark:text-gray-300">生成目录</span>
+          </label>
+        </div>
+      </div>
+
       {/* Paragraph Setup */}
       <div className={STYLES.groupClass}>
         <div className="flex gap-2">

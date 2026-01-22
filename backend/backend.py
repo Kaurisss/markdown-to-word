@@ -448,7 +448,27 @@ def add_formatted_runs(paragraph, text: str, base_style: Dict[str, Any], global_
 
 def add_heading(doc: Document, text: str, level: int, conf: Dict[str, Any]) -> None:
     style = conf["styles"].get(f"h{level}", conf["styles"]["h1"])
-    p = doc.add_paragraph()
+    
+    # Use Word's built-in Heading styles so TOC can recognize them
+    # Map level to built-in style name
+    heading_style_map = {
+        1: "Heading 1",
+        2: "Heading 2", 
+        3: "Heading 3",
+        4: "Heading 4",
+        5: "Heading 5",
+        6: "Heading 6",
+    }
+    
+    # Create paragraph with built-in heading style
+    builtin_style = heading_style_map.get(level, "Heading 1")
+    try:
+        p = doc.add_paragraph(style=builtin_style)
+    except KeyError:
+        # Fallback: if built-in style not found, create normal paragraph
+        p = doc.add_paragraph()
+    
+    # Apply custom formatting on top of built-in style
     apply_paragraph_fmt(p, style)
     code_style = conf["styles"].get("code", {})
     add_formatted_runs(p, text.strip(), style, conf["global"], code_style)
@@ -695,6 +715,63 @@ def set_page_margins(doc: Document, margin_inch: float) -> None:
         section.right_margin = Inches(margin_inch)
 
 
+def add_table_of_contents(doc: Document, conf: Dict[str, Any]) -> None:
+    """
+    Add a Table of Contents field to the document.
+    The TOC will be auto-updated when the document is opened in Word.
+    Users need to press F9 or right-click and select 'Update Field' to see page numbers.
+    """
+    # Add TOC title
+    toc_title = doc.add_paragraph()
+    toc_title.paragraph_format.space_before = Pt(12)
+    toc_title.paragraph_format.space_after = Pt(12)
+    toc_title.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+    run = toc_title.add_run("目录")
+    run.bold = True
+    run.font.size = Pt(16)
+    global_conf = conf.get("global", {})
+    base_cn = global_conf.get("baseFontCn", "SimSun")
+    base_en = global_conf.get("baseFontEn", "") or base_cn
+    _ensure_east_asia_font(run, base_cn, base_en)
+    
+    # Create TOC paragraph
+    toc_paragraph = doc.add_paragraph()
+    
+    # Create the TOC field
+    # The TOC field code: TOC \o "1-3" means include heading levels 1-3
+    # \h creates hyperlinks, \z hides tab leader and page numbers in Web view
+    run = toc_paragraph.add_run()
+    fld_char_begin = OxmlElement('w:fldChar')
+    fld_char_begin.set(qn('w:fldCharType'), 'begin')
+    
+    instr_text = OxmlElement('w:instrText')
+    instr_text.set(qn('xml:space'), 'preserve')
+    instr_text.text = ' TOC \\o "1-3" \\h \\z \\u '
+    
+    fld_char_separate = OxmlElement('w:fldChar')
+    fld_char_separate.set(qn('w:fldCharType'), 'separate')
+    
+    fld_char_end = OxmlElement('w:fldChar')
+    fld_char_end.set(qn('w:fldCharType'), 'end')
+    
+    # Append elements to run
+    run._r.append(fld_char_begin)
+    run._r.append(instr_text)
+    run._r.append(fld_char_separate)
+    
+    # Add placeholder text (will be replaced when field is updated)
+    placeholder_run = toc_paragraph.add_run('右键点击并选择"更新域"，或按 Ctrl+A 然后 F9')
+    placeholder_run.italic = True
+    placeholder_run.font.color.rgb = RGBColor(128, 128, 128)
+    placeholder_run.font.size = Pt(10)
+    
+    end_run = toc_paragraph.add_run()
+    end_run._r.append(fld_char_end)
+    
+    # Add a page break after TOC
+    doc.add_page_break()
+
+
 def is_table_line(line: str) -> bool:
     """Check if a line looks like part of a GFM table."""
     stripped = line.strip()
@@ -746,6 +823,14 @@ def convert(input_path: str, output_path: str, conf: Dict[str, Any]) -> None:
     except Exception as e:
         raise ConfigError("Invalid pageMargin value", details=str(e))
     set_page_margins(doc, margin_value)
+
+    # Add Table of Contents if enabled
+    if conf.get("global", {}).get("includeTableOfContents", False):
+        try:
+            add_table_of_contents(doc, conf)
+        except Exception as e:
+            # Non-fatal: continue without TOC if it fails
+            print(f"Warning: Failed to add table of contents: {e}", file=sys.stderr)
 
     try:
         with open(input_path, "r", encoding="utf-8") as f:

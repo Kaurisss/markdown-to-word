@@ -55,6 +55,7 @@ const documentConfigArb: fc.Arbitrary<DocumentConfig> = fc.record({
     baseFontCn: fontFamilyArb,
     baseFontEn: fontFamilyArb,
     horizontalRule: fc.constantFrom('default', 'page_break', 'hidden'),
+    includeTableOfContents: fc.boolean(),
   }),
   styles: fc.record({
     h1: elementStyleArb,
@@ -79,19 +80,19 @@ describe('Style Config Serialization', () => {
       fc.property(documentConfigArb, (config: DocumentConfig) => {
         // Serialize to JSON (as done in pythonBackend.ts)
         const serialized = JSON.stringify(config);
-        
+
         // Deserialize back
         const deserialized = JSON.parse(serialized) as DocumentConfig;
-        
+
         // Verify round-trip produces equivalent object
         expect(deserialized).toEqual(config);
-        
+
         // Additional verification: ensure all required fields are present
         expect(deserialized.global).toBeDefined();
         expect(deserialized.global.pageMargin).toBe(config.global.pageMargin);
         expect(deserialized.global.baseFontCn).toBe(config.global.baseFontCn);
         expect(deserialized.global.baseFontEn).toBe(config.global.baseFontEn);
-        
+
         expect(deserialized.styles).toBeDefined();
         const styleKeys = ['h1', 'h2', 'h3', 'body', 'code', 'quote'] as const;
         for (const key of styleKeys) {
@@ -114,10 +115,10 @@ describe('Style Config Serialization', () => {
     fc.assert(
       fc.property(documentConfigArb, (config: DocumentConfig) => {
         const serialized = JSON.stringify(config);
-        
+
         // Should not throw when parsing
         expect(() => JSON.parse(serialized)).not.toThrow();
-        
+
         // Should be a non-empty string
         expect(serialized.length).toBeGreaterThan(0);
       }),

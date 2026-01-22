@@ -6,6 +6,7 @@ export const DEFAULT_CONFIG: DocumentConfig = {
     baseFontCn: 'SimSun',
     baseFontEn: '',
     horizontalRule: 'default',
+    includeTableOfContents: true,
   },
   styles: {
     h1: {

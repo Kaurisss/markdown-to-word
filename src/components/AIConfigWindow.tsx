@@ -4,7 +4,7 @@ import { AIProvider, AIModel } from '../interfaces/AI';
 import { useAIConfigStore } from '../services/aiConfigStore';
 
 export const AIConfigWindow: React.FC = () => {
-  const { providers, updateProviders } = useAIConfigStore();
+  const { providers, updateProviders, selectedModel, updateSelectedModel } = useAIConfigStore();
 
   const [selectedProviderId, setSelectedProviderId] = useState<string>('');
   const [showAddPlatform, setShowAddPlatform] = useState(false);
@@ -149,7 +149,22 @@ export const AIConfigWindow: React.FC = () => {
     handleUpdateProvider(selectedProvider.id, {
       models: selectedProvider.models.filter(m => m.id !== modelId)
     });
-  }, [selectedProvider, handleUpdateProvider]);
+    // 如果删除的是当前选中的模型，清除选择
+    if (selectedModel?.providerId === selectedProvider.id && selectedModel?.modelId === modelId) {
+      updateSelectedModel(null);
+    }
+  }, [selectedProvider, handleUpdateProvider, selectedModel, updateSelectedModel]);
+
+  const handleSelectModel = useCallback((model: AIModel) => {
+    if (!selectedProvider) return;
+    const isCurrentlySelected = selectedModel?.providerId === selectedProvider.id && selectedModel?.modelId === model.id;
+    if (isCurrentlySelected) {
+      // 再次点击取消选择
+      updateSelectedModel(null);
+    } else {
+      updateSelectedModel({ providerId: selectedProvider.id, modelId: model.id });
+    }
+  }, [selectedProvider, selectedModel, updateSelectedModel]);
 
   const handleModelContextMenu = useCallback((e: React.MouseEvent, model: AIModel) => {
     e.preventDefault();
@@ -398,22 +413,50 @@ export const AIConfigWindow: React.FC = () => {
                 </button>
 
                 <div className="space-y-2">
-                  {selectedProvider.models.map(model => (
-                    <div
-                      key={model.id}
-                      data-model-card
-                      className="flex items-center justify-between p-2 bg-gray-50 dark:bg-dark-bg rounded border border-gray-100 dark:border-dark-border group cursor-context-menu hover:border-gray-200 dark:hover:border-gray-600 transition-colors"
-                      onContextMenu={(e) => handleModelContextMenu(e, model)}
-                    >
-                      <div className="flex flex-col">
-                        <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{model.name}</span>
-                        {model.name !== model.id && (
-                          <span className="text-[10px] font-mono text-gray-400 dark:text-gray-500">{model.id}</span>
-                        )}
+                  {selectedProvider.models.map(model => {
+                    const isSelected = selectedModel?.providerId === selectedProvider.id && selectedModel?.modelId === model.id;
+                    const testResult = testResults[model.id];
+                    const isTesting = testingModelId === model.id;
+                    return (
+                      <div
+                        key={model.id}
+                        data-model-card
+                        className={`flex items-center justify-between p-2 rounded border group cursor-pointer transition-colors ${isSelected
+                            ? 'bg-brand-50 dark:bg-brand-900/20 border-brand-300 dark:border-brand-700'
+                            : 'bg-gray-50 dark:bg-dark-bg border-gray-100 dark:border-dark-border hover:border-gray-200 dark:hover:border-gray-600'
+                          }`}
+                        onClick={() => handleSelectModel(model)}
+                        onContextMenu={(e) => handleModelContextMenu(e, model)}
+                      >
+                        <div className="flex flex-col">
+                          <div className="flex items-center gap-1.5">
+                            {isSelected && <Check className="w-3 h-3 text-brand-500" />}
+                            <span className={`text-xs font-medium ${isSelected ? 'text-brand-600 dark:text-brand-400' : 'text-gray-700 dark:text-gray-300'}`}>{model.name}</span>
+                          </div>
+                          {model.name !== model.id && (
+                            <span className="text-[10px] font-mono text-gray-400 dark:text-gray-500 ml-4.5">{model.id}</span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {/* 测试状态显示 */}
+                          {isTesting && (
+                            <span className="flex items-center gap-1 text-[10px] text-gray-500">
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                              测试中...
+                            </span>
+                          )}
+                          {!isTesting && testResult && (
+                            <span className={`text-[10px] ${testResult.status === 'success' ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
+                              {testResult.status === 'success'
+                                ? `✓ ${testResult.time}ms`
+                                : `✗ ${testResult.message}`}
+                            </span>
+                          )}
+                          <span className="text-[10px] text-gray-400 dark:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">右键菜单</span>
+                        </div>
                       </div>
-                      <span className="text-[10px] text-gray-400 dark:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">右键菜单</span>
-                    </div>
-                  ))}
+                    );
+                  })}
                   {selectedProvider.models.length === 0 && (
                     <div className="text-center py-4 text-xs text-gray-400">
                       暂无模型，请添加

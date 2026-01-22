@@ -18,6 +18,7 @@ export interface DocumentConfig {
     baseFontCn: string;
     baseFontEn: string;
     horizontalRule: 'default' | 'page_break' | 'hidden';
+    includeTableOfContents: boolean;
   };
   styles: {
     h1: ElementStyle;

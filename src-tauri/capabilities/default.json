@@ -41,9 +41,9 @@
             {
               "validator": ".+"
             },
-            "--config",
+            "--config-file",
             {
-              "validator": "[\\s\\S]*"
+              "validator": ".+"
             }
           ]
         }
