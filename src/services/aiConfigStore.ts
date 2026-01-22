@@ -94,6 +94,11 @@ export const useAIConfigStore = () => {
       }));
     } else {
       localStorage.removeItem(MODEL_STORAGE_KEY);
+      // Also dispatch event with null to sync clear action to other windows
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: MODEL_STORAGE_KEY,
+        newValue: null
+      }));
     }
   }, []);
 
@@ -121,11 +126,16 @@ export const useAIConfigStore = () => {
           console.error('Failed to parse synced providers:', err);
         }
       }
-      if (e.key === MODEL_STORAGE_KEY && e.newValue) {
-        try {
-          setSelectedModel(JSON.parse(e.newValue));
-        } catch (err) {
-          console.error('Failed to parse synced model:', err);
+      if (e.key === MODEL_STORAGE_KEY) {
+        if (e.newValue) {
+          try {
+            setSelectedModel(JSON.parse(e.newValue));
+          } catch (err) {
+            console.error('Failed to parse synced model:', err);
+          }
+        } else {
+          // newValue is null means the model was cleared
+          setSelectedModel(null);
         }
       }
     };

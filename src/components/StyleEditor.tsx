@@ -14,7 +14,7 @@ const FONT_LABELS: Record<string, string> = {
   'Microsoft YaHei': '微软雅黑',
   'SimHei': '黑体',
   'KaiTi': '楷体',
-  'Times New Roman': '新罗马体 (Times New Roman)',
+  'Times New Roman': 'Times New Roman',
   'Arial': 'Arial',
   'Georgia': 'Georgia',
   'Courier New': 'Courier New',

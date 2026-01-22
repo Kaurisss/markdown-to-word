@@ -56,6 +56,26 @@ class FileError(Exception):
         return " - ".join(parts)
 
 
+class PermissionError_(Exception):
+    """Exception for permission denied errors."""
+    exit_code = EXIT_PERMISSION_ERROR
+    
+    def __init__(self, message: str, path: str = None, details: str = None):
+        self.message = message
+        self.path = path
+        self.details = details
+        super().__init__(message)
+    
+    def __str__(self):
+        parts = [self.message]
+        if self.path:
+            parts.append(f"Path: {self.path}")
+        if self.details:
+            parts.append(f"Details: {self.details}")
+        return " - ".join(parts)
+
+
+
 class ConfigError(Exception):
     """Exception for configuration parsing errors."""
     exit_code = EXIT_CONFIG_ERROR
@@ -275,7 +295,7 @@ def load_config(args) -> Dict[str, Any]:
                 details=str(e)
             )
         except PermissionError as e:
-            raise FileError(
+            raise PermissionError_(
                 "Permission denied reading configuration file",
                 path=args.config_file,
                 details=str(e)
@@ -503,7 +523,7 @@ def add_quote(doc: Document, text: str, conf: Dict[str, Any]) -> None:
     add_formatted_runs(p, text, style, conf["global"], code_style)
 
 
-def add_list_item(doc: Document, text: str, ordered: bool, conf: Dict[str, Any]) -> None:
+def add_list_item(doc: Document, text: str, ordered: bool, conf: Dict[str, Any], level: int = 0) -> None:
     style = conf["styles"]["body"].copy()
     # Reset first line indent for list items to avoid double indentation
     style["firstLineIndent"] = 0
@@ -516,6 +536,13 @@ def add_list_item(doc: Document, text: str, ordered: bool, conf: Dict[str, Any])
         p.style = "List Number" if ordered else "List Bullet"
     except Exception:
         pass
+    
+    # Apply left indent based on nesting level (each level adds 0.5 inch)
+    if level > 0:
+        try:
+            p.paragraph_format.left_indent = Inches(level * 0.5)
+        except Exception:
+            pass
     
     code_style = conf["styles"].get("code", {})
     add_formatted_runs(p, text, style, conf["global"], code_style)
@@ -804,7 +831,7 @@ def convert(input_path: str, output_path: str, conf: Dict[str, Any]) -> None:
         try:
             os.makedirs(output_dir, exist_ok=True)
         except PermissionError as e:
-            raise FileError(
+            raise PermissionError_(
                 "Cannot create output directory",
                 path=output_dir,
                 details=str(e)
@@ -836,7 +863,7 @@ def convert(input_path: str, output_path: str, conf: Dict[str, Any]) -> None:
         with open(input_path, "r", encoding="utf-8") as f:
             lines = f.read().splitlines()
     except PermissionError as e:
-        raise FileError(
+        raise PermissionError_(
             "Permission denied reading input file",
             path=input_path,
             details=str(e)
@@ -915,14 +942,23 @@ def convert(input_path: str, output_path: str, conf: Dict[str, Any]) -> None:
             add_quote(doc, text, conf)
             i += 1
             continue
-        if re.match(r"^\s*-\s+(.*)$", line):
-            text = re.sub(r"^\s*-\s+", "", line)
-            add_list_item(doc, text, ordered=False, conf=conf)
+        # Unordered list: detect indent level (each 2 spaces or 1 tab = 1 level)
+        ul_match = re.match(r"^(\s*)-\s+(.*)$", line)
+        if ul_match:
+            indent = ul_match.group(1)
+            text = ul_match.group(2)
+            # Calculate level: 2 spaces or 1 tab per level
+            level = len(indent.replace('\t', '  ')) // 2
+            add_list_item(doc, text, ordered=False, conf=conf, level=level)
             i += 1
             continue
-        if re.match(r"^\s*\d+\.\s+(.*)$", line):
-            text = re.sub(r"^\s*\d+\.\s+", "", line)
-            add_list_item(doc, text, ordered=True, conf=conf)
+        # Ordered list: detect indent level
+        ol_match = re.match(r"^(\s*)\d+\.\s+(.*)$", line)
+        if ol_match:
+            indent = ol_match.group(1)
+            text = ol_match.group(2)
+            level = len(indent.replace('\t', '  ')) // 2
+            add_list_item(doc, text, ordered=True, conf=conf, level=level)
             i += 1
             continue
         # Horizontal rule: ---, ***, ___
@@ -948,7 +984,7 @@ def convert(input_path: str, output_path: str, conf: Dict[str, Any]) -> None:
     try:
         doc.save(output_path)
     except PermissionError as e:
-        raise FileError(
+        raise PermissionError_(
             "Permission denied writing output file",
             path=output_path,
             details=str(e)
@@ -972,6 +1008,9 @@ def main():
     try:
         conf = load_config(args)
         convert(args.input, args.output, conf)
+    except PermissionError_ as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(e.exit_code)
     except FileError as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(e.exit_code if hasattr(e, 'exit_code') else EXIT_FILE_NOT_FOUND)

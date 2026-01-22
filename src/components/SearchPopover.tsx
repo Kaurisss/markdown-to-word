@@ -206,7 +206,7 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
             {/* Replace Actions */}
             <div className="flex items-center gap-2">
               <button
-                disabled={!searchQuery || !replaceText}
+                disabled={!searchQuery}
                 className="h-9 px-3 text-xs font-medium text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm active:scale-95"
                 title="替换 (Enter)"
                 onClick={onReplace}
@@ -214,7 +214,7 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
                 替换
               </button>
               <button
-                disabled={!searchQuery || !replaceText}
+                disabled={!searchQuery}
                 className="h-9 px-3 text-xs font-medium text-brand-50 dark:text-brand-50 bg-brand-600 hover:bg-brand-700 border border-transparent rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm active:scale-95"
                 title="全部替换 (Ctrl+Enter)"
                 onClick={onReplaceAll}

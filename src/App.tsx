@@ -133,10 +133,10 @@ const App: React.FC = () => {
     try {
       let pattern = query;
       if (!useRegex) {
-        pattern = pattern.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');
+        pattern = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       }
       if (wholeWord && !useRegex) {
-        pattern = `\\\\b${pattern}\\\\b`;
+        pattern = `\\b${pattern}\\b`;
       }
       const flags = caseSensitive ? 'g' : 'gi';
       return new RegExp(pattern, flags);
@@ -162,7 +162,7 @@ const App: React.FC = () => {
   }, [searchQuery, buildSearchRegex]);
 
   const handleReplace = useCallback(() => {
-    if (!searchQuery || !searchQuery.trim() || !replaceText) return;
+    if (!searchQuery || !searchQuery.trim()) return;
     const matches = getMatches(content);
     if (matches.length === 0) return;
     const index = Math.min(Math.max(currentMatchIndex, 0), matches.length - 1);
@@ -178,7 +178,7 @@ const App: React.FC = () => {
   }, [searchQuery, replaceText, content, currentMatchIndex, getMatches, updateContent]);
 
   const handleReplaceAll = useCallback(() => {
-    if (!searchQuery || !searchQuery.trim() || !replaceText) return;
+    if (!searchQuery || !searchQuery.trim()) return;
     const regex = buildSearchRegex(searchQuery.trim());
     if (!regex) return;
     const next = content.replace(regex, replaceText);
@@ -588,7 +588,7 @@ const App: React.FC = () => {
     try {
       const headingMatch = content.match(/^#\s+(.+)$/m);
       const dateStamp = new Date().toISOString().slice(0, 10);
-      const fallbackName = `鏂囨。_${dateStamp}`;
+      const fallbackName = `文档_${dateStamp}`;
       const title = headingMatch ? headingMatch[1] : fallbackName;
       const suggested = `${sanitizeFilename(title, fallbackName)}.docx`;
       const outPath = await saveDialog({

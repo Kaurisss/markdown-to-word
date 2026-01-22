@@ -114,30 +114,37 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
                 remarkPlugins={[remarkGfm]}
                 components={{
                   h1: ({ children, ...props }) => {
-                    return <h1 {...props} style={{ ...h1Style, textIndent: undefined }}>{children}</h1>;
+                    const id = typeof children === 'string' ? children.toLowerCase().replace(/\s+/g, '-') : undefined;
+                    return <h1 {...props} id={id} style={{ ...h1Style, textIndent: undefined }}>{children}</h1>;
                   },
                   h2: ({ children, ...props }) => {
-                    return <h2 {...props} style={{ ...h2Style, textIndent: undefined }}>{children}</h2>;
+                    const id = typeof children === 'string' ? children.toLowerCase().replace(/\s+/g, '-') : undefined;
+                    return <h2 {...props} id={id} style={{ ...h2Style, textIndent: undefined }}>{children}</h2>;
                   },
                   h3: ({ children, ...props }) => {
-                    return <h3 {...props} style={{ ...h3Style, textIndent: undefined }}>{children}</h3>;
+                    const id = typeof children === 'string' ? children.toLowerCase().replace(/\s+/g, '-') : undefined;
+                    return <h3 {...props} id={id} style={{ ...h3Style, textIndent: undefined }}>{children}</h3>;
                   },
                   h4: ({ children, ...props }) => {
-                    return <h4 {...props} style={{ ...h3Style, textIndent: undefined }}>{children}</h4>;
+                    const id = typeof children === 'string' ? children.toLowerCase().replace(/\s+/g, '-') : undefined;
+                    return <h4 {...props} id={id} style={{ ...h3Style, textIndent: undefined }}>{children}</h4>;
                   },
                   h5: ({ children, ...props }) => {
-                    return <h5 {...props} style={{ ...h3Style, textIndent: undefined }}>{children}</h5>;
+                    const id = typeof children === 'string' ? children.toLowerCase().replace(/\s+/g, '-') : undefined;
+                    return <h5 {...props} id={id} style={{ ...h3Style, textIndent: undefined }}>{children}</h5>;
                   },
                   h6: ({ children, ...props }) => {
-                    return <h6 {...props} style={{ ...h3Style, textIndent: undefined }}>{children}</h6>;
+                    const id = typeof children === 'string' ? children.toLowerCase().replace(/\s+/g, '-') : undefined;
+                    return <h6 {...props} id={id} style={{ ...h3Style, textIndent: undefined }}>{children}</h6>;
                   },
                   a: ({ href, onClick, ...props }) => {
                     const safeHref = typeof href === 'string' ? href : '';
+                    const isInternal = safeHref.startsWith('#');
                     const handleClick: React.MouseEventHandler<HTMLAnchorElement> = async (e) => {
                       onClick?.(e);
 
                       // For in-page anchors, keep default behavior.
-                      if (!safeHref || safeHref.startsWith('#')) return;
+                      if (!safeHref || isInternal) return;
 
                       // Prevent navigating inside the preview webview (otherwise user can't go back).
                       e.preventDefault();
@@ -184,8 +191,8 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
                         {...props}
                         href={safeHref}
                         onClick={handleClick}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        target={isInternal ? undefined : "_blank"}
+                        rel={isInternal ? undefined : "noopener noreferrer"}
                       />
                     );
                   },
@@ -197,7 +204,7 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
                     const style = isTextStart
                       ? bodyStyle
                       : { ...bodyStyle, textIndent: 0 };
-                    
+
                     return <p {...props} style={style}>{children}</p>;
                   },
                   li: (props) => <li {...props} style={{ ...bodyStyle, marginTop: 0, marginBottom: 0, textIndent: 0 }} />,
@@ -215,20 +222,40 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
                       }}
                     />
                   ),
-                  code: ({ className, children, ...props }) => {
+                  code: ({ className, children, node, ...props }) => {
+                    // Check if this code is inside a <pre> element (fenced code block)
+                    // react-markdown passes the node with parent info
+                    const isBlock = node?.position?.start?.line !== node?.position?.end?.line ||
+                      Boolean(className && /language-/.test(className)) ||
+                      // Check if parent is a 'pre' element by examining the node structure
+                      (node as any)?.tagName === 'code' && (node as any)?.properties?.className;
+
+                    // More reliable: fenced code blocks are wrapped in <pre>, so if this code
+                    // component is rendered and has className or multi-line content, treat as block
                     const text =
                       typeof children === 'string'
                         ? children
                         : Array.isArray(children)
                           ? children.map((c) => (typeof c === 'string' ? c : '')).join('')
                           : '';
-                    const isBlock = Boolean(className && /language-/.test(className)) || text.includes('\n');
+
+                    // Fenced code blocks (even single line without language) will have the code
+                    // rendered inside a <pre> tag. The key insight is that inline code never has
+                    // className, while fenced blocks may or may not have one.
+                    // Since we can't easily detect <pre> parent here, we use a different approach:
+                    // - If className exists (language-xxx), it's a block
+                    // - If text contains newline, it's a block
+                    // - If node spans multiple lines in source, it's likely a block
+                    const hasNewline = text.includes('\n');
+                    const hasLanguageClass = Boolean(className && /language-/.test(className));
+                    const isFencedBlock = hasLanguageClass || hasNewline || (className !== undefined);
+
                     return (
                       <code
                         {...props}
                         className={className}
                         style={
-                          isBlock
+                          isFencedBlock
                             ? {
                               ...elementStyleToCss(cfg, cfg.styles.code),
                               fontFamily: buildFontFamily(cfg, cfg.styles.code.fontFamily),
