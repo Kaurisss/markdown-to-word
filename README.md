@@ -1,7 +1,7 @@
 # Markdown to Word / 简阅转档
 
 <div align="center">
-  <img src="logo.png" width="96" height="96" alt="Markdown to Word / 简阅转档 Logo" />
+  <img src="src/logo.png" width="96" height="96" alt="Markdown to Word / 简阅转档 Logo" />
   <p>一款面向 Windows 的本地 Markdown 转 Word 桌面应用，支持实时预览与样式配置，数据本地处理。</p>
   <p>
     <a href="https://tauri.app/"><img alt="Tauri" src="https://img.shields.io/badge/Tauri-2.0-blue?logo=tauri" /></a>
