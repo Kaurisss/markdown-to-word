@@ -31,7 +31,7 @@ export const DEFAULT_PROVIDERS: AIProvider[] = [
   {
     id: 'siliconflow',
     name: '硅基流动',
-    description: '硅基流动服务商，提供 Qwen 系列模型 与 DeepSeek 模型',
+    description: '硅基流动平台，提供 Qwen 系列模型 与 DeepSeek 模型',
     isEnabled: false,
     apiKey: '',
     baseUrl: 'https://api.siliconflow.cn/v1/chat/completions',
@@ -45,7 +45,7 @@ export const DEFAULT_PROVIDERS: AIProvider[] = [
   {
     id: 'zhipu',
     name: '智谱开放平台',
-    description: '智谱开放平台服务商，提供 GLM 系列模型',
+    description: '智谱开放平台，提供 GLM 系列模型',
     isEnabled: false,
     apiKey: '',
     baseUrl: 'https://open.bigmodel.cn/api/paas/v4/chat/completions',
@@ -58,7 +58,7 @@ export const DEFAULT_PROVIDERS: AIProvider[] = [
   {
     id: 'deepseek',
     name: '深度求索',
-    description: 'DeepSeek服务商，提供DeepSeek-Chat 与 DeepSeek-Reasoner 模型',
+    description: '深度求索平台，提供 DeepSeek 系列模型',
     isEnabled: false,
     apiKey: '',
     baseUrl: 'https://api.deepseek.com/chat/completions',
@@ -70,7 +70,7 @@ export const DEFAULT_PROVIDERS: AIProvider[] = [
   {
     id: 'moonshot',
     name: '月之暗面',
-    description: '月之暗面服务商，提供 Kimi 模型 与 Moonshot 模型',
+    description: '月之暗面平台，提供 Kimi 模型 与 Moonshot 模型',
     isEnabled: false,
     apiKey: '',
     baseUrl: 'https://api.moonshot.cn/v1/chat/completions',
@@ -82,7 +82,7 @@ export const DEFAULT_PROVIDERS: AIProvider[] = [
   {
     id: 'openai',
     name: 'OpenAI',
-    description: 'OpenAI服务商，提供 GPT 系列模型 与 o系列 模型',
+    description: 'OpenAI平台，提供 GPT 系列模型 与 o 系列模型',
     isEnabled: false,
     apiKey: '',
     baseUrl: 'https://api.openai.com/v1/chat/completions',
@@ -95,7 +95,7 @@ export const DEFAULT_PROVIDERS: AIProvider[] = [
   {
     id: 'google',
     name: 'Google Gemini',
-    description: 'Google Gemini 服务商，提供 Gemini 系列模型',
+    description: 'Google Gemini 平台，提供 Gemini 系列模型',
     isEnabled: false,
     apiKey: '',
     baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',

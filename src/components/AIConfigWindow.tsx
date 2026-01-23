@@ -433,9 +433,6 @@ export const AIConfigWindow: React.FC = () => {
                             {isSelected && <Check className="w-3 h-3 text-brand-500" />}
                             <span className={`text-xs font-medium ${isSelected ? 'text-brand-600 dark:text-brand-400' : 'text-gray-700 dark:text-gray-300'}`}>{model.name}</span>
                           </div>
-                          {model.name !== model.id && (
-                            <span className="text-[10px] font-mono text-gray-400 dark:text-gray-500 ml-4.5">{model.id}</span>
-                          )}
                         </div>
                         <div className="flex items-center gap-2">
                           {/* 测试状态显示 */}
