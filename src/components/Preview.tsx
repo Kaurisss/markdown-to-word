@@ -66,8 +66,9 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
   const inlineCodeStyle: CSSProperties = {
     ...elementStyleToCss(cfg, cfg.styles.code),
     backgroundColor: codeBg,
-    padding: '0.1em 0.35em',
-    borderRadius: '0.25rem',
+    // 与 Word 一致：无圆角（Word 不支持圆角）
+    padding: '0.1em 0.2em',
+    borderRadius: 0,
     whiteSpace: 'pre-wrap',
     wordBreak: 'break-word',
     overflowWrap: 'break-word'

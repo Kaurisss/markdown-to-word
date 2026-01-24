@@ -176,6 +176,32 @@ def hex_to_rgb(hex_str: str) -> RGBColor:
         return RGBColor(0, 0, 0)
 
 
+def _set_run_shading(run, color_hex: str) -> None:
+    """Set background shading for a run (inline text).
+    
+    Args:
+        run: The run element
+        color_hex: Background color in hex format (e.g., '#F5F7F9' or 'F5F7F9')
+    """
+    if not color_hex:
+        return
+    fill_color = str(color_hex).strip().lstrip("#")
+    
+    r = run._r
+    rPr = r.get_or_add_rPr()
+    
+    # Remove existing shading if present
+    existing_shd = rPr.find(qn('w:shd'))
+    if existing_shd is not None:
+        rPr.remove(existing_shd)
+    
+    shd = OxmlElement('w:shd')
+    shd.set(qn('w:val'), 'clear')
+    shd.set(qn('w:color'), 'auto')
+    shd.set(qn('w:fill'), fill_color)
+    rPr.append(shd)
+
+
 def _get_alignment(value: Optional[str]) -> Optional[int]:
     if not value:
         return None
@@ -465,6 +491,10 @@ def add_formatted_runs(paragraph, text: str, base_style: Dict[str, Any], global_
                 code_font = code_style.get('fontFamily', 'Courier New') if code_style else 'Courier New'
                 run.font.name = code_font
                 _ensure_east_asia_font(run, global_config.get('baseFontCn', 'SimSun'), code_font)
+                # Apply background color for inline code
+                if code_style:
+                    bg_color = code_style.get('backgroundColor', '#F5F7F9')
+                    _set_run_shading(run, bg_color)
 
 
 def add_heading(doc: Document, text: str, level: int, conf: Dict[str, Any]) -> None:
