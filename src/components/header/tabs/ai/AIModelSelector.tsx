@@ -21,22 +21,18 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({
     };
 
     return (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center">
             <button
                 onClick={onConfigClick}
-                className="group flex items-center gap-2 h-8 px-3 bg-green-50 hover:bg-green-100 text-green-700 border border-green-200 rounded-full transition-colors"
+                className="group flex items-center gap-1.5 h-7 px-2 bg-white dark:bg-dark-surface border border-gray-300 dark:border-dark-border rounded text-gray-900 dark:text-gray-100 hover:border-gray-400 dark:hover:border-gray-500 transition-colors w-40 justify-between"
             >
-                <div className="w-2 h-2 rounded-full bg-green-500 group-hover:scale-110 transition-transform"></div>
-                <span className="text-xs font-medium">
-                    {getModelDisplayName()}
-                </span>
-            </button>
-
-            <button
-                onClick={onConfigClick}
-                className="p-1.5 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-dark-surface"
-            >
-                <Settings2 className="w-4 h-4" />
+                <div className="flex items-center gap-1.5 overflow-hidden">
+                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0"></div>
+                    <span className="text-xs truncate text-left">
+                        {getModelDisplayName().split(': ')[1] || '选择模型'}
+                    </span>
+                </div>
+                <Settings2 className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300 shrink-0" />
             </button>
         </div>
     );

@@ -16,12 +16,12 @@ export const AIGenerateButton: React.FC<AIGenerateButtonProps> = ({
         <button
             onClick={onClick}
             disabled={disabled}
-            className="h-8 px-4 bg-brand-500 hover:bg-brand-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-xs rounded-full font-medium transition-all flex items-center gap-1.5 active:scale-95 disabled:active:scale-100"
+            className="h-7 px-3 bg-brand-500 hover:bg-brand-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-xs rounded font-medium transition-all flex items-center gap-1.5 active:scale-95 disabled:active:scale-100 whitespace-nowrap"
         >
             {isGenerating ? (
                 <>
                     <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    生成中...
+                    生成中
                 </>
             ) : (
                 <>

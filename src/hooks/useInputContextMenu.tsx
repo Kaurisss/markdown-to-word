@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Copy, Scissors, Clipboard, CheckSquare } from 'lucide-react';
-import { ContextMenuItem } from '../ui/ContextMenu';
+import { ContextMenuItem } from '../components/ui/ContextMenu';
 
 interface InputContextMenuState {
     visible: boolean;
