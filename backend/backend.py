@@ -609,6 +609,20 @@ def _set_cell_shading(cell, fill_color: str) -> None:
     tcPr.append(shading)
 
 
+def _set_cell_vertical_alignment(cell, align: str = "center") -> None:
+    """Set vertical alignment for a table cell.
+    
+    Args:
+        cell: The table cell
+        align: Alignment type - 'top', 'center', or 'bottom'
+    """
+    tc = cell._tc
+    tcPr = tc.get_or_add_tcPr()
+    vAlign = OxmlElement('w:vAlign')
+    vAlign.set(qn('w:val'), align)
+    tcPr.append(vAlign)
+
+
 def _split_table_row(line: str) -> list[str]:
     cells: list[str] = []
     current: list[str] = []
@@ -707,6 +721,9 @@ def add_table(doc: Document, table_data: list[list[str]], conf: Dict[str, Any], 
             
             # Set cell borders
             _set_cell_border(cell)
+            
+            # Set vertical alignment to center
+            _set_cell_vertical_alignment(cell, "center")
             
             # Header row styling (first row)
             if row_idx == 0:

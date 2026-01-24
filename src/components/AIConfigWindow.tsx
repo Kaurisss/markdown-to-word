@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback, useLayoutEffect, useRef } from
 import { X, Plus, Play, Trash2, Settings2, Check, Loader2, Pencil, Copy, Eye, EyeOff } from 'lucide-react';
 import { AIProvider, AIModel } from '../interfaces/AI';
 import { useAIConfigStore } from '../services/aiConfigStore';
+import { ContextMenu } from './ui/ContextMenu';
+import { useInputContextMenu } from '../hooks/useInputContextMenu';
 
 export const AIConfigWindow: React.FC = () => {
   const { providers, updateProviders, selectedModel, updateSelectedModel } = useAIConfigStore();
@@ -37,6 +39,9 @@ export const AIConfigWindow: React.FC = () => {
   const [editModelId, setEditModelId] = useState('');
   const [editModelName, setEditModelName] = useState('');
   const [showApiKey, setShowApiKey] = useState(false);
+
+  // Input context menu hook
+  const { contextMenu: inputContextMenu, handleInputContextMenu, closeContextMenu: closeInputContextMenu } = useInputContextMenu();
 
   // Initialize selected provider
   useEffect(() => {
@@ -239,16 +244,20 @@ export const AIConfigWindow: React.FC = () => {
   }, [modelContextMenu.visible, closeModelContextMenu]);
 
   useLayoutEffect(() => {
-    if (!modelContextMenu.visible || !modelContextMenuRef.current) return;
-    const { offsetWidth, offsetHeight } = modelContextMenuRef.current;
-    const padding = 8;
-    const maxX = window.innerWidth - offsetWidth - padding;
-    const maxY = window.innerHeight - offsetHeight - padding;
-    const nextX = Math.max(padding, Math.min(modelContextMenu.x, maxX));
-    const nextY = Math.max(padding, Math.min(modelContextMenu.y, maxY));
-    if (nextX !== modelContextMenu.x || nextY !== modelContextMenu.y) {
-      setModelContextMenu(prev => prev.visible ? { ...prev, x: nextX, y: nextY } : prev);
-    }
+    if (!modelContextMenu.visible) return;
+
+    requestAnimationFrame(() => {
+      if (!modelContextMenuRef.current) return;
+      const { offsetWidth, offsetHeight } = modelContextMenuRef.current;
+      const padding = 8;
+      const maxX = window.innerWidth - offsetWidth - padding;
+      const maxY = window.innerHeight - offsetHeight - padding;
+      const nextX = Math.max(padding, Math.min(modelContextMenu.x, maxX));
+      const nextY = Math.max(padding, Math.min(modelContextMenu.y, maxY));
+      if (nextX !== modelContextMenu.x || nextY !== modelContextMenu.y) {
+        setModelContextMenu(prev => prev.visible ? { ...prev, x: nextX, y: nextY } : prev);
+      }
+    });
   }, [modelContextMenu.visible, modelContextMenu.x, modelContextMenu.y]);
 
   const handleAddPlatform = () => {
@@ -284,9 +293,11 @@ export const AIConfigWindow: React.FC = () => {
     <div
       className="flex h-screen w-screen overflow-hidden bg-gray-50 dark:bg-dark-bg text-gray-800 dark:text-gray-100 font-sans select-none"
       onContextMenu={(e) => {
-        // Only prevent default if not on a model card (which has its own context menu)
         const target = e.target as HTMLElement;
-        if (!target.closest('[data-model-card]')) {
+        // Allow input context menu handler to work
+        const isInputElement = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
+        const isModelCard = target.closest('[data-model-card]');
+        if (!isInputElement && !isModelCard) {
           e.preventDefault();
         }
       }}
@@ -372,6 +383,7 @@ export const AIConfigWindow: React.FC = () => {
                       type={showApiKey ? 'text' : 'password'}
                       value={selectedProvider.apiKey}
                       onChange={(e) => handleUpdateProvider(selectedProvider.id, { apiKey: e.target.value })}
+                      onContextMenu={handleInputContextMenu}
                       className="w-full h-9 px-3 pr-9 text-xs rounded border border-gray-200 dark:border-dark-border bg-gray-50 dark:bg-dark-bg focus:bg-white dark:focus:bg-dark-surface focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-colors"
                       placeholder="请输入 API Key"
                     />
@@ -392,6 +404,7 @@ export const AIConfigWindow: React.FC = () => {
                     type="text"
                     value={selectedProvider.baseUrl}
                     onChange={(e) => handleUpdateProvider(selectedProvider.id, { baseUrl: e.target.value })}
+                    onContextMenu={handleInputContextMenu}
                     className="w-full h-9 px-3 text-xs rounded border border-gray-200 dark:border-dark-border bg-gray-50 dark:bg-dark-bg text-gray-600 dark:text-gray-400 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-colors"
                     placeholder="https://api.example.com/..."
                   />
@@ -422,8 +435,8 @@ export const AIConfigWindow: React.FC = () => {
                         key={model.id}
                         data-model-card
                         className={`flex items-center justify-between p-2 rounded border group cursor-pointer transition-colors ${isSelected
-                            ? 'bg-brand-50 dark:bg-brand-900/20 border-brand-300 dark:border-brand-700'
-                            : 'bg-gray-50 dark:bg-dark-bg border-gray-100 dark:border-dark-border hover:border-gray-200 dark:hover:border-gray-600'
+                          ? 'bg-brand-50 dark:bg-brand-900/20 border-brand-300 dark:border-brand-700'
+                          : 'bg-gray-50 dark:bg-dark-bg border-gray-100 dark:border-dark-border hover:border-gray-200 dark:hover:border-gray-600'
                           }`}
                         onClick={() => handleSelectModel(model)}
                         onContextMenu={(e) => handleModelContextMenu(e, model)}
@@ -480,6 +493,7 @@ export const AIConfigWindow: React.FC = () => {
                 type="text"
                 value={newPlatformName}
                 onChange={(e) => setNewPlatformName(e.target.value)}
+                onContextMenu={handleInputContextMenu}
                 className="w-full px-3 py-1.5 text-xs border border-gray-300 dark:border-dark-border rounded focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none bg-white dark:bg-dark-bg dark:text-gray-100"
                 placeholder="平台名称"
               />
@@ -487,6 +501,7 @@ export const AIConfigWindow: React.FC = () => {
                 type="text"
                 value={newPlatformUrl}
                 onChange={(e) => setNewPlatformUrl(e.target.value)}
+                onContextMenu={handleInputContextMenu}
                 className="w-full px-3 py-1.5 text-xs border border-gray-300 dark:border-dark-border rounded focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none bg-white dark:bg-dark-bg dark:text-gray-100"
                 placeholder="Base URL (可选)"
               />
@@ -494,6 +509,7 @@ export const AIConfigWindow: React.FC = () => {
                 type="text"
                 value={newPlatformDescription}
                 onChange={(e) => setNewPlatformDescription(e.target.value)}
+                onContextMenu={handleInputContextMenu}
                 className="w-full px-3 py-1.5 text-xs border border-gray-300 dark:border-dark-border rounded focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none bg-white dark:bg-dark-bg dark:text-gray-100"
                 placeholder="平台描述 (可选)"
               />
@@ -529,6 +545,7 @@ export const AIConfigWindow: React.FC = () => {
                   type="text"
                   value={newModelId}
                   onChange={(e) => setNewModelId(e.target.value)}
+                  onContextMenu={handleInputContextMenu}
                   className="w-full px-3 py-1.5 text-xs border border-gray-300 dark:border-dark-border rounded focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none bg-white dark:bg-dark-bg dark:text-gray-100"
                   placeholder="例如: gpt-4o, qwen-plus"
                   autoFocus
@@ -540,6 +557,7 @@ export const AIConfigWindow: React.FC = () => {
                   type="text"
                   value={newModelName}
                   onChange={(e) => setNewModelName(e.target.value)}
+                  onContextMenu={handleInputContextMenu}
                   className="w-full px-3 py-1.5 text-xs border border-gray-300 dark:border-dark-border rounded focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none bg-white dark:bg-dark-bg dark:text-gray-100"
                   placeholder="留空则使用模型 ID"
                 />
@@ -616,6 +634,7 @@ export const AIConfigWindow: React.FC = () => {
                   type="text"
                   value={editModelId}
                   onChange={(e) => setEditModelId(e.target.value)}
+                  onContextMenu={handleInputContextMenu}
                   className="w-full px-3 py-1.5 text-xs border border-gray-300 dark:border-dark-border rounded focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none bg-white dark:bg-dark-bg dark:text-gray-100"
                   placeholder="例如: gpt-4o, qwen-plus"
                   autoFocus
@@ -627,6 +646,7 @@ export const AIConfigWindow: React.FC = () => {
                   type="text"
                   value={editModelName}
                   onChange={(e) => setEditModelName(e.target.value)}
+                  onContextMenu={handleInputContextMenu}
                   className="w-full px-3 py-1.5 text-xs border border-gray-300 dark:border-dark-border rounded focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none bg-white dark:bg-dark-bg dark:text-gray-100"
                   placeholder="留空则使用模型 ID"
                 />
@@ -650,6 +670,14 @@ export const AIConfigWindow: React.FC = () => {
           </div>
         </div>
       )}
+      {/* Input Context Menu */}
+      <ContextMenu
+        visible={inputContextMenu.visible}
+        x={inputContextMenu.x}
+        y={inputContextMenu.y}
+        items={inputContextMenu.items}
+        onClose={closeInputContextMenu}
+      />
     </div>
   );
 };

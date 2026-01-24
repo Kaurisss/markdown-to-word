@@ -54,27 +54,41 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
     }
   }, [visible, onClose]);
 
-  useEffect(() => {
-    if (!visible) return;
-    setPosition({ left: x, top: y });
-  }, [visible, x, y]);
-
+  // Set initial position and immediately adjust for bounds
   useLayoutEffect(() => {
-    if (!visible || !menuRef.current) return;
-    const rect = menuRef.current.getBoundingClientRect();
-    const margin = 8;
-    let left = x;
-    let top = y;
+    if (!visible) return;
+    // First, set to click position
+    setPosition({ left: x, top: y });
 
-    if (typeof window !== 'undefined') {
-      const maxLeft = window.innerWidth - rect.width - margin;
-      const maxTop = window.innerHeight - rect.height - margin;
-      left = Math.min(Math.max(left, margin), Math.max(margin, maxLeft));
-      top = Math.min(Math.max(top, margin), Math.max(margin, maxTop));
-    }
+    // Then adjust for bounds after DOM renders
+    requestAnimationFrame(() => {
+      if (!menuRef.current) return;
+      const rect = menuRef.current.getBoundingClientRect();
+      const margin = 8;
 
-    setPosition((prev) => (prev.left === left && prev.top === top ? prev : { left, top }));
-  }, [visible, x, y, items.length]);
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+
+      let newLeft = x;
+      let newTop = y;
+
+      // Adjust horizontal position
+      if (x + rect.width + margin > viewportWidth) {
+        newLeft = Math.max(margin, viewportWidth - rect.width - margin);
+      }
+
+      // Adjust vertical position
+      if (y + rect.height + margin > viewportHeight) {
+        newTop = Math.max(margin, viewportHeight - rect.height - margin);
+      }
+
+      // Ensure minimum margin from edges
+      newLeft = Math.max(margin, newLeft);
+      newTop = Math.max(margin, newTop);
+
+      setPosition({ left: newLeft, top: newTop });
+    });
+  }, [visible, x, y]);
 
   const style = useMemo(() => (visible ? { left: position.left, top: position.top } : {}), [visible, position]);
 

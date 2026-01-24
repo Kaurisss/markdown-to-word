@@ -59,6 +59,7 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
   const codeTextColor = cfg.styles.code.color || '#374151';
   const bodyTextColor = cfg.styles.body.color || '#374151';
   const quoteTextColor = cfg.styles.quote.color || '#6b7280';
+  // 直接使用配置中的背景色，以与Word输出保持一致
   const codeBg = cfg.styles.code.backgroundColor || hexToRgba(codeTextColor, 0.08);
   const quoteBg = cfg.styles.quote.backgroundColor || hexToRgba(quoteTextColor, 0.06);
 
@@ -74,12 +75,14 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
   const codeBlockStyle: CSSProperties = {
     ...elementStyleToCss(cfg, cfg.styles.code),
     backgroundColor: codeBg,
-    borderRadius: '0.125rem',
-    padding: '1rem',
+    // 与 Word 输出一致：无圆角，较小内边距
+    borderRadius: 0,
+    padding: '0.5em',
     overflowX: 'auto'
   };
   const tableBorder = `1px solid ${hexToRgba(bodyTextColor, 0.25)}`;
-  const tableHeadBg = hexToRgba(bodyTextColor, 0.06);
+  // 与 Word 后端一致的表头背景色
+  const tableHeadBg = '#e5e7eb';
 
   // Track heading IDs to handle duplicates - create fresh counter each render
   // Using a ref that gets reset at render start ensures consistent IDs
@@ -296,9 +299,9 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
                       {...props}
                       style={{
                         ...quoteStyle,
-                        borderLeft: `4px solid ${hexToRgba(quoteTextColor, 0.35)}`,
-                        paddingLeft: '1rem',
-                        backgroundColor: quoteBg,
+                        // 与 Word 输出一致：只使用左缩进，不使用边框
+                        marginLeft: '0.25in',
+                        paddingLeft: 0,
                         textIndent: undefined
                       }}
                     />
@@ -376,7 +379,10 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
                         padding: '0.5rem 0.75rem',
                         backgroundColor: tableHeadBg,
                         fontWeight: 600,
-                        textIndent: undefined
+                        textIndent: undefined,
+                        // 与 Word 一致：默认左对齐，垂直居中
+                        textAlign: 'left',
+                        verticalAlign: 'middle'
                       }}
                     />
                   ),
@@ -387,7 +393,10 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
                         ...bodyStyle,
                         border: tableBorder,
                         padding: '0.5rem 0.75rem',
-                        textIndent: undefined
+                        textIndent: undefined,
+                        // 与 Word 一致：默认左对齐，垂直居中
+                        textAlign: 'left',
+                        verticalAlign: 'middle'
                       }}
                     />
                   )

@@ -32,6 +32,7 @@ const Header: React.FC<HeaderProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const [activeStyle, setActiveStyle] = useState<'body' | 'h1' | 'h2' | 'h3' | 'code' | 'quote'>('body');
+  const [aiPrompt, setAiPrompt] = useState('');
 
   const { providers: aiProviders, selectedModel } = useAIConfigStore();
 
@@ -141,6 +142,8 @@ const Header: React.FC<HeaderProps> = ({
             cfg={cfg}
             onCfgChange={onCfgChange}
             onShowToast={onShowToast}
+            prompt={aiPrompt}
+            setPrompt={setAiPrompt}
           />
         )}
       </div>
