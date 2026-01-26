@@ -67,12 +67,12 @@ export const Select: React.FC<SelectProps> = ({
     if (variant === 'ghost') {
       return `
         bg-transparent
-        hover:bg-gray-100 dark:hover:bg-gray-700
-        ${isOpen ? 'bg-gray-100 dark:bg-gray-700' : ''}
+        hover:bg-gray-100 dark:hover:bg-dark-element-hover
+        ${isOpen ? 'bg-gray-100 dark:bg-dark-element-hover' : ''}
       `;
     }
     return `
-      bg-white dark:bg-dark-surface 
+      bg-white dark:bg-dark-element 
       border border-gray-300 dark:border-dark-border rounded 
       hover:border-gray-400 dark:hover:border-gray-500
       ${isOpen ? 'border-brand-500 ring-1 ring-brand-500' : ''}

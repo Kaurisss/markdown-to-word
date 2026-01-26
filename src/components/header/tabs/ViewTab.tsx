@@ -14,14 +14,14 @@ export const ViewTab: React.FC<ViewTabProps> = ({ viewMode, onViewModeChange, th
     <div className="flex items-center h-full animate-slide-in-left">
       {/* 视图模式 */}
       <div className={STYLES.groupClass}>
-        <div className="flex bg-gray-100 dark:bg-gray-800 p-0.5 rounded-md">
+        <div className="flex bg-gray-100 dark:bg-dark-element p-0.5 rounded-md">
           {(['editor', 'split', 'preview'] as const).map(mode => (
             <button
               key={mode}
               onClick={() => onViewModeChange(mode)}
               className={`px-2 py-1 text-xs rounded-sm transition-all flex items-center gap-1.5 ${viewMode === mode
-                ? 'bg-white dark:bg-dark-surface text-brand-600 dark:text-brand-400 shadow-sm font-medium'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-200/50 dark:hover:bg-gray-700/50'
+                ? 'bg-white dark:bg-dark-element-hover text-brand-600 dark:text-brand-400 shadow-sm font-medium'
+                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-200/50 dark:hover:bg-dark-element-hover/50'
                 }`}
             >
               <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 16 16">

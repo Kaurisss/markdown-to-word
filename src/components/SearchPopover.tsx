@@ -56,14 +56,14 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
         : 'opacity-0 -translate-y-2 scale-95 pointer-events-none'
         }`}
     >
-      <div className="w-[380px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl p-3 flex flex-col gap-3 backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95">
+      <div className="w-[380px] bg-white dark:bg-dark-surface border border-gray-200 dark:border-dark-border rounded-xl shadow-2xl p-3 flex flex-col gap-3 backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95">
 
         {/* Search Row */}
         <div className="flex items-center gap-2">
           {/* Expand/Collapse Replace */}
           <button
             onClick={() => setShowReplace(!showReplace)}
-            className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-dark-element-hover transition-colors"
           >
             {showReplace ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
           </button>
@@ -86,7 +86,7 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
               }}
               placeholder="查找..."
               autoFocus={visible}
-              className="w-full h-9 pl-9 pr-24 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
+              className="w-full h-9 pl-9 pr-24 bg-gray-50 dark:bg-dark-element border border-gray-200 dark:border-dark-border rounded-lg text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
             />
 
             {/* Input Actions (Clear + Toggles) */}
@@ -94,14 +94,14 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors mr-1"
+                  className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-dark-element-hover transition-colors mr-1"
                   title="清除"
                 >
                   <X className="w-3 h-3" />
                 </button>
               )}
 
-              <div className="w-px h-4 bg-gray-200 dark:bg-gray-700 mx-0.5" />
+              <div className="w-px h-4 bg-gray-200 dark:bg-dark-border mx-0.5" />
 
               <button
                 onClick={() => setCaseSensitive((prev) => !prev)}
@@ -139,11 +139,11 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
           </div>
 
           {/* Navigation */}
-          <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg p-0.5 h-9">
+          <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-dark-element border border-gray-200 dark:border-dark-border rounded-lg p-0.5 h-9">
             <button
               onClick={() => setCurrentMatchIndex((prev) => Math.max(0, prev - 1))}
               disabled={!searchQuery}
-              className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-white dark:hover:bg-gray-700 rounded-md transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-sm hover:shadow"
+              className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-white dark:hover:bg-dark-element-hover rounded-md transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-sm hover:shadow"
               title="上一个 (Shift+Enter)"
             >
               <ChevronUp className="w-4 h-4" />
@@ -151,7 +151,7 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
             <button
               onClick={() => setCurrentMatchIndex((prev) => prev + 1)}
               disabled={!searchQuery}
-              className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-white dark:hover:bg-gray-700 rounded-md transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-sm hover:shadow"
+              className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-white dark:hover:bg-dark-element-hover rounded-md transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-sm hover:shadow"
               title="下一个 (Enter)"
             >
               <ChevronDown className="w-4 h-4" />
@@ -161,7 +161,7 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
           {/* Close Button */}
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-element-hover rounded-lg transition-colors"
             title="关闭 (Escape)"
           >
             <X className="w-4 h-4" />
@@ -190,12 +190,12 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
                   }
                 }}
                 placeholder="替换..."
-                className="w-full h-9 pl-9 pr-8 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
+                className="w-full h-9 pl-9 pr-8 bg-gray-50 dark:bg-dark-element border border-gray-200 dark:border-dark-border rounded-lg text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
               />
               {replaceText && (
                 <button
                   onClick={() => setReplaceText('')}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-dark-element-hover transition-colors"
                   title="清除"
                 >
                   <X className="w-3 h-3" />
@@ -207,7 +207,7 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
             <div className="flex items-center gap-2">
               <button
                 disabled={!searchQuery}
-                className="h-9 px-3 text-xs font-medium text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm active:scale-95"
+                className="h-9 px-3 text-xs font-medium text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-dark-element border border-gray-200 dark:border-dark-border hover:bg-gray-100 dark:hover:bg-dark-element-hover hover:border-gray-300 dark:hover:border-gray-500 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm active:scale-95"
                 title="替换 (Enter)"
                 onClick={onReplace}
               >

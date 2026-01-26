@@ -33,7 +33,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({ cfg, onCfgChange, activeSt
             <input
               type="number"
               step="0.1"
-              className="h-7 w-16 pl-2 pr-6 text-xs border border-gray-300 dark:border-dark-border rounded bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100 hover:border-gray-400 dark:hover:border-gray-500 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-colors"
+              className="h-7 w-16 pl-2 pr-6 text-xs border border-gray-300 dark:border-dark-border rounded bg-white dark:bg-dark-element text-gray-900 dark:text-gray-100 hover:border-gray-400 dark:hover:border-gray-500 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-colors"
               value={cfg.global.pageMargin}
               onChange={(e) => onCfgChange({ ...cfg, global: { ...cfg.global, pageMargin: Number(e.target.value) } })}
             />
@@ -83,12 +83,12 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({ cfg, onCfgChange, activeSt
       <div className={STYLES.groupClass}>
         <div className="flex flex-col gap-0.5">
           <span className={STYLES.labelClass}>目录</span>
-          <label className="flex items-center gap-2 cursor-pointer h-7 px-2 rounded border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-surface hover:border-gray-400 dark:hover:border-gray-500 transition-colors">
+          <label className="flex items-center gap-2 cursor-pointer h-7 px-2 rounded border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-element hover:border-gray-400 dark:hover:border-gray-500 transition-colors">
             <input
               type="checkbox"
               checked={cfg.global.includeTableOfContents || false}
               onChange={(e) => onCfgChange({ ...cfg, global: { ...cfg.global, includeTableOfContents: e.target.checked } })}
-              className="rounded text-brand-500 focus:ring-brand-500 border-gray-300 dark:border-gray-600"
+              className="rounded text-brand-500 focus:ring-brand-500 border-gray-300 dark:border-dark-border"
             />
             <span className="text-xs text-gray-700 dark:text-gray-300">生成目录</span>
           </label>
@@ -100,7 +100,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({ cfg, onCfgChange, activeSt
         <div className="flex gap-2">
           <div className="flex flex-col gap-0.5">
             <span className={STYLES.labelClass}>行距</span>
-            <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 overflow-visible h-7 w-24">
+            <div className="flex items-center border border-gray-300 dark:border-dark-border rounded bg-white dark:bg-dark-element overflow-visible h-7 w-24">
               <input
                 type="number"
                 step="0.1"
@@ -121,7 +121,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({ cfg, onCfgChange, activeSt
                 }}
                 title="行距值"
               />
-              <div className="h-4 w-px bg-gray-200 dark:bg-gray-600 mx-0.5"></div>
+              <div className="h-4 w-px bg-gray-200 dark:bg-dark-border mx-0.5"></div>
               <Select
                 className="w-12"
                 variant="ghost"

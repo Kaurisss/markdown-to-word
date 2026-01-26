@@ -106,11 +106,11 @@ export const HomeTab: React.FC<HomeTabProps> = ({
       <div className={STYLES.groupClass}>
         <div
           ref={tabContainerRef}
-          className="relative flex bg-gray-100 dark:bg-gray-800 p-0.5 rounded-md"
+          className="relative flex bg-gray-100 dark:bg-dark-element p-0.5 rounded-md"
         >
           {/* 滑动指示器 */}
           <div
-            className="absolute top-0.5 bottom-0.5 bg-white dark:bg-dark-surface rounded-sm shadow-sm transition-all duration-300 ease-out"
+            className="absolute top-0.5 bottom-0.5 bg-white dark:bg-dark-element-hover rounded-sm shadow-sm transition-all duration-300 ease-out"
             style={{
               left: sliderStyle.left,
               width: sliderStyle.width,
@@ -164,32 +164,32 @@ export const HomeTab: React.FC<HomeTabProps> = ({
 
       {/* 格式设置 */}
       <div className={STYLES.groupClass}>
-        <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-gray-800/50 p-0.5 rounded border border-gray-100 dark:border-gray-700">
+        <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-dark-element p-0.5 rounded border border-gray-100 dark:border-dark-border">
           <button
             onClick={() => updateStyle({ bold: !currentStyle.bold })}
-            className={`w-7 h-7 rounded flex items-center justify-center transition-colors ${currentStyle.bold ? 'bg-brand-100 dark:bg-brand-900/50 text-brand-600 dark:text-brand-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+            className={`w-7 h-7 rounded flex items-center justify-center transition-colors ${currentStyle.bold ? 'bg-brand-100 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-dark-element-hover'}`}
             title="加粗"
           >
             <span className="font-bold text-sm">B</span>
           </button>
           <button
             onClick={() => updateStyle({ italic: !currentStyle.italic })}
-            className={`w-7 h-7 rounded flex items-center justify-center transition-colors ${currentStyle.italic ? 'bg-brand-100 dark:bg-brand-900/50 text-brand-600 dark:text-brand-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+            className={`w-7 h-7 rounded flex items-center justify-center transition-colors ${currentStyle.italic ? 'bg-brand-100 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-dark-element-hover'}`}
             title="斜体"
           >
             <span className="italic text-sm font-serif">I</span>
           </button>
-          <div className="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-0.5"></div>
+          <div className="w-px h-4 bg-gray-300 dark:bg-dark-border mx-0.5"></div>
 
           {/* Color Picker */}
           <div className="relative" ref={colorPickerRef}>
             <button
               onClick={() => setShowColorPicker(!showColorPicker)}
-              className="w-7 h-7 rounded flex flex-col items-center justify-center gap-0.5 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              className="w-7 h-7 rounded flex flex-col items-center justify-center gap-0.5 hover:bg-gray-200 dark:hover:bg-dark-element-hover transition-colors"
               title="字体颜色"
             >
               <span className="text-sm font-serif font-bold leading-none text-gray-700 dark:text-gray-300">A</span>
-              <div className="w-4 h-1 rounded-sm border border-gray-200 dark:border-gray-600" style={{ backgroundColor: currentStyle.color || '#000000' }}></div>
+              <div className="w-4 h-1 rounded-sm border border-gray-200 dark:border-dark-border" style={{ backgroundColor: currentStyle.color || '#000000' }}></div>
             </button>
             {isColorRendered && (
               <div
@@ -243,12 +243,12 @@ export const HomeTab: React.FC<HomeTabProps> = ({
           <div className="relative" ref={bgColorPickerRef}>
             <button
               onClick={() => setShowBgColorPicker(!showBgColorPicker)}
-              className="w-7 h-7 rounded flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              className="w-7 h-7 rounded flex items-center justify-center hover:bg-gray-200 dark:hover:bg-dark-element-hover transition-colors"
               title="背景颜色"
             >
               <div className="flex flex-col items-center justify-center gap-0.5">
                 <Palette className="w-3.5 h-3.5 text-gray-600 dark:text-gray-300" />
-                <div className="w-4 h-1 rounded-sm border border-gray-200 dark:border-gray-600" style={{ backgroundColor: currentStyle.backgroundColor || 'transparent' }}></div>
+                <div className="w-4 h-1 rounded-sm border border-gray-200 dark:border-dark-border" style={{ backgroundColor: currentStyle.backgroundColor || 'transparent' }}></div>
               </div>
             </button>
             {isBgColorRendered && (
@@ -298,12 +298,12 @@ export const HomeTab: React.FC<HomeTabProps> = ({
 
       {/* 对齐方式 */}
       <div className={STYLES.groupClass}>
-        <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-gray-800/50 p-0.5 rounded border border-gray-100 dark:border-gray-700">
+        <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-dark-element p-0.5 rounded border border-gray-100 dark:border-dark-border">
           {(['left', 'center', 'right', 'justify'] as const).map(align => (
             <button
               key={align}
               onClick={() => updateStyle({ alignment: align })}
-              className={`w-7 h-7 rounded flex items-center justify-center transition-colors ${currentStyle.alignment === align ? 'bg-brand-100 dark:bg-brand-900/50 text-brand-600 dark:text-brand-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+              className={`w-7 h-7 rounded flex items-center justify-center transition-colors ${currentStyle.alignment === align ? 'bg-brand-100 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-dark-element-hover'}`}
               title={{ left: '左对齐', center: '居中', right: '右对齐', justify: '两端对齐' }[align]}
             >
               {align === 'left' && <AlignLeft className="w-4 h-4" strokeWidth={2} />}

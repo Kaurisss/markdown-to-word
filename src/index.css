@@ -65,9 +65,22 @@ body {
   --color-brand-900: #0c4a6e;
 
   /* Custom Dark Background */
-  --color-dark-bg: #232323;
-  --color-dark-surface: #2b2b2b;
-  --color-dark-border: #404040;
+  --color-dark-bg: #1e1e1e;
+  --color-dark-surface: #252526;
+  --color-dark-border: #3e3e42;
+  --color-dark-element: #333333;
+  --color-dark-element-hover: #3f3f3f;
+  --color-dark-text-muted: #858585;
+}
+
+/* Hide number input spinners */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] {
+  -moz-appearance: textfield;
 }
 
 /* Menu Animation */

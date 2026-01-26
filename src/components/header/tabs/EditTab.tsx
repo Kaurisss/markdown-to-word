@@ -21,13 +21,13 @@ export const EditTab: React.FC<EditTabProps> = ({
     onSearchClick,
     onReplaceClick
 }) => {
-    const iconBtnClass = "w-7 h-7 rounded flex items-center justify-center transition-colors text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 active:bg-gray-300 dark:active:bg-gray-600";
+    const iconBtnClass = "w-7 h-7 rounded flex items-center justify-center transition-colors text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-dark-element-hover active:bg-gray-300 dark:active:bg-dark-border";
 
     return (
         <div className="flex items-center h-full animate-slide-in-left">
             {/* 撤销/重做 */}
             <div className={STYLES.groupClass}>
-                <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-gray-800/50 p-0.5 rounded border border-gray-100 dark:border-gray-700">
+                <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-dark-element p-0.5 rounded border border-gray-100 dark:border-dark-border">
                     <button onClick={onUndo} onMouseDown={e => e.preventDefault()} className={iconBtnClass} title="撤销 (Ctrl+Z)">
                         <Undo2 className="w-4 h-4" />
                     </button>
@@ -39,7 +39,7 @@ export const EditTab: React.FC<EditTabProps> = ({
 
             {/* 剪贴板 */}
             <div className={STYLES.groupClass}>
-                <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-gray-800/50 p-0.5 rounded border border-gray-100 dark:border-gray-700">
+                <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-dark-element p-0.5 rounded border border-gray-100 dark:border-dark-border">
                     <button onClick={onCut} onMouseDown={e => e.preventDefault()} className={iconBtnClass} title="剪切 (Ctrl+X)">
                         <Scissors className="w-4 h-4" />
                     </button>

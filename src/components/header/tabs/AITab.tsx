@@ -41,14 +41,26 @@ export const AITab: React.FC<AITabProps> = ({
   });
 
   const [showHelp, setShowHelp] = useState(false);
+  const [isClosingHelp, setIsClosingHelp] = useState(false);
   const helpRef = useRef<HTMLDivElement | null>(null);
+
+  const closeHelp = () => {
+    setIsClosingHelp(true);
+  };
+
+  const handleAnimationEnd = () => {
+    if (isClosingHelp) {
+      setShowHelp(false);
+      setIsClosingHelp(false);
+    }
+  };
 
   useEffect(() => {
     if (!showHelp) return;
     const handleClickOutside = (event: MouseEvent) => {
       if (!helpRef.current) return;
       if (helpRef.current.contains(event.target as Node)) return;
-      setShowHelp(false);
+      closeHelp();
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
@@ -98,14 +110,23 @@ export const AITab: React.FC<AITabProps> = ({
             <div className="relative" ref={helpRef}>
               <button
                 type="button"
-                onClick={() => setShowHelp(prev => !prev)}
+                onClick={() => {
+                  if (showHelp) {
+                    closeHelp();
+                  } else {
+                    setShowHelp(true);
+                  }
+                }}
                 className="h-7 w-7 flex items-center justify-center rounded text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-surface transition-colors"
                 title="使用帮助"
               >
                 <CircleHelp className="w-4 h-4" />
               </button>
-              {showHelp && (
-                <div className="absolute right-0 top-full mt-2 z-50 w-80 rounded-lg border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-surface shadow-xl p-3 text-xs text-gray-600 dark:text-gray-300 animate-scale-in origin-top-right">
+              {(showHelp || isClosingHelp) && (
+                <div 
+                  className={`absolute right-0 top-full mt-2 z-50 w-80 rounded-lg border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-surface shadow-xl p-3 text-xs text-gray-600 dark:text-gray-300 origin-top-right ${isClosingHelp ? 'animate-scale-out' : 'animate-scale-in'}`}
+                  onAnimationEnd={handleAnimationEnd}
+                >
                   <div className="font-semibold text-gray-800 dark:text-gray-100">智能菜单使用说明</div>
                   <div className="mt-2 space-y-1">
                     <div>1. 点击模型选择，进入 AI 配置并填写 API Key。</div>

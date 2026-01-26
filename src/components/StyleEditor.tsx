@@ -47,14 +47,14 @@ const FONT_SIZES_PT = [5, 5.5, 6.5, 7.5, 8, 9, 10, 10.5, 11, 12, 14, 16, 18, 20,
 export default function StyleEditor({ label, value, onChange }: Props) {
   const set = (patch: Partial<ElementStyle>) => onChange({ ...value, ...patch });
 
-  const inputClassName = "w-full border border-gray-300 rounded-lg px-3 py-1.5 text-xs sm:text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-shadow bg-gray-50 focus:bg-white";
-  const labelClassName = "text-xs font-medium text-gray-500 mb-1.5";
+  const inputClassName = "w-full border border-gray-300 dark:border-dark-border rounded-lg px-3 py-1.5 text-xs sm:text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-shadow bg-gray-50 dark:bg-dark-element focus:bg-white dark:focus:bg-dark-element-hover dark:text-gray-100";
+  const labelClassName = "text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5";
 
   return (
-    <div className="border border-gray-100 rounded-xl p-4 bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
+    <div className="border border-gray-100 dark:border-dark-border rounded-xl p-4 bg-white dark:bg-dark-surface shadow-sm hover:shadow-md transition-shadow duration-200">
       <div className="flex items-center justify-between mb-4">
-        <div className="font-semibold text-gray-800 text-sm">{label}</div>
-        <div className="h-px bg-gray-100 flex-1 ml-4"></div>
+        <div className="font-semibold text-gray-800 dark:text-gray-200 text-sm">{label}</div>
+        <div className="h-px bg-gray-100 dark:bg-dark-border flex-1 ml-4"></div>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -130,18 +130,18 @@ export default function StyleEditor({ label, value, onChange }: Props) {
                 type="checkbox"
                 checked={value.bold}
                 onChange={(e) => set({ bold: e.target.checked })}
-                className="rounded text-brand-500 focus:ring-brand-500 border-gray-300 group-hover:border-brand-400"
+                className="rounded text-brand-500 focus:ring-brand-500 border-gray-300 dark:border-dark-border group-hover:border-brand-400 dark:bg-dark-element"
               />
-              <span className="text-xs text-gray-600 group-hover:text-gray-900 transition-colors">加粗</span>
+              <span className="text-xs text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-200 transition-colors">加粗</span>
             </label>
             <label className="flex items-center space-x-1.5 cursor-pointer group">
               <input
                 type="checkbox"
                 checked={value.italic}
                 onChange={(e) => set({ italic: e.target.checked })}
-                className="rounded text-brand-500 focus:ring-brand-500 border-gray-300 group-hover:border-brand-400"
+                className="rounded text-brand-500 focus:ring-brand-500 border-gray-300 dark:border-dark-border group-hover:border-brand-400 dark:bg-dark-element"
               />
-              <span className="text-xs text-gray-600 group-hover:text-gray-900 transition-colors">斜体</span>
+              <span className="text-xs text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-200 transition-colors">斜体</span>
             </label>
           </div>
         </div>
@@ -149,11 +149,11 @@ export default function StyleEditor({ label, value, onChange }: Props) {
         {/* Line Spacing */}
         <div className="flex flex-col">
           <span className={labelClassName}>行距</span>
-          <div className="flex items-center border border-gray-300 rounded bg-white overflow-hidden h-8 sm:h-[34px]">
+          <div className="flex items-center border border-gray-300 dark:border-dark-border rounded bg-white dark:bg-dark-element overflow-hidden h-8 sm:h-[34px]">
             <input
               type="number"
               step="0.1"
-              className="w-full text-xs sm:text-sm border-0 p-1.5 focus:ring-0 outline-none h-full"
+              className="w-full text-xs sm:text-sm border-0 p-1.5 focus:ring-0 outline-none h-full bg-transparent dark:text-gray-100"
               value={(() => {
                 const val = value.lineSpacing;
                 if (typeof val === 'string' && val.endsWith('pt')) {
@@ -170,7 +170,7 @@ export default function StyleEditor({ label, value, onChange }: Props) {
               }}
             />
             <select
-              className="text-xs border-l border-gray-200 bg-gray-50 h-full px-1 focus:outline-none cursor-pointer hover:bg-gray-100 text-gray-600"
+              className="text-xs border-l border-gray-200 dark:border-dark-border bg-gray-50 dark:bg-dark-element h-full px-1 focus:outline-none cursor-pointer hover:bg-gray-100 dark:hover:bg-dark-element-hover text-gray-600 dark:text-gray-400"
               value={typeof value.lineSpacing === 'string' && value.lineSpacing.endsWith('pt') ? 'pt' : 'times'}
               onChange={(e) => {
                 const newUnit = e.target.value;
