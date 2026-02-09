@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import logoUrl from '../../logo.png';
 
 export type TabType = 'file' | 'edit' | 'view' | 'home' | 'layout' | 'ai';
@@ -17,7 +17,6 @@ export const WindowBar: React.FC<WindowBarProps> = ({
   fileInputRef
 }) => {
   const [isMaximized, setIsMaximized] = useState(false);
-  const [openMenu, setOpenMenu] = useState<'file' | 'edit' | null>(null);
 
   useEffect(() => {
     let unlisten: (() => void) | undefined;
@@ -28,7 +27,6 @@ export const WindowBar: React.FC<WindowBarProps> = ({
         const win = getCurrentWindow();
 
         setIsMaximized(await win.isMaximized());
-
         unlisten = await win.listen('tauri://resize', async () => {
           setIsMaximized(await win.isMaximized());
         });
@@ -69,23 +67,19 @@ export const WindowBar: React.FC<WindowBarProps> = ({
   };
 
   return (
-    <div className="h-10 bg-white dark:bg-dark-bg border-b border-gray-100 dark:border-dark-border flex items-stretch transition-colors duration-200">
-      {/* 左侧可拖动区域：Logo + 菜单项 */}
+    <div className="h-10 bg-inherit border-b border-gray-100 dark:border-dark-border flex items-stretch transition-colors duration-200">
       <div
         className="flex-1 flex items-center text-xs text-gray-600 dark:text-gray-300 select-none min-w-0"
         data-tauri-drag-region
         onDoubleClick={() => void runWindowAction('toggleMaximize')}
       >
-        {/* Logo 图标 - 可拖动 */}
         <div className="flex items-center justify-center w-10 h-full" data-tauri-drag-region>
           <img src={logoUrl} alt="Logo" className="w-5 h-5 pointer-events-none rounded-sm" />
         </div>
 
-        {/* 菜单项 - 不可拖动 */}
         <div className="flex items-center" onMouseDown={(e) => e.stopPropagation()}>
           <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".md,.txt,.markdown" className="hidden" />
 
-          {/* 功能栏切换按钮 */}
           {(['file', 'edit', 'view', 'home', 'layout', 'ai'] as const).map(tab => {
             const isActive = activeTab === tab;
             const label = ({ file: '文件', edit: '编辑', view: '视图', home: '开始', layout: '布局', ai: '智能' } as const)[tab];
@@ -114,53 +108,51 @@ export const WindowBar: React.FC<WindowBarProps> = ({
           })}
         </div>
 
-        {/* 点击外部关闭菜单 - 保留用于颜色选择器等 */}
-        {openMenu && (
-          <div className="fixed inset-0 z-40" onClick={() => setOpenMenu(null)}></div>
-        )}
-
-        {/* 可拖动的空白区域 */}
-        <div className="flex-1" data-tauri-drag-region></div>
+        <div className="flex-1" data-tauri-drag-region />
       </div>
 
-      {/* 右侧窗口控制按钮 */}
-      <div className="flex items-stretch" onMouseDown={(e) => e.stopPropagation()}>
+      <div className="flex items-stretch bg-white" onMouseDown={(e) => e.stopPropagation()}>
         <button
           type="button"
           onClick={() => void runWindowAction('minimize')}
-          className="w-12 grid place-items-center text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 active:bg-gray-200 dark:active:bg-gray-600 transition-colors"
+          className="w-12 grid place-items-center bg-white text-gray-600 hover:bg-gray-100 active:bg-gray-200 transition-colors"
           aria-label="最小化"
         >
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M19 13H5v-2h14z" />
-          </svg>
+          <span
+            aria-hidden="true"
+            className="select-none leading-none text-[10px]"
+            style={{ fontFamily: "'Segoe MDL2 Assets'" }}
+          >
+            &#xE921;
+          </span>
         </button>
         <button
           type="button"
           onClick={() => void runWindowAction('toggleMaximize')}
-          className="w-12 grid place-items-center text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 active:bg-gray-200 dark:active:bg-gray-600 transition-colors"
-          aria-label={isMaximized ? "还原" : "最大化"}
+          className="w-12 grid place-items-center bg-white text-gray-600 hover:bg-gray-100 active:bg-gray-200 transition-colors"
+          aria-label={isMaximized ? '还原' : '最大化'}
         >
-          {isMaximized ? (
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M8 8V4H20V16H16" />
-              <rect x="4" y="8" width="12" height="12" />
-            </svg>
-          ) : (
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="5" y="5" width="14" height="14" />
-            </svg>
-          )}
+          <span
+            aria-hidden="true"
+            className="select-none leading-none text-[10px]"
+            style={{ fontFamily: "'Segoe MDL2 Assets'" }}
+          >
+            {isMaximized ? '\uE923' : '\uE922'}
+          </span>
         </button>
         <button
           type="button"
           onClick={() => void runWindowAction('close')}
-          className="w-12 grid place-items-center text-gray-600 dark:text-gray-400 hover:bg-red-500 hover:text-white active:bg-red-600 transition-colors"
+          className="w-12 grid place-items-center bg-white text-gray-600 hover:bg-red-500 hover:text-white active:bg-red-600 transition-colors"
           aria-label="关闭"
         >
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M13.46 12L19 17.54V19h-1.46L12 13.46L6.46 19H5v-1.46L10.54 12L5 6.46V5h1.46L12 10.54L17.54 5H19v1.46z" />
-          </svg>
+          <span
+            aria-hidden="true"
+            className="select-none leading-none text-[10px]"
+            style={{ fontFamily: "'Segoe MDL2 Assets'" }}
+          >
+            &#xE8BB;
+          </span>
         </button>
       </div>
     </div>

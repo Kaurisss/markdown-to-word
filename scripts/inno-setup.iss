@@ -16,6 +16,7 @@ OutputDir=..\src-tauri\target\release\bundle\inno
 OutputBaseFilename={#OutputName}
 SetupIconFile=..\src-tauri\icons\icon.ico
 WizardImageFile=..\src-tauri\icons\sidebar.png
+WizardSmallImageFile=..\src-tauri\icons\wizard-small.png
 Compression=lzma2
 SolidCompression=yes
 ArchitecturesAllowed=x64

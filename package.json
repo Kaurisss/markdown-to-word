@@ -10,7 +10,7 @@
     "tauri": "npm run build && tauri",
     "tauri:dev": "tauri dev",
     "tauri:build": "npm run build && tauri build",
-    "inno:build": "iscc scripts/inno-setup.iss",
+    "build:installer": "iscc scripts/inno-setup.iss",
     "lint": "eslint . --ext .ts,.tsx",
     "typecheck": "tsc --noEmit",
     "clean": "rimraf dist node_modules/.vite src-tauri/target",
