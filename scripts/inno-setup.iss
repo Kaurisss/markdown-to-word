@@ -1,8 +1,8 @@
-﻿#define AppVersion "2.0.0"
-#define AppExe "app.exe"
+#define AppVersion "2.0.1"
+#define AppExe "MarkdownToWord_" + AppVersion + "_x64" + "_Portable" + ".exe"
 #define Publisher "kauriss"
 #define AppId "{{9B9A7D8E-9E90-4B68-A71A-8CFC61D2A6B6}}"
-#define OutputName "MarkdownToWord_" + AppVersion + "_x64"
+#define OutputName "MarkdownToWord_" + AppVersion + "_x64" + "_Setup"
 
 [Setup]
 AppId={#AppId}
@@ -40,7 +40,7 @@ english.RunApp=Launch %1
 chinesesimplified.RunApp=启动 %1
 
 [Files]
-Source: "..\src-tauri\target\release\app.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\src-tauri\target\release\{#AppExe}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\src-tauri\binaries\md2word-x86_64-pc-windows-msvc.exe"; DestDir: "{app}"; DestName: "md2word.exe"; Flags: ignoreversion
 
 [Icons]

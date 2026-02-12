@@ -1,6 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "简阅转档",
+  "mainBinaryName": "MarkdownToWord_2.0.1_x64_Portable",
   "version": "2.0.1",
   "identifier": "com.kauriss.markdown-to-word",
   "build": {
@@ -49,3 +50,4 @@
     }
   }
 }
+
