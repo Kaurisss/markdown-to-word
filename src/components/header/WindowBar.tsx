@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import logoUrl from '../../logo.png';
+import logoUrl from '../../public/logo.png';
 
 export type TabType = 'file' | 'edit' | 'view' | 'home' | 'layout' | 'ai';
 
