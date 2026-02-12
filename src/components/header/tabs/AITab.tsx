@@ -138,11 +138,11 @@ export const AITab: React.FC<AITabProps> = ({
                   <div className="mt-1 space-y-2">
                     <div className="bg-gray-50 dark:bg-gray-800/50 p-2 rounded border border-gray-100 dark:border-dark-border cursor-pointer hover:border-brand-300 dark:hover:border-brand-700 transition-colors" onClick={() => setPrompt('正文仿宋三号，标题黑体小二加粗，行距1.5倍')}>
                       <div className="text-gray-500 dark:text-gray-400 mb-0.5 text-[10px]">公文风格</div>
-                      <div className="text-brand-600 dark:text-brand-400">"正文仿宋三号，标题黑体小二加粗，行距1.5倍"</div>
+                      <div className="text-brand-600 dark:text-brand-400">&quot;正文仿宋三号，标题黑体小二加粗，行距1.5倍&quot;</div>
                     </div>
                     <div className="bg-gray-50 dark:bg-gray-800/50 p-2 rounded border border-gray-100 dark:border-dark-border cursor-pointer hover:border-brand-300 dark:hover:border-brand-700 transition-colors" onClick={() => setPrompt('正文宋体小四，标题微软雅黑小三，代码块灰色背景')}>
                       <div className="text-gray-500 dark:text-gray-400 mb-0.5 text-[10px]">技术文档</div>
-                      <div className="text-brand-600 dark:text-brand-400">"正文宋体小四，标题微软雅黑小三，代码块灰色背景"</div>
+                      <div className="text-brand-600 dark:text-brand-400">&quot;正文宋体小四，标题微软雅黑小三，代码块灰色背景&quot;</div>
                     </div>
                   </div>
 

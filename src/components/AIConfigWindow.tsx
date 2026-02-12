@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useLayoutEffect, useRef } from 'react';
-import { X, Plus, Play, Trash2, Settings2, Check, Loader2, Pencil, Copy, Eye, EyeOff } from 'lucide-react';
+import { Plus, Play, Trash2, Settings2, Check, Loader2, Pencil, Copy, Eye, EyeOff } from 'lucide-react';
 import { AIProvider, AIModel } from '../interfaces/AI';
 import { useAIConfigStore } from '../services/aiConfigStore';
 import { ContextMenu } from './ui/ContextMenu';
@@ -13,6 +13,11 @@ export const AIConfigWindow: React.FC = () => {
   const [newPlatformName, setNewPlatformName] = useState('');
   const [newPlatformUrl, setNewPlatformUrl] = useState('');
   const [newPlatformDescription, setNewPlatformDescription] = useState('');
+  const [showEditPlatform, setShowEditPlatform] = useState(false);
+  const [editingPlatformId, setEditingPlatformId] = useState('');
+  const [editPlatformName, setEditPlatformName] = useState('');
+  const [editPlatformUrl, setEditPlatformUrl] = useState('');
+  const [editPlatformDescription, setEditPlatformDescription] = useState('');
   const [showAddModel, setShowAddModel] = useState(false);
   const [newModelId, setNewModelId] = useState('');
   const [newModelName, setNewModelName] = useState('');
@@ -32,6 +37,13 @@ export const AIConfigWindow: React.FC = () => {
     model: null
   });
   const modelContextMenuRef = useRef<HTMLDivElement | null>(null);
+  const [platformContextMenu, setPlatformContextMenu] = useState<{ visible: boolean; x: number; y: number; provider: AIProvider | null }>({
+    visible: false,
+    x: 0,
+    y: 0,
+    provider: null
+  });
+  const platformContextMenuRef = useRef<HTMLDivElement | null>(null);
 
   // Edit model state
   const [showEditModel, setShowEditModel] = useState(false);
@@ -39,6 +51,7 @@ export const AIConfigWindow: React.FC = () => {
   const [editModelId, setEditModelId] = useState('');
   const [editModelName, setEditModelName] = useState('');
   const [showApiKey, setShowApiKey] = useState(false);
+  const [showInitialSkeleton, setShowInitialSkeleton] = useState(true);
 
   // Input context menu hook
   const { contextMenu: inputContextMenu, handleInputContextMenu, closeContextMenu: closeInputContextMenu } = useInputContextMenu();
@@ -50,7 +63,16 @@ export const AIConfigWindow: React.FC = () => {
     }
   }, [providers, selectedProviderId]);
 
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setShowInitialSkeleton(false);
+    }, 260);
+    return () => window.clearTimeout(timer);
+  }, []);
+
   const selectedProvider = providers.find(p => p.id === selectedProviderId);
+  const isBootstrapping = showInitialSkeleton && providers.length > 0;
+  const skeletonBaseClass = 'animate-pulse rounded-md bg-gray-200 dark:bg-dark-element';
 
   const handleTestModel = async (modelId: string) => {
     if (!selectedProvider) return;
@@ -232,16 +254,35 @@ export const AIConfigWindow: React.FC = () => {
     closeModelContextMenu();
   }, [modelContextMenu.model, handleDeleteModel, closeModelContextMenu]);
 
+  const handlePlatformContextMenu = useCallback((e: React.MouseEvent, provider: AIProvider) => {
+    if (!provider.isCustom) return;
+    e.preventDefault();
+    e.stopPropagation();
+    setPlatformContextMenu({
+      visible: true,
+      x: e.clientX,
+      y: e.clientY,
+      provider
+    });
+  }, []);
+
+  const closePlatformContextMenu = useCallback(() => {
+    setPlatformContextMenu(prev => ({ ...prev, visible: false }));
+  }, []);
+
   // Close context menu on click outside
   useEffect(() => {
     const handleClick = () => {
       if (modelContextMenu.visible) {
         closeModelContextMenu();
       }
+      if (platformContextMenu.visible) {
+        closePlatformContextMenu();
+      }
     };
     document.addEventListener('click', handleClick);
     return () => document.removeEventListener('click', handleClick);
-  }, [modelContextMenu.visible, closeModelContextMenu]);
+  }, [modelContextMenu.visible, closeModelContextMenu, platformContextMenu.visible, closePlatformContextMenu]);
 
   useLayoutEffect(() => {
     if (!modelContextMenu.visible) return;
@@ -259,6 +300,23 @@ export const AIConfigWindow: React.FC = () => {
       }
     });
   }, [modelContextMenu.visible, modelContextMenu.x, modelContextMenu.y]);
+
+  useLayoutEffect(() => {
+    if (!platformContextMenu.visible) return;
+
+    requestAnimationFrame(() => {
+      if (!platformContextMenuRef.current) return;
+      const { offsetWidth, offsetHeight } = platformContextMenuRef.current;
+      const padding = 8;
+      const maxX = window.innerWidth - offsetWidth - padding;
+      const maxY = window.innerHeight - offsetHeight - padding;
+      const nextX = Math.max(padding, Math.min(platformContextMenu.x, maxX));
+      const nextY = Math.max(padding, Math.min(platformContextMenu.y, maxY));
+      if (nextX !== platformContextMenu.x || nextY !== platformContextMenu.y) {
+        setPlatformContextMenu(prev => prev.visible ? { ...prev, x: nextX, y: nextY } : prev);
+      }
+    });
+  }, [platformContextMenu.visible, platformContextMenu.x, platformContextMenu.y]);
 
   const handleAddPlatform = () => {
     if (!newPlatformName.trim()) return;
@@ -281,10 +339,69 @@ export const AIConfigWindow: React.FC = () => {
     setNewPlatformDescription('');
   };
 
+  const handleStartEditPlatform = useCallback((provider: AIProvider) => {
+    if (!provider.isCustom) return;
+    setEditingPlatformId(provider.id);
+    setEditPlatformName(provider.name);
+    setEditPlatformUrl(provider.baseUrl);
+    setEditPlatformDescription(provider.description || '');
+    setShowEditPlatform(true);
+  }, []);
+
+  const handleSaveEditPlatform = useCallback(() => {
+    if (!editingPlatformId || !editPlatformName.trim()) return;
+    handleUpdateProvider(editingPlatformId, {
+      name: editPlatformName.trim(),
+      baseUrl: editPlatformUrl.trim() || 'https://api.example.com/v1/chat/completions',
+      description: editPlatformDescription.trim() || undefined
+    });
+    setShowEditPlatform(false);
+    setEditingPlatformId('');
+    setEditPlatformName('');
+    setEditPlatformUrl('');
+    setEditPlatformDescription('');
+  }, [editingPlatformId, editPlatformName, editPlatformUrl, editPlatformDescription, handleUpdateProvider]);
+
+  const handleDeletePlatform = useCallback((provider: AIProvider) => {
+    if (!provider.isCustom) return;
+
+    const updatedProviders = providers.filter(p => p.id !== provider.id);
+    updateProviders(updatedProviders);
+
+    if (selectedProviderId === provider.id) {
+      const nextSelected = updatedProviders.find(p => p.id !== provider.id);
+      setSelectedProviderId(nextSelected?.id ?? '');
+    }
+
+    if (selectedModel?.providerId === provider.id) {
+      updateSelectedModel(null);
+    }
+  }, [providers, selectedProviderId, selectedModel, updateProviders, updateSelectedModel]);
+
+  const handlePlatformContextEdit = useCallback(() => {
+    if (!platformContextMenu.provider) return;
+    handleStartEditPlatform(platformContextMenu.provider);
+    closePlatformContextMenu();
+  }, [platformContextMenu.provider, handleStartEditPlatform, closePlatformContextMenu]);
+
+  const handlePlatformContextDelete = useCallback(() => {
+    if (!platformContextMenu.provider) return;
+    handleDeletePlatform(platformContextMenu.provider);
+    closePlatformContextMenu();
+  }, [platformContextMenu.provider, handleDeletePlatform, closePlatformContextMenu]);
+
   const handleCloseWindow = async () => {
     try {
       const { getCurrentWindow } = await import('@tauri-apps/api/window');
       await getCurrentWindow().close();
+    } catch {
+    }
+  };
+
+  const handleMinimizeWindow = async () => {
+    try {
+      const { getCurrentWindow } = await import('@tauri-apps/api/window');
+      await getCurrentWindow().minimize();
     } catch {
     }
   };
@@ -304,160 +421,257 @@ export const AIConfigWindow: React.FC = () => {
     >
 
       {/* Sidebar */}
-      <div className="w-64 bg-gray-50 dark:bg-dark-bg border-r border-gray-200 dark:border-dark-border flex flex-col">
-        <div className="h-14 px-4 flex items-center justify-between border-b border-gray-200 dark:border-dark-border bg-gray-50 dark:bg-dark-bg" data-tauri-drag-region>
+      <div className="w-64 bg-gray-50 dark:bg-dark-bg flex flex-col">
+        <div className="h-10 px-5 flex items-center justify-between bg-gray-50 dark:bg-dark-bg" data-tauri-drag-region>
           <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200 pointer-events-none">AI 平台管理</h2>
           <button
             onClick={() => setShowAddPlatform(true)}
-            className="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-200 dark:hover:bg-dark-surface text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+            disabled={isBootstrapping}
+            className="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-200 dark:hover:bg-dark-surface text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             title="添加自定义平台"
           >
             <Plus className="w-4 h-4" />
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto p-3 space-y-1">
-          {providers.map(provider => (
-            <div
-              key={provider.id}
-              onClick={() => setSelectedProviderId(provider.id)}
-              className={`flex items-center justify-between px-3 py-2 rounded-md cursor-pointer transition-colors text-sm ${selectedProviderId === provider.id
-                ? 'bg-blue-50 dark:bg-blue-900/20 text-brand-600 dark:text-brand-400 font-medium'
-                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-surface'
-                }`}
-            >
-              <span className="truncate pr-2">{provider.name}</span>
+        <div className="flex-1 overflow-y-auto px-2 pb-2 pt-0 space-y-1">
+          {isBootstrapping ? (
+            Array.from({ length: 6 }).map((_, index) => (
               <div
-                className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75 ${
-                  provider.isEnabled 
-                    ? 'bg-brand-500 dark:bg-brand-600' 
-                    : 'bg-gray-200 dark:bg-gray-600'
-                }`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleToggleProvider(provider.id, !provider.isEnabled);
-                }}
+                key={`provider-skeleton-${index}`}
+                className="flex items-center justify-between px-3 py-2 rounded-md"
               >
-                <span
-                  aria-hidden="true"
-                  className={`${provider.isEnabled ? 'translate-x-4' : 'translate-x-0'
-                    } pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out`}
-                />
+                <div className={`h-3.5 w-24 ${skeletonBaseClass}`} />
+                <div className={`h-5 w-9 rounded-full animate-pulse bg-gray-200 dark:bg-dark-element`} />
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            providers.map(provider => (
+              <div
+                key={provider.id}
+                data-platform-card={provider.isCustom ? 'true' : undefined}
+                onClick={() => setSelectedProviderId(provider.id)}
+                onContextMenu={(e) => handlePlatformContextMenu(e, provider)}
+                className={`flex items-center justify-between px-3 py-2 rounded-md cursor-pointer transition-colors text-sm ${selectedProviderId === provider.id
+                  ? 'bg-blue-50 dark:bg-blue-900/20 text-brand-600 dark:text-brand-400 font-medium'
+                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-surface'
+                  }`}
+              >
+                <span className="truncate pr-2">{provider.name}</span>
+                <div
+                  className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75 ${provider.isEnabled
+                    ? 'bg-brand-500 dark:bg-brand-600'
+                    : 'bg-gray-200 dark:bg-gray-600'
+                    }`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleToggleProvider(provider.id, !provider.isEnabled);
+                  }}
+                >
+                  <span
+                    aria-hidden="true"
+                    className={`${provider.isEnabled ? 'translate-x-4' : 'translate-x-0'
+                      } pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out`}
+                  />
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col bg-white dark:bg-dark-surface">
-        {selectedProvider ? (
+      <div className="relative flex-1 flex flex-col bg-white dark:bg-dark-surface">
+        {isBootstrapping ? (
+          <>
+            <div className="h-10 flex items-center justify-between pl-6 pr-12 ">
+              <div className={`h-5 w-36 ${skeletonBaseClass}`} />
+              <button
+                type="button"
+                onClick={handleMinimizeWindow}
+                className="absolute top-0 right-[46px] z-[80] w-[46px] h-10 grid place-items-center text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-element active:bg-gray-200 dark:active:bg-dark-border transition-colors"
+                aria-label="最小化"
+              >
+                <span
+                  aria-hidden="true"
+                  className="select-none leading-none text-[10px]"
+                  style={{ fontFamily: "'Segoe MDL2 Assets'" }}
+                >
+                  &#xE921;
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={handleCloseWindow}
+                className="absolute top-0 right-0 z-[80] w-[46px] h-10 grid place-items-center text-gray-600 dark:text-gray-300 hover:bg-red-500 hover:text-white active:bg-red-600 transition-colors"
+                aria-label="关闭"
+              >
+                <span
+                  aria-hidden="true"
+                  className="select-none leading-none text-[10px]"
+                  style={{ fontFamily: "'Segoe MDL2 Assets'" }}
+                >
+                  &#xE8BB;
+                </span>
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-6 space-y-8">
+              <div className={`h-4 w-56 ${skeletonBaseClass}`} />
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-1 h-4 rounded-full bg-blue-500/60" />
+                  <div className={`h-5 w-24 ${skeletonBaseClass}`} />
+                </div>
+                <div className="space-y-2">
+                  <div className={`h-3 w-16 ${skeletonBaseClass}`} />
+                  <div className={`h-10 w-full ${skeletonBaseClass}`} />
+                </div>
+                <div className="space-y-2">
+                  <div className={`h-3 w-16 ${skeletonBaseClass}`} />
+                  <div className={`h-10 w-full ${skeletonBaseClass}`} />
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-1 h-4 rounded-full bg-purple-500/60" />
+                  <div className={`h-5 w-24 ${skeletonBaseClass}`} />
+                </div>
+                <div className={`h-9 w-28 ${skeletonBaseClass}`} />
+                <div className="space-y-2">
+                  {Array.from({ length: 3 }).map((_, index) => (
+                    <div key={`model-skeleton-${index}`} className={`h-10 w-full ${skeletonBaseClass}`} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </>
+        ) : selectedProvider ? (
           <>
             {/* Header */}
-              <div className="h-14 flex items-center justify-between px-6 border-b border-gray-100 dark:border-dark-border">
-                <div className="flex-1 flex items-center" data-tauri-drag-region>
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 pointer-events-none">{selectedProvider.name}</h3>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleCloseWindow}
-                  className="w-8 h-8 grid place-items-center rounded-lg text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-element transition-colors"
-                  aria-label="关闭"
+            <div className="h-10 flex items-center justify-between pl-6 pr-12 ">
+              <div className="flex-1 flex items-center" data-tauri-drag-region>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 pointer-events-none">{selectedProvider.name}</h3>
+              </div>
+              <button
+                type="button"
+                onClick={handleMinimizeWindow}
+                className="absolute top-0 right-[46px] z-[80] w-[46px] h-10 grid place-items-center text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-element active:bg-gray-200 dark:active:bg-dark-border transition-colors"
+                aria-label="最小化"
+              >
+                <span
+                  aria-hidden="true"
+                  className="select-none leading-none text-[10px]"
+                  style={{ fontFamily: "'Segoe MDL2 Assets'" }}
                 >
-                  <X className="w-5 h-5" />
-                </button>
+                  &#xE921;
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={handleCloseWindow}
+                className="absolute top-0 right-0 z-[80] w-[46px] h-10 grid place-items-center text-gray-600 dark:text-gray-300 hover:bg-red-500 hover:text-white active:bg-red-600 transition-colors"
+                aria-label="关闭"
+              >
+                <span
+                  aria-hidden="true"
+                  className="select-none leading-none text-[10px]"
+                  style={{ fontFamily: "'Segoe MDL2 Assets'" }}
+                >
+                  &#xE8BB;
+                </span>
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-6 pb-4 pt-2 space-y-6">
+              {/* Description */}
+              {selectedProvider.description && (
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  {selectedProvider.description}
+                </div>
+              )}
+
+              {/* API Config */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-1 h-4 bg-blue-500 rounded-full"></div>
+                  <div className="text-base font-bold text-gray-900 dark:text-gray-100">
+                    API 配置
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-gray-500 dark:text-gray-400">API Key</label>
+                  <div className="relative">
+                    <input
+                      type={showApiKey ? 'text' : 'password'}
+                      value={selectedProvider.apiKey}
+                      onChange={(e) => handleUpdateProvider(selectedProvider.id, { apiKey: e.target.value })}
+                      onContextMenu={handleInputContextMenu}
+                      className="w-full h-10 px-3 pr-9 text-sm rounded-lg border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-element text-gray-900 dark:text-gray-100 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-all"
+                      placeholder="请输入 API Key"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowApiKey(!showApiKey)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors rounded-md hover:bg-gray-100 dark:hover:bg-dark-element-hover"
+                      title={showApiKey ? '隐藏 API Key' : '显示 API Key'}
+                    >
+                      {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Base URL</label>
+                  <input
+                    type="text"
+                    value={selectedProvider.baseUrl}
+                    onChange={(e) => handleUpdateProvider(selectedProvider.id, { baseUrl: e.target.value })}
+                    onContextMenu={handleInputContextMenu}
+                    className="w-full h-10 px-3 text-sm rounded-lg border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-element text-gray-900 dark:text-gray-100 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-all"
+                    placeholder="https://api.example.com/..."
+                  />
+                </div>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-6 space-y-8">
-                {/* Description */}
-                {selectedProvider.description && (
-                  <div className="text-sm text-gray-500 dark:text-gray-400 -mt-2">
-                    {selectedProvider.description}
-                  </div>
-                )}
-
-                {/* API Config */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-1 h-4 bg-blue-500 rounded-full"></div>
-                    <div className="text-base font-bold text-gray-900 dark:text-gray-100">
-                      API 配置
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <label className="text-xs font-medium text-gray-500 dark:text-gray-400">API Key</label>
-                    <div className="relative">
-                      <input
-                        type={showApiKey ? 'text' : 'password'}
-                        value={selectedProvider.apiKey}
-                        onChange={(e) => handleUpdateProvider(selectedProvider.id, { apiKey: e.target.value })}
-                        onContextMenu={handleInputContextMenu}
-                        className="w-full h-10 px-3 pr-9 text-sm rounded-lg border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-element focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-all"
-                        placeholder="请输入 API Key"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowApiKey(!showApiKey)}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors rounded-md hover:bg-gray-100 dark:hover:bg-dark-element-hover"
-                        title={showApiKey ? '隐藏 API Key' : '显示 API Key'}
-                      >
-                        {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Base URL</label>
-                    <input
-                      type="text"
-                      value={selectedProvider.baseUrl}
-                      onChange={(e) => handleUpdateProvider(selectedProvider.id, { baseUrl: e.target.value })}
-                      onContextMenu={handleInputContextMenu}
-                      className="w-full h-10 px-3 text-sm rounded-lg border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-element text-gray-600 dark:text-gray-300 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-all"
-                      placeholder="https://api.example.com/..."
-                    />
+              {/* Model Management */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-1 h-4 bg-purple-500 rounded-full"></div>
+                  <div className="text-base font-bold text-gray-900 dark:text-gray-100">
+                    模型管理
                   </div>
                 </div>
 
-                {/* Model Management */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-1 h-4 bg-purple-500 rounded-full"></div>
-                    <div className="text-base font-bold text-gray-900 dark:text-gray-100">
-                      模型管理
-                    </div>
-                  </div>
+                <button
+                  onClick={() => setShowAddModel(true)}
+                  className="flex items-center gap-2 px-4 h-9 text-sm font-medium text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/20 hover:bg-brand-100 dark:hover:bg-brand-900/30 border border-brand-200 dark:border-brand-800 rounded-lg transition-colors w-fit"
+                >
+                  <Plus className="w-4 h-4" />
+                  添加模型
+                </button>
 
-                  <button
-                    onClick={() => setShowAddModel(true)}
-                    className="flex items-center gap-2 px-4 h-9 text-sm font-medium text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/20 hover:bg-brand-100 dark:hover:bg-brand-900/30 border border-brand-200 dark:border-brand-800 rounded-lg transition-colors w-fit"
-                  >
-                    <Plus className="w-4 h-4" />
-                    添加模型
-                  </button>
-
-                  <div className="space-y-2">
-                    {selectedProvider.models.map(model => {
-                      const isSelected = selectedModel?.providerId === selectedProvider.id && selectedModel?.modelId === model.id;
-                      const testResult = testResults[model.id];
-                      const isTesting = testingModelId === model.id;
-                      return (
-                        <div
-                          key={model.id}
-                          data-model-card
-                          className={`flex items-center justify-between p-3 rounded-lg border group cursor-pointer transition-all ${isSelected
-                            ? 'bg-brand-50 dark:bg-brand-900/20 border-brand-200 dark:border-brand-800 shadow-sm'
-                            : 'bg-white dark:bg-dark-element border-gray-200 dark:border-dark-border hover:border-brand-300 dark:hover:border-brand-700 hover:shadow-sm'
-                            }`}
-                          onClick={() => handleSelectModel(model)}
-                          onContextMenu={(e) => handleModelContextMenu(e, model)}
-                        >
-                          <div className="flex flex-col">
-                            <div className="flex items-center gap-2">
-                              {isSelected && <Check className="w-4 h-4 text-brand-500" />}
-                              <span className={`text-sm font-medium ${isSelected ? 'text-brand-700 dark:text-brand-400' : 'text-gray-700 dark:text-gray-200'}`}>{model.name}</span>
-                            </div>
+                <div className="space-y-2">
+                  {selectedProvider.models.map(model => {
+                    const isSelected = selectedModel?.providerId === selectedProvider.id && selectedModel?.modelId === model.id;
+                    const testResult = testResults[model.id];
+                    const isTesting = testingModelId === model.id;
+                    return (
+                      <div
+                        key={model.id}
+                        data-model-card
+                        className={`flex items-center justify-between p-3 rounded-lg border group cursor-pointer transition-all ${isSelected
+                          ? 'bg-brand-50 dark:bg-brand-900/20 border-brand-200 dark:border-brand-800 shadow-sm'
+                          : 'bg-white dark:bg-dark-element border-gray-200 dark:border-dark-border hover:border-brand-300 dark:hover:border-brand-700 hover:shadow-sm'
+                          }`}
+                        onClick={() => handleSelectModel(model)}
+                        onContextMenu={(e) => handleModelContextMenu(e, model)}
+                      >
+                        <div className="flex flex-col">
+                          <div className="flex items-center gap-2">
+                            {isSelected && <Check className="w-4 h-4 text-brand-500" />}
+                            <span className={`text-sm font-medium ${isSelected ? 'text-brand-700 dark:text-brand-400' : 'text-gray-700 dark:text-gray-200'}`}>{model.name}</span>
                           </div>
+                        </div>
                         <div className="flex items-center gap-2">
                           {/* 测试状态显示 */}
                           {isTesting && (
@@ -544,6 +758,62 @@ export const AIConfigWindow: React.FC = () => {
         </div>
       )}
 
+      {/* Edit Platform Modal */}
+      {showEditPlatform && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white dark:bg-dark-surface w-80 rounded-lg shadow-xl p-4 border border-gray-200 dark:border-dark-border animate-scale-in">
+            <h3 className="text-sm font-semibold mb-4 text-gray-800 dark:text-gray-100">编辑平台</h3>
+            <div className="space-y-3">
+              <input
+                type="text"
+                value={editPlatformName}
+                onChange={(e) => setEditPlatformName(e.target.value)}
+                onContextMenu={handleInputContextMenu}
+                className="w-full px-3 py-1.5 text-xs border border-gray-300 dark:border-dark-border rounded focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none bg-white dark:bg-dark-element dark:text-gray-100"
+                placeholder="平台名称"
+              />
+              <input
+                type="text"
+                value={editPlatformUrl}
+                onChange={(e) => setEditPlatformUrl(e.target.value)}
+                onContextMenu={handleInputContextMenu}
+                className="w-full px-3 py-1.5 text-xs border border-gray-300 dark:border-dark-border rounded focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none bg-white dark:bg-dark-element dark:text-gray-100"
+                placeholder="Base URL"
+              />
+              <input
+                type="text"
+                value={editPlatformDescription}
+                onChange={(e) => setEditPlatformDescription(e.target.value)}
+                onContextMenu={handleInputContextMenu}
+                className="w-full px-3 py-1.5 text-xs border border-gray-300 dark:border-dark-border rounded focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none bg-white dark:bg-dark-element dark:text-gray-100"
+                placeholder="平台描述 (可选)"
+              />
+              <div className="flex justify-end gap-2 mt-4">
+                <button
+                  onClick={() => {
+                    setShowEditPlatform(false);
+                    setEditingPlatformId('');
+                    setEditPlatformName('');
+                    setEditPlatformUrl('');
+                    setEditPlatformDescription('');
+                  }}
+                  className="px-3 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-element-hover rounded transition-colors"
+                >
+                  取消
+                </button>
+                <button
+                  onClick={handleSaveEditPlatform}
+                  disabled={!editPlatformName.trim()}
+                  className="px-3 py-1.5 text-xs bg-brand-500 text-white rounded hover:bg-brand-600 disabled:opacity-50 transition-colors"
+                >
+                  保存
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Add Model Modal */}
       {showAddModel && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm animate-fade-in">
@@ -590,6 +860,32 @@ export const AIConfigWindow: React.FC = () => {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Platform Context Menu */}
+      {platformContextMenu.visible && (
+        <div
+          className="fixed z-[70] bg-white dark:bg-dark-surface rounded-lg shadow-xl border border-gray-200 dark:border-dark-border py-1 min-w-[140px] animate-scale-in"
+          style={{ left: platformContextMenu.x, top: platformContextMenu.y }}
+          onClick={(e) => e.stopPropagation()}
+          ref={platformContextMenuRef}
+        >
+          <button
+            onClick={handlePlatformContextEdit}
+            className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          >
+            <Pencil className="w-3.5 h-3.5" />
+            编辑平台
+          </button>
+          <div className="my-1 border-t border-gray-100 dark:border-dark-border" />
+          <button
+            onClick={handlePlatformContextDelete}
+            className="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            删除平台
+          </button>
         </div>
       )}
 

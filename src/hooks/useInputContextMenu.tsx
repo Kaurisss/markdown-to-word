@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Copy, Scissors, Clipboard, CheckSquare } from 'lucide-react';
 import { ContextMenuItem } from '../components/ui/ContextMenu';
 

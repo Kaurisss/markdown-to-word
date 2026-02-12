@@ -42,6 +42,8 @@ const Header: React.FC<HeaderProps> = ({
       const label = 'ai-config';
       // Use dynamic import for Tauri API to avoid SSR/build issues if not in Tauri env
       const { WebviewWindow } = await import('@tauri-apps/api/webviewWindow');
+      const isDark = theme === 'dark';
+      const windowBg = isDark ? '#1e1e1e' : '#f9fafb';
 
       const url = `/?window=config&theme=${encodeURIComponent(theme)}`;
       const webview = new WebviewWindow(label, {
@@ -51,11 +53,14 @@ const Header: React.FC<HeaderProps> = ({
         height: 800,
         decorations: false,
         resizable: false,
-        center: true
+        center: true,
+        theme,
+        backgroundColor: windowBg
       });
 
       webview.once('tauri://created', function () {
-        // webview window successfully created
+        // Ensure the window keeps the correct background before app paint.
+        void webview.setBackgroundColor(windowBg);
       });
 
       webview.once('tauri://error', function (e) {

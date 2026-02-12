@@ -524,14 +524,30 @@ const App: React.FC = () => {
 
   // Apply theme to document
   useEffect(() => {
+    const isDark = theme === 'dark';
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
+    document.documentElement.style.backgroundColor = isDark ? '#1e1e1e' : '#f9fafb';
+    document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
     if (typeof window !== 'undefined') {
       localStorage.setItem('app_theme', theme);
     }
+
+    const syncWindowBackground = async () => {
+      try {
+        const { getCurrentWindow } = await import('@tauri-apps/api/window');
+        const currentWindow = getCurrentWindow();
+        await currentWindow.setBackgroundColor(isDark ? '#1e1e1e' : '#f9fafb');
+        await currentWindow.setTheme(isDark ? 'dark' : 'light');
+      } catch {
+        // Ignore when running in browser mode
+      }
+    };
+
+    void syncWindowBackground();
   }, [theme]);
 
   // Ctrl+F to open search

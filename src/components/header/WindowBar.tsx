@@ -111,11 +111,11 @@ export const WindowBar: React.FC<WindowBarProps> = ({
         <div className="flex-1" data-tauri-drag-region />
       </div>
 
-      <div className="flex items-stretch bg-white" onMouseDown={(e) => e.stopPropagation()}>
+      <div className="flex items-stretch bg-inherit" onMouseDown={(e) => e.stopPropagation()}>
         <button
           type="button"
           onClick={() => void runWindowAction('minimize')}
-          className="w-12 grid place-items-center bg-white text-gray-600 hover:bg-gray-100 active:bg-gray-200 transition-colors"
+          className="w-12 grid place-items-center bg-white dark:bg-dark-bg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-element active:bg-gray-200 dark:active:bg-dark-border transition-colors"
           aria-label="最小化"
         >
           <span
@@ -129,7 +129,7 @@ export const WindowBar: React.FC<WindowBarProps> = ({
         <button
           type="button"
           onClick={() => void runWindowAction('toggleMaximize')}
-          className="w-12 grid place-items-center bg-white text-gray-600 hover:bg-gray-100 active:bg-gray-200 transition-colors"
+          className="w-12 grid place-items-center bg-white dark:bg-dark-bg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-element active:bg-gray-200 dark:active:bg-dark-border transition-colors"
           aria-label={isMaximized ? '还原' : '最大化'}
         >
           <span
@@ -143,7 +143,7 @@ export const WindowBar: React.FC<WindowBarProps> = ({
         <button
           type="button"
           onClick={() => void runWindowAction('close')}
-          className="w-12 grid place-items-center bg-white text-gray-600 hover:bg-red-500 hover:text-white active:bg-red-600 transition-colors"
+          className="w-12 grid place-items-center bg-white dark:bg-dark-bg text-gray-600 dark:text-gray-300 hover:bg-red-500 hover:text-white active:bg-red-600 transition-colors"
           aria-label="关闭"
         >
           <span

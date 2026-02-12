@@ -343,7 +343,7 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
               <Plus className="w-4 h-4" />
             </button>
           </div>
-          <div className="flex-1 overflow-y-auto p-3 space-y-1">
+          <div className="flex-1 overflow-y-auto px-2 pb-2 pt-0 space-y-1">
             {providers.map(provider => (
               <div
                 key={provider.id}
@@ -385,7 +385,7 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
               {/* Header */}
               <div className="h-14 flex items-center justify-between px-6 border-b border-gray-100 dark:border-dark-border">
                 <div className="flex-1 flex items-center">
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 pointer-events-none">{selectedProvider.name}</h3>
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 pointer-events-none">{selectedProvider.name}</h3>
                 </div>
                 <button 
                   onClick={onClose}
@@ -396,10 +396,10 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-6 space-y-8">
+              <div className="flex-1 overflow-y-auto px-6 pb-4 pt-2 space-y-6">
                 {/* Description */}
                 {selectedProvider.description && (
-                  <div className="text-sm text-gray-500 dark:text-gray-400 -mt-2">
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
                     {selectedProvider.description}
                   </div>
                 )}

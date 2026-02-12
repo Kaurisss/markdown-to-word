@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "简阅转档",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "identifier": "com.kauriss.markdown-to-word",
   "build": {
     "frontendDist": "../dist",
@@ -19,8 +19,8 @@
         "resizable": true,
         "fullscreen": false,
         "center": true,
-        "theme": "Light",
-        "backgroundColor": "#ffffff",
+        "theme": "Dark",
+        "backgroundColor": "#1e1e1e",
         "decorations": false,
         "dragDropEnabled": true
       }

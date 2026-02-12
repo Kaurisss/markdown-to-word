@@ -51,6 +51,11 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+.dark body {
+  background-color: #1e1e1e;
+  color: #f3f4f6;
+}
+
 /* Brand color theme variable (for Tailwind v4) */
 @theme {
   --color-brand-50: #f0f9ff;
