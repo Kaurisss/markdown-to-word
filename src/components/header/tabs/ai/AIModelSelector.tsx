@@ -28,7 +28,7 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({
             >
                 <div className="flex items-center gap-1.5 overflow-hidden">
                     <div className="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0"></div>
-                    <span className="text-xs truncate text-left">
+                    <span className="text-[13px] truncate text-left">
                         {getModelDisplayName().split(': ')[1] || '选择模型'}
                     </span>
                 </div>

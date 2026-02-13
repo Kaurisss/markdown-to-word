@@ -47,6 +47,8 @@ export interface HeaderProps {
   onReplaceClick?: () => void; // 新增替换回调
   onUndo?: () => void;
   onRedo?: () => void;
+  canUndo?: boolean;
+  canRedo?: boolean;
   onCut?: () => void;
   onCopy?: () => void;
   onPaste?: () => void;

@@ -390,21 +390,23 @@ export const AIConfigWindow: React.FC = () => {
     closePlatformContextMenu();
   }, [platformContextMenu.provider, handleDeletePlatform, closePlatformContextMenu]);
 
-  const handleCloseWindow = async () => {
+  const runWindowAction = useCallback(async (action: 'close' | 'minimize') => {
     try {
-      const { getCurrentWindow } = await import('@tauri-apps/api/window');
-      await getCurrentWindow().close();
+      const { getCurrentWebviewWindow } = await import('@tauri-apps/api/webviewWindow');
+      const currentWindow = getCurrentWebviewWindow();
+      if (action === 'close') await currentWindow.close();
+      if (action === 'minimize') await currentWindow.minimize();
     } catch {
     }
-  };
+  }, []);
 
-  const handleMinimizeWindow = async () => {
-    try {
-      const { getCurrentWindow } = await import('@tauri-apps/api/window');
-      await getCurrentWindow().minimize();
-    } catch {
-    }
-  };
+  const handleCloseWindow = useCallback(() => {
+    void runWindowAction('close');
+  }, [runWindowAction]);
+
+  const handleMinimizeWindow = useCallback(() => {
+    void runWindowAction('minimize');
+  }, [runWindowAction]);
 
   return (
     <div
@@ -420,8 +422,8 @@ export const AIConfigWindow: React.FC = () => {
       }}
     >
 
-      {/* Sidebar */}
-      <div className="w-64 bg-gray-50 dark:bg-dark-bg flex flex-col">
+      {/* Left Categories */}
+      <div className="w-64 bg-gray-50 dark:bg-dark-bg border-r border-gray-200 dark:border-dark-border flex flex-col">
         <div className="h-10 px-5 flex items-center justify-between bg-gray-50 dark:bg-dark-bg" data-tauri-drag-region>
           <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200 pointer-events-none">AI 平台管理</h2>
           <button
@@ -479,16 +481,18 @@ export const AIConfigWindow: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* Right Content */}
       <div className="relative flex-1 flex flex-col bg-white dark:bg-dark-surface">
         {isBootstrapping ? (
           <>
-            <div className="h-10 flex items-center justify-between pl-6 pr-12 ">
-              <div className={`h-5 w-36 ${skeletonBaseClass}`} />
+            <div className="relative h-10 flex items-center justify-between pl-6 pr-12">
+              <div className="absolute top-0 left-0 right-[92px] h-10" data-tauri-drag-region />
+              <div className={`relative z-10 h-5 w-36 ${skeletonBaseClass}`} />
               <button
                 type="button"
                 onClick={handleMinimizeWindow}
-                className="absolute top-0 right-[46px] z-[80] w-[46px] h-10 grid place-items-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-element transition-colors"
+                onMouseDown={(e) => e.stopPropagation()}
+                className="absolute top-0 right-[46px] z-[80] w-[46px] h-10 grid place-items-center text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-element active:bg-gray-200 dark:active:bg-dark-border transition-colors"
                 aria-label="最小化"
               >
                 <span
@@ -502,7 +506,8 @@ export const AIConfigWindow: React.FC = () => {
               <button
                 type="button"
                 onClick={handleCloseWindow}
-                className="absolute top-0 right-0 z-[80] w-[46px] h-10 grid place-items-center text-gray-500 dark:text-gray-400 hover:text-white dark:hover:text-white hover:bg-[#fb2c36] transition-colors"
+                onMouseDown={(e) => e.stopPropagation()}
+                className="absolute top-0 right-0 z-[80] w-[46px] h-10 grid place-items-center text-gray-600 dark:text-gray-300 hover:bg-red-500 hover:text-white active:bg-red-600 transition-colors"
                 aria-label="关闭"
               >
                 <span
@@ -547,14 +552,16 @@ export const AIConfigWindow: React.FC = () => {
         ) : selectedProvider ? (
           <>
             {/* Header */}
-            <div className="h-10 flex items-center justify-between pl-6 pr-12 ">
-              <div className="flex-1 flex items-center" data-tauri-drag-region>
+            <div className="relative h-10 flex items-center justify-between pl-6 pr-12">
+              <div className="absolute top-0 left-0 right-[92px] h-10" data-tauri-drag-region />
+              <div className="relative z-10 flex-1 flex items-center pointer-events-none">
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 pointer-events-none">{selectedProvider.name}</h3>
               </div>
               <button
                 type="button"
                 onClick={handleMinimizeWindow}
-                className="absolute top-0 right-[46px] z-[80] w-[46px] h-10 grid place-items-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-element transition-colors"
+                onMouseDown={(e) => e.stopPropagation()}
+                className="absolute top-0 right-[46px] z-[80] w-[46px] h-10 grid place-items-center text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-element active:bg-gray-200 dark:active:bg-dark-border transition-colors"
                 aria-label="最小化"
               >
                 <span
@@ -568,7 +575,8 @@ export const AIConfigWindow: React.FC = () => {
               <button
                 type="button"
                 onClick={handleCloseWindow}
-                className="absolute top-0 right-0 z-[80] w-[46px] h-10 grid place-items-center text-gray-500 dark:text-gray-400 hover:text-white dark:hover:text-white hover:bg-[#fb2c36] transition-colors"
+                onMouseDown={(e) => e.stopPropagation()}
+                className="absolute top-0 right-0 z-[80] w-[46px] h-10 grid place-items-center text-gray-600 dark:text-gray-300 hover:bg-red-500 hover:text-white active:bg-red-600 transition-colors"
                 aria-label="关闭"
               >
                 <span

@@ -124,7 +124,7 @@ export const AITab: React.FC<AITabProps> = ({
               </button>
               {(showHelp || isClosingHelp) && (
                 <div 
-                  className={`absolute right-0 top-full mt-2 z-50 w-80 rounded-lg border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-surface shadow-xl p-3 text-xs text-gray-600 dark:text-gray-300 origin-top-right ${isClosingHelp ? 'animate-scale-out' : 'animate-scale-in'}`}
+                  className={`absolute right-0 top-full mt-2 z-50 w-80 rounded-lg border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-surface shadow-xl p-3 text-[13px] text-gray-600 dark:text-gray-300 origin-top-right ${isClosingHelp ? 'animate-scale-out' : 'animate-scale-in'}`}
                   onAnimationEnd={handleAnimationEnd}
                 >
                   <div className="font-semibold text-gray-800 dark:text-gray-100">智能菜单使用说明</div>
@@ -137,16 +137,16 @@ export const AITab: React.FC<AITabProps> = ({
                   <div className="mt-3 font-semibold text-gray-800 dark:text-gray-100 border-t border-gray-100 dark:border-dark-border pt-2">使用范例</div>
                   <div className="mt-1 space-y-2">
                     <div className="bg-gray-50 dark:bg-gray-800/50 p-2 rounded border border-gray-100 dark:border-dark-border cursor-pointer hover:border-brand-300 dark:hover:border-brand-700 transition-colors" onClick={() => setPrompt('正文仿宋三号，标题黑体小二加粗，行距1.5倍')}>
-                      <div className="text-gray-500 dark:text-gray-400 mb-0.5 text-[10px]">公文风格</div>
+                      <div className="text-gray-500 dark:text-gray-400 mb-0.5 text-[11px]">公文风格</div>
                       <div className="text-brand-600 dark:text-brand-400">&quot;正文仿宋三号，标题黑体小二加粗，行距1.5倍&quot;</div>
                     </div>
                     <div className="bg-gray-50 dark:bg-gray-800/50 p-2 rounded border border-gray-100 dark:border-dark-border cursor-pointer hover:border-brand-300 dark:hover:border-brand-700 transition-colors" onClick={() => setPrompt('正文宋体小四，标题微软雅黑小三，代码块灰色背景')}>
-                      <div className="text-gray-500 dark:text-gray-400 mb-0.5 text-[10px]">技术文档</div>
+                      <div className="text-gray-500 dark:text-gray-400 mb-0.5 text-[11px]">技术文档</div>
                       <div className="text-brand-600 dark:text-brand-400">&quot;正文宋体小四，标题微软雅黑小三，代码块灰色背景&quot;</div>
                     </div>
                   </div>
 
-                  <div className="mt-2 text-[11px] text-gray-400 dark:text-gray-500">
+                  <div className="mt-2 text-[12px] text-gray-400 dark:text-gray-500">
                     提示：点击范例可直接填入输入框。生成会覆盖当前样式。
                   </div>
                 </div>
@@ -158,7 +158,7 @@ export const AITab: React.FC<AITabProps> = ({
 
       {/* Error Message */}
       {error && (
-        <div className="absolute top-full left-0 mt-1 z-50 px-3 py-1.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-300 text-xs rounded border border-red-200 dark:border-red-800 animate-fade-in shadow-sm">
+        <div className="absolute top-full left-0 mt-1 z-50 px-3 py-1.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-300 text-[13px] rounded border border-red-200 dark:border-red-800 animate-fade-in shadow-sm">
           {error}
         </div>
       )}

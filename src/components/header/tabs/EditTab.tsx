@@ -61,7 +61,7 @@ export const EditTab: React.FC<EditTabProps> = ({
                     title="查找 (Ctrl+F)"
                 >
                     <Search className="w-5 h-5" />
-                    <span className="text-[10px] scale-90">查找</span>
+                    <span className="text-[11px]">查找</span>
                 </button>
                 <button
                     onClick={onReplaceClick}
@@ -70,7 +70,7 @@ export const EditTab: React.FC<EditTabProps> = ({
                     title="替换 (Ctrl+H)"
                 >
                     <ArrowLeftRight className="w-5 h-5" />
-                    <span className="text-[10px] scale-90">替换</span>
+                    <span className="text-[11px]">替换</span>
                 </button>
             </div>
         </div>

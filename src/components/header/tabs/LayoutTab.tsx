@@ -33,11 +33,11 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({ cfg, onCfgChange, activeSt
             <input
               type="number"
               step="0.1"
-              className="h-7 w-16 pl-2 pr-6 text-xs border border-gray-300 dark:border-dark-border rounded bg-white dark:bg-dark-element text-gray-900 dark:text-gray-100 hover:border-gray-400 dark:hover:border-gray-500 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-colors"
+              className="h-7 w-16 pl-2 pr-6 text-[13px] border border-gray-300 dark:border-dark-border rounded bg-white dark:bg-dark-element text-gray-900 dark:text-gray-100 hover:border-gray-400 dark:hover:border-gray-500 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-colors"
               value={cfg.global.pageMargin}
               onChange={(e) => onCfgChange({ ...cfg, global: { ...cfg.global, pageMargin: Number(e.target.value) } })}
             />
-            <span className="absolute right-2 text-[10px] text-gray-400 pointer-events-none">in</span>
+            <span className="absolute right-2 text-[11px] text-gray-400 pointer-events-none">in</span>
           </div>
         </div>
       </div>
@@ -90,7 +90,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({ cfg, onCfgChange, activeSt
               onChange={(e) => onCfgChange({ ...cfg, global: { ...cfg.global, includeTableOfContents: e.target.checked } })}
               className="rounded text-brand-500 focus:ring-brand-500 border-gray-300 dark:border-dark-border"
             />
-            <span className="text-xs text-gray-700 dark:text-gray-300">生成目录</span>
+            <span className="text-[13px] text-gray-700 dark:text-gray-300">生成目录</span>
           </label>
         </div>
       </div>
@@ -104,7 +104,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({ cfg, onCfgChange, activeSt
               <input
                 type="number"
                 step="0.1"
-                className="w-full text-xs border-0 p-1 text-center focus:ring-0 outline-none h-full bg-transparent dark:text-gray-100"
+                className="w-full text-[13px] border-0 p-1 text-center focus:ring-0 outline-none h-full bg-transparent dark:text-gray-100"
                 value={(() => {
                   const val = currentStyle.lineSpacing;
                   if (typeof val === 'string' && val.endsWith('pt')) {

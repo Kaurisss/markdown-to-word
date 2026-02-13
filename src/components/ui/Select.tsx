@@ -12,6 +12,8 @@ interface SelectProps {
   onChange: (value: any) => void;
   options: SelectOption[];
   className?: string;
+  triggerClassName?: string;
+  optionClassName?: string;
   placeholder?: string;
   disabled?: boolean;
   variant?: 'default' | 'ghost';
@@ -22,6 +24,8 @@ export const Select: React.FC<SelectProps> = ({
   onChange,
   options,
   className = "",
+  triggerClassName = "",
+  optionClassName = "",
   placeholder = "请选择",
   disabled = false,
   variant = 'default',
@@ -86,13 +90,14 @@ export const Select: React.FC<SelectProps> = ({
         type="button"
         onClick={() => !disabled && setIsOpen(!isOpen)}
         className={`
-          flex items-center justify-between w-full h-7 px-2 text-xs 
+          flex items-center justify-between w-full h-7 px-2 text-[13px] 
           transition-colors duration-200
           ${disabled 
             ? 'opacity-50 cursor-not-allowed bg-gray-50 dark:bg-gray-800' 
             : 'cursor-pointer'
           }
           ${getVariantClasses()}
+          ${triggerClassName}
         `}
         disabled={disabled}
       >
@@ -118,12 +123,13 @@ export const Select: React.FC<SelectProps> = ({
                 type="button"
                 onClick={() => handleSelect(option.value)}
                 className={`
-                  w-full text-left px-3 py-1.5 text-xs flex items-center justify-between
+                  w-full text-left px-3 py-1.5 text-[13px] flex items-center justify-between
                   transition-colors
                   ${option.value === value
                     ? 'bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400'
                     : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
                   }
+                  ${optionClassName}
                 `}
               >
                 <span

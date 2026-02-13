@@ -56,6 +56,27 @@ body {
   color: #f3f4f6;
 }
 
+/* Smooth theme transition without repainting every node */
+.theme-switching body,
+.theme-switching #root {
+  transition-property: background-color, border-color, color;
+  transition-duration: 220ms;
+  transition-timing-function: ease-out;
+}
+
+.theme-switching .transition-colors {
+  transition-duration: 220ms !important;
+  transition-timing-function: ease-out !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-switching body,
+  .theme-switching #root,
+  .theme-switching .transition-colors {
+    transition-duration: 0ms;
+  }
+}
+
 /* Brand color theme variable (for Tailwind v4) */
 @theme {
   --color-brand-50: #f0f9ff;

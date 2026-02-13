@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback } from 'react';
 import logoUrl from '../../logo.png';
 
-export type TabType = 'file' | 'edit' | 'view' | 'home' | 'layout' | 'ai';
+export type TabType = 'file' | 'edit' | 'home' | 'layout' | 'ai';
 
 interface WindowBarProps {
   activeTab: TabType;
@@ -16,39 +16,11 @@ export const WindowBar: React.FC<WindowBarProps> = ({
   onImport,
   fileInputRef
 }) => {
-  const [isMaximized, setIsMaximized] = useState(false);
-
-  useEffect(() => {
-    let unlisten: (() => void) | undefined;
-
-    const setupWindowListener = async () => {
-      try {
-        const { getCurrentWindow } = await import('@tauri-apps/api/window');
-        const win = getCurrentWindow();
-
-        setIsMaximized(await win.isMaximized());
-        unlisten = await win.listen('tauri://resize', async () => {
-          setIsMaximized(await win.isMaximized());
-        });
-      } catch (e) {
-        console.error('Failed to setup window listener:', e);
-      }
-    };
-
-    setupWindowListener();
-
-    return () => {
-      if (unlisten) unlisten();
-    };
-  }, []);
-
-  const runWindowAction = useCallback(async (action: 'minimize' | 'toggleMaximize' | 'close') => {
+  const runWindowAction = useCallback(async () => {
     try {
       const { getCurrentWindow } = await import('@tauri-apps/api/window');
       const win = getCurrentWindow();
-      if (action === 'minimize') await win.minimize();
-      if (action === 'toggleMaximize') await win.toggleMaximize();
-      if (action === 'close') await win.close();
+      await win.toggleMaximize();
     } catch (e) {
       console.error('Window action failed:', e);
     }
@@ -67,94 +39,55 @@ export const WindowBar: React.FC<WindowBarProps> = ({
   };
 
   return (
-    <div className="h-10 bg-inherit border-b border-gray-100 dark:border-dark-border flex items-stretch transition-colors duration-200">
-      <div
-        className="flex-1 flex items-center text-xs text-gray-600 dark:text-gray-300 select-none min-w-0"
-        data-tauri-drag-region
-        onDoubleClick={() => void runWindowAction('toggleMaximize')}
-      >
-        <div className="flex items-center justify-center w-10 h-full" data-tauri-drag-region>
-          <img src={logoUrl} alt="Logo" className="w-5 h-5 pointer-events-none rounded-sm" />
+    <div
+      className="flex-1 min-w-0 bg-inherit flex items-center text-xs text-gray-600 dark:text-gray-300 select-none transition-colors duration-200"
+      data-tauri-drag-region
+      onDoubleClick={() => void runWindowAction()}
+    >
+      <div className="flex items-center justify-center w-11 h-full" data-tauri-drag-region>
+        <div className="w-7 h-7 p-0.5 rounded-md">
+          <img
+            src={logoUrl}
+            alt="Logo"
+            className="w-full h-full pointer-events-none rounded-[3px]"
+          />
         </div>
+      </div>
 
-        <div className="flex items-center" onMouseDown={(e) => e.stopPropagation()}>
-          <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".md,.txt,.markdown" className="hidden" />
+      <div className="flex items-center" onMouseDown={(e) => e.stopPropagation()}>
+        <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".md,.txt,.markdown" className="hidden" />
 
-          {(['file', 'edit', 'view', 'home', 'layout', 'ai'] as const).map(tab => {
-            const isActive = activeTab === tab;
-            const label = ({ file: '文件', edit: '编辑', view: '视图', home: '开始', layout: '布局', ai: '智能' } as const)[tab];
+        {(['file', 'edit', 'home', 'layout', 'ai'] as const).map(tab => {
+          const isActive = activeTab === tab;
+          const label = ({ file: '文件', edit: '编辑', home: '开始', layout: '布局', ai: '智能' } as const)[tab];
 
-            return (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-3 py-1 text-xs font-medium transition-colors relative ${isActive
-                  ? 'text-brand-700 dark:text-brand-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded'
+          return (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`group px-3 py-1.5 text-[13px] leading-none font-medium subpixel-antialiased transition-colors relative rounded ${isActive
+                ? 'text-brand-700 dark:text-brand-300'
+                : 'text-gray-600 dark:text-gray-400'
+                }`}
+              aria-current={isActive ? 'page' : undefined}
+            >
+              <span className="relative inline-block">
+                {label}
+                <span
+                  aria-hidden="true"
+                  className={`pointer-events-none absolute left-1/2 -translate-x-1/2 top-full mt-1 w-5 h-0.5 rounded-full transition-opacity ${
+                    isActive
+                      ? 'opacity-100 bg-brand-600 dark:bg-brand-400'
+                      : 'opacity-0 group-hover:opacity-100 bg-gray-300 dark:bg-gray-500'
                   }`}
-                aria-current={isActive ? 'page' : undefined}
-              >
-                <span className="relative inline-block">
-                  {label}
-                  {isActive && (
-                    <span
-                      aria-hidden="true"
-                      className="pointer-events-none absolute left-1/2 -translate-x-1/2 top-full mt-0.5 w-4 h-0.5 rounded-full bg-brand-600 dark:bg-brand-400"
-                    />
-                  )}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="flex-1" data-tauri-drag-region />
+                />
+              </span>
+            </button>
+          );
+        })}
       </div>
 
-      <div className="flex items-stretch bg-inherit" onMouseDown={(e) => e.stopPropagation()}>
-        <button
-          type="button"
-          onClick={() => void runWindowAction('minimize')}
-          className="w-12 grid place-items-center bg-white dark:bg-dark-bg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-element active:bg-gray-200 dark:active:bg-dark-border transition-colors"
-          aria-label="最小化"
-        >
-          <span
-            aria-hidden="true"
-            className="select-none leading-none text-[10px]"
-            style={{ fontFamily: "'Segoe MDL2 Assets'" }}
-          >
-            &#xE921;
-          </span>
-        </button>
-        <button
-          type="button"
-          onClick={() => void runWindowAction('toggleMaximize')}
-          className="w-12 grid place-items-center bg-white dark:bg-dark-bg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-element active:bg-gray-200 dark:active:bg-dark-border transition-colors"
-          aria-label={isMaximized ? '还原' : '最大化'}
-        >
-          <span
-            aria-hidden="true"
-            className="select-none leading-none text-[10px]"
-            style={{ fontFamily: "'Segoe MDL2 Assets'" }}
-          >
-            {isMaximized ? '\uE923' : '\uE922'}
-          </span>
-        </button>
-        <button
-          type="button"
-          onClick={() => void runWindowAction('close')}
-          className="w-12 grid place-items-center bg-white dark:bg-dark-bg text-gray-600 dark:text-gray-300 hover:bg-red-500 hover:text-white active:bg-red-600 transition-colors"
-          aria-label="关闭"
-        >
-          <span
-            aria-hidden="true"
-            className="select-none leading-none text-[10px]"
-            style={{ fontFamily: "'Segoe MDL2 Assets'" }}
-          >
-            &#xE8BB;
-          </span>
-        </button>
-      </div>
+      <div className="flex-1" data-tauri-drag-region />
     </div>
   );
 };

@@ -14,7 +14,9 @@ import { exportWithPython, formatErrorMessage } from './services/pythonBackend';
 import { ContextMenu, ContextMenuItem } from './components/ui/ContextMenu';
 import { Copy, Clipboard, Scissors, CheckSquare, Undo2, Redo2 } from 'lucide-react';
 import { AIConfigWindow } from './components/AIConfigWindow';
+import { SettingsWindow } from './components/SettingsWindow';
 import { useAIConfigStore } from './services/aiConfigStore';
+import { useSettingsStore, loadAutoSavedContent, saveAutoSaveContent } from './services/settingsStore';
 
 const INVALID_FILENAME_CHARS = /[<>:"/\\|?*\u0000-\u001F]/g;
 const MAX_BASENAME_LENGTH = 80;
@@ -38,14 +40,31 @@ const App: React.FC = () => {
     return false;
   });
 
-  const { providers, updateProviders, selectedModel, updateSelectedModel } = useAIConfigStore();
+  const [isSettingsWindow] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('window') === 'settings';
+    }
+    return false;
+  });
 
-  const [content, setContent] = useState<string>(DEFAULT_MARKDOWN);
-  const lastContentRef = useRef<string>(DEFAULT_MARKDOWN);
+  const { providers, updateProviders, selectedModel, updateSelectedModel } = useAIConfigStore();
+  const { settings: appSettings } = useSettingsStore();
+
+  const [content, setContent] = useState<string>(() => {
+    if (appSettings.autoSave) {
+      const saved = loadAutoSavedContent();
+      if (saved !== null) return saved;
+    }
+    return DEFAULT_MARKDOWN;
+  });
+  const lastContentRef = useRef<string>(content);
   const undoStackRef = useRef<string[]>([]);
   const redoStackRef = useRef<string[]>([]);
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
   const [isExporting, setIsExporting] = useState<boolean>(false);
-  const [viewMode, setViewMode] = useState<ViewMode>('split');
+  const [viewMode, setViewMode] = useState<ViewMode>(() => appSettings.defaultViewMode || 'split');
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window === 'undefined') return 'light';
     const params = new URLSearchParams(window.location.search);
@@ -73,6 +92,7 @@ const App: React.FC = () => {
 
   const [isFileDragActive, setIsFileDragActive] = useState(false);
   const fileDragCounterRef = useRef(0);
+  const isFirstThemePaintRef = useRef(true);
 
   const showToast = useCallback((message: string, type: ToastType = 'success') => {
     setToast({ message, type, visible: true });
@@ -83,6 +103,11 @@ const App: React.FC = () => {
     setContent(next);
   }, []);
 
+  const syncHistoryState = useCallback(() => {
+    setCanUndo(undoStackRef.current.length > 0);
+    setCanRedo(redoStackRef.current.length > 0);
+  }, []);
+
   const updateContent = useCallback((next: string) => {
     const prev = lastContentRef.current;
     if (next !== prev) {
@@ -91,9 +116,10 @@ const App: React.FC = () => {
         undoStackRef.current.shift();
       }
       redoStackRef.current = [];
+      syncHistoryState();
     }
     applyContent(next);
-  }, [applyContent]);
+  }, [applyContent, syncHistoryState]);
 
   const undo = useCallback(() => {
     if (undoStackRef.current.length === 0) return;
@@ -101,8 +127,9 @@ const App: React.FC = () => {
     if (previous === undefined) return;
     const current = lastContentRef.current;
     redoStackRef.current.push(current);
+    syncHistoryState();
     applyContent(previous);
-  }, [applyContent]);
+  }, [applyContent, syncHistoryState]);
 
   const redo = useCallback(() => {
     if (redoStackRef.current.length === 0) return;
@@ -110,8 +137,9 @@ const App: React.FC = () => {
     if (next === undefined) return;
     const current = lastContentRef.current;
     undoStackRef.current.push(current);
+    syncHistoryState();
     applyContent(next);
-  }, [applyContent]);
+  }, [applyContent, syncHistoryState]);
 
   const handleEditorKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (!(e.ctrlKey || e.metaKey)) return;
@@ -525,13 +553,25 @@ const App: React.FC = () => {
   // Apply theme to document
   useEffect(() => {
     const isDark = theme === 'dark';
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
+    const root = document.documentElement;
+
+    let transitionTimer: number | undefined;
+    if (isFirstThemePaintRef.current) {
+      isFirstThemePaintRef.current = false;
     } else {
-      document.documentElement.classList.remove('dark');
+      root.classList.add('theme-switching');
+      transitionTimer = window.setTimeout(() => {
+        root.classList.remove('theme-switching');
+      }, 320);
     }
-    document.documentElement.style.backgroundColor = isDark ? '#1e1e1e' : '#f9fafb';
-    document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+
+    if (theme === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+    root.style.backgroundColor = isDark ? '#1e1e1e' : '#f9fafb';
+    root.style.colorScheme = isDark ? 'dark' : 'light';
     if (typeof window !== 'undefined') {
       localStorage.setItem('app_theme', theme);
     }
@@ -548,7 +588,28 @@ const App: React.FC = () => {
     };
 
     void syncWindowBackground();
+
+    return () => {
+      if (transitionTimer) window.clearTimeout(transitionTimer);
+    };
   }, [theme]);
+
+  // Keep main window theme synced with settings window changes.
+  useEffect(() => {
+    if (isConfigWindow || isSettingsWindow) return;
+    if (appSettings.theme !== theme) {
+      setTheme(appSettings.theme);
+    }
+  }, [appSettings.theme, theme, isConfigWindow, isSettingsWindow]);
+
+  // Auto-save content
+  useEffect(() => {
+    if (!appSettings.autoSave) return;
+    const timer = window.setTimeout(() => {
+      saveAutoSaveContent(content);
+    }, 1000);
+    return () => window.clearTimeout(timer);
+  }, [content, appSettings.autoSave]);
 
   // Ctrl+F to open search
   useEffect(() => {
@@ -828,10 +889,20 @@ const App: React.FC = () => {
     };
   }, [viewMode]);
 
-  const showEditor = viewMode === 'editor' || viewMode === 'split';
-  const showPreview = viewMode === 'preview' || viewMode === 'split';
+  const editorPaneClass = viewMode === 'split'
+    ? 'w-1/2 opacity-100'
+    : viewMode === 'editor'
+      ? 'w-full opacity-100'
+      : 'w-0 opacity-0 pointer-events-none';
+  const previewPaneClass = viewMode === 'split'
+    ? 'w-1/2 opacity-100'
+    : viewMode === 'preview'
+      ? 'w-full opacity-100'
+      : 'w-0 opacity-0 pointer-events-none';
 
-  return isConfigWindow ? (
+  return isSettingsWindow ? (
+    <SettingsWindow />
+  ) : isConfigWindow ? (
     <AIConfigWindow />
   ) : (
     <div
@@ -852,6 +923,8 @@ const App: React.FC = () => {
         onShowToast={showToast}
         onUndo={undo}
         onRedo={redo}
+        canUndo={canUndo}
+        canRedo={canRedo}
         onCut={handleCut}
         onCopy={handleCopy}
         onPaste={handlePaste}
@@ -884,29 +957,31 @@ const App: React.FC = () => {
         />
 
         {/* Left Pane: Editor */}
-        {showEditor && (
-          <div className={`h-full bg-white dark:bg-dark-bg relative z-0 transition-all duration-300 ease-in-out ${viewMode === 'split' ? 'w-1/2' : 'w-full'}`}>
-            <Editor
-              ref={editorRef}
-              value={content}
-              onChange={updateContent}
-              onKeyDown={handleEditorKeyDown}
-              searchQuery={searchQuery}
-              showSearch={showSearch}
-              currentMatchIndex={currentMatchIndex}
-              caseSensitive={caseSensitive}
-              wholeWord={wholeWord}
-              useRegex={useRegex}
-            />
-          </div>
-        )}
+        <div
+          className={`h-full bg-white dark:bg-dark-bg relative z-0 overflow-hidden flex-shrink-0 transition-opacity duration-600 ease-out ${editorPaneClass}`}
+          aria-hidden={viewMode === 'preview'}
+        >
+          <Editor
+            ref={editorRef}
+            value={content}
+            onChange={updateContent}
+            onKeyDown={handleEditorKeyDown}
+            searchQuery={searchQuery}
+            showSearch={showSearch}
+            currentMatchIndex={currentMatchIndex}
+            caseSensitive={caseSensitive}
+            wholeWord={wholeWord}
+            useRegex={useRegex}
+          />
+        </div>
 
         {/* Right Pane: Preview */}
-        {showPreview && (
-          <div className={`h-full bg-gray-100 dark:bg-dark-bg relative z-0 transition-all duration-300 ease-in-out ${viewMode === 'split' ? 'w-1/2' : 'w-full'}`}>
-            <Preview ref={previewRef} markdown={content} cfg={cfg} />
-          </div>
-        )}
+        <div
+          className={`h-full bg-gray-100 dark:bg-dark-bg relative z-0 overflow-hidden flex-shrink-0 transition-opacity duration-300 ease-out ${previewPaneClass}`}
+          aria-hidden={viewMode === 'editor'}
+        >
+          <Preview ref={previewRef} markdown={content} cfg={cfg} />
+        </div>
       </main>
 
       <StatusBar content={content} onSearchClick={() => setShowSearch(true)} />

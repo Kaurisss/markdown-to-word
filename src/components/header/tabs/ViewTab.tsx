@@ -19,7 +19,7 @@ export const ViewTab: React.FC<ViewTabProps> = ({ viewMode, onViewModeChange, th
             <button
               key={mode}
               onClick={() => onViewModeChange(mode)}
-              className={`px-2 py-1 text-xs rounded-sm transition-all flex items-center gap-1.5 ${viewMode === mode
+              className={`px-2 py-1 text-[13px] rounded-sm transition-all flex items-center gap-1.5 ${viewMode === mode
                 ? 'bg-white dark:bg-dark-element-hover text-brand-600 dark:text-brand-400 shadow-sm font-medium'
                 : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-200/50 dark:hover:bg-dark-element-hover/50'
                 }`}
@@ -47,7 +47,7 @@ export const ViewTab: React.FC<ViewTabProps> = ({ viewMode, onViewModeChange, th
           ) : (
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
           )}
-          <span className="text-[10px] scale-90">{theme === 'dark' ? '浅色' : '深色'}</span>
+          <span className="text-[11px]">{theme === 'dark' ? '浅色' : '深色'}</span>
         </button>
       </div>
     </div>

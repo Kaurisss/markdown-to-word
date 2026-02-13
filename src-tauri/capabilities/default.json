@@ -4,7 +4,8 @@
   "description": "enables the default permissions",
   "windows": [
     "main",
-    "ai-config"
+    "ai-config",
+    "settings"
   ],
   "permissions": [
     "core:default",
