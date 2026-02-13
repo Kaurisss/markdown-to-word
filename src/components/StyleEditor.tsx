@@ -7,17 +7,45 @@ interface Props {
   onChange: (next: ElementStyle) => void;
 }
 
-const FONTS_CN = ['SimSun', 'Microsoft YaHei', 'SimHei', 'KaiTi'];
-const FONTS_EN = ['Times New Roman', 'Arial', 'Georgia', 'Courier New'];
+const FONTS_CN = [
+  'SimSun', 'NSimSun', 'FangSong', 'Microsoft YaHei', 'SimHei', 'KaiTi',
+  'LiSu', 'YouYuan', 'STXihei', 'STSong', 'STFangsong', 'STKaiti',
+  'STZhongsong', 'FZShuSong-Z01', 'FZXiaoBiaoSong-B05', 'DengXian',
+];
+const FONTS_EN = [
+  'Times New Roman', 'Arial', 'Georgia', 'Courier New',
+  'Calibri', 'Cambria', 'Verdana', 'Tahoma',
+  'Trebuchet MS', 'Garamond', 'Palatino Linotype', 'Consolas',
+];
 const FONT_LABELS: Record<string, string> = {
   'SimSun': '宋体',
+  'NSimSun': '新宋体',
+  'FangSong': '仿宋',
   'Microsoft YaHei': '微软雅黑',
   'SimHei': '黑体',
   'KaiTi': '楷体',
+  'LiSu': '隶书',
+  'YouYuan': '幼圆',
+  'STXihei': '华文细黑',
+  'STSong': '华文宋体',
+  'STFangsong': '华文仿宋',
+  'STKaiti': '华文楷体',
+  'STZhongsong': '华文中宋',
+  'FZShuSong-Z01': '方正书宋',
+  'FZXiaoBiaoSong-B05': '方正小标宋',
+  'DengXian': '等线',
   'Times New Roman': 'Times New Roman',
   'Arial': 'Arial',
   'Georgia': 'Georgia',
   'Courier New': 'Courier New',
+  'Calibri': 'Calibri',
+  'Cambria': 'Cambria',
+  'Verdana': 'Verdana',
+  'Tahoma': 'Tahoma',
+  'Trebuchet MS': 'Trebuchet MS',
+  'Garamond': 'Garamond',
+  'Palatino Linotype': 'Palatino Linotype',
+  'Consolas': 'Consolas',
 };
 const ALIGN = ['left', 'center', 'right', 'justify'] as const;
 
