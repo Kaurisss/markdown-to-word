@@ -488,7 +488,7 @@ export const AIConfigWindow: React.FC = () => {
               <button
                 type="button"
                 onClick={handleMinimizeWindow}
-                className="absolute top-0 right-[46px] z-[80] w-[46px] h-10 grid place-items-center text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-element active:bg-gray-200 dark:active:bg-dark-border transition-colors"
+                className="absolute top-0 right-[46px] z-[80] w-[46px] h-10 grid place-items-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-element transition-colors"
                 aria-label="最小化"
               >
                 <span
@@ -502,7 +502,7 @@ export const AIConfigWindow: React.FC = () => {
               <button
                 type="button"
                 onClick={handleCloseWindow}
-                className="absolute top-0 right-0 z-[80] w-[46px] h-10 grid place-items-center text-gray-600 dark:text-gray-300 hover:bg-red-500 hover:text-white active:bg-red-600 transition-colors"
+                className="absolute top-0 right-0 z-[80] w-[46px] h-10 grid place-items-center text-gray-500 dark:text-gray-400 hover:text-white dark:hover:text-white hover:bg-[#fb2c36] transition-colors"
                 aria-label="关闭"
               >
                 <span
@@ -554,7 +554,7 @@ export const AIConfigWindow: React.FC = () => {
               <button
                 type="button"
                 onClick={handleMinimizeWindow}
-                className="absolute top-0 right-[46px] z-[80] w-[46px] h-10 grid place-items-center text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-element active:bg-gray-200 dark:active:bg-dark-border transition-colors"
+                className="absolute top-0 right-[46px] z-[80] w-[46px] h-10 grid place-items-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-element transition-colors"
                 aria-label="最小化"
               >
                 <span
@@ -568,7 +568,7 @@ export const AIConfigWindow: React.FC = () => {
               <button
                 type="button"
                 onClick={handleCloseWindow}
-                className="absolute top-0 right-0 z-[80] w-[46px] h-10 grid place-items-center text-gray-600 dark:text-gray-300 hover:bg-red-500 hover:text-white active:bg-red-600 transition-colors"
+                className="absolute top-0 right-0 z-[80] w-[46px] h-10 grid place-items-center text-gray-500 dark:text-gray-400 hover:text-white dark:hover:text-white hover:bg-[#fb2c36] transition-colors"
                 aria-label="关闭"
               >
                 <span
@@ -710,7 +710,7 @@ export const AIConfigWindow: React.FC = () => {
 
       {/* Add Platform Modal (Nested) */}
       {showAddPlatform && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm animate-fade-in">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm animate-fade-in" data-tauri-drag-region>
           <div className="bg-white dark:bg-dark-surface w-80 rounded-lg shadow-xl p-4 border border-gray-200 dark:border-dark-border animate-scale-in">
             <h3 className="text-sm font-semibold mb-4 text-gray-800 dark:text-gray-100">添加自定义平台</h3>
             <div className="space-y-3">
@@ -760,7 +760,7 @@ export const AIConfigWindow: React.FC = () => {
 
       {/* Edit Platform Modal */}
       {showEditPlatform && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm animate-fade-in">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm animate-fade-in" data-tauri-drag-region>
           <div className="bg-white dark:bg-dark-surface w-80 rounded-lg shadow-xl p-4 border border-gray-200 dark:border-dark-border animate-scale-in">
             <h3 className="text-sm font-semibold mb-4 text-gray-800 dark:text-gray-100">编辑平台</h3>
             <div className="space-y-3">
@@ -816,7 +816,7 @@ export const AIConfigWindow: React.FC = () => {
 
       {/* Add Model Modal */}
       {showAddModel && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm animate-fade-in">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm animate-fade-in" data-tauri-drag-region>
           <div className="bg-white dark:bg-dark-surface w-80 rounded-lg shadow-xl p-4 border border-gray-200 dark:border-dark-border animate-scale-in">
             <h3 className="text-sm font-semibold mb-4 text-gray-800 dark:text-gray-100">添加模型</h3>
             <div className="space-y-3">
@@ -931,7 +931,7 @@ export const AIConfigWindow: React.FC = () => {
 
       {/* Edit Model Modal */}
       {showEditModel && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm animate-fade-in">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm animate-fade-in" data-tauri-drag-region>
           <div className="bg-white dark:bg-dark-surface w-80 rounded-lg shadow-xl p-4 border border-gray-200 dark:border-dark-border animate-scale-in">
             <h3 className="text-sm font-semibold mb-4 text-gray-800 dark:text-gray-100">编辑模型</h3>
             <div className="space-y-3">

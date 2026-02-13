@@ -557,6 +557,12 @@ const App: React.FC = () => {
         e.preventDefault();
         setShowSearch(true);
       }
+      // Ctrl+H: 打开替换
+      if ((e.ctrlKey || e.metaKey) && e.key === 'h') {
+        e.preventDefault();
+        setShowSearch(true);
+        setShowReplace(true);
+      }
       if (e.key === 'Escape' && showSearch) {
         closeSearch();
       }

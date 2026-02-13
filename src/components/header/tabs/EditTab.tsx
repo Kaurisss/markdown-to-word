@@ -67,7 +67,7 @@ export const EditTab: React.FC<EditTabProps> = ({
                     onClick={onReplaceClick}
                     onMouseDown={e => e.preventDefault()}
                     className={`${STYLES.btnClass} flex-col gap-0.5 h-12 w-12 !px-1`}
-                    title="替换"
+                    title="替换 (Ctrl+H)"
                 >
                     <ArrowLeftRight className="w-5 h-5" />
                     <span className="text-[10px] scale-90">替换</span>
