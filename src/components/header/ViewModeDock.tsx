@@ -17,7 +17,10 @@ export const ViewModeDock: React.FC<ViewModeDockProps> = ({
   const activeClass = 'bg-gray-100 dark:bg-dark-element';
 
   return (
-    <div className="flex items-center gap-0.5 px-1" onMouseDown={(e) => e.stopPropagation()}>
+    <div
+      className="flex h-full items-center gap-0.5 px-1 border-r border-gray-100 dark:border-dark-border"
+      onMouseDown={(e) => e.stopPropagation()}
+    >
       <button
         type="button"
         onClick={() => onViewModeChange('editor')}

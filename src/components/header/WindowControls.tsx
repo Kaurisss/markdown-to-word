@@ -44,7 +44,7 @@ export const WindowControls: React.FC = () => {
       <button
         type="button"
         onClick={() => void runWindowAction('minimize')}
-        className="w-12 h-10 grid place-items-center bg-white dark:bg-dark-bg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-element active:bg-gray-200 dark:active:bg-dark-border transition-colors"
+        className="w-12 h-10 grid place-items-center border-b border-gray-100 dark:border-dark-border bg-white dark:bg-dark-bg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-element active:bg-gray-200 dark:active:bg-dark-border transition-colors"
         aria-label="最小化"
       >
         <span
@@ -58,7 +58,7 @@ export const WindowControls: React.FC = () => {
       <button
         type="button"
         onClick={() => void runWindowAction('toggleMaximize')}
-        className="w-12 h-10 grid place-items-center bg-white dark:bg-dark-bg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-element active:bg-gray-200 dark:active:bg-dark-border transition-colors"
+        className="w-12 h-10 grid place-items-center border-b border-gray-100 dark:border-dark-border bg-white dark:bg-dark-bg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-element active:bg-gray-200 dark:active:bg-dark-border transition-colors"
         aria-label={isMaximized ? '还原' : '最大化'}
       >
         <span
@@ -72,7 +72,7 @@ export const WindowControls: React.FC = () => {
       <button
         type="button"
         onClick={() => void runWindowAction('close')}
-        className="w-12 h-10 grid place-items-center bg-white dark:bg-dark-bg text-gray-600 dark:text-gray-300 hover:bg-red-500 hover:text-white active:bg-red-600 transition-colors"
+        className="w-12 h-10 grid place-items-center border-b border-gray-100 dark:border-dark-border bg-white dark:bg-dark-bg text-gray-600 dark:text-gray-300 hover:bg-red-500 hover:text-white active:bg-red-600 transition-colors"
         aria-label="关闭"
       >
         <span
