@@ -406,7 +406,7 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
                 {markdown}
               </ReactMarkdown>
             ) : (
-              <div className="flex items-center justify-center h-48 text-gray-300 italic">
+              <div className="flex items-center justify-center h-48 text-gray-300 italic select-none">
                 预览内容将显示在此处
               </div>
             )}

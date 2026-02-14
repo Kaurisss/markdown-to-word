@@ -196,3 +196,24 @@ input[type=number] {
 .dark [contenteditable][data-placeholder]:empty:before {
   color: #4b5563;
 }
+
+/* Prevent accidental text selection on clickable chrome controls */
+button {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* App chrome text should not be selectable via mouse drag */
+.app-chrome,
+.app-chrome * {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Keep editable controls selectable inside chrome */
+.app-chrome input,
+.app-chrome textarea,
+.app-chrome [contenteditable="true"] {
+  -webkit-user-select: text;
+  user-select: text;
+}

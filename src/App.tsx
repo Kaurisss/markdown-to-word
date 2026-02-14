@@ -93,6 +93,7 @@ const App: React.FC = () => {
   const [isFileDragActive, setIsFileDragActive] = useState(false);
   const fileDragCounterRef = useRef(0);
   const isFirstThemePaintRef = useRef(true);
+  const hasShownMainWindowRef = useRef(false);
 
   const showToast = useCallback((message: string, type: ToastType = 'success') => {
     setToast({ message, type, visible: true });
@@ -582,8 +583,22 @@ const App: React.FC = () => {
         const currentWindow = getCurrentWindow();
         await currentWindow.setBackgroundColor(isDark ? '#1e1e1e' : '#f9fafb');
         await currentWindow.setTheme(isDark ? 'dark' : 'light');
+        if (!isConfigWindow && !isSettingsWindow && !hasShownMainWindowRef.current) {
+          await currentWindow.show();
+          hasShownMainWindowRef.current = true;
+        }
       } catch {
-        // Ignore when running in browser mode
+        // Ignore when running in browser mode.
+        // If running in Tauri and the style sync failed, still try to show the main window once.
+        if (!isConfigWindow && !isSettingsWindow && !hasShownMainWindowRef.current) {
+          try {
+            const { getCurrentWindow } = await import('@tauri-apps/api/window');
+            await getCurrentWindow().show();
+            hasShownMainWindowRef.current = true;
+          } catch {
+            // noop
+          }
+        }
       }
     };
 
@@ -592,7 +607,7 @@ const App: React.FC = () => {
     return () => {
       if (transitionTimer) window.clearTimeout(transitionTimer);
     };
-  }, [theme]);
+  }, [theme, isConfigWindow, isSettingsWindow]);
 
   // Keep main window theme synced with settings window changes.
   useEffect(() => {
@@ -614,6 +629,25 @@ const App: React.FC = () => {
   // Ctrl+F to open search
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl+A: avoid selecting the whole UI document; select editor content instead.
+      if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+        const target = e.target as HTMLElement | null;
+        const isEditableTarget = !!target && (
+          target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.isContentEditable
+        );
+
+        if (!isEditableTarget && !isConfigWindow && !isSettingsWindow) {
+          e.preventDefault();
+          const editor = editorRef.current;
+          if (editor) {
+            editor.focus();
+            editor.setSelectionRange(0, editor.value.length);
+          }
+        }
+      }
+
       if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
         e.preventDefault();
         setShowSearch(true);
@@ -646,7 +680,7 @@ const App: React.FC = () => {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [closeSearch, showSearch]);
+  }, [closeSearch, showSearch, isConfigWindow, isSettingsWindow]);
 
   // Reset match index when search query changes
   useEffect(() => {
