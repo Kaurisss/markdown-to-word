@@ -196,7 +196,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                 className={`absolute top-full left-0 mt-1 bg-white dark:bg-dark-surface rounded-lg shadow-lg border border-gray-200 dark:border-dark-border p-2 z-50 w-56 ${showColorPicker ? 'animate-menu-in' : 'animate-menu-out'}`}
                 onAnimationEnd={handleColorAnimationEnd}
               >
-                <div className="text-[11px] text-gray-500 dark:text-gray-400 mb-1">主题颜色</div>
+                <div className="text-[12px] font-medium text-gray-500 dark:text-gray-400 mb-1">主题颜色</div>
                 <div className="space-y-0.5">
                   {THEME_COLORS.map((row, rowIndex) => (
                     <div key={rowIndex} className="flex gap-0.5">
@@ -212,7 +212,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                     </div>
                   ))}
                 </div>
-                <div className="text-[11px] text-gray-500 dark:text-gray-400 mt-2 mb-1">标准色</div>
+                <div className="text-[12px] font-medium text-gray-500 dark:text-gray-400 mt-2 mb-1">标准色</div>
                 <div className="flex gap-0.5">
                   {STANDARD_COLORS.map((color) => (
                     <button
@@ -225,7 +225,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                   ))}
                 </div>
                 <div className="border-t border-gray-100 dark:border-dark-border mt-2 pt-2">
-                  <label className="flex items-center gap-2 text-[13px] text-gray-600 dark:text-gray-300 cursor-pointer hover:text-gray-900 dark:hover:text-gray-100">
+                  <label className="flex items-center gap-2 text-[14px] text-gray-600 dark:text-gray-300 cursor-pointer hover:text-gray-900 dark:hover:text-gray-100">
                     <input
                       type="color"
                       value={currentStyle.color}
@@ -256,7 +256,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                 className={`absolute top-full left-0 mt-1 bg-white dark:bg-dark-surface rounded-lg shadow-lg border border-gray-200 dark:border-dark-border p-2 z-50 w-56 ${showBgColorPicker ? 'animate-menu-in' : 'animate-menu-out'}`}
                 onAnimationEnd={handleBgColorAnimationEnd}
               >
-                <div className="text-[11px] text-gray-500 dark:text-gray-400 mb-1">背景颜色</div>
+                <div className="text-[12px] font-medium text-gray-500 dark:text-gray-400 mb-1">背景颜色</div>
                 {/* Theme Colors - same as text but for background */}
                 <div className="space-y-0.5">
                   {THEME_COLORS.map((row, rowIndex) => (
@@ -274,7 +274,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                   ))}
                 </div>
                 <div className="border-t border-gray-100 dark:border-dark-border mt-2 pt-2 flex items-center justify-between">
-                  <label className="flex items-center gap-2 text-[13px] text-gray-600 dark:text-gray-300 cursor-pointer hover:text-gray-900 dark:hover:text-gray-100">
+                  <label className="flex items-center gap-2 text-[14px] text-gray-600 dark:text-gray-300 cursor-pointer hover:text-gray-900 dark:hover:text-gray-100">
                     <input
                       type="color"
                       value={currentStyle.backgroundColor || '#ffffff'}
@@ -285,7 +285,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                   </label>
                   <button
                     onClick={() => { updateStyle({ backgroundColor: undefined }); setShowBgColorPicker(false); }}
-                    className="text-[13px] text-red-500 hover:text-red-700 px-2 py-0.5 rounded hover:bg-red-50"
+                    className="text-[14px] text-red-500 hover:text-red-700 px-2 py-0.5 rounded hover:bg-red-50"
                   >
                     无颜色
                   </button>

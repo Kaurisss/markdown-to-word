@@ -10,15 +10,18 @@ export const AIConfigWindow: React.FC = () => {
 
   const [selectedProviderId, setSelectedProviderId] = useState<string>('');
   const [showAddPlatform, setShowAddPlatform] = useState(false);
+  const [isAddPlatformClosing, setIsAddPlatformClosing] = useState(false);
   const [newPlatformName, setNewPlatformName] = useState('');
   const [newPlatformUrl, setNewPlatformUrl] = useState('');
   const [newPlatformDescription, setNewPlatformDescription] = useState('');
   const [showEditPlatform, setShowEditPlatform] = useState(false);
+  const [isEditPlatformClosing, setIsEditPlatformClosing] = useState(false);
   const [editingPlatformId, setEditingPlatformId] = useState('');
   const [editPlatformName, setEditPlatformName] = useState('');
   const [editPlatformUrl, setEditPlatformUrl] = useState('');
   const [editPlatformDescription, setEditPlatformDescription] = useState('');
   const [showAddModel, setShowAddModel] = useState(false);
+  const [isAddModelClosing, setIsAddModelClosing] = useState(false);
   const [newModelId, setNewModelId] = useState('');
   const [newModelName, setNewModelName] = useState('');
 
@@ -47,6 +50,7 @@ export const AIConfigWindow: React.FC = () => {
 
   // Edit model state
   const [showEditModel, setShowEditModel] = useState(false);
+  const [isEditModelClosing, setIsEditModelClosing] = useState(false);
   const [editingModel, setEditingModel] = useState<AIModel | null>(null);
   const [editModelId, setEditModelId] = useState('');
   const [editModelName, setEditModelName] = useState('');
@@ -160,15 +164,53 @@ export const AIConfigWindow: React.FC = () => {
     updateProviders(updated);
   };
 
+  // 统一的弹窗关闭函数（带动画）
+  const closeAddPlatform = useCallback(() => {
+    setIsAddPlatformClosing(true);
+    setTimeout(() => {
+      setShowAddPlatform(false);
+      setIsAddPlatformClosing(false);
+    }, 200);
+  }, []);
+
+  const closeEditPlatform = useCallback(() => {
+    setIsEditPlatformClosing(true);
+    setTimeout(() => {
+      setShowEditPlatform(false);
+      setIsEditPlatformClosing(false);
+      setEditingPlatformId('');
+      setEditPlatformName('');
+      setEditPlatformUrl('');
+      setEditPlatformDescription('');
+    }, 200);
+  }, []);
+
+  const closeAddModel = useCallback(() => {
+    setIsAddModelClosing(true);
+    setTimeout(() => {
+      setShowAddModel(false);
+      setIsAddModelClosing(false);
+      setNewModelId('');
+      setNewModelName('');
+    }, 200);
+  }, []);
+
+  const closeEditModel = useCallback(() => {
+    setIsEditModelClosing(true);
+    setTimeout(() => {
+      setShowEditModel(false);
+      setIsEditModelClosing(false);
+      setEditingModel(null);
+    }, 200);
+  }, []);
+
   const handleAddModel = () => {
     if (!selectedProvider || !newModelId.trim()) return;
     const newModel: AIModel = { id: newModelId.trim(), name: newModelName.trim() || newModelId.trim() };
     handleUpdateProvider(selectedProvider.id, {
       models: [...selectedProvider.models, newModel]
     });
-    setNewModelId('');
-    setNewModelName('');
-    setShowAddModel(false);
+    closeAddModel();
   };
 
   const handleDeleteModel = useCallback((modelId: string) => {
@@ -225,9 +267,8 @@ export const AIConfigWindow: React.FC = () => {
         : m
     );
     handleUpdateProvider(selectedProvider.id, { models: updatedModels });
-    setShowEditModel(false);
-    setEditingModel(null);
-  }, [selectedProvider, editingModel, editModelId, editModelName, handleUpdateProvider]);
+    closeEditModel();
+  }, [selectedProvider, editingModel, editModelId, editModelName, handleUpdateProvider, closeEditModel]);
 
   const handleCopyModel = useCallback(() => {
     if (!selectedProvider || !modelContextMenu.model) return;
@@ -333,7 +374,7 @@ export const AIConfigWindow: React.FC = () => {
     };
     updateProviders([...providers, newProvider]);
     setSelectedProviderId(newId);
-    setShowAddPlatform(false);
+    closeAddPlatform();
     setNewPlatformName('');
     setNewPlatformUrl('');
     setNewPlatformDescription('');
@@ -355,12 +396,8 @@ export const AIConfigWindow: React.FC = () => {
       baseUrl: editPlatformUrl.trim() || 'https://api.example.com/v1/chat/completions',
       description: editPlatformDescription.trim() || undefined
     });
-    setShowEditPlatform(false);
-    setEditingPlatformId('');
-    setEditPlatformName('');
-    setEditPlatformUrl('');
-    setEditPlatformDescription('');
-  }, [editingPlatformId, editPlatformName, editPlatformUrl, editPlatformDescription, handleUpdateProvider]);
+    closeEditPlatform();
+  }, [editingPlatformId, editPlatformName, editPlatformUrl, editPlatformDescription, handleUpdateProvider, closeEditPlatform]);
 
   const handleDeletePlatform = useCallback((provider: AIProvider) => {
     if (!provider.isCustom) return;
@@ -717,9 +754,16 @@ export const AIConfigWindow: React.FC = () => {
       </div>
 
       {/* Add Platform Modal (Nested) */}
-      {showAddPlatform && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm animate-fade-in" data-tauri-drag-region>
-          <div className="bg-white dark:bg-dark-surface w-80 rounded-lg shadow-xl p-4 border border-gray-200 dark:border-dark-border animate-scale-in">
+      {(showAddPlatform || isAddPlatformClosing) && (
+        <div
+          className={`fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm ${isAddPlatformClosing ? 'animate-fade-out' : 'animate-fade-in'}`}
+          data-tauri-drag-region
+          onClick={(e) => { e.stopPropagation(); closeAddPlatform(); }}
+        >
+          <div
+            className={`bg-white dark:bg-dark-surface w-80 rounded-lg shadow-xl p-4 border border-gray-200 dark:border-dark-border ${isAddPlatformClosing ? 'animate-scale-out' : 'animate-scale-in'}`}
+            onClick={(e) => e.stopPropagation()}
+          >
             <h3 className="text-sm font-semibold mb-4 text-gray-800 dark:text-gray-100">添加自定义平台</h3>
             <div className="space-y-3">
               <input
@@ -748,7 +792,7 @@ export const AIConfigWindow: React.FC = () => {
               />
               <div className="flex justify-end gap-2 mt-4">
                 <button
-                  onClick={() => setShowAddPlatform(false)}
+                  onClick={closeAddPlatform}
                   className="px-3 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-element-hover rounded transition-colors"
                 >
                   取消
@@ -767,9 +811,16 @@ export const AIConfigWindow: React.FC = () => {
       )}
 
       {/* Edit Platform Modal */}
-      {showEditPlatform && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm animate-fade-in" data-tauri-drag-region>
-          <div className="bg-white dark:bg-dark-surface w-80 rounded-lg shadow-xl p-4 border border-gray-200 dark:border-dark-border animate-scale-in">
+      {(showEditPlatform || isEditPlatformClosing) && (
+        <div
+          className={`fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm ${isEditPlatformClosing ? 'animate-fade-out' : 'animate-fade-in'}`}
+          data-tauri-drag-region
+          onClick={(e) => { e.stopPropagation(); closeEditPlatform(); }}
+        >
+          <div
+            className={`bg-white dark:bg-dark-surface w-80 rounded-lg shadow-xl p-4 border border-gray-200 dark:border-dark-border ${isEditPlatformClosing ? 'animate-scale-out' : 'animate-scale-in'}`}
+            onClick={(e) => e.stopPropagation()}
+          >
             <h3 className="text-sm font-semibold mb-4 text-gray-800 dark:text-gray-100">编辑平台</h3>
             <div className="space-y-3">
               <input
@@ -798,13 +849,7 @@ export const AIConfigWindow: React.FC = () => {
               />
               <div className="flex justify-end gap-2 mt-4">
                 <button
-                  onClick={() => {
-                    setShowEditPlatform(false);
-                    setEditingPlatformId('');
-                    setEditPlatformName('');
-                    setEditPlatformUrl('');
-                    setEditPlatformDescription('');
-                  }}
+                  onClick={closeEditPlatform}
                   className="px-3 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-element-hover rounded transition-colors"
                 >
                   取消
@@ -823,9 +868,16 @@ export const AIConfigWindow: React.FC = () => {
       )}
 
       {/* Add Model Modal */}
-      {showAddModel && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm animate-fade-in" data-tauri-drag-region>
-          <div className="bg-white dark:bg-dark-surface w-80 rounded-lg shadow-xl p-4 border border-gray-200 dark:border-dark-border animate-scale-in">
+      {(showAddModel || isAddModelClosing) && (
+        <div
+          className={`fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm ${isAddModelClosing ? 'animate-fade-out' : 'animate-fade-in'}`}
+          data-tauri-drag-region
+          onClick={(e) => { e.stopPropagation(); closeAddModel(); }}
+        >
+          <div
+            className={`bg-white dark:bg-dark-surface w-80 rounded-lg shadow-xl p-4 border border-gray-200 dark:border-dark-border ${isAddModelClosing ? 'animate-scale-out' : 'animate-scale-in'}`}
+            onClick={(e) => e.stopPropagation()}
+          >
             <h3 className="text-sm font-semibold mb-4 text-gray-800 dark:text-gray-100">添加模型</h3>
             <div className="space-y-3">
               <div className="space-y-1">
@@ -853,7 +905,7 @@ export const AIConfigWindow: React.FC = () => {
               </div>
               <div className="flex justify-end gap-2 mt-4">
                 <button
-                  onClick={() => { setShowAddModel(false); setNewModelId(''); setNewModelName(''); }}
+                  onClick={closeAddModel}
                   className="px-3 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-element-hover rounded transition-colors"
                 >
                   取消
@@ -938,9 +990,16 @@ export const AIConfigWindow: React.FC = () => {
       )}
 
       {/* Edit Model Modal */}
-      {showEditModel && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm animate-fade-in" data-tauri-drag-region>
-          <div className="bg-white dark:bg-dark-surface w-80 rounded-lg shadow-xl p-4 border border-gray-200 dark:border-dark-border animate-scale-in">
+      {(showEditModel || isEditModelClosing) && (
+        <div
+          className={`fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm ${isEditModelClosing ? 'animate-fade-out' : 'animate-fade-in'}`}
+          data-tauri-drag-region
+          onClick={(e) => { e.stopPropagation(); closeEditModel(); }}
+        >
+          <div
+            className={`bg-white dark:bg-dark-surface w-80 rounded-lg shadow-xl p-4 border border-gray-200 dark:border-dark-border ${isEditModelClosing ? 'animate-scale-out' : 'animate-scale-in'}`}
+            onClick={(e) => e.stopPropagation()}
+          >
             <h3 className="text-sm font-semibold mb-4 text-gray-800 dark:text-gray-100">编辑模型</h3>
             <div className="space-y-3">
               <div className="space-y-1">
@@ -968,7 +1027,7 @@ export const AIConfigWindow: React.FC = () => {
               </div>
               <div className="flex justify-end gap-2 mt-4">
                 <button
-                  onClick={() => { setShowEditModel(false); setEditingModel(null); }}
+                  onClick={closeEditModel}
                   className="px-3 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
                 >
                   取消
