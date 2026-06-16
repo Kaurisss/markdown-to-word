@@ -1,5 +1,6 @@
 import React from 'react';
 import { Search2Line, Transfer3Line, CloseLine, ArrowDownCircleLine, ArrowRightCircleLine, ArrowUpCircleLine } from '@mingcute/react';
+import { Separator } from '@/components/ui/separator';
 
 export type SearchPopoverProps = {
   visible: boolean;
@@ -94,7 +95,7 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
                 </button>
               )}
 
-              <div className="w-px h-4 bg-gray-200 dark:bg-dark-border mx-0.5" />
+              <Separator orientation="vertical" className="h-4 mx-0.5" />
 
               <button
                 onClick={() => setCaseSensitive((prev) => !prev)}

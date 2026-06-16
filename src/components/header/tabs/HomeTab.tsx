@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect, useLayoutEffect, useCallback } from 'react';
 import { ColorFilterLine, AlignLeftLine, AlignCenterLine, AlignRightLine, AlignJustifyLine, BoldFill, ItalicLine, FontLine } from '@mingcute/react';
 import { Select } from '../../ui/Select';
+import { Separator } from '@/components/ui/separator';
 import { ElementStyle, DocumentConfig } from '../../../interfaces/Config';
 import { STYLES, FONTS_CN, FONTS_EN, FONT_LABELS, FONT_SIZES, FONT_SIZES_PT, THEME_COLORS, STANDARD_COLORS } from '../constants';
 
@@ -179,7 +180,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
           >
             <ItalicLine className="w-4 h-4" />
           </button>
-          <div className="w-px h-4 bg-gray-300 dark:bg-dark-border mx-0.5"></div>
+          <Separator orientation="vertical" className="h-4 mx-0.5" />
 
           {/* Color Picker */}
           <div className="relative" ref={colorPickerRef}>

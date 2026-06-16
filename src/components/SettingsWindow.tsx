@@ -3,6 +3,7 @@ import { CloseLine, MinimizeLine } from '@mingcute/react';
 import { useSettingsStore, ViewMode } from '../services/settingsStore';
 import { FONTS_CN, FONTS_EN, FONT_LABELS, FONT_SIZES, FONT_SIZES_PT } from './header/constants';
 import { Select } from './ui/Select';
+import { Switch } from './ui/switch';
 
 export const SettingsWindow: React.FC = () => {
   const { settings, updateSettings } = useSettingsStore();
@@ -217,19 +218,10 @@ export const SettingsWindow: React.FC = () => {
                         <div className="text-sm text-gray-700 dark:text-gray-200">自动保存</div>
                         <div className="text-xs text-gray-400 dark:text-gray-500">自动保存编辑器内容，下次打开时恢复</div>
                       </div>
-                      <div
-                        className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
-                          settings.autoSave ? 'bg-brand-500 dark:bg-brand-600' : 'bg-gray-200 dark:bg-gray-600'
-                        }`}
-                        onClick={() => updateSettings({ autoSave: !settings.autoSave })}
-                      >
-                        <span
-                          aria-hidden="true"
-                          className={`${
-                            settings.autoSave ? 'translate-x-4' : 'translate-x-0'
-                          } pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out`}
-                        />
-                      </div>
+                      <Switch
+                        checked={settings.autoSave}
+                        onCheckedChange={(c) => updateSettings({ autoSave: c })}
+                      />
                     </div>
                   </div>
                 )}

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Select } from '../../ui/Select';
+import { Separator } from '@/components/ui/separator';
 import { ElementStyle, DocumentConfig } from '../../../interfaces/Config';
 import { STYLES, FONTS_EN, FONT_LABELS } from '../constants';
 
@@ -121,7 +122,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({ cfg, onCfgChange, activeSt
                 }}
                 title="行距值"
               />
-              <div className="h-4 w-px bg-gray-200 dark:bg-dark-border mx-0.5"></div>
+              <Separator orientation="vertical" className="h-4 mx-0.5" />
               <Select
                 className="w-12"
                 variant="ghost"

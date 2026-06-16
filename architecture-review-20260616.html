@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <title>Architecture Review — markdown-to-word</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module">
+      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+      mermaid.initialize({ startOnLoad: true, theme: "neutral", securityLevel: "loose" });
+    </script>
+    <style>
+      body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+      .seam { stroke-dasharray: 4 4; }
+      .leak { stroke: #dc2626; }
+      .deep { background: linear-gradient(135deg, #0f172a, #1e293b); }
+      .badge-strong { @apply bg-emerald-100 text-emerald-800 border-emerald-200; }
+      .badge-explore { @apply bg-amber-100 text-amber-800 border-amber-200; }
+      .badge-speculative { @apply bg-slate-100 text-slate-600 border-slate-200; }
+      .mass-bar { transition: all 0.3s ease; }
+      h1, h2, h3 { font-family: 'Georgia', serif; }
+    </style>
+  </head>
+  <body class="bg-stone-50 text-slate-900 font-sans">
+    <main class="max-w-5xl mx-auto px-6 py-12 space-y-12">
+
+      <!-- Header -->
+      <header class="border-b border-slate-200 pb-8">
+        <h1 class="text-3xl font-bold text-slate-900 mb-2">Architecture Review</h1>
+        <p class="text-slate-500 text-sm font-mono">markdown-to-word · 2026-06-16</p>
+        <div class="mt-4 flex gap-6 text-xs text-slate-500">
+          <span class="flex items-center gap-1.5">
+            <span class="inline-block w-4 h-4 border-2 border-slate-400 rounded-sm"></span> Module
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span class="inline-block w-6 border-t-2 border-dashed border-slate-400"></span> Seam
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span class="inline-block w-6 border-t-2 border-red-500"></span> Leakage
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span class="inline-block w-4 h-4 rounded-sm deep"></span> Deep module
+          </span>
+        </div>
+      </header>
+
+      <!-- Candidates -->
+      <section id="candidates" class="space-y-14">
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- Candidate 1: God Component App.tsx -->
+        <!-- ═══════════════════════════════════════════ -->
+        <article class="rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
+          <div class="flex items-center gap-3 mb-6">
+            <h2 class="text-xl font-bold">1. 拆解 App.tsx 上帝 module</h2>
+            <span class="inline-block px-2.5 py-0.5 text-xs font-medium rounded-full border bg-emerald-100 text-emerald-800 border-emerald-200">Strong</span>
+          </div>
+
+          <div class="mb-4">
+            <h3 class="text-xs uppercase tracking-wider text-slate-400 mb-2">Files</h3>
+            <code class="text-sm font-mono text-slate-600 block leading-relaxed">
+              src/App.tsx (1055 行, 37KB)
+            </code>
+          </div>
+
+          <!-- Before / After -->
+          <div class="grid grid-cols-2 gap-6 mb-6">
+            <!-- BEFORE -->
+            <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <p class="text-xs uppercase tracking-wider text-slate-400 mb-3 font-semibold">Before</p>
+              <div class="space-y-0">
+                <!-- Interface bar (huge) -->
+                <div class="relative">
+                  <div class="h-[200px] border-2 border-red-300 bg-red-50 rounded-t-md flex flex-col justify-center px-3">
+                    <p class="text-[10px] uppercase tracking-wider text-red-600 font-semibold mb-1">Interface (37KB)</p>
+                    <ul class="text-[9px] text-red-500 space-y-0.5 list-disc list-inside">
+                      <li>undo/redo history</li>
+                      <li>search/replace state</li>
+                      <li>context menu logic</li>
+                      <li>clipboard ops</li>
+                      <li>file drag-drop</li>
+                      <li>export workflow</li>
+                      <li>scroll sync</li>
+                      <li>theme management</li>
+                      <li>auto-save</li>
+                      <li>window routing</li>
+                      <li>30+ useState + 10+ useEffect</li>
+                    </ul>
+                  </div>
+                  <!-- Implementation bar (almost same) -->
+                  <div class="h-[30px] border-2 border-t-0 border-slate-300 bg-slate-100 rounded-b-md flex items-center px-3">
+                    <p class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Implementation</p>
+                  </div>
+                </div>
+                <p class="text-[10px] text-slate-400 mt-2 text-center">Shallow: interface ≈ implementation</p>
+              </div>
+            </div>
+            <!-- AFTER -->
+            <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <p class="text-xs uppercase tracking-wider text-slate-400 mb-3 font-semibold">After</p>
+              <div class="space-y-2">
+                <div class="h-14 border-2 border-slate-700 bg-slate-800 rounded-md flex items-center px-3 justify-between">
+                  <p class="text-[10px] uppercase tracking-wider text-slate-200 font-semibold">App (shell)</p>
+                  <p class="text-[9px] text-slate-400">~80 行</p>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                  <div class="h-12 border-2 border-emerald-400 bg-emerald-50 rounded flex items-center px-2">
+                    <p class="text-[9px] text-emerald-700 font-medium">useEditorState</p>
+                  </div>
+                  <div class="h-12 border-2 border-blue-400 bg-blue-50 rounded flex items-center px-2">
+                    <p class="text-[9px] text-blue-700 font-medium">useSearchReplace</p>
+                  </div>
+                  <div class="h-12 border-2 border-purple-400 bg-purple-50 rounded flex items-center px-2">
+                    <p class="text-[9px] text-purple-700 font-medium">useContextMenu</p>
+                  </div>
+                  <div class="h-12 border-2 border-amber-400 bg-amber-50 rounded flex items-center px-2">
+                    <p class="text-[9px] text-amber-700 font-medium">useFileDrop</p>
+                  </div>
+                  <div class="h-12 border-2 border-rose-400 bg-rose-50 rounded flex items-center px-2">
+                    <p class="text-[9px] text-rose-700 font-medium">useTheme</p>
+                  </div>
+                  <div class="h-12 border-2 border-cyan-400 bg-cyan-50 rounded flex items-center px-2">
+                    <p class="text-[9px] text-cyan-700 font-medium">useExport</p>
+                  </div>
+                </div>
+                <p class="text-[10px] text-emerald-600 mt-1 text-center">Deep: 6 modules, each with small interface</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-3 text-sm">
+            <p><strong class="text-slate-700">Problem:</strong> App.tsx 集中了 30+ 个 useState 和 10+ 个 useEffect，涵盖 undo/redo、搜索替换、右键菜单、剪贴板、拖拽导入、导出、滚动同步、主题、自动保存、窗口路由——所有逻辑的 interface 平铺在一个 1055 行的文件中，没有 locality。</p>
+            <p><strong class="text-slate-700">Solution:</strong> 按职责抽取 custom hooks（useEditorState、useSearchReplace、useContextMenu、useFileDrop、useTheme、useExport），App 退化为 ~80 行的 shell，只做组合。</p>
+          </div>
+
+          <div class="mt-4">
+            <h3 class="text-xs uppercase tracking-wider text-slate-400 mb-2">Wins</h3>
+            <ul class="text-sm text-slate-600 space-y-1 list-disc list-inside">
+              <li><strong>Locality:</strong> 搜索 bug 只需看 useSearchReplace</li>
+              <li><strong>Leverage:</strong> hooks 可独立测试，不需渲染整个 App</li>
+              <li><strong>Interface shrinks:</strong> App 的 interface 从 30+ states 降到 6 个 hook 调用</li>
+              <li>删除 App 内 ~200 行右键菜单 implementation</li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- Candidate 2: AIConfigModal / AIConfigWindow duplication -->
+        <!-- ═══════════════════════════════════════════ -->
+        <article class="rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
+          <div class="flex items-center gap-3 mb-6">
+            <h2 class="text-xl font-bold">2. 合并 AIConfig 的两个 near-clone modules</h2>
+            <span class="inline-block px-2.5 py-0.5 text-xs font-medium rounded-full border bg-emerald-100 text-emerald-800 border-emerald-200">Strong</span>
+          </div>
+
+          <div class="mb-4">
+            <h3 class="text-xs uppercase tracking-wider text-slate-400 mb-2">Files</h3>
+            <code class="text-sm font-mono text-slate-600 block leading-relaxed">
+              src/components/AIConfigModal.tsx (736 行, 34KB)<br/>
+              src/components/AIConfigWindow.tsx (1058 行, 49KB)
+            </code>
+          </div>
+
+          <!-- Before / After Diagram -->
+          <div class="grid grid-cols-2 gap-6 mb-6">
+            <div class="rounded-lg border border-slate-200 bg-white p-4">
+              <p class="text-xs uppercase tracking-wider text-slate-400 mb-3 font-semibold">Before</p>
+              <pre class="mermaid">
+flowchart TB
+  subgraph "AIConfigModal (736 行)"
+    M1["handleTestModel"]
+    M2["handleToggleProvider"]
+    M3["handleAddModel"]
+    M4["handleDeleteModel"]
+    M5["handleModelContextMenu"]
+    M6["handleAddPlatform"]
+  end
+  subgraph "AIConfigWindow (1058 行)"
+    W1["handleTestModel"]
+    W2["handleToggleProvider"]
+    W3["handleAddModel"]
+    W4["handleDeleteModel"]
+    W5["handleModelContextMenu"]
+    W6["handleAddPlatform"]
+    W7["handleEditPlatform"]
+    W8["handleDeletePlatform"]
+  end
+  M1 -.- W1
+  M2 -.- W2
+  M3 -.- W3
+  M4 -.- W4
+  M5 -.- W5
+  M6 -.- W6
+  style M1 fill:#fef2f2,stroke:#dc2626
+  style W1 fill:#fef2f2,stroke:#dc2626
+  style M2 fill:#fef2f2,stroke:#dc2626
+  style W2 fill:#fef2f2,stroke:#dc2626
+  style M3 fill:#fef2f2,stroke:#dc2626
+  style W3 fill:#fef2f2,stroke:#dc2626
+              </pre>
+              <p class="text-[10px] text-red-500 mt-2 text-center">6 组重复逻辑，虚线 = copy-paste clone</p>
+            </div>
+            <div class="rounded-lg border border-slate-200 bg-white p-4">
+              <p class="text-xs uppercase tracking-wider text-slate-400 mb-3 font-semibold">After</p>
+              <pre class="mermaid">
+flowchart TB
+  subgraph HOOK["useAIConfig (deep)"]
+    H1["provider CRUD"]
+    H2["model CRUD"]
+    H3["test model"]
+    H4["context menus"]
+  end
+  subgraph RENDER["Presentation adapters"]
+    R1["AIConfigWindow"]
+    R2["AIConfigModal"]
+  end
+  HOOK --> R1
+  HOOK --> R2
+  classDef deep fill:#0f172a,color:#e2e8f0,stroke:#334155
+  class HOOK deep
+              </pre>
+              <p class="text-[10px] text-emerald-600 mt-2 text-center">逻辑集中在一个 deep hook，两个 thin adapters 只管渲染</p>
+            </div>
+          </div>
+
+          <div class="space-y-3 text-sm">
+            <p><strong class="text-slate-700">Problem:</strong> AIConfigModal 和 AIConfigWindow 共享 ~90% 相同的业务逻辑（provider CRUD、model 管理、API 测试、右键菜单），但各自独立 implementation，形成 1794 行的 copy-paste 重复。改一处必须同步改另一处，否则行为分叉。</p>
+            <p><strong class="text-slate-700">Solution:</strong> 抽取 useAIConfig hook 封装全部状态管理和业务逻辑，Modal 和 Window 退化为 thin rendering adapters（一个是弹窗，一个是独立窗口）。</p>
+          </div>
+
+          <div class="mt-4">
+            <h3 class="text-xs uppercase tracking-wider text-slate-400 mb-2">Wins</h3>
+            <ul class="text-sm text-slate-600 space-y-1 list-disc list-inside">
+              <li><strong>Locality:</strong> AI config bug 只需修一处</li>
+              <li><strong>删除 ~700 行重复代码</strong></li>
+              <li><strong>Leverage:</strong> hook 可独立 unit test，不需渲染 UI</li>
+              <li>两个 adapter 证明 seam 是真实的——不是 hypothetical</li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- Candidate 3: Preview.tsx heading extraction repetition -->
+        <!-- ═══════════════════════════════════════════ -->
+        <article class="rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
+          <div class="flex items-center gap-3 mb-6">
+            <h2 class="text-xl font-bold">3. 消除 Preview 中 6 份 heading extractText clone</h2>
+            <span class="inline-block px-2.5 py-0.5 text-xs font-medium rounded-full border bg-amber-100 text-amber-800 border-amber-200">Worth exploring</span>
+          </div>
+
+          <div class="mb-4">
+            <h3 class="text-xs uppercase tracking-wider text-slate-400 mb-2">Files</h3>
+            <code class="text-sm font-mono text-slate-600 block leading-relaxed">
+              src/components/Preview.tsx (424 行)
+            </code>
+          </div>
+
+          <!-- Before / After - Cross-section style -->
+          <div class="grid grid-cols-2 gap-6 mb-6">
+            <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <p class="text-xs uppercase tracking-wider text-slate-400 mb-3 font-semibold">Before</p>
+              <div class="space-y-1">
+                <div class="h-10 border-l-4 border-red-300 bg-red-50 flex items-center px-3">
+                  <p class="text-[10px] font-mono text-red-600">h1: extractText + slugify + generateUniqueId (12 行)</p>
+                </div>
+                <div class="h-10 border-l-4 border-red-300 bg-red-50 flex items-center px-3">
+                  <p class="text-[10px] font-mono text-red-600">h2: extractText + slugify + generateUniqueId (12 行)</p>
+                </div>
+                <div class="h-10 border-l-4 border-red-300 bg-red-50 flex items-center px-3">
+                  <p class="text-[10px] font-mono text-red-600">h3: extractText + slugify + generateUniqueId (12 行)</p>
+                </div>
+                <div class="h-10 border-l-4 border-red-300 bg-red-50 flex items-center px-3">
+                  <p class="text-[10px] font-mono text-red-600">h4: extractText + slugify + generateUniqueId (12 行)</p>
+                </div>
+                <div class="h-10 border-l-4 border-red-300 bg-red-50 flex items-center px-3">
+                  <p class="text-[10px] font-mono text-red-600">h5: extractText + slugify + generateUniqueId (12 行)</p>
+                </div>
+                <div class="h-10 border-l-4 border-red-300 bg-red-50 flex items-center px-3">
+                  <p class="text-[10px] font-mono text-red-600">h6: extractText + slugify + generateUniqueId (12 行)</p>
+                </div>
+                <p class="text-[10px] text-red-500 mt-2 text-center">6 × 12 行 = 72 行 identical code</p>
+              </div>
+            </div>
+            <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <p class="text-xs uppercase tracking-wider text-slate-400 mb-3 font-semibold">After</p>
+              <div class="space-y-2">
+                <div class="h-16 border-2 border-slate-700 bg-slate-800 rounded-md flex items-center px-3 justify-between">
+                  <div>
+                    <p class="text-[10px] uppercase tracking-wider text-slate-200 font-semibold">createHeading(level, styleMap)</p>
+                    <p class="text-[9px] text-slate-400 mt-0.5">extractText + slugify + generateUniqueId</p>
+                  </div>
+                  <p class="text-[9px] text-slate-400">~18 行</p>
+                </div>
+                <div class="h-8 bg-emerald-50 border border-emerald-200 rounded flex items-center px-3">
+                  <p class="text-[9px] text-emerald-700 font-mono">h1: createHeading(1, styles) &nbsp; // 1 行</p>
+                </div>
+                <div class="h-8 bg-emerald-50 border border-emerald-200 rounded flex items-center px-3">
+                  <p class="text-[9px] text-emerald-700 font-mono">h2: createHeading(2, styles) &nbsp; // 1 行</p>
+                </div>
+                <div class="h-8 bg-emerald-50 border border-emerald-200 rounded flex items-center px-3">
+                  <p class="text-[9px] text-emerald-700 font-mono">h3–h6: createHeading(n, styles) // 1 行 each</p>
+                </div>
+                <p class="text-[10px] text-emerald-600 mt-1 text-center">Deep: 72 → 24 行，一处实现</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-3 text-sm">
+            <p><strong class="text-slate-700">Problem:</strong> Preview 中 h1–h6 各有一份完全相同的 extractText + slugify + generateUniqueId 代码（L134–L224），72 行 implementation 重复 6 次。改 extractText 逻辑需要同步改 6 处。</p>
+            <p><strong class="text-slate-700">Solution:</strong> 抽取 createHeadingComponent(level, styleMap) factory function，h1–h6 变为 1 行调用。</p>
+          </div>
+
+          <div class="mt-4">
+            <h3 class="text-xs uppercase tracking-wider text-slate-400 mb-2">Wins</h3>
+            <ul class="text-sm text-slate-600 space-y-1 list-disc list-inside">
+              <li><strong>Locality:</strong> heading ID 逻辑集中在一处</li>
+              <li>删除 ~54 行重复代码</li>
+              <li>降低 off-by-one 风险（当前 h4/h5/h6 都用 h3Style，是有意为之还是 bug？集中后一目了然）</li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- Candidate 4: backend.py monolith -->
+        <!-- ═══════════════════════════════════════════ -->
+        <article class="rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
+          <div class="flex items-center gap-3 mb-6">
+            <h2 class="text-xl font-bold">4. 拆分 backend.py 单文件 1084 行 module</h2>
+            <span class="inline-block px-2.5 py-0.5 text-xs font-medium rounded-full border bg-amber-100 text-amber-800 border-amber-200">Worth exploring</span>
+          </div>
+
+          <div class="mb-4">
+            <h3 class="text-xs uppercase tracking-wider text-slate-400 mb-2">Files</h3>
+            <code class="text-sm font-mono text-slate-600 block leading-relaxed">
+              backend/backend.py (1084 行, 38KB)
+            </code>
+          </div>
+
+          <!-- Before / After -->
+          <div class="grid grid-cols-2 gap-6 mb-6">
+            <div class="rounded-lg border border-slate-200 bg-white p-4">
+              <p class="text-xs uppercase tracking-wider text-slate-400 mb-3 font-semibold">Before</p>
+              <pre class="mermaid">
+flowchart TB
+  subgraph MONO["backend.py (1084 行)"]
+    E1["Exceptions (4 classes)"]
+    E2["Config validation"]
+    E3["OoXML helpers"]
+    E4["Inline formatting parser"]
+    E5["Element builders (heading/body/quote/list/code/table/hr/toc)"]
+    E6["Markdown line-by-line converter"]
+    E7["CLI entrypoint"]
+  end
+  classDef mono fill:#fef2f2,stroke:#ef4444
+  class MONO mono
+              </pre>
+              <p class="text-[10px] text-red-500 mt-2 text-center">7 个不同职责挤在一个文件中</p>
+            </div>
+            <div class="rounded-lg border border-slate-200 bg-white p-4">
+              <p class="text-xs uppercase tracking-wider text-slate-400 mb-3 font-semibold">After</p>
+              <pre class="mermaid">
+flowchart TB
+  CLI["cli.py (entrypoint)"] --> CONV["converter.py"]
+  CONV --> PARSE["parser.py (inline fmt)"]
+  CONV --> BUILD["elements.py (docx builders)"]
+  BUILD --> STYLE["styling.py (OoXML helpers)"]
+  CLI --> CONFIG["config.py (validation)"]
+  CLI --> ERR["errors.py (exceptions)"]
+  classDef deep fill:#0f172a,color:#e2e8f0,stroke:#334155
+  class CONV deep
+              </pre>
+              <p class="text-[10px] text-emerald-600 mt-2 text-center">每个 module 有清晰的 interface</p>
+            </div>
+          </div>
+
+          <div class="space-y-3 text-sm">
+            <p><strong class="text-slate-700">Problem:</strong> backend.py 把配置校验、OOXML 底层操作、Markdown 解析、元素构建、CLI 入口全部混在一个 1084 行文件中。修改 table rendering 需要在一个巨大文件中导航，找 inline formatting 解析器时需要跳过 700 行无关代码。测试只能黑盒调 convert()，无法单独测试 parse_inline_formatting。</p>
+            <p><strong class="text-slate-700">Solution:</strong> 按现有自然边界拆分为 6 个 modules：errors.py、config.py、styling.py、parser.py、elements.py、converter.py + cli.py 入口。</p>
+          </div>
+
+          <div class="mt-4">
+            <h3 class="text-xs uppercase tracking-wider text-slate-400 mb-2">Wins</h3>
+            <ul class="text-sm text-slate-600 space-y-1 list-disc list-inside">
+              <li><strong>Locality:</strong> table bug → elements.py; inline formatting → parser.py</li>
+              <li><strong>Leverage:</strong> parse_inline_formatting 可独立 unit test</li>
+              <li>不改变 interface（CLI 参数不变），对 PyInstaller build 透明</li>
+              <li>导航成本下降——7 个 150 行文件 vs 1 个 1084 行文件</li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- Candidate 5: aiConfigStore as useState not real store -->
+        <!-- ═══════════════════════════════════════════ -->
+        <article class="rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
+          <div class="flex items-center gap-3 mb-6">
+            <h2 class="text-xl font-bold">5. 把 hook-per-instance store 深化为真正的 singleton store</h2>
+            <span class="inline-block px-2.5 py-0.5 text-xs font-medium rounded-full border bg-slate-100 text-slate-600 border-slate-200">Speculative</span>
+          </div>
+
+          <div class="mb-4">
+            <h3 class="text-xs uppercase tracking-wider text-slate-400 mb-2">Files</h3>
+            <code class="text-sm font-mono text-slate-600 block leading-relaxed">
+              src/services/aiConfigStore.ts (154 行)<br/>
+              src/services/settingsStore.ts (134 行)
+            </code>
+          </div>
+
+          <!-- Before / After -->
+          <div class="grid grid-cols-2 gap-6 mb-6">
+            <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <p class="text-xs uppercase tracking-wider text-slate-400 mb-3 font-semibold">Before</p>
+              <div class="space-y-2">
+                <div class="border-2 border-orange-300 bg-orange-50 rounded-md p-3">
+                  <p class="text-[10px] font-semibold text-orange-700">useAIConfigStore()</p>
+                  <p class="text-[9px] text-orange-600 mt-1">每个调用方创建独立 useState</p>
+                  <p class="text-[9px] text-orange-600">通过 StorageEvent 跨实例同步</p>
+                  <p class="text-[9px] text-orange-600">full JSON parse/serialize on every sync</p>
+                </div>
+                <div class="flex gap-2">
+                  <div class="flex-1 h-10 border border-orange-200 bg-orange-50 rounded flex items-center justify-center">
+                    <p class="text-[9px] text-orange-600">App 实例</p>
+                  </div>
+                  <div class="flex-1 h-10 border border-orange-200 bg-orange-50 rounded flex items-center justify-center">
+                    <p class="text-[9px] text-orange-600">Header 实例</p>
+                  </div>
+                  <div class="flex-1 h-10 border border-orange-200 bg-orange-50 rounded flex items-center justify-center">
+                    <p class="text-[9px] text-orange-600">AITab 实例</p>
+                  </div>
+                </div>
+                <p class="text-[10px] text-orange-500 text-center">3 copies of state, synced via events</p>
+              </div>
+            </div>
+            <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <p class="text-xs uppercase tracking-wider text-slate-400 mb-3 font-semibold">After</p>
+              <div class="space-y-2">
+                <div class="border-2 border-slate-700 bg-slate-800 rounded-md p-3">
+                  <p class="text-[10px] font-semibold text-slate-200 uppercase tracking-wider">Zustand / useSyncExternalStore</p>
+                  <p class="text-[9px] text-slate-400 mt-1">单一 store 实例</p>
+                  <p class="text-[9px] text-slate-400">subscribe 触发精确 re-render</p>
+                </div>
+                <div class="flex gap-2">
+                  <div class="flex-1 h-10 border border-emerald-200 bg-emerald-50 rounded flex items-center justify-center">
+                    <p class="text-[9px] text-emerald-600">App ←subscribe</p>
+                  </div>
+                  <div class="flex-1 h-10 border border-emerald-200 bg-emerald-50 rounded flex items-center justify-center">
+                    <p class="text-[9px] text-emerald-600">Header ←subscribe</p>
+                  </div>
+                  <div class="flex-1 h-10 border border-emerald-200 bg-emerald-50 rounded flex items-center justify-center">
+                    <p class="text-[9px] text-emerald-600">AITab ←subscribe</p>
+                  </div>
+                </div>
+                <p class="text-[10px] text-emerald-600 text-center">1 source of truth, N subscribers</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-3 text-sm">
+            <p><strong class="text-slate-700">Problem:</strong> useAIConfigStore 和 useSettingsStore 使用 useState + StorageEvent 模拟全局 store。每个调用方各持一份状态副本，通过 JSON serialize/parse 同步。同一窗口内多个调用方出现状态短暂不一致（race condition），且每次 storage event 触发 full re-parse。</p>
+            <p><strong class="text-slate-700">Solution:</strong> 用 useSyncExternalStore（React 内置）或 Zustand 替换，实现真正的单例 store。跨窗口同步逻辑保持 StorageEvent 但只在 store 层面处理一次。</p>
+          </div>
+
+          <div class="mt-4">
+            <h3 class="text-xs uppercase tracking-wider text-slate-400 mb-2">Wins</h3>
+            <ul class="text-sm text-slate-600 space-y-1 list-disc list-inside">
+              <li><strong>Locality:</strong> 状态变更集中在 store module，不再每个 hook 实例各自同步</li>
+              <li>消除 race condition（单一 source of truth）</li>
+              <li>减少不必要的 JSON parse/serialize</li>
+            </ul>
+          </div>
+
+          <div class="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+            <p class="text-xs text-amber-800">⚠️ 标记为 Speculative：当前的 StorageEvent 同步在跨 Tauri WebviewWindow 的场景下工作正常，引入外部依赖（Zustand）需要权衡。如果只在单窗口内使用，用 React Context 或 useSyncExternalStore 就够了，无需新依赖。</p>
+          </div>
+        </article>
+
+      </section>
+
+      <!-- ═══════════════════════════════════════════ -->
+      <!-- Top Recommendation -->
+      <!-- ═══════════════════════════════════════════ -->
+      <section id="top-recommendation" class="rounded-xl border-2 border-emerald-300 bg-emerald-50 p-8">
+        <h2 class="text-xl font-bold text-emerald-900 mb-3">🏆 首先处理: 合并 AIConfig 的两个 near-clone modules (#2)</h2>
+        <p class="text-sm text-emerald-800">
+          这是回报最高且风险最低的 deepening。两个文件有 ~90% 代码重复，已经存在两个真实 adapter（Modal 和 Window），证明 seam 是真实的而非 hypothetical。抽取 useAIConfig hook 预计可以删除 ~700 行代码，并且由于 interface 已经是现成的（两个 adapter 消费的交集），提取过程几乎是机械性的。完成后自然暴露出 #1（App.tsx 拆解）的路径——因为 AI 配置的状态管理不再需要在 App 中 passthrough。
+        </p>
+        <p class="mt-3">
+          <a href="#candidates" class="text-sm text-emerald-700 underline">↑ 回到详细分析</a>
+        </p>
+      </section>
+
+      <!-- Summary table -->
+      <section class="rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
+        <h2 class="text-lg font-bold mb-4">Summary</h2>
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-slate-200">
+              <th class="text-left py-2 text-slate-500 font-medium">#</th>
+              <th class="text-left py-2 text-slate-500 font-medium">Candidate</th>
+              <th class="text-left py-2 text-slate-500 font-medium">Lines affected</th>
+              <th class="text-left py-2 text-slate-500 font-medium">Net deletion est.</th>
+              <th class="text-left py-2 text-slate-500 font-medium">Strength</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-slate-100">
+              <td class="py-2">1</td>
+              <td class="py-2">拆解 App.tsx 上帝 module</td>
+              <td class="py-2 font-mono text-xs">1055</td>
+              <td class="py-2 font-mono text-xs text-emerald-600">-200 (移入 hooks)</td>
+              <td class="py-2"><span class="text-emerald-700 font-medium">Strong</span></td>
+            </tr>
+            <tr class="border-b border-slate-100">
+              <td class="py-2">2</td>
+              <td class="py-2">合并 AIConfig near-clones</td>
+              <td class="py-2 font-mono text-xs">1794</td>
+              <td class="py-2 font-mono text-xs text-emerald-600">-700</td>
+              <td class="py-2"><span class="text-emerald-700 font-medium">Strong</span></td>
+            </tr>
+            <tr class="border-b border-slate-100">
+              <td class="py-2">3</td>
+              <td class="py-2">Preview heading clone 消除</td>
+              <td class="py-2 font-mono text-xs">90</td>
+              <td class="py-2 font-mono text-xs text-emerald-600">-54</td>
+              <td class="py-2"><span class="text-amber-700 font-medium">Worth exploring</span></td>
+            </tr>
+            <tr class="border-b border-slate-100">
+              <td class="py-2">4</td>
+              <td class="py-2">拆分 backend.py 单文件</td>
+              <td class="py-2 font-mono text-xs">1084</td>
+              <td class="py-2 font-mono text-xs text-slate-500">~0 (重组)</td>
+              <td class="py-2"><span class="text-amber-700 font-medium">Worth exploring</span></td>
+            </tr>
+            <tr>
+              <td class="py-2">5</td>
+              <td class="py-2">Store singleton 深化</td>
+              <td class="py-2 font-mono text-xs">288</td>
+              <td class="py-2 font-mono text-xs text-emerald-600">-40</td>
+              <td class="py-2"><span class="text-slate-500 font-medium">Speculative</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+    </main>
+  </body>
+</html>

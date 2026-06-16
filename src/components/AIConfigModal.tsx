@@ -3,6 +3,7 @@ import { AddLine, CloseLine, CheckLine, LoadingLine, PlayLine, Delete2Line, Edit
 import { AIProvider } from '../interfaces/AI';
 import { useAIConfig } from '../hooks/useAIConfig';
 import { ContextMenu } from './ui/ContextMenu';
+import { Switch } from './ui/switch';
 
 interface AIConfigModalProps {
   isOpen: boolean;
@@ -120,24 +121,11 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
                 }`}
               >
                 <span className="truncate pr-2">{provider.name}</span>
-                <div
-                  className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75 ${
-                    provider.isEnabled
-                      ? 'bg-brand-500 dark:bg-brand-600'
-                      : 'bg-gray-200 dark:bg-gray-600'
-                  }`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleToggleProvider(provider.id, !provider.isEnabled);
-                  }}
-                >
-                  <span
-                    aria-hidden="true"
-                    className={`${
-                      provider.isEnabled ? 'translate-x-4' : 'translate-x-0'
-                    } pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out`}
-                  />
-                </div>
+                <Switch
+                  checked={provider.isEnabled}
+                  onCheckedChange={(c) => handleToggleProvider(provider.id, c)}
+                  onClick={(e) => e.stopPropagation()}
+                />
               </div>
             ))}
           </div>
