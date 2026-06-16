@@ -1,6 +1,8 @@
 import React, { useRef, useState, useEffect, useLayoutEffect, useCallback } from 'react';
 import { ColorFilterLine, AlignLeftLine, AlignCenterLine, AlignRightLine, AlignJustifyLine, BoldFill, ItalicLine, FontLine, UnderlineLine, StrikethroughLine } from '@mingcute/react';
 import { Select } from '../../ui/Select';
+import { Toggle } from '../../ui/toggle';
+import { ToggleGroup, ToggleGroupItem } from '../../ui/toggle-group';
 import { Separator } from '@/components/ui/separator';
 import { ElementStyle, DocumentConfig } from '../../../interfaces/Config';
 import { STYLES, FONTS_CN, FONTS_EN, FONT_LABELS, FONT_SIZES, FONT_SIZES_PT, THEME_COLORS, STANDARD_COLORS } from '../constants';
@@ -167,34 +169,42 @@ export const HomeTab: React.FC<HomeTabProps> = ({
       {/* 格式设置 */}
       <div className={STYLES.groupClass}>
         <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-dark-element p-0.5 rounded border border-gray-100 dark:border-dark-border">
-          <button
-            onClick={() => updateStyle({ bold: !currentStyle.bold })}
-            className={`w-7 h-7 rounded flex items-center justify-center transition-colors ${currentStyle.bold ? 'bg-brand-100 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-dark-element-hover'}`}
+          <Toggle
+            size="sm"
+            pressed={currentStyle.bold || false}
+            onPressedChange={(pressed) => updateStyle({ bold: pressed })}
+            className="w-7 h-7 p-0 rounded hover:bg-gray-200 dark:hover:bg-dark-element-hover data-[state=on]:bg-brand-100 dark:data-[state=on]:bg-brand-900/30 data-[state=on]:text-brand-600 dark:data-[state=on]:text-brand-400"
             title="加粗"
           >
             <BoldFill className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => updateStyle({ italic: !currentStyle.italic })}
-            className={`w-7 h-7 rounded flex items-center justify-center transition-colors ${currentStyle.italic ? 'bg-brand-100 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-dark-element-hover'}`}
+          </Toggle>
+          <Toggle
+            size="sm"
+            pressed={currentStyle.italic || false}
+            onPressedChange={(pressed) => updateStyle({ italic: pressed })}
+            className="w-7 h-7 p-0 rounded hover:bg-gray-200 dark:hover:bg-dark-element-hover data-[state=on]:bg-brand-100 dark:data-[state=on]:bg-brand-900/30 data-[state=on]:text-brand-600 dark:data-[state=on]:text-brand-400"
             title="斜体"
           >
             <ItalicLine className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => updateStyle({ underline: !currentStyle.underline })}
-            className={`w-7 h-7 rounded flex items-center justify-center transition-colors ${currentStyle.underline ? 'bg-brand-100 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-dark-element-hover'}`}
+          </Toggle>
+          <Toggle
+            size="sm"
+            pressed={currentStyle.underline || false}
+            onPressedChange={(pressed) => updateStyle({ underline: pressed })}
+            className="w-7 h-7 p-0 rounded hover:bg-gray-200 dark:hover:bg-dark-element-hover data-[state=on]:bg-brand-100 dark:data-[state=on]:bg-brand-900/30 data-[state=on]:text-brand-600 dark:data-[state=on]:text-brand-400"
             title="下划线"
           >
             <UnderlineLine className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => updateStyle({ strike: !currentStyle.strike })}
-            className={`w-7 h-7 rounded flex items-center justify-center transition-colors ${currentStyle.strike ? 'bg-brand-100 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-dark-element-hover'}`}
+          </Toggle>
+          <Toggle
+            size="sm"
+            pressed={currentStyle.strike || false}
+            onPressedChange={(pressed) => updateStyle({ strike: pressed })}
+            className="w-7 h-7 p-0 rounded hover:bg-gray-200 dark:hover:bg-dark-element-hover data-[state=on]:bg-brand-100 dark:data-[state=on]:bg-brand-900/30 data-[state=on]:text-brand-600 dark:data-[state=on]:text-brand-400"
             title="删除线"
           >
             <StrikethroughLine className="w-4 h-4" />
-          </button>
+          </Toggle>
           <Separator orientation="vertical" className="h-4 mx-0.5" />
 
           {/* Color Picker */}
@@ -314,21 +324,29 @@ export const HomeTab: React.FC<HomeTabProps> = ({
 
       {/* 对齐方式 */}
       <div className={STYLES.groupClass}>
-        <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-dark-element p-0.5 rounded border border-gray-100 dark:border-dark-border">
+        <ToggleGroup
+          type="single"
+          value={currentStyle.alignment || 'left'}
+          onValueChange={(val) => {
+            if (val) updateStyle({ alignment: val as any });
+          }}
+          className="flex items-center gap-0.5 bg-gray-50 dark:bg-dark-element p-0.5 rounded border border-gray-100 dark:border-dark-border"
+        >
           {(['left', 'center', 'right', 'justify'] as const).map(align => (
-            <button
+            <ToggleGroupItem
               key={align}
-              onClick={() => updateStyle({ alignment: align })}
-              className={`w-7 h-7 rounded flex items-center justify-center transition-colors ${currentStyle.alignment === align ? 'bg-brand-100 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-dark-element-hover'}`}
+              value={align}
+              size="sm"
+              className="w-7 h-7 p-0 rounded hover:bg-gray-200 dark:hover:bg-dark-element-hover data-[state=on]:bg-brand-100 dark:data-[state=on]:bg-brand-900/30 data-[state=on]:text-brand-600 dark:data-[state=on]:text-brand-400"
               title={{ left: '左对齐', center: '居中', right: '右对齐', justify: '两端对齐' }[align]}
             >
               {align === 'left' && <AlignLeftLine className="w-4 h-4" />}
               {align === 'center' && <AlignCenterLine className="w-4 h-4" />}
               {align === 'right' && <AlignRightLine className="w-4 h-4" />}
               {align === 'justify' && <AlignJustifyLine className="w-4 h-4" />}
-            </button>
+            </ToggleGroupItem>
           ))}
-        </div>
+        </ToggleGroup>
       </div>
 
     </div>
