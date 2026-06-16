@@ -1,4 +1,4 @@
-import React, { CSSProperties, forwardRef } from 'react';
+import React, { CSSProperties, forwardRef, useMemo, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { PreviewProps } from '../types';
@@ -28,6 +28,40 @@ function buildFontFamily(cfg: PreviewProps['cfg'], elementFontFamily?: string): 
   return parts.join(', ');
 }
 
+function extractText(node: React.ReactNode): string {
+  if (typeof node === 'string') return node;
+  if (Array.isArray(node)) return node.map(extractText).join('');
+  if (React.isValidElement(node)) {
+    const el = node as React.ReactElement<{ children?: React.ReactNode }>;
+    return extractText(el.props.children);
+  }
+  return '';
+}
+
+function createHeadingComponent(
+  Tag: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6',
+  style: CSSProperties,
+  counter: Map<string, number>
+) {
+  return ({ children, ...props }: { children?: React.ReactNode; [key: string]: any }) => {
+    const text = extractText(children);
+    const baseId = text
+      ? text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\u00C0-\u024F\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af-]/g, '') || 'heading'
+      : 'heading';
+    const count = counter.get(baseId) || 0;
+    counter.set(baseId, count + 1);
+    const id = count === 0 ? baseId : `${baseId}-${count}`;
+    return <Tag {...props} id={id} style={{ ...style, textIndent: undefined }}>{children}</Tag>;
+  };
+}
+
+function normalizeLineSpacing(value: number | string): number | string {
+  if (typeof value === 'number') return value;
+  const ptMatch = value.match(/^([\d.]+)pt$/);
+  if (ptMatch) return ptToPx(parseFloat(ptMatch[1]));
+  return value;
+}
+
 function elementStyleToCss(cfg: PreviewProps['cfg'], style: PreviewProps['cfg']['styles']['body']): CSSProperties {
   return {
     fontFamily: buildFontFamily(cfg, style.fontFamily),
@@ -35,7 +69,7 @@ function elementStyleToCss(cfg: PreviewProps['cfg'], style: PreviewProps['cfg'][
     color: style.color,
     fontWeight: style.bold ? 700 : 400,
     fontStyle: style.italic ? 'italic' : 'normal',
-    lineHeight: style.lineSpacing,
+    lineHeight: normalizeLineSpacing(style.lineSpacing),
     marginTop: ptToPx(style.spaceBefore),
     marginBottom: ptToPx(style.spaceAfter),
     textAlign: style.alignment,
@@ -85,18 +119,200 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
   // 与 Word 后端一致的表头背景色
   const tableHeadBg = '#e5e7eb';
 
-  // Track heading IDs to handle duplicates - create fresh counter each render
-  // Using a ref that gets reset at render start ensures consistent IDs
-  const headingIdCounterRef = React.useRef<Map<string, number>>(new Map());
-  // Reset counter at the start of each render to ensure consistent IDs
-  headingIdCounterRef.current = new Map();
+  // Ref for heading ID deduplication — cleared each render, but the ref itself
+  // persists so memoized components always point to the same Map instance.
+  const headingIdCounterRef = useRef(new Map<string, number>());
+  headingIdCounterRef.current.clear();
 
-  const generateUniqueId = (baseId: string): string => {
-    const counter = headingIdCounterRef.current;
-    const count = counter.get(baseId) || 0;
-    counter.set(baseId, count + 1);
-    return count === 0 ? baseId : `${baseId}-${count}`;
-  };
+  // Memoize the entire components map so ReactMarkdown receives stable references.
+  // Without this, React unmounts and remounts every heading/paragraph/code block
+  // on each re-render, causing DOM thrash and losing text selection in long documents.
+  const markdownComponents = useMemo(() => ({
+    h1: createHeadingComponent('h1', h1Style, headingIdCounterRef.current),
+    h2: createHeadingComponent('h2', h2Style, headingIdCounterRef.current),
+    h3: createHeadingComponent('h3', h3Style, headingIdCounterRef.current),
+    // Config only defines h1/h2/h3 styles; backend falls back to h1 for h4-h6
+    h4: createHeadingComponent('h4', h1Style, headingIdCounterRef.current),
+    h5: createHeadingComponent('h5', h1Style, headingIdCounterRef.current),
+    h6: createHeadingComponent('h6', h1Style, headingIdCounterRef.current),
+    a: ({ href, onClick, ...props }: any) => {
+      const safeHref = typeof href === 'string' ? href : '';
+      const isInternal = safeHref.startsWith('#');
+      const handleClick: React.MouseEventHandler<HTMLAnchorElement> = async (e) => {
+        onClick?.(e);
+
+        // For in-page anchors, keep default behavior.
+        if (!safeHref || isInternal) return;
+
+        // Prevent navigating inside the preview webview (otherwise user can't go back).
+        e.preventDefault();
+        e.stopPropagation();
+
+        // Ask for confirmation before opening external link
+        let confirmed = false;
+        try {
+          const dialog = await import('@tauri-apps/plugin-dialog');
+          if (typeof dialog.ask === 'function') {
+            confirmed = await dialog.ask(`是否在浏览器中打开此链接？\n\n${safeHref}`, {
+              title: '打开外部链接',
+              kind: 'info',
+              okLabel: '打开',
+              cancelLabel: '取消'
+            });
+          } else {
+            confirmed = window.confirm(`是否在浏览器中打开此链接？\n\n${safeHref}`);
+          }
+        } catch {
+          confirmed = window.confirm(`是否在浏览器中打开此链接？\n\n${safeHref}`);
+        }
+
+        if (!confirmed) return;
+
+        // Open in system default browser (Tauri) or new tab (browser)
+        try {
+          const shell = await import('@tauri-apps/plugin-shell');
+          if (typeof shell.open === 'function') {
+            await shell.open(safeHref);
+            return;
+          }
+        } catch {
+          // Not running in Tauri / plugin unavailable.
+        }
+
+        window.open(safeHref, '_blank', 'noopener,noreferrer');
+      };
+
+      return (
+        <a
+          {...props}
+          href={safeHref}
+          onClick={handleClick}
+          target={isInternal ? undefined : "_blank"}
+          rel={isInternal ? undefined : "noopener noreferrer"}
+        />
+      );
+    },
+    p: ({ children, ...props }: any) => {
+      const firstChild = Array.isArray(children) ? children[0] : children;
+      const isTextStart = typeof firstChild === 'string';
+      // If paragraph starts with a non-string (Element), it likely starts with MD tag (Bold, etc).
+      // In this case, disable the first-line indent.
+      const style = isTextStart
+        ? bodyStyle
+        : { ...bodyStyle, textIndent: 0 };
+
+      return <p {...props} style={style}>{children}</p>;
+    },
+    li: (props: any) => <li {...props} style={{ ...bodyStyle, marginTop: 0, marginBottom: 0, textIndent: 0 }} />,
+    ul: (props: any) => <ul {...props} style={{ ...bodyStyle, paddingLeft: '1.5em', listStyleType: 'disc', marginTop: 0, marginBottom: ptToPx(cfg.styles.body.spaceAfter) }} />,
+    ol: (props: any) => <ol {...props} style={{ ...bodyStyle, paddingLeft: '1.5em', listStyleType: 'decimal', marginTop: 0, marginBottom: ptToPx(cfg.styles.body.spaceAfter) }} />,
+    blockquote: (props: any) => (
+      <blockquote
+        {...props}
+        style={{
+          ...quoteStyle,
+          // 与 Word 输出一致：只使用左缩进，不使用边框
+          marginLeft: '0.25in',
+          paddingLeft: 0,
+          textIndent: undefined
+        }}
+      />
+    ),
+    code: ({ className, children, node, ...props }: any) => {
+      // Detect if this is a fenced code block by checking:
+      // 1. node.position spans multiple lines (fenced blocks have opening/closing ```)
+      // 2. has language class
+      // 3. contains newlines in text
+      const startLine = node?.position?.start?.line ?? 0;
+      const endLine = node?.position?.end?.line ?? 0;
+      const spansMultipleLines = endLine > startLine;
+
+      const text =
+        typeof children === 'string'
+          ? children
+          : Array.isArray(children)
+            ? children.map((c: any) => (typeof c === 'string' ? c : '')).join('')
+            : '';
+
+      const hasNewline = text.includes('\n');
+      const hasLanguageClass = Boolean(className && /language-/.test(className));
+
+      // Fenced code blocks (``` ... ```) always span at least 3 lines in source,
+      // or have a language class, or contain newlines
+      const isFencedBlock = spansMultipleLines || hasLanguageClass || hasNewline;
+
+      return (
+        <code
+          {...props}
+          className={className}
+          style={
+            isFencedBlock
+              ? {
+                ...elementStyleToCss(cfg, cfg.styles.code),
+                fontFamily: buildFontFamily(cfg, cfg.styles.code.fontFamily),
+                backgroundColor: 'transparent',
+                padding: 0,
+                borderRadius: 0
+              }
+              : inlineCodeStyle
+          }
+        >
+          {children}
+        </code>
+      );
+    },
+    pre: (props: any) => <pre {...props} style={codeBlockStyle} />,
+    hr: (props: any) => {
+      const mode = cfg.global.horizontalRule || 'default';
+      if (mode === 'hidden') return null;
+      if (mode === 'page_break') {
+        return (
+          <div
+            {...props}
+            className="my-8 border-t border-dashed border-brand-300 relative h-0 select-none print:break-before-page"
+            title="此处将插入分页符"
+          >
+            <span className="absolute left-1/2 -top-2.5 -translate-x-1/2 bg-white dark:bg-dark-bg px-2 text-[10px] text-brand-400 font-mono tracking-widest uppercase">换页符</span>
+          </div>
+        );
+      }
+      return <hr {...props} className="my-6 border-t border-gray-300" />;
+    },
+    table: (props: any) => <table {...props} style={{ width: '100%', borderCollapse: 'collapse' }} />,
+    thead: (props: any) => <thead {...props} />,
+    tbody: (props: any) => <tbody {...props} />,
+    tr: (props: any) => <tr {...props} />,
+    th: (props: any) => (
+      <th
+        {...props}
+        style={{
+          ...bodyStyle,
+          border: tableBorder,
+          padding: '0.5rem 0.75rem',
+          backgroundColor: tableHeadBg,
+          fontWeight: 600,
+          textIndent: undefined,
+          // 与 Word 一致：默认左对齐，垂直居中
+          textAlign: 'left',
+          verticalAlign: 'middle'
+        }}
+      />
+    ),
+    td: (props: any) => (
+      <td
+        {...props}
+        style={{
+          ...bodyStyle,
+          border: tableBorder,
+          padding: '0.5rem 0.75rem',
+          textIndent: undefined,
+          // 与 Word 一致：默认左对齐，垂直居中
+          textAlign: 'left',
+          verticalAlign: 'middle'
+        }}
+      />
+    )
+  }), [h1Style, h2Style, h3Style, bodyStyle, quoteStyle, inlineCodeStyle, codeBlockStyle, tableBorder, tableHeadBg, cfg]);
 
   return (
     <div className="flex flex-col h-full bg-gray-100/50 dark:bg-dark-bg overflow-hidden relative transition-colors duration-200">
@@ -130,278 +346,7 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
             {markdown ? (
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
-                components={{
-                  h1: ({ children, ...props }) => {
-                    // Extract text from children recursively to support formatted headings
-                    const extractText = (node: React.ReactNode): string => {
-                      if (typeof node === 'string') return node;
-                      if (Array.isArray(node)) return node.map(extractText).join('');
-                      if (React.isValidElement(node)) {
-                        const el = node as React.ReactElement<{ children?: React.ReactNode }>;
-                        return extractText(el.props.children);
-                      }
-                      return '';
-                    };
-                    const text = extractText(children);
-                    const baseId = text ? text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\u00C0-\u024F\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af-]/g, '') || 'heading' : 'heading';
-                    const id = baseId ? generateUniqueId(baseId) : undefined;
-                    return <h1 {...props} id={id} style={{ ...h1Style, textIndent: undefined }}>{children}</h1>;
-                  },
-                  h2: ({ children, ...props }) => {
-                    const extractText = (node: React.ReactNode): string => {
-                      if (typeof node === 'string') return node;
-                      if (Array.isArray(node)) return node.map(extractText).join('');
-                      if (React.isValidElement(node)) {
-                        const el = node as React.ReactElement<{ children?: React.ReactNode }>;
-                        return extractText(el.props.children);
-                      }
-                      return '';
-                    };
-                    const text = extractText(children);
-                    const baseId = text ? text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\u00C0-\u024F\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af-]/g, '') || 'heading' : 'heading';
-                    const id = baseId ? generateUniqueId(baseId) : undefined;
-                    return <h2 {...props} id={id} style={{ ...h2Style, textIndent: undefined }}>{children}</h2>;
-                  },
-                  h3: ({ children, ...props }) => {
-                    const extractText = (node: React.ReactNode): string => {
-                      if (typeof node === 'string') return node;
-                      if (Array.isArray(node)) return node.map(extractText).join('');
-                      if (React.isValidElement(node)) {
-                        const el = node as React.ReactElement<{ children?: React.ReactNode }>;
-                        return extractText(el.props.children);
-                      }
-                      return '';
-                    };
-                    const text = extractText(children);
-                    const baseId = text ? text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\u00C0-\u024F\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af-]/g, '') || 'heading' : 'heading';
-                    const id = baseId ? generateUniqueId(baseId) : undefined;
-                    return <h3 {...props} id={id} style={{ ...h3Style, textIndent: undefined }}>{children}</h3>;
-                  },
-                  h4: ({ children, ...props }) => {
-                    const extractText = (node: React.ReactNode): string => {
-                      if (typeof node === 'string') return node;
-                      if (Array.isArray(node)) return node.map(extractText).join('');
-                      if (React.isValidElement(node)) {
-                        const el = node as React.ReactElement<{ children?: React.ReactNode }>;
-                        return extractText(el.props.children);
-                      }
-                      return '';
-                    };
-                    const text = extractText(children);
-                    const baseId = text ? text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\u00C0-\u024F\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af-]/g, '') || 'heading' : 'heading';
-                    const id = baseId ? generateUniqueId(baseId) : undefined;
-                    return <h4 {...props} id={id} style={{ ...h3Style, textIndent: undefined }}>{children}</h4>;
-                  },
-                  h5: ({ children, ...props }) => {
-                    const extractText = (node: React.ReactNode): string => {
-                      if (typeof node === 'string') return node;
-                      if (Array.isArray(node)) return node.map(extractText).join('');
-                      if (React.isValidElement(node)) {
-                        const el = node as React.ReactElement<{ children?: React.ReactNode }>;
-                        return extractText(el.props.children);
-                      }
-                      return '';
-                    };
-                    const text = extractText(children);
-                    const baseId = text ? text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\u00C0-\u024F\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af-]/g, '') || 'heading' : 'heading';
-                    const id = baseId ? generateUniqueId(baseId) : undefined;
-                    return <h5 {...props} id={id} style={{ ...h3Style, textIndent: undefined }}>{children}</h5>;
-                  },
-                  h6: ({ children, ...props }) => {
-                    const extractText = (node: React.ReactNode): string => {
-                      if (typeof node === 'string') return node;
-                      if (Array.isArray(node)) return node.map(extractText).join('');
-                      if (React.isValidElement(node)) {
-                        const el = node as React.ReactElement<{ children?: React.ReactNode }>;
-                        return extractText(el.props.children);
-                      }
-                      return '';
-                    };
-                    const text = extractText(children);
-                    const baseId = text ? text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\u00C0-\u024F\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af-]/g, '') || 'heading' : 'heading';
-                    const id = baseId ? generateUniqueId(baseId) : undefined;
-                    return <h6 {...props} id={id} style={{ ...h3Style, textIndent: undefined }}>{children}</h6>;
-                  },
-                  a: ({ href, onClick, ...props }) => {
-                    const safeHref = typeof href === 'string' ? href : '';
-                    const isInternal = safeHref.startsWith('#');
-                    const handleClick: React.MouseEventHandler<HTMLAnchorElement> = async (e) => {
-                      onClick?.(e);
-
-                      // For in-page anchors, keep default behavior.
-                      if (!safeHref || isInternal) return;
-
-                      // Prevent navigating inside the preview webview (otherwise user can't go back).
-                      e.preventDefault();
-                      e.stopPropagation();
-
-                      // Ask for confirmation before opening external link
-                      let confirmed = false;
-                      try {
-                        const dialog = await import('@tauri-apps/plugin-dialog');
-                        if (typeof dialog.ask === 'function') {
-                          confirmed = await dialog.ask(`是否在浏览器中打开此链接？\n\n${safeHref}`, {
-                            title: '打开外部链接',
-                            kind: 'info',
-                            okLabel: '打开',
-                            cancelLabel: '取消'
-                          });
-                        } else {
-                          // Fallback to browser confirm
-                          confirmed = window.confirm(`是否在浏览器中打开此链接？\n\n${safeHref}`);
-                        }
-                      } catch {
-                        // Not running in Tauri / plugin unavailable
-                        confirmed = window.confirm(`是否在浏览器中打开此链接？\n\n${safeHref}`);
-                      }
-
-                      if (!confirmed) return;
-
-                      // Open in system default browser (Tauri) or new tab (browser)
-                      try {
-                        const shell = await import('@tauri-apps/plugin-shell');
-                        if (typeof shell.open === 'function') {
-                          await shell.open(safeHref);
-                          return;
-                        }
-                      } catch {
-                        // Not running in Tauri / plugin unavailable.
-                      }
-
-                      window.open(safeHref, '_blank', 'noopener,noreferrer');
-                    };
-
-                    return (
-                      <a
-                        {...props}
-                        href={safeHref}
-                        onClick={handleClick}
-                        target={isInternal ? undefined : "_blank"}
-                        rel={isInternal ? undefined : "noopener noreferrer"}
-                      />
-                    );
-                  },
-                  p: ({ children, ...props }) => {
-                    const firstChild = Array.isArray(children) ? children[0] : children;
-                    const isTextStart = typeof firstChild === 'string';
-                    // If paragraph starts with a non-string (Element), it likely starts with MD tag (Bold, etc).
-                    // In this case, disable the first-line indent.
-                    const style = isTextStart
-                      ? bodyStyle
-                      : { ...bodyStyle, textIndent: 0 };
-
-                    return <p {...props} style={style}>{children}</p>;
-                  },
-                  li: (props) => <li {...props} style={{ ...bodyStyle, marginTop: 0, marginBottom: 0, textIndent: 0 }} />,
-                  ul: (props) => <ul {...props} style={{ ...bodyStyle, paddingLeft: '1.5em', listStyleType: 'disc', marginTop: 0, marginBottom: ptToPx(cfg.styles.body.spaceAfter) }} />,
-                  ol: (props) => <ol {...props} style={{ ...bodyStyle, paddingLeft: '1.5em', listStyleType: 'decimal', marginTop: 0, marginBottom: ptToPx(cfg.styles.body.spaceAfter) }} />,
-                  blockquote: (props) => (
-                    <blockquote
-                      {...props}
-                      style={{
-                        ...quoteStyle,
-                        // 与 Word 输出一致：只使用左缩进，不使用边框
-                        marginLeft: '0.25in',
-                        paddingLeft: 0,
-                        textIndent: undefined
-                      }}
-                    />
-                  ),
-                  code: ({ className, children, node, ...props }) => {
-                    // Detect if this is a fenced code block by checking:
-                    // 1. node.position spans multiple lines (fenced blocks have opening/closing ```)
-                    // 2. has language class
-                    // 3. contains newlines in text
-                    const startLine = node?.position?.start?.line ?? 0;
-                    const endLine = node?.position?.end?.line ?? 0;
-                    const spansMultipleLines = endLine > startLine;
-
-                    const text =
-                      typeof children === 'string'
-                        ? children
-                        : Array.isArray(children)
-                          ? children.map((c) => (typeof c === 'string' ? c : '')).join('')
-                          : '';
-
-                    const hasNewline = text.includes('\n');
-                    const hasLanguageClass = Boolean(className && /language-/.test(className));
-
-                    // Fenced code blocks (``` ... ```) always span at least 3 lines in source,
-                    // or have a language class, or contain newlines
-                    const isFencedBlock = spansMultipleLines || hasLanguageClass || hasNewline;
-
-                    return (
-                      <code
-                        {...props}
-                        className={className}
-                        style={
-                          isFencedBlock
-                            ? {
-                              ...elementStyleToCss(cfg, cfg.styles.code),
-                              fontFamily: buildFontFamily(cfg, cfg.styles.code.fontFamily),
-                              backgroundColor: 'transparent',
-                              padding: 0,
-                              borderRadius: 0
-                            }
-                            : inlineCodeStyle
-                        }
-                      >
-                        {children}
-                      </code>
-                    );
-                  },
-                  pre: (props) => <pre {...props} style={codeBlockStyle} />,
-                  hr: (props) => {
-                    const mode = cfg.global.horizontalRule || 'default';
-                    if (mode === 'hidden') return null;
-                    if (mode === 'page_break') {
-                      return (
-                        <div
-                          {...props}
-                          className="my-8 border-t border-dashed border-brand-300 relative h-0 select-none print:break-before-page"
-                          title="此处将插入分页符"
-                        >
-                          <span className="absolute left-1/2 -top-2.5 -translate-x-1/2 bg-white dark:bg-dark-bg px-2 text-[10px] text-brand-400 font-mono tracking-widest uppercase">换页符</span>
-                        </div>
-                      );
-                    }
-                    return <hr {...props} className="my-6 border-t border-gray-300" />;
-                  },
-                  table: (props) => <table {...props} style={{ width: '100%', borderCollapse: 'collapse' }} />,
-                  thead: (props) => <thead {...props} />,
-                  tbody: (props) => <tbody {...props} />,
-                  tr: (props) => <tr {...props} />,
-                  th: (props) => (
-                    <th
-                      {...props}
-                      style={{
-                        ...bodyStyle,
-                        border: tableBorder,
-                        padding: '0.5rem 0.75rem',
-                        backgroundColor: tableHeadBg,
-                        fontWeight: 600,
-                        textIndent: undefined,
-                        // 与 Word 一致：默认左对齐，垂直居中
-                        textAlign: 'left',
-                        verticalAlign: 'middle'
-                      }}
-                    />
-                  ),
-                  td: (props) => (
-                    <td
-                      {...props}
-                      style={{
-                        ...bodyStyle,
-                        border: tableBorder,
-                        padding: '0.5rem 0.75rem',
-                        textIndent: undefined,
-                        // 与 Word 一致：默认左对齐，垂直居中
-                        textAlign: 'left',
-                        verticalAlign: 'middle'
-                      }}
-                    />
-                  )
-                }}
+                components={markdownComponents}
               >
                 {markdown}
               </ReactMarkdown>

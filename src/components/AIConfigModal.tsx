@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback, useLayoutEffect, useRef } from 'react';
-import { Copy2Line, CloseLine, CheckLine, LoadingLine, AddLine, PlayLine, Delete2Line, Edit2Line, Eye2Line, EyeCloseLine } from '@mingcute/react';
-import { AIProvider, AIModel } from '../interfaces/AI';
-import { useInputContextMenu } from '../hooks/useInputContextMenu';
+import React, { useState, useEffect } from 'react';
+import { AddLine, CloseLine, CheckLine, LoadingLine, PlayLine, Delete2Line, Edit2Line, Copy2Line, Eye2Line, EyeCloseLine } from '@mingcute/react';
+import { AIProvider } from '../interfaces/AI';
+import { useAIConfig } from '../hooks/useAIConfig';
 import { ContextMenu } from './ui/ContextMenu';
 
 interface AIConfigModalProps {
@@ -21,52 +21,45 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
   currentModel,
   onSelectModel,
 }) => {
-  const [selectedProviderId, setSelectedProviderId] = useState<string>('');
-  const [showAddPlatform, setShowAddPlatform] = useState(false);
-  const [newPlatformName, setNewPlatformName] = useState('');
-  const [newPlatformUrl, setNewPlatformUrl] = useState('');
-  const [newPlatformDescription, setNewPlatformDescription] = useState('');
-  const [showAddModel, setShowAddModel] = useState(false);
-  const [newModelId, setNewModelId] = useState('');
-  const [newModelName, setNewModelName] = useState('');
-  
-  const [testingModelId, setTestingModelId] = useState<string | null>(null);
-  const [testResults, setTestResults] = useState<Record<string, {
-    status: 'success' | 'error';
-    message: string;
-    time?: number;
-  }>>({});
-
-  // Context menu state
-  const [modelContextMenu, setModelContextMenu] = useState<{ visible: boolean; x: number; y: number; model: AIModel | null }>({
-    visible: false,
-    x: 0,
-    y: 0,
-    model: null
+  const config = useAIConfig({
+    providers,
+    updateProviders: onUpdateProviders,
+    selectedModel: currentModel ?? null,
+    updateSelectedModel: (model) => {
+      if (model) {
+        onSelectModel(model);
+      } else {
+        onSelectModel({ providerId: '', modelId: '' });
+      }
+    },
   });
-  const modelContextMenuRef = useRef<HTMLDivElement | null>(null);
 
-  // Edit model state
-  const [showEditModel, setShowEditModel] = useState(false);
-  const [editingModel, setEditingModel] = useState<AIModel | null>(null);
-  const [editModelId, setEditModelId] = useState('');
-  const [editModelName, setEditModelName] = useState('');
-  const [showApiKey, setShowApiKey] = useState(false);
+  const {
+    selectedProviderId, setSelectedProviderId, selectedProvider,
+    handleToggleProvider, handleUpdateProvider,
+    showAddPlatform, setShowAddPlatform, isAddPlatformClosing,
+    newPlatformName, setNewPlatformName,
+    newPlatformUrl, setNewPlatformUrl,
+    newPlatformDescription, setNewPlatformDescription,
+    handleAddPlatform, closeAddPlatform,
+    showAddModel, setShowAddModel, isAddModelClosing,
+    newModelId, setNewModelId, newModelName, setNewModelName,
+    handleAddModel, closeAddModel,
+    showEditModel, isEditModelClosing,
+    editModelId, setEditModelId, editModelName, setEditModelName,
+    handleEditModel, handleSaveEditModel, closeEditModel,
+    showApiKey, setShowApiKey,
+    testingModelId, testResults,
+    handleSelectModel,
+    modelContextMenu, modelContextMenuRef,
+    handleModelContextMenu,
+    handleContextMenuTest, handleContextMenuDelete,
+    inputContextMenu, handleInputContextMenu, closeInputContextMenu,
+  } = config;
 
-  // Input context menu hook
-  const { contextMenu: inputContextMenu, handleInputContextMenu, closeContextMenu: closeInputContextMenu } = useInputContextMenu();
-
-  // Animation states
+  // Modal animation states
   const [shouldRender, setShouldRender] = useState(isOpen);
   const [isClosing, setIsClosing] = useState(false);
-  const [isAddPlatformClosing, setIsAddPlatformClosing] = useState(false);
-
-  // Initialize selected provider
-  useEffect(() => {
-    if (isOpen && !selectedProviderId && providers.length > 0) {
-      setSelectedProviderId(providers[0].id);
-    }
-  }, [isOpen, providers, selectedProviderId]);
 
   // Handle open/close animations
   useEffect(() => {
@@ -83,238 +76,10 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
     }
   }, [isOpen]);
 
-  const closeAddPlatform = () => {
-    setIsAddPlatformClosing(true);
-    setTimeout(() => {
-      setShowAddPlatform(false);
-      setIsAddPlatformClosing(false);
-    }, 200);
-  };
-
-  const selectedProvider = providers.find(p => p.id === selectedProviderId);
-
-  const handleTestModel = async (modelId: string) => {
-    if (!selectedProvider) return;
-    if (!selectedProvider.apiKey) {
-      setTestResults(prev => ({
-        ...prev,
-        [modelId]: { status: 'error', message: '请先配置 API Key' }
-      }));
-      return;
-    }
-
-    setTestingModelId(modelId);
-    setTestResults(prev => {
-      const next = { ...prev };
-      delete next[modelId];
-      return next;
-    });
-
-    const startTime = Date.now();
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000);
-
-      const response = await fetch(selectedProvider.baseUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${selectedProvider.apiKey}`
-        },
-        body: JSON.stringify({
-          model: modelId,
-          messages: [{ role: 'user', content: 'Say "Test success"' }],
-          max_tokens: 10,
-          stream: false
-        }),
-        signal: controller.signal
-      });
-
-      clearTimeout(timeoutId);
-      const endTime = Date.now();
-      const duration = endTime - startTime;
-
-      if (!response.ok) {
-        let errorMsg = `HTTP ${response.status}`;
-        try {
-          const errorData = await response.json();
-          if (errorData.error?.message) {
-            errorMsg = errorData.error.message;
-          }
-        } catch (e) {
-          // ignore
-        }
-        throw new Error(errorMsg);
-      }
-
-      setTestResults(prev => ({
-        ...prev,
-        [modelId]: {
-          status: 'success',
-          message: '测试成功',
-          time: duration
-        }
-      }));
-
-    } catch (error: any) {
-      setTestResults(prev => ({
-        ...prev,
-        [modelId]: {
-          status: 'error',
-          message: error.message || '连接失败'
-        }
-      }));
-    } finally {
-      setTestingModelId(null);
-    }
-  };
-
-  const handleToggleProvider = (id: string, checked: boolean) => {
-    const updated = providers.map(p => p.id === id ? { ...p, isEnabled: checked } : p);
-    onUpdateProviders(updated);
-  };
-
-  const handleUpdateProvider = useCallback((id: string, patch: Partial<AIProvider>) => {
-    const updated = providers.map(p => p.id === id ? { ...p, ...patch } : p);
-    onUpdateProviders(updated);
-  }, [providers, onUpdateProviders]);
-
-  const handleAddModel = () => {
-    if (!selectedProvider || !newModelId.trim()) return;
-    const newModel: AIModel = { id: newModelId.trim(), name: newModelName.trim() || newModelId.trim() };
-    handleUpdateProvider(selectedProvider.id, {
-      models: [...selectedProvider.models, newModel]
-    });
-    setNewModelId('');
-    setNewModelName('');
-    setShowAddModel(false);
-  };
-
-  const handleDeleteModel = useCallback((modelId: string) => {
-    if (!selectedProvider) return;
-    handleUpdateProvider(selectedProvider.id, {
-      models: selectedProvider.models.filter(m => m.id !== modelId)
-    });
-    // 如果删除的是当前选中的模型，需要处理
-    if (currentModel?.providerId === selectedProvider.id && currentModel?.modelId === modelId) {
-      onSelectModel({ providerId: '', modelId: '' }); // Or handle appropriately
-    }
-  }, [selectedProvider, handleUpdateProvider, currentModel, onSelectModel]);
-
-  const handleModelContextMenu = useCallback((e: React.MouseEvent, model: AIModel) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setModelContextMenu({
-      visible: true,
-      x: e.clientX,
-      y: e.clientY,
-      model
-    });
-  }, []);
-
-  const closeModelContextMenu = useCallback(() => {
-    setModelContextMenu(prev => ({ ...prev, visible: false }));
-  }, []);
-
-  const handleEditModel = useCallback(() => {
-    if (!modelContextMenu.model) return;
-    setEditingModel(modelContextMenu.model);
-    setEditModelId(modelContextMenu.model.id);
-    setEditModelName(modelContextMenu.model.name);
-    setShowEditModel(true);
-    closeModelContextMenu();
-  }, [modelContextMenu.model, closeModelContextMenu]);
-
-  const handleSaveEditModel = useCallback(() => {
-    if (!selectedProvider || !editingModel || !editModelId.trim()) return;
-    const updatedModels = selectedProvider.models.map(m =>
-      m.id === editingModel.id
-        ? { id: editModelId.trim(), name: editModelName.trim() || editModelId.trim() }
-        : m
-    );
-    handleUpdateProvider(selectedProvider.id, { models: updatedModels });
-    setShowEditModel(false);
-    setEditingModel(null);
-  }, [selectedProvider, editingModel, editModelId, editModelName, handleUpdateProvider]);
-
-  const handleCopyModel = useCallback(() => {
-    if (!selectedProvider || !modelContextMenu.model) return;
-    const original = modelContextMenu.model;
-    const newModel: AIModel = {
-      id: `${original.id}-copy`,
-      name: `${original.name} (副本)`
-    };
-    handleUpdateProvider(selectedProvider.id, {
-      models: [...selectedProvider.models, newModel]
-    });
-    closeModelContextMenu();
-  }, [selectedProvider, modelContextMenu.model, handleUpdateProvider, closeModelContextMenu]);
-
-  const handleContextMenuTest = useCallback(() => {
-    if (!modelContextMenu.model) return;
-    handleTestModel(modelContextMenu.model.id);
-    closeModelContextMenu();
-  }, [modelContextMenu.model, handleTestModel, closeModelContextMenu]);
-
-  const handleContextMenuDelete = useCallback(() => {
-    if (!modelContextMenu.model) return;
-    handleDeleteModel(modelContextMenu.model.id);
-    closeModelContextMenu();
-  }, [modelContextMenu.model, handleDeleteModel, closeModelContextMenu]);
-
-  // Close context menu on click outside
-  useEffect(() => {
-    const handleClick = () => {
-      if (modelContextMenu.visible) {
-        closeModelContextMenu();
-      }
-    };
-    document.addEventListener('click', handleClick);
-    return () => document.removeEventListener('click', handleClick);
-  }, [modelContextMenu.visible, closeModelContextMenu]);
-
-  useLayoutEffect(() => {
-    if (!modelContextMenu.visible) return;
-
-    requestAnimationFrame(() => {
-      if (!modelContextMenuRef.current) return;
-      const { offsetWidth, offsetHeight } = modelContextMenuRef.current;
-      const padding = 8;
-      const maxX = window.innerWidth - offsetWidth - padding;
-      const maxY = window.innerHeight - offsetHeight - padding;
-      const nextX = Math.max(padding, Math.min(modelContextMenu.x, maxX));
-      const nextY = Math.max(padding, Math.min(modelContextMenu.y, maxY));
-      if (nextX !== modelContextMenu.x || nextY !== modelContextMenu.y) {
-        setModelContextMenu(prev => prev.visible ? { ...prev, x: nextX, y: nextY } : prev);
-      }
-    });
-  }, [modelContextMenu.visible, modelContextMenu.x, modelContextMenu.y]);
-
-  const handleAddPlatform = () => {
-    if (!newPlatformName.trim()) return;
-    const newId = `custom-${Date.now()}`;
-    const newProvider: AIProvider = {
-      id: newId,
-      name: newPlatformName,
-      description: newPlatformDescription || undefined,
-      isEnabled: true,
-      apiKey: '',
-      baseUrl: newPlatformUrl || 'https://api.example.com/v1/chat/completions',
-      models: [],
-      isCustom: true
-    };
-    onUpdateProviders([...providers, newProvider]);
-    setSelectedProviderId(newId);
-    closeAddPlatform();
-    setNewPlatformName('');
-    setNewPlatformUrl('');
-    setNewPlatformDescription('');
-  };
-
   if (!shouldRender) return null;
 
   return (
-    <div 
+    <div
       className={`fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm ${isClosing ? 'animate-fade-out' : 'animate-fade-in'}`}
       onClick={onClose}
       onContextMenu={(e) => {
@@ -326,16 +91,16 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
         }
       }}
     >
-      <div 
+      <div
         className={`bg-white dark:bg-dark-surface w-[800px] h-[550px] rounded-xl shadow-2xl flex overflow-hidden border border-gray-200 dark:border-dark-border ${isClosing ? 'animate-scale-out' : 'animate-scale-in'}`}
         onClick={(e) => e.stopPropagation()}
       >
-        
+
         {/* Sidebar */}
         <div className="w-64 bg-gray-50 dark:bg-dark-bg border-r border-gray-200 dark:border-dark-border flex flex-col">
           <div className="h-14 px-4 flex items-center justify-between border-b border-gray-200 dark:border-dark-border bg-gray-50 dark:bg-dark-bg">
             <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200 pointer-events-none">AI 平台管理</h2>
-            <button 
+            <button
               onClick={() => setShowAddPlatform(true)}
               className="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-200 dark:hover:bg-dark-surface text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
               title="添加自定义平台"
@@ -355,10 +120,10 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
                 }`}
               >
                 <span className="truncate pr-2">{provider.name}</span>
-                <div 
+                <div
                   className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75 ${
-                    provider.isEnabled 
-                      ? 'bg-brand-500 dark:bg-brand-600' 
+                    provider.isEnabled
+                      ? 'bg-brand-500 dark:bg-brand-600'
                       : 'bg-gray-200 dark:bg-gray-600'
                   }`}
                   onClick={(e) => {
@@ -387,7 +152,7 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
                 <div className="flex-1 flex items-center">
                   <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 pointer-events-none">{selectedProvider.name}</h3>
                 </div>
-                <button 
+                <button
                   onClick={onClose}
                   className="w-8 h-8 grid place-items-center rounded-lg text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-element transition-colors"
                   aria-label="关闭"
@@ -412,7 +177,7 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
                       API 配置
                     </div>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <label className="text-xs font-medium text-gray-500 dark:text-gray-400">API Key</label>
                     <div className="relative">
@@ -478,7 +243,7 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
                             ? 'bg-brand-50 dark:bg-brand-900/20 border-brand-200 dark:border-brand-800 shadow-sm'
                             : 'bg-white dark:bg-dark-element border-gray-200 dark:border-dark-border hover:border-brand-300 dark:hover:border-brand-700 hover:shadow-sm'
                             }`}
-                          onClick={() => onSelectModel({ providerId: selectedProvider.id, modelId: model.id })}
+                          onClick={() => handleSelectModel(model)}
                           onContextMenu={(e) => handleModelContextMenu(e, model)}
                         >
                           <div className="flex flex-col">
@@ -488,7 +253,6 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            {/* 测试状态显示 */}
                             {isTesting && (
                               <span className="flex items-center gap-1 text-[10px] text-gray-500">
                                 <LoadingLine className="w-3 h-3 animate-spin" />
@@ -525,14 +289,14 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
 
         {/* Add Platform Modal (Nested) */}
         {(showAddPlatform || isAddPlatformClosing) && (
-          <div 
+          <div
             className={`absolute inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm ${isAddPlatformClosing ? 'animate-fade-out' : 'animate-fade-in'}`}
             onClick={(e) => {
               e.stopPropagation();
               closeAddPlatform();
             }}
           >
-            <div 
+            <div
               className={`bg-white dark:bg-dark-surface w-80 rounded-lg shadow-xl p-4 border border-gray-200 dark:border-dark-border ${isAddPlatformClosing ? 'animate-scale-out' : 'animate-scale-in'}`}
               onClick={(e) => e.stopPropagation()}
             >
@@ -583,7 +347,7 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
         )}
 
         {/* Add Model Modal */}
-        {showAddModel && (
+        {(showAddModel || isAddModelClosing) && (
           <div className="absolute inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm animate-fade-in">
             <div className="bg-white dark:bg-dark-surface w-80 rounded-lg shadow-xl p-4 border border-gray-200 dark:border-dark-border animate-scale-in">
               <h3 className="text-sm font-semibold mb-4 text-gray-800 dark:text-gray-100">添加模型</h3>
@@ -613,7 +377,7 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
                 </div>
                 <div className="flex justify-end gap-2 mt-4">
                   <button
-                    onClick={() => { setShowAddModel(false); setNewModelId(''); setNewModelName(''); }}
+                    onClick={closeAddModel}
                     className="px-3 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-element-hover rounded transition-colors"
                   >
                     取消
@@ -632,7 +396,7 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
         )}
 
         {/* Edit Model Modal */}
-        {showEditModel && (
+        {(showEditModel || isEditModelClosing) && (
           <div className="absolute inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm animate-fade-in">
             <div className="bg-white dark:bg-dark-surface w-80 rounded-lg shadow-xl p-4 border border-gray-200 dark:border-dark-border animate-scale-in">
               <h3 className="text-sm font-semibold mb-4 text-gray-800 dark:text-gray-100">编辑模型</h3>
@@ -662,7 +426,7 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
                 </div>
                 <div className="flex justify-end gap-2 mt-4">
                   <button
-                    onClick={() => { setShowEditModel(false); setEditingModel(null); }}
+                    onClick={closeEditModel}
                     className="px-3 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
                   >
                     取消
@@ -698,7 +462,7 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
             编辑模型
           </button>
           <button
-            onClick={handleCopyModel}
+            onClick={config.handleCopyModel}
             className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
             <Copy2Line className="w-3.5 h-3.5" />

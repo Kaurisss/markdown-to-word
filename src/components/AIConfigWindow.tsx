@@ -1,71 +1,52 @@
-import React, { useState, useEffect, useCallback, useLayoutEffect, useRef } from 'react';
-import { Copy2Line, CheckLine, LoadingLine, AddLine, PlayLine, Delete2Line, Settings1Line, Edit2Line, Eye2Line, EyeCloseLine } from '@mingcute/react';
-import { AIProvider, AIModel } from '../interfaces/AI';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Copy2Line, CheckLine, LoadingLine, AddLine, PlayLine, Delete2Line, Edit2Line, Eye2Line, EyeCloseLine } from '@mingcute/react';
 import { useAIConfigStore } from '../services/aiConfigStore';
+import { useAIConfig } from '../hooks/useAIConfig';
 import { ContextMenu } from './ui/ContextMenu';
-import { useInputContextMenu } from '../hooks/useInputContextMenu';
 
 export const AIConfigWindow: React.FC = () => {
   const { providers, updateProviders, selectedModel, updateSelectedModel } = useAIConfigStore();
 
-  const [selectedProviderId, setSelectedProviderId] = useState<string>('');
-  const [showAddPlatform, setShowAddPlatform] = useState(false);
-  const [isAddPlatformClosing, setIsAddPlatformClosing] = useState(false);
-  const [newPlatformName, setNewPlatformName] = useState('');
-  const [newPlatformUrl, setNewPlatformUrl] = useState('');
-  const [newPlatformDescription, setNewPlatformDescription] = useState('');
-  const [showEditPlatform, setShowEditPlatform] = useState(false);
-  const [isEditPlatformClosing, setIsEditPlatformClosing] = useState(false);
-  const [editingPlatformId, setEditingPlatformId] = useState('');
-  const [editPlatformName, setEditPlatformName] = useState('');
-  const [editPlatformUrl, setEditPlatformUrl] = useState('');
-  const [editPlatformDescription, setEditPlatformDescription] = useState('');
-  const [showAddModel, setShowAddModel] = useState(false);
-  const [isAddModelClosing, setIsAddModelClosing] = useState(false);
-  const [newModelId, setNewModelId] = useState('');
-  const [newModelName, setNewModelName] = useState('');
-
-  const [testingModelId, setTestingModelId] = useState<string | null>(null);
-  const [testResults, setTestResults] = useState<Record<string, {
-    status: 'success' | 'error';
-    message: string;
-    time?: number;
-  }>>({});
-
-  // Context menu state
-  const [modelContextMenu, setModelContextMenu] = useState<{ visible: boolean; x: number; y: number; model: AIModel | null }>({
-    visible: false,
-    x: 0,
-    y: 0,
-    model: null
+  const config = useAIConfig({
+    providers,
+    updateProviders,
+    selectedModel,
+    updateSelectedModel,
   });
-  const modelContextMenuRef = useRef<HTMLDivElement | null>(null);
-  const [platformContextMenu, setPlatformContextMenu] = useState<{ visible: boolean; x: number; y: number; provider: AIProvider | null }>({
-    visible: false,
-    x: 0,
-    y: 0,
-    provider: null
-  });
-  const platformContextMenuRef = useRef<HTMLDivElement | null>(null);
 
-  // Edit model state
-  const [showEditModel, setShowEditModel] = useState(false);
-  const [isEditModelClosing, setIsEditModelClosing] = useState(false);
-  const [editingModel, setEditingModel] = useState<AIModel | null>(null);
-  const [editModelId, setEditModelId] = useState('');
-  const [editModelName, setEditModelName] = useState('');
-  const [showApiKey, setShowApiKey] = useState(false);
+  const {
+    selectedProviderId, setSelectedProviderId, selectedProvider,
+    handleToggleProvider, handleUpdateProvider,
+    showAddPlatform, setShowAddPlatform, isAddPlatformClosing,
+    newPlatformName, setNewPlatformName,
+    newPlatformUrl, setNewPlatformUrl,
+    newPlatformDescription, setNewPlatformDescription,
+    handleAddPlatform, closeAddPlatform,
+    showEditPlatform, isEditPlatformClosing,
+    editPlatformName, setEditPlatformName,
+    editPlatformUrl, setEditPlatformUrl,
+    editPlatformDescription, setEditPlatformDescription,
+    handleSaveEditPlatform, closeEditPlatform,
+    showAddModel, setShowAddModel, isAddModelClosing,
+    newModelId, setNewModelId, newModelName, setNewModelName,
+    handleAddModel, closeAddModel,
+    showEditModel, isEditModelClosing,
+    editModelId, setEditModelId, editModelName, setEditModelName,
+    handleEditModel, handleSaveEditModel, closeEditModel,
+    showApiKey, setShowApiKey,
+    testingModelId, testResults,
+    handleSelectModel,
+    modelContextMenu, modelContextMenuRef,
+    handleModelContextMenu,
+    handleContextMenuTest, handleContextMenuDelete,
+    platformContextMenu, platformContextMenuRef,
+    handlePlatformContextMenu,
+    handlePlatformContextEdit, handlePlatformContextDelete,
+    inputContextMenu, handleInputContextMenu, closeInputContextMenu,
+  } = config;
+
+  // ── Window-only state ───────────────────────────────────────────────
   const [showInitialSkeleton, setShowInitialSkeleton] = useState(true);
-
-  // Input context menu hook
-  const { contextMenu: inputContextMenu, handleInputContextMenu, closeContextMenu: closeInputContextMenu } = useInputContextMenu();
-
-  // Initialize selected provider
-  useEffect(() => {
-    if (!selectedProviderId && providers.length > 0) {
-      setSelectedProviderId(providers[0].id);
-    }
-  }, [providers, selectedProviderId]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -74,358 +55,8 @@ export const AIConfigWindow: React.FC = () => {
     return () => window.clearTimeout(timer);
   }, []);
 
-  const selectedProvider = providers.find(p => p.id === selectedProviderId);
   const isBootstrapping = showInitialSkeleton && providers.length > 0;
   const skeletonBaseClass = 'animate-pulse rounded-md bg-gray-200 dark:bg-dark-element';
-
-  const handleTestModel = async (modelId: string) => {
-    if (!selectedProvider) return;
-    if (!selectedProvider.apiKey) {
-      setTestResults(prev => ({
-        ...prev,
-        [modelId]: { status: 'error', message: '请先配置 API Key' }
-      }));
-      return;
-    }
-
-    setTestingModelId(modelId);
-    setTestResults(prev => {
-      const next = { ...prev };
-      delete next[modelId];
-      return next;
-    });
-
-    const startTime = Date.now();
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000);
-
-      const response = await fetch(selectedProvider.baseUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${selectedProvider.apiKey}`
-        },
-        body: JSON.stringify({
-          model: modelId,
-          messages: [{ role: 'user', content: 'Say "Test success"' }],
-          max_tokens: 10,
-          stream: false
-        }),
-        signal: controller.signal
-      });
-
-      clearTimeout(timeoutId);
-      const endTime = Date.now();
-      const duration = endTime - startTime;
-
-      if (!response.ok) {
-        let errorMsg = `HTTP ${response.status}`;
-        try {
-          const errorData = await response.json();
-          if (errorData.error?.message) {
-            errorMsg = errorData.error.message;
-          }
-        } catch (e) {
-          // ignore
-        }
-        throw new Error(errorMsg);
-      }
-
-      setTestResults(prev => ({
-        ...prev,
-        [modelId]: {
-          status: 'success',
-          message: '测试成功',
-          time: duration
-        }
-      }));
-
-    } catch (error: any) {
-      setTestResults(prev => ({
-        ...prev,
-        [modelId]: {
-          status: 'error',
-          message: error.message || '连接失败'
-        }
-      }));
-    } finally {
-      setTestingModelId(null);
-    }
-  };
-
-  const handleToggleProvider = (id: string, checked: boolean) => {
-    const updated = providers.map(p => p.id === id ? { ...p, isEnabled: checked } : p);
-    updateProviders(updated);
-  };
-
-  const handleUpdateProvider = (id: string, patch: Partial<AIProvider>) => {
-    const updated = providers.map(p => p.id === id ? { ...p, ...patch } : p);
-    updateProviders(updated);
-  };
-
-  // 统一的弹窗关闭函数（带动画）
-  const closeAddPlatform = useCallback(() => {
-    setIsAddPlatformClosing(true);
-    setTimeout(() => {
-      setShowAddPlatform(false);
-      setIsAddPlatformClosing(false);
-    }, 200);
-  }, []);
-
-  const closeEditPlatform = useCallback(() => {
-    setIsEditPlatformClosing(true);
-    setTimeout(() => {
-      setShowEditPlatform(false);
-      setIsEditPlatformClosing(false);
-      setEditingPlatformId('');
-      setEditPlatformName('');
-      setEditPlatformUrl('');
-      setEditPlatformDescription('');
-    }, 200);
-  }, []);
-
-  const closeAddModel = useCallback(() => {
-    setIsAddModelClosing(true);
-    setTimeout(() => {
-      setShowAddModel(false);
-      setIsAddModelClosing(false);
-      setNewModelId('');
-      setNewModelName('');
-    }, 200);
-  }, []);
-
-  const closeEditModel = useCallback(() => {
-    setIsEditModelClosing(true);
-    setTimeout(() => {
-      setShowEditModel(false);
-      setIsEditModelClosing(false);
-      setEditingModel(null);
-    }, 200);
-  }, []);
-
-  const handleAddModel = () => {
-    if (!selectedProvider || !newModelId.trim()) return;
-    const newModel: AIModel = { id: newModelId.trim(), name: newModelName.trim() || newModelId.trim() };
-    handleUpdateProvider(selectedProvider.id, {
-      models: [...selectedProvider.models, newModel]
-    });
-    closeAddModel();
-  };
-
-  const handleDeleteModel = useCallback((modelId: string) => {
-    if (!selectedProvider) return;
-    handleUpdateProvider(selectedProvider.id, {
-      models: selectedProvider.models.filter(m => m.id !== modelId)
-    });
-    // 如果删除的是当前选中的模型，清除选择
-    if (selectedModel?.providerId === selectedProvider.id && selectedModel?.modelId === modelId) {
-      updateSelectedModel(null);
-    }
-  }, [selectedProvider, handleUpdateProvider, selectedModel, updateSelectedModel]);
-
-  const handleSelectModel = useCallback((model: AIModel) => {
-    if (!selectedProvider) return;
-    const isCurrentlySelected = selectedModel?.providerId === selectedProvider.id && selectedModel?.modelId === model.id;
-    if (isCurrentlySelected) {
-      // 再次点击取消选择
-      updateSelectedModel(null);
-    } else {
-      updateSelectedModel({ providerId: selectedProvider.id, modelId: model.id });
-    }
-  }, [selectedProvider, selectedModel, updateSelectedModel]);
-
-  const handleModelContextMenu = useCallback((e: React.MouseEvent, model: AIModel) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setModelContextMenu({
-      visible: true,
-      x: e.clientX,
-      y: e.clientY,
-      model
-    });
-  }, []);
-
-  const closeModelContextMenu = useCallback(() => {
-    setModelContextMenu(prev => ({ ...prev, visible: false }));
-  }, []);
-
-  const handleEditModel = useCallback(() => {
-    if (!modelContextMenu.model) return;
-    setEditingModel(modelContextMenu.model);
-    setEditModelId(modelContextMenu.model.id);
-    setEditModelName(modelContextMenu.model.name);
-    setShowEditModel(true);
-    closeModelContextMenu();
-  }, [modelContextMenu.model, closeModelContextMenu]);
-
-  const handleSaveEditModel = useCallback(() => {
-    if (!selectedProvider || !editingModel || !editModelId.trim()) return;
-    const updatedModels = selectedProvider.models.map(m =>
-      m.id === editingModel.id
-        ? { id: editModelId.trim(), name: editModelName.trim() || editModelId.trim() }
-        : m
-    );
-    handleUpdateProvider(selectedProvider.id, { models: updatedModels });
-    closeEditModel();
-  }, [selectedProvider, editingModel, editModelId, editModelName, handleUpdateProvider, closeEditModel]);
-
-  const handleCopyModel = useCallback(() => {
-    if (!selectedProvider || !modelContextMenu.model) return;
-    const original = modelContextMenu.model;
-    const newModel: AIModel = {
-      id: `${original.id}-copy`,
-      name: `${original.name} (副本)`
-    };
-    handleUpdateProvider(selectedProvider.id, {
-      models: [...selectedProvider.models, newModel]
-    });
-    closeModelContextMenu();
-  }, [selectedProvider, modelContextMenu.model, handleUpdateProvider, closeModelContextMenu]);
-
-  const handleContextMenuTest = useCallback(() => {
-    if (!modelContextMenu.model) return;
-    handleTestModel(modelContextMenu.model.id);
-    closeModelContextMenu();
-  }, [modelContextMenu.model, handleTestModel, closeModelContextMenu]);
-
-  const handleContextMenuDelete = useCallback(() => {
-    if (!modelContextMenu.model) return;
-    handleDeleteModel(modelContextMenu.model.id);
-    closeModelContextMenu();
-  }, [modelContextMenu.model, handleDeleteModel, closeModelContextMenu]);
-
-  const handlePlatformContextMenu = useCallback((e: React.MouseEvent, provider: AIProvider) => {
-    if (!provider.isCustom) return;
-    e.preventDefault();
-    e.stopPropagation();
-    setPlatformContextMenu({
-      visible: true,
-      x: e.clientX,
-      y: e.clientY,
-      provider
-    });
-  }, []);
-
-  const closePlatformContextMenu = useCallback(() => {
-    setPlatformContextMenu(prev => ({ ...prev, visible: false }));
-  }, []);
-
-  // Close context menu on click outside
-  useEffect(() => {
-    const handleClick = () => {
-      if (modelContextMenu.visible) {
-        closeModelContextMenu();
-      }
-      if (platformContextMenu.visible) {
-        closePlatformContextMenu();
-      }
-    };
-    document.addEventListener('click', handleClick);
-    return () => document.removeEventListener('click', handleClick);
-  }, [modelContextMenu.visible, closeModelContextMenu, platformContextMenu.visible, closePlatformContextMenu]);
-
-  useLayoutEffect(() => {
-    if (!modelContextMenu.visible) return;
-
-    requestAnimationFrame(() => {
-      if (!modelContextMenuRef.current) return;
-      const { offsetWidth, offsetHeight } = modelContextMenuRef.current;
-      const padding = 8;
-      const maxX = window.innerWidth - offsetWidth - padding;
-      const maxY = window.innerHeight - offsetHeight - padding;
-      const nextX = Math.max(padding, Math.min(modelContextMenu.x, maxX));
-      const nextY = Math.max(padding, Math.min(modelContextMenu.y, maxY));
-      if (nextX !== modelContextMenu.x || nextY !== modelContextMenu.y) {
-        setModelContextMenu(prev => prev.visible ? { ...prev, x: nextX, y: nextY } : prev);
-      }
-    });
-  }, [modelContextMenu.visible, modelContextMenu.x, modelContextMenu.y]);
-
-  useLayoutEffect(() => {
-    if (!platformContextMenu.visible) return;
-
-    requestAnimationFrame(() => {
-      if (!platformContextMenuRef.current) return;
-      const { offsetWidth, offsetHeight } = platformContextMenuRef.current;
-      const padding = 8;
-      const maxX = window.innerWidth - offsetWidth - padding;
-      const maxY = window.innerHeight - offsetHeight - padding;
-      const nextX = Math.max(padding, Math.min(platformContextMenu.x, maxX));
-      const nextY = Math.max(padding, Math.min(platformContextMenu.y, maxY));
-      if (nextX !== platformContextMenu.x || nextY !== platformContextMenu.y) {
-        setPlatformContextMenu(prev => prev.visible ? { ...prev, x: nextX, y: nextY } : prev);
-      }
-    });
-  }, [platformContextMenu.visible, platformContextMenu.x, platformContextMenu.y]);
-
-  const handleAddPlatform = () => {
-    if (!newPlatformName.trim()) return;
-    const newId = `custom-${Date.now()}`;
-    const newProvider: AIProvider = {
-      id: newId,
-      name: newPlatformName,
-      description: newPlatformDescription || undefined,
-      isEnabled: true,
-      apiKey: '',
-      baseUrl: newPlatformUrl || 'https://api.example.com/v1/chat/completions',
-      models: [],
-      isCustom: true
-    };
-    updateProviders([...providers, newProvider]);
-    setSelectedProviderId(newId);
-    closeAddPlatform();
-    setNewPlatformName('');
-    setNewPlatformUrl('');
-    setNewPlatformDescription('');
-  };
-
-  const handleStartEditPlatform = useCallback((provider: AIProvider) => {
-    if (!provider.isCustom) return;
-    setEditingPlatformId(provider.id);
-    setEditPlatformName(provider.name);
-    setEditPlatformUrl(provider.baseUrl);
-    setEditPlatformDescription(provider.description || '');
-    setShowEditPlatform(true);
-  }, []);
-
-  const handleSaveEditPlatform = useCallback(() => {
-    if (!editingPlatformId || !editPlatformName.trim()) return;
-    handleUpdateProvider(editingPlatformId, {
-      name: editPlatformName.trim(),
-      baseUrl: editPlatformUrl.trim() || 'https://api.example.com/v1/chat/completions',
-      description: editPlatformDescription.trim() || undefined
-    });
-    closeEditPlatform();
-  }, [editingPlatformId, editPlatformName, editPlatformUrl, editPlatformDescription, handleUpdateProvider, closeEditPlatform]);
-
-  const handleDeletePlatform = useCallback((provider: AIProvider) => {
-    if (!provider.isCustom) return;
-
-    const updatedProviders = providers.filter(p => p.id !== provider.id);
-    updateProviders(updatedProviders);
-
-    if (selectedProviderId === provider.id) {
-      const nextSelected = updatedProviders.find(p => p.id !== provider.id);
-      setSelectedProviderId(nextSelected?.id ?? '');
-    }
-
-    if (selectedModel?.providerId === provider.id) {
-      updateSelectedModel(null);
-    }
-  }, [providers, selectedProviderId, selectedModel, updateProviders, updateSelectedModel]);
-
-  const handlePlatformContextEdit = useCallback(() => {
-    if (!platformContextMenu.provider) return;
-    handleStartEditPlatform(platformContextMenu.provider);
-    closePlatformContextMenu();
-  }, [platformContextMenu.provider, handleStartEditPlatform, closePlatformContextMenu]);
-
-  const handlePlatformContextDelete = useCallback(() => {
-    if (!platformContextMenu.provider) return;
-    handleDeletePlatform(platformContextMenu.provider);
-    closePlatformContextMenu();
-  }, [platformContextMenu.provider, handleDeletePlatform, closePlatformContextMenu]);
 
   const runWindowAction = useCallback(async (action: 'close' | 'minimize') => {
     try {
@@ -434,6 +65,7 @@ export const AIConfigWindow: React.FC = () => {
       if (action === 'close') await currentWindow.close();
       if (action === 'minimize') await currentWindow.minimize();
     } catch {
+      // ignore
     }
   }, []);
 
@@ -450,7 +82,6 @@ export const AIConfigWindow: React.FC = () => {
       className="flex h-screen w-screen overflow-hidden bg-gray-50 dark:bg-dark-bg text-gray-800 dark:text-gray-100 font-sans select-none"
       onContextMenu={(e) => {
         const target = e.target as HTMLElement;
-        // Allow input context menu handler to work
         const isInputElement = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
         const isModelCard = target.closest('[data-model-card]');
         if (!isInputElement && !isModelCard) {
@@ -718,7 +349,6 @@ export const AIConfigWindow: React.FC = () => {
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          {/* 测试状态显示 */}
                           {isTesting && (
                             <span className="flex items-center gap-1 text-[10px] text-gray-500">
                               <LoadingLine className="w-3 h-3 animate-spin" />
@@ -965,7 +595,7 @@ export const AIConfigWindow: React.FC = () => {
             编辑模型
           </button>
           <button
-            onClick={handleCopyModel}
+            onClick={config.handleCopyModel}
             className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
             <Copy2Line className="w-3.5 h-3.5" />

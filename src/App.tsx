@@ -1,38 +1,31 @@
-﻿import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import Header from './components/Header';
 import Editor from './components/Editor';
 import Preview from './components/Preview';
 import SearchPopover from './components/SearchPopover';
 import Toast, { ToastType } from './components/Toast';
 import { StatusBar } from './components/StatusBar';
-import { save as saveDialog } from '@tauri-apps/plugin-dialog';
-import { DEFAULT_MARKDOWN } from './constants';
-import { ViewMode } from './types';
 import { DEFAULT_CONFIG } from './config/defaultConfig';
 import { DocumentConfig } from './interfaces/Config';
-import { exportWithPython, formatErrorMessage } from './services/pythonBackend';
-import { ContextMenu, ContextMenuItem } from './components/ui/ContextMenu';
-import { Copy2Line, ClipboardLine, ScissorsLine, Back2Line, Forward2Line, CheckboxLine } from '@mingcute/react';
+import { ViewMode } from './types';
+import { ContextMenu } from './components/ui/ContextMenu';
 import { AIConfigWindow } from './components/AIConfigWindow';
 import { SettingsWindow } from './components/SettingsWindow';
 import { useAIConfigStore } from './services/aiConfigStore';
-import { useSettingsStore, loadAutoSavedContent, saveAutoSaveContent } from './services/settingsStore';
+import { useSettingsStore } from './services/settingsStore';
 
-const INVALID_FILENAME_CHARS = /[<>:"/\\|?*\u0000-\u001F]/g;
-const MAX_BASENAME_LENGTH = 80;
-const MAX_HISTORY = 100;
-
-function sanitizeFilename(input: string, fallback: string): string {
-  const trimmed = input.trim().replace(INVALID_FILENAME_CHARS, '_');
-  const normalized = trimmed.replace(/\s+/g, ' ').replace(/_+/g, '_');
-  const safe = normalized.replace(/[. ]+$/g, '');
-  const clipped = safe.slice(0, MAX_BASENAME_LENGTH).replace(/[. ]+$/g, '');
-  return clipped.length > 0 ? clipped : fallback;
-}
+import { useEditorState } from './hooks/useEditorState';
+import { useSearchReplace } from './hooks/useSearchReplace';
+import { useContextMenu } from './hooks/useContextMenu';
+import { useFileDrop } from './hooks/useFileDrop';
+import { useExport } from './hooks/useExport';
+import { useTheme } from './hooks/useTheme';
+import { useScrollSync } from './hooks/useScrollSync';
+import { useAutoSave } from './hooks/useAutoSave';
 
 const App: React.FC = () => {
   // Simple router based on URL search params
-  const [isConfigWindow, setIsConfigWindow] = useState(() => {
+  const [isConfigWindow] = useState(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       return params.get('window') === 'config';
@@ -51,174 +44,95 @@ const App: React.FC = () => {
   const { providers, updateProviders, selectedModel, updateSelectedModel } = useAIConfigStore();
   const { settings: appSettings } = useSettingsStore();
 
-  const [content, setContent] = useState<string>(() => {
-    if (appSettings.autoSave) {
-      const saved = loadAutoSavedContent();
-      if (saved !== null) return saved;
-    }
-    return DEFAULT_MARKDOWN;
-  });
-  const lastContentRef = useRef<string>(content);
-  const undoStackRef = useRef<string[]>([]);
-  const redoStackRef = useRef<string[]>([]);
-  const [canUndo, setCanUndo] = useState(false);
-  const [canRedo, setCanRedo] = useState(false);
-  const [isExporting, setIsExporting] = useState<boolean>(false);
-  const [viewMode, setViewMode] = useState<ViewMode>(() => appSettings.defaultViewMode || 'split');
-  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-    if (typeof window === 'undefined') return 'light';
-    const params = new URLSearchParams(window.location.search);
-    const queryTheme = params.get('theme');
-    if (queryTheme === 'dark' || queryTheme === 'light') {
-      return queryTheme;
-    }
-    const stored = localStorage.getItem('app_theme');
-    return stored === 'dark' || stored === 'light' ? stored : 'light';
-  });
-  const [cfg, setCfg] = useState<DocumentConfig>(DEFAULT_CONFIG);
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [showSearch, setShowSearch] = useState<boolean>(false);
-  const [showReplace, setShowReplace] = useState<boolean>(false);
-  const [currentMatchIndex, setCurrentMatchIndex] = useState<number>(0);
-  const [replaceText, setReplaceText] = useState<string>('');
-  const [caseSensitive, setCaseSensitive] = useState<boolean>(false);
-  const [wholeWord, setWholeWord] = useState<boolean>(false);
-  const [useRegex, setUseRegex] = useState<boolean>(false);
+  // --- Custom hooks ---
+  const {
+    content,
+    canUndo,
+    canRedo,
+    updateContent,
+    undo,
+    redo,
+    handleEditorKeyDown,
+    undoStackRef,
+    redoStackRef,
+  } = useEditorState(appSettings.autoSave);
+
+  const {
+    searchQuery,
+    setSearchQuery,
+    showSearch,
+    setShowSearch,
+    showReplace,
+    setShowReplace,
+    currentMatchIndex,
+    setCurrentMatchIndex,
+    replaceText,
+    setReplaceText,
+    caseSensitive,
+    setCaseSensitive,
+    wholeWord,
+    setWholeWord,
+    useRegex,
+    setUseRegex,
+    handleReplace,
+    handleReplaceAll,
+    closeSearch,
+  } = useSearchReplace({ content, updateContent });
+
+  const editorRef = useRef<HTMLTextAreaElement>(null);
+  const previewRef = useRef<HTMLDivElement>(null);
+
   const [toast, setToast] = useState<{ message: string; type: ToastType; visible: boolean }>({
     message: '',
     type: 'success',
     visible: false
   });
 
-  const [isFileDragActive, setIsFileDragActive] = useState(false);
-  const fileDragCounterRef = useRef(0);
-  const isFirstThemePaintRef = useRef(true);
-  const hasShownMainWindowRef = useRef(false);
-
   const showToast = useCallback((message: string, type: ToastType = 'success') => {
     setToast({ message, type, visible: true });
   }, []);
 
-  const applyContent = useCallback((next: string) => {
-    lastContentRef.current = next;
-    setContent(next);
-  }, []);
+  const {
+    contextMenu,
+    handleContextMenu,
+    closeContextMenu,
+  } = useContextMenu({
+    content,
+    updateContent,
+    undo,
+    redo,
+    undoStackRef,
+    redoStackRef,
+    editorRef,
+    showToast,
+    isConfigWindow,
+  });
 
-  const syncHistoryState = useCallback(() => {
-    setCanUndo(undoStackRef.current.length > 0);
-    setCanRedo(redoStackRef.current.length > 0);
-  }, []);
+  const handleImport = useCallback((newContent: string) => {
+    updateContent(newContent);
+  }, [updateContent]);
 
-  const updateContent = useCallback((next: string) => {
-    const prev = lastContentRef.current;
-    if (next !== prev) {
-      undoStackRef.current.push(prev);
-      if (undoStackRef.current.length > MAX_HISTORY) {
-        undoStackRef.current.shift();
-      }
-      redoStackRef.current = [];
-      syncHistoryState();
-    }
-    applyContent(next);
-  }, [applyContent, syncHistoryState]);
+  const { isFileDragActive } = useFileDrop({
+    isConfigWindow,
+    showToast,
+    onImport: handleImport,
+  });
 
-  const undo = useCallback(() => {
-    if (undoStackRef.current.length === 0) return;
-    const previous = undoStackRef.current.pop();
-    if (previous === undefined) return;
-    const current = lastContentRef.current;
-    redoStackRef.current.push(current);
-    syncHistoryState();
-    applyContent(previous);
-  }, [applyContent, syncHistoryState]);
+  const [cfg, setCfg] = useState<DocumentConfig>(DEFAULT_CONFIG);
+  const [viewMode, setViewMode] = useState<ViewMode>(() => appSettings.defaultViewMode || 'split');
 
-  const redo = useCallback(() => {
-    if (redoStackRef.current.length === 0) return;
-    const next = redoStackRef.current.pop();
-    if (next === undefined) return;
-    const current = lastContentRef.current;
-    undoStackRef.current.push(current);
-    syncHistoryState();
-    applyContent(next);
-  }, [applyContent, syncHistoryState]);
+  const { isExporting, handleExport } = useExport({ content, cfg, showToast });
 
-  const handleEditorKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (!(e.ctrlKey || e.metaKey)) return;
-    const key = e.key.toLowerCase();
-    if (key === 'z') {
-      e.preventDefault();
-      if (e.shiftKey) {
-        redo();
-      } else {
-        undo();
-      }
-      return;
-    }
-    if (key === 'y') {
-      e.preventDefault();
-      redo();
-    }
-  }, [redo, undo]);
+  const { theme, setTheme } = useTheme({
+    isConfigWindow,
+    isSettingsWindow,
+    appSettingsTheme: appSettings.theme,
+  });
 
-  const buildSearchRegex = useCallback((query: string): RegExp | null => {
-    if (!query) return null;
-    try {
-      let pattern = query;
-      if (!useRegex) {
-        pattern = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      }
-      if (wholeWord && !useRegex) {
-        pattern = `\\b${pattern}\\b`;
-      }
-      const flags = caseSensitive ? 'g' : 'gi';
-      return new RegExp(pattern, flags);
-    } catch {
-      return null;
-    }
-  }, [caseSensitive, wholeWord, useRegex]);
+  useScrollSync({ viewMode, editorRef, previewRef });
+  useAutoSave({ content, autoSave: appSettings.autoSave });
 
-  const getMatches = useCallback((text: string) => {
-    if (!searchQuery || !searchQuery.trim()) return [];
-    const regex = buildSearchRegex(searchQuery.trim());
-    if (!regex) return [];
-    const found: { index: number; length: number }[] = [];
-    let match: RegExpExecArray | null;
-    regex.lastIndex = 0;
-    while ((match = regex.exec(text)) !== null) {
-      found.push({ index: match.index, length: match[0].length });
-      if (match[0].length === 0) {
-        regex.lastIndex++;
-      }
-    }
-    return found;
-  }, [searchQuery, buildSearchRegex]);
-
-  const handleReplace = useCallback(() => {
-    if (!searchQuery || !searchQuery.trim()) return;
-    const matches = getMatches(content);
-    if (matches.length === 0) return;
-    const index = Math.min(Math.max(currentMatchIndex, 0), matches.length - 1);
-    const match = matches[index];
-    const next = `${content.slice(0, match.index)}${replaceText}${content.slice(match.index + match.length)}`;
-    updateContent(next);
-    const newMatches = getMatches(next);
-    if (newMatches.length === 0) {
-      setCurrentMatchIndex(0);
-    } else {
-      setCurrentMatchIndex(Math.min(index, newMatches.length - 1));
-    }
-  }, [searchQuery, replaceText, content, currentMatchIndex, getMatches, updateContent]);
-
-  const handleReplaceAll = useCallback(() => {
-    if (!searchQuery || !searchQuery.trim()) return;
-    const regex = buildSearchRegex(searchQuery.trim());
-    if (!regex) return;
-    const next = content.replace(regex, replaceText);
-    updateContent(next);
-    setCurrentMatchIndex(0);
-  }, [searchQuery, replaceText, content, buildSearchRegex, updateContent]);
-
-  // Toolbar Actions
+  // Clipboard handlers
   const handleCopy = useCallback(async () => {
     const textarea = editorRef.current;
     if (!textarea) return;
@@ -280,353 +194,7 @@ const App: React.FC = () => {
     }
   }, [updateContent, showToast]);
 
-  // Context Menu State
-  const [contextMenu, setContextMenu] = useState<{ visible: boolean; x: number; y: number; items: ContextMenuItem[] }>({
-    visible: false,
-    x: 0,
-    y: 0,
-    items: []
-  });
-  const lastSelectionRef = useRef<Range | null>(null);
-  const lastSelectionRootRef = useRef<HTMLElement | null>(null);
-
-  useEffect(() => {
-    if (isConfigWindow) {
-      return;
-    }
-    const handleSelectionChange = () => {
-      const selection = window.getSelection();
-      if (!selection || selection.rangeCount === 0) return;
-      const anchorNode = selection.anchorNode;
-      const anchorElement = anchorNode instanceof Element ? anchorNode : anchorNode?.parentElement;
-      const editableRoot = anchorElement?.closest('[contenteditable="true"]') as HTMLElement | null;
-      if (!editableRoot) return;
-      lastSelectionRef.current = selection.getRangeAt(0).cloneRange();
-      lastSelectionRootRef.current = editableRoot;
-    };
-
-    document.addEventListener('selectionchange', handleSelectionChange);
-    return () => {
-      document.removeEventListener('selectionchange', handleSelectionChange);
-    };
-  }, [isConfigWindow]);
-
-  const handleContextMenu = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    const selection = window.getSelection();
-    const target = e.target as HTMLElement;
-    const textField = target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement ? target : null;
-    const editableRoot = target.closest('[contenteditable="true"]') as HTMLElement | null;
-    const isEditable = editableRoot !== null || textField !== null;
-    if (!isEditable) return;
-
-    const fieldSelectionStart = textField?.selectionStart ?? 0;
-    const fieldSelectionEnd = textField?.selectionEnd ?? 0;
-    const fieldSelectionText = textField?.value.slice(fieldSelectionStart, fieldSelectionEnd) ?? '';
-
-    const getEditableRange = () => {
-      if (textField || !editableRoot) return null;
-      if (selection && selection.rangeCount > 0) {
-        const range = selection.getRangeAt(0);
-        if (editableRoot.contains(range.startContainer)) {
-          return range;
-        }
-      }
-      if (lastSelectionRef.current && lastSelectionRootRef.current === editableRoot) {
-        return lastSelectionRef.current;
-      }
-      return null;
-    };
-
-    const rangeToRestore = getEditableRange();
-    let effectiveRange = rangeToRestore;
-    let selectionStart = fieldSelectionStart;
-    let selectionEnd = fieldSelectionEnd;
-    let selectionText = fieldSelectionText;
-
-    if (!textField && editableRoot && effectiveRange) {
-      const preRange = effectiveRange.cloneRange();
-      preRange.selectNodeContents(editableRoot);
-      preRange.setEnd(effectiveRange.startContainer, effectiveRange.startOffset);
-      selectionStart = preRange.toString().length;
-      selectionText = effectiveRange.toString();
-      selectionEnd = selectionStart + selectionText.length;
-    }
-
-    if (!textField && !selectionText && editableRoot && lastSelectionRef.current && lastSelectionRootRef.current === editableRoot) {
-      effectiveRange = lastSelectionRef.current;
-      const preRange = effectiveRange.cloneRange();
-      preRange.selectNodeContents(editableRoot);
-      preRange.setEnd(effectiveRange.startContainer, effectiveRange.startOffset);
-      selectionStart = preRange.toString().length;
-      selectionText = effectiveRange.toString();
-      selectionEnd = selectionStart + selectionText.length;
-    }
-
-    const hasSelection = selectionEnd > selectionStart;
-
-    const setEditableSelection = (start: number, end: number) => {
-      if (textField) {
-        textField.focus();
-        textField.setSelectionRange(start, end);
-        return;
-      }
-      if (!editableRoot || !selection) return;
-
-      const totalLength = editableRoot.textContent?.length ?? 0;
-      const clamp = (value: number) => Math.max(0, Math.min(value, totalLength));
-      const startOffset = clamp(start);
-      const endOffset = clamp(end);
-
-      const resolveNode = (offset: number) => {
-        const walker = document.createTreeWalker(editableRoot, NodeFilter.SHOW_TEXT);
-        let node = walker.nextNode() as Text | null;
-        let current = 0;
-        while (node) {
-          const length = node.textContent?.length ?? 0;
-          if (current + length >= offset) {
-            return { node, offset: offset - current };
-          }
-          current += length;
-          node = walker.nextNode() as Text | null;
-        }
-        return null;
-      };
-
-      const startLoc = resolveNode(startOffset);
-      const endLoc = resolveNode(endOffset) ?? startLoc;
-      const range = document.createRange();
-
-      if (!startLoc) {
-        range.setStart(editableRoot, 0);
-        range.collapse(true);
-      } else {
-        range.setStart(startLoc.node, startLoc.offset);
-        if (endLoc) {
-          range.setEnd(endLoc.node, endLoc.offset);
-        } else {
-          range.collapse(true);
-        }
-      }
-
-      selection.removeAllRanges();
-      selection.addRange(range);
-      editableRoot.focus();
-    };
-
-    const replaceTextFieldRange = (value: string) => {
-      if (!textField) return;
-      textField.focus();
-      textField.setRangeText(value, selectionStart, selectionEnd, 'end');
-      textField.dispatchEvent(new Event('input', { bubbles: true }));
-    };
-
-    const applyContentReplacement = (insertText: string) => {
-      const next = `${content.slice(0, selectionStart)}${insertText}${content.slice(selectionEnd)}`;
-      updateContent(next);
-      const nextOffset = selectionStart + insertText.length;
-      requestAnimationFrame(() => {
-        setEditableSelection(nextOffset, nextOffset);
-      });
-    };
-
-    const isEditorField = textField === editorRef.current;
-    const canUndo = isEditorField && undoStackRef.current.length > 0;
-    const canRedo = isEditorField && redoStackRef.current.length > 0;
-
-    const menuItems: ContextMenuItem[] = [
-      {
-        label: '撤回',
-        icon: <Back2Line className="w-4 h-4" />,
-        shortcut: 'Ctrl+Z',
-        disabled: !canUndo,
-        action: () => {
-          undo();
-        }
-      },
-      {
-        label: '重做',
-        icon: <Forward2Line className="w-4 h-4" />,
-        shortcut: 'Ctrl+Y',
-        disabled: !canRedo,
-        action: () => {
-          redo();
-        }
-      },
-      { separator: true },
-      {
-        label: '复制',
-        icon: <Copy2Line className="w-4 h-4" />,
-        shortcut: 'Ctrl+C',
-        disabled: !hasSelection,
-        action: async () => {
-          if (selectionText) {
-            await navigator.clipboard.writeText(selectionText);
-          }
-        }
-      },
-      {
-        label: '剪切',
-        icon: <ScissorsLine className="w-4 h-4" />,
-        shortcut: 'Ctrl+X',
-        disabled: !hasSelection || !isEditable,
-        action: async () => {
-          if (!selectionText) return;
-          await navigator.clipboard.writeText(selectionText);
-          if (textField) {
-            replaceTextFieldRange('');
-          } else {
-            applyContentReplacement('');
-          }
-        }
-      },
-      {
-        label: '粘贴',
-        icon: <ClipboardLine className="w-4 h-4" />,
-        shortcut: 'Ctrl+V',
-        disabled: !isEditable,
-        action: async () => {
-          try {
-            const text = await navigator.clipboard.readText();
-            if (!text) return;
-            if (textField) {
-              replaceTextFieldRange(text);
-            } else {
-              applyContentReplacement(text);
-            }
-          } catch (err) {
-            console.error('Failed to read clipboard:', err);
-            showToast('无法读取剪贴板', 'error');
-          }
-        }
-      },
-      { separator: true },
-      {
-        label: '全选',
-        icon: <CheckboxLine className="w-4 h-4" />,
-        shortcut: 'Ctrl+A',
-        action: () => {
-          if (textField) {
-            textField.focus();
-            textField.select();
-            return;
-          }
-          if (editableRoot) {
-            setEditableSelection(0, content.length);
-          }
-        }
-      }
-    ];
-
-    setContextMenu({
-      visible: true,
-      x: e.clientX,
-      y: e.clientY,
-      items: menuItems
-    });
-
-    if (!textField && editableRoot && selection && effectiveRange) {
-      requestAnimationFrame(() => {
-        selection.removeAllRanges();
-        selection.addRange(effectiveRange);
-        editableRoot.focus();
-      });
-    } else if (textField) {
-      requestAnimationFrame(() => {
-        textField.focus();
-        textField.setSelectionRange(selectionStart, selectionEnd);
-      });
-    }
-  }, [content, showToast, updateContent, undo, redo]);
-
-  const closeContextMenu = useCallback(() => {
-    setContextMenu(prev => ({ ...prev, visible: false }));
-  }, []);
-
-  const closeSearch = useCallback(() => {
-    setShowSearch(false);
-    setShowReplace(false);
-    setSearchQuery('');
-    setReplaceText('');
-    setCurrentMatchIndex(0);
-  }, []);
-
-  // Apply theme to document
-  useEffect(() => {
-    const isDark = theme === 'dark';
-    const root = document.documentElement;
-
-    let transitionTimer: number | undefined;
-    if (isFirstThemePaintRef.current) {
-      isFirstThemePaintRef.current = false;
-    } else {
-      root.classList.add('theme-switching');
-      transitionTimer = window.setTimeout(() => {
-        root.classList.remove('theme-switching');
-      }, 320);
-    }
-
-    if (theme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
-    root.style.backgroundColor = isDark ? '#1e1e1e' : '#f9fafb';
-    root.style.colorScheme = isDark ? 'dark' : 'light';
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('app_theme', theme);
-    }
-
-    const syncWindowBackground = async () => {
-      try {
-        const { getCurrentWindow } = await import('@tauri-apps/api/window');
-        const currentWindow = getCurrentWindow();
-        await currentWindow.setBackgroundColor(isDark ? '#1e1e1e' : '#f9fafb');
-        await currentWindow.setTheme(isDark ? 'dark' : 'light');
-        if (!isConfigWindow && !isSettingsWindow && !hasShownMainWindowRef.current) {
-          await currentWindow.show();
-          hasShownMainWindowRef.current = true;
-        }
-      } catch {
-        // Ignore when running in browser mode.
-        // If running in Tauri and the style sync failed, still try to show the main window once.
-        if (!isConfigWindow && !isSettingsWindow && !hasShownMainWindowRef.current) {
-          try {
-            const { getCurrentWindow } = await import('@tauri-apps/api/window');
-            await getCurrentWindow().show();
-            hasShownMainWindowRef.current = true;
-          } catch {
-            // noop
-          }
-        }
-      }
-    };
-
-    void syncWindowBackground();
-
-    return () => {
-      if (transitionTimer) window.clearTimeout(transitionTimer);
-    };
-  }, [theme, isConfigWindow, isSettingsWindow]);
-
-  // Keep main window theme synced with settings window changes.
-  useEffect(() => {
-    if (isConfigWindow || isSettingsWindow) return;
-    if (appSettings.theme !== theme) {
-      setTheme(appSettings.theme);
-    }
-  }, [appSettings.theme, theme, isConfigWindow, isSettingsWindow]);
-
-  // Auto-save content
-  useEffect(() => {
-    if (!appSettings.autoSave) return;
-    const timer = window.setTimeout(() => {
-      saveAutoSaveContent(content);
-    }, 1000);
-    return () => window.clearTimeout(timer);
-  }, [content, appSettings.autoSave]);
-
-  // Ctrl+F to open search
+  // Global keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Ctrl+A: avoid selecting the whole UI document; select editor content instead.
@@ -652,7 +220,7 @@ const App: React.FC = () => {
         e.preventDefault();
         setShowSearch(true);
       }
-      // Ctrl+H: 打开替换
+      // Ctrl+H: open replace
       if ((e.ctrlKey || e.metaKey) && e.key === 'h') {
         e.preventDefault();
         setShowSearch(true);
@@ -661,17 +229,17 @@ const App: React.FC = () => {
       if (e.key === 'Escape' && showSearch) {
         closeSearch();
       }
-      // Alt+C: 切换区分大小写
+      // Alt+C: toggle case sensitive
       if (e.altKey && e.key === 'c' && showSearch) {
         e.preventDefault();
         setCaseSensitive(prev => !prev);
       }
-      // Alt+W: 切换全字匹配
+      // Alt+W: toggle whole word
       if (e.altKey && e.key === 'w' && showSearch) {
         e.preventDefault();
         setWholeWord(prev => !prev);
       }
-      // Alt+R: 切换正则表达式
+      // Alt+R: toggle regex
       if (e.altKey && e.key === 'r' && showSearch) {
         e.preventDefault();
         setUseRegex(prev => !prev);
@@ -680,248 +248,7 @@ const App: React.FC = () => {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [closeSearch, showSearch, isConfigWindow, isSettingsWindow]);
-
-  // Reset match index when search query changes
-  useEffect(() => {
-    setCurrentMatchIndex(0);
-  }, [searchQuery]);
-
-  // 滚动同步相关 refs
-  const editorRef = useRef<HTMLTextAreaElement>(null);
-  const previewRef = useRef<HTMLDivElement>(null);
-  const isScrollingSyncRef = useRef<boolean>(false);
-
-  // Handle Import Logic
-  const handleImport = useCallback((newContent: string) => {
-    updateContent(newContent);
-  }, [updateContent]);
-
-  // 支持将 md/txt 文件直接拖入窗口导入
-  useEffect(() => {
-    if (isConfigWindow) {
-      return;
-    }
-
-    const isFileDrag = (e: DragEvent) => {
-      const dt = e.dataTransfer;
-      if (!dt) return false;
-      try {
-        const hasFiles = dt.files && dt.files.length > 0;
-        const hasFileItems = Array.from(dt.items || []).some(item => item.kind === 'file');
-        const hasFileType = Array.from(dt.types || []).includes('Files');
-        return hasFiles || hasFileItems || hasFileType;
-      } catch {
-        return false;
-      }
-    };
-
-    const isSupportedImportFile = (file: File) => {
-      const name = file.name.toLowerCase();
-      return name.endsWith('.md') || name.endsWith('.markdown') || name.endsWith('.txt');
-    };
-
-    const isSupportedImportPath = (path: string) => {
-      const lower = path.toLowerCase();
-      return lower.endsWith('.md') || lower.endsWith('.markdown') || lower.endsWith('.txt');
-    };
-
-    const handleDragEnter = (e: DragEvent) => {
-      if (!isFileDrag(e)) return;
-      e.preventDefault();
-      if (isConfigWindow) return;
-      fileDragCounterRef.current += 1;
-      setIsFileDragActive(true);
-    };
-
-    const handleDragOver = (e: DragEvent) => {
-      if (!isFileDrag(e)) return;
-      e.preventDefault();
-    };
-
-    const handleDragLeave = (e: DragEvent) => {
-      if (!isFileDrag(e)) return;
-      e.preventDefault();
-      fileDragCounterRef.current = Math.max(0, fileDragCounterRef.current - 1);
-      if (fileDragCounterRef.current === 0) {
-        setIsFileDragActive(false);
-      }
-    };
-
-    const handleDrop = async (e: DragEvent) => {
-      if (!isFileDrag(e)) return;
-      e.preventDefault();
-
-      fileDragCounterRef.current = 0;
-      setIsFileDragActive(false);
-      if (isConfigWindow) return;
-
-      const files = e.dataTransfer?.files;
-      const file = files && files.length > 0 ? files[0] : null;
-      if (!file) return;
-
-      if (!isSupportedImportFile(file)) {
-        showToast('仅支持拖入 .md / .markdown / .txt 文件', 'error');
-        return;
-      }
-
-      try {
-        const text = await file.text();
-        handleImport(text);
-        showToast(`已导入：${file.name}`);
-      } catch (err) {
-        console.error('Failed to import dropped file:', err);
-        showToast('导入失败：无法读取文件内容', 'error');
-      }
-    };
-
-    document.addEventListener('dragenter', handleDragEnter, true);
-    document.addEventListener('dragover', handleDragOver, true);
-    document.addEventListener('dragleave', handleDragLeave, true);
-    document.addEventListener('drop', handleDrop, true);
-
-    let unlistenTauriDrop: (() => void) | undefined;
-
-    const setupTauriFileDrop = async () => {
-      try {
-        const { getCurrentWebview } = await import('@tauri-apps/api/webview');
-        const { readTextFile } = await import('@tauri-apps/plugin-fs');
-        const webview = getCurrentWebview();
-
-        unlistenTauriDrop = await webview.onDragDropEvent(async ({ payload }) => {
-          if (payload.type === 'enter' || payload.type === 'over') {
-            setIsFileDragActive(true);
-            return;
-          }
-
-          if (payload.type === 'leave') {
-            setIsFileDragActive(false);
-            return;
-          }
-
-          if (payload.type !== 'drop') return;
-
-          setIsFileDragActive(false);
-          const filePath = payload.paths?.[0];
-          if (!filePath) return;
-
-          if (!isSupportedImportPath(filePath)) {
-            showToast('仅支持拖入 .md / .markdown / .txt 文件', 'error');
-            return;
-          }
-
-          try {
-            const text = await readTextFile(filePath);
-            handleImport(text);
-            const name = filePath.split(/[/\\]/).pop() ?? filePath;
-            showToast(`已导入：${name}`);
-          } catch (err) {
-            console.error('Failed to import dropped file:', err);
-            showToast('导入失败：无法读取文件内容', 'error');
-          }
-        });
-      } catch (err) {
-        console.debug('Tauri file drop not available', err);
-      }
-    };
-
-    setupTauriFileDrop();
-
-    return () => {
-      document.removeEventListener('dragenter', handleDragEnter, true);
-      document.removeEventListener('dragover', handleDragOver, true);
-      document.removeEventListener('dragleave', handleDragLeave, true);
-      document.removeEventListener('drop', handleDrop, true);
-      if (unlistenTauriDrop) unlistenTauriDrop();
-    };
-  }, [handleImport, isConfigWindow, showToast]);
-
-  // Handle Export Logic
-  // Requirements: 1.1 - Invoke Python_Backend with Markdown_Content and Style_Config
-  // Requirements: 2.1 - Serialize Style_Config to JSON format
-  // Requirements: 2.2 - Apply all specified styles to the generated document
-  const handleExport = useCallback(async () => {
-    if (!content.trim()) return;
-
-    setIsExporting(true);
-    try {
-      const headingMatch = content.match(/^#\s+(.+)$/m);
-      const dateStamp = new Date().toISOString().slice(0, 10);
-      const fallbackName = `文档_${dateStamp}`;
-      const title = headingMatch ? headingMatch[1] : fallbackName;
-      const suggested = `${sanitizeFilename(title, fallbackName)}.docx`;
-      const outPath = await saveDialog({
-        filters: [{ name: 'Word', extensions: ['docx'] }],
-        defaultPath: suggested
-      });
-      if (!outPath) return;
-
-      const result = await exportWithPython({
-        markdown: content,
-        outputPath: outPath,
-        config: cfg
-      });
-
-      if (!result.success) {
-        const errorMessage = formatErrorMessage(result);
-        console.error("导出失败:", errorMessage);
-        showToast(errorMessage, 'error');
-      } else {
-        showToast("生成成功！文档已保存。");
-      }
-
-    } catch (error) {
-      console.error("导出失败:", error);
-      showToast("导出过程中发生错误，请检查控制台详情。", 'error');
-    } finally {
-      setIsExporting(false);
-    }
-  }, [content, cfg, showToast]);
-
-  // 同步滚动 effect：仅在分屏模式下启用
-  useEffect(() => {
-    if (viewMode !== 'split') return;
-
-    const editor = editorRef.current;
-    const preview = previewRef.current;
-    if (!editor || !preview) return;
-
-    // 编辑区滚动时同步预览区
-    const handleEditorScroll = () => {
-      if (isScrollingSyncRef.current) return;
-      isScrollingSyncRef.current = true;
-
-      const editorScrollRatio = editor.scrollTop / (editor.scrollHeight - editor.clientHeight || 1);
-      const previewMaxScroll = preview.scrollHeight - preview.clientHeight;
-      preview.scrollTop = editorScrollRatio * previewMaxScroll;
-
-      requestAnimationFrame(() => {
-        isScrollingSyncRef.current = false;
-      });
-    };
-
-    // 预览区滚动时同步编辑区
-    const handlePreviewScroll = () => {
-      if (isScrollingSyncRef.current) return;
-      isScrollingSyncRef.current = true;
-
-      const previewScrollRatio = preview.scrollTop / (preview.scrollHeight - preview.clientHeight || 1);
-      const editorMaxScroll = editor.scrollHeight - editor.clientHeight;
-      editor.scrollTop = previewScrollRatio * editorMaxScroll;
-
-      requestAnimationFrame(() => {
-        isScrollingSyncRef.current = false;
-      });
-    };
-
-    editor.addEventListener('scroll', handleEditorScroll);
-    preview.addEventListener('scroll', handlePreviewScroll);
-
-    return () => {
-      editor.removeEventListener('scroll', handleEditorScroll);
-      preview.removeEventListener('scroll', handlePreviewScroll);
-    };
-  }, [viewMode]);
+  }, [closeSearch, showSearch, isConfigWindow, isSettingsWindow, setShowSearch, setShowReplace, setCaseSensitive, setWholeWord, setUseRegex]);
 
   const editorPaneClass = viewMode === 'split'
     ? 'w-1/2 opacity-100'
