@@ -168,7 +168,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
 
       {/* 格式设置 */}
       <div className={STYLES.groupClass}>
-        <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-dark-element p-0.5 rounded border border-gray-100 dark:border-dark-border">
+        <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-dark-element p-0.5 rounded-md border border-gray-100 dark:border-dark-border">
           <Toggle
             size="sm"
             pressed={currentStyle.bold || false}
@@ -330,7 +330,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
           onValueChange={(val) => {
             if (val) updateStyle({ alignment: val as any });
           }}
-          className="flex items-center gap-0.5 bg-gray-50 dark:bg-dark-element p-0.5 rounded border border-gray-100 dark:border-dark-border"
+          className="flex items-center gap-0.5 bg-gray-50 dark:bg-dark-element p-0.5 rounded-md border border-gray-100 dark:border-dark-border"
         >
           {(['left', 'center', 'right', 'justify'] as const).map(align => (
             <ToggleGroupItem
