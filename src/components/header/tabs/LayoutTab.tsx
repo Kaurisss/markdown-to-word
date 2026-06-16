@@ -34,7 +34,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({ cfg, onCfgChange, activeSt
             <input
               type="number"
               step="0.1"
-              className="h-7 w-16 pl-2 pr-6 text-[13px] border border-gray-300 dark:border-dark-border rounded bg-white dark:bg-dark-element text-gray-900 dark:text-gray-100 hover:border-gray-400 dark:hover:border-gray-500 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-colors"
+              className="h-8 w-16 pl-2 pr-6 text-[13px] border border-gray-300 dark:border-dark-border rounded-md bg-white dark:bg-dark-element text-gray-900 dark:text-gray-100 hover:border-gray-400 dark:hover:border-gray-500 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-colors"
               value={cfg.global.pageMargin}
               onChange={(e) => onCfgChange({ ...cfg, global: { ...cfg.global, pageMargin: Number(e.target.value) } })}
             />
@@ -85,7 +85,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({ cfg, onCfgChange, activeSt
       <div className={STYLES.groupClass}>
         <div className="flex flex-col gap-0.5">
           <span className={STYLES.labelClass}>目录</span>
-          <label className="flex items-center gap-2 cursor-pointer h-7 px-2 rounded border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-element hover:border-gray-400 dark:hover:border-gray-500 transition-colors">
+          <label className="flex items-center gap-2 cursor-pointer h-8 px-2 rounded-md border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-element hover:border-gray-400 dark:hover:border-gray-500 transition-colors">
             <input
               type="checkbox"
               checked={cfg.global.includeTableOfContents || false}
@@ -102,7 +102,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({ cfg, onCfgChange, activeSt
         <div className="flex gap-2">
           <div className="flex flex-col gap-0.5">
             <span className={STYLES.labelClass}>行距</span>
-            <div className="flex items-center border border-gray-300 dark:border-dark-border rounded bg-white dark:bg-dark-element overflow-visible h-7 w-24">
+            <div className="flex items-center border border-gray-300 dark:border-dark-border rounded-md bg-white dark:bg-dark-element overflow-visible h-8 w-24">
               <input
                 type="number"
                 step="0.1"
