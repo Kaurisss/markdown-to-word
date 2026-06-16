@@ -118,7 +118,7 @@ const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab as any} className="app-chrome relative z-50 flex-shrink-0 bg-white dark:bg-dark-bg border-b border-gray-200 dark:border-dark-border transition-colors duration-200">
+    <Tabs value={activeTab} onValueChange={setActiveTab as any} className="app-chrome relative z-50 flex-shrink-0 bg-white dark:bg-dark-bg border-b border-gray-200 dark:border-dark-border transition-colors duration-200 gap-0">
       <div className="h-10 bg-white dark:bg-dark-bg border-b border-gray-100 dark:border-dark-border flex items-stretch">
         <WindowBar
           activeTab={activeTab}
