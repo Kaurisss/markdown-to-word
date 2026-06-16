@@ -142,6 +142,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             value={currentStyle.fontFamily || ''}
             onChange={(val) => updateStyle({ fontFamily: val })}
             placeholder="字体"
+            showSearch
             options={[
               { label: '默认字体', value: '' },
               ...FONTS_CN.concat(FONTS_EN).map(f => ({

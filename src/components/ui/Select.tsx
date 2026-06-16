@@ -205,6 +205,7 @@ export interface SelectProps {
   placeholder?: string;
   disabled?: boolean;
   variant?: 'default' | 'ghost';
+  showSearch?: boolean;
 }
 
 export const Select: React.FC<SelectProps> = ({
@@ -217,6 +218,7 @@ export const Select: React.FC<SelectProps> = ({
   placeholder = '请选择',
   disabled = false,
   variant = 'default',
+  showSearch = false,
 }) => {
   const [open, setOpen] = React.useState(false);
   const selected = options.find((option) => option.value === value);
@@ -242,9 +244,9 @@ export const Select: React.FC<SelectProps> = ({
             <ChevronDownIcon className="size-3.5 opacity-50 shrink-0" />
           </button>
         </PopoverTrigger>
-        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 shadow-xl" align="start">
+        <PopoverContent className={cn("p-0 shadow-xl min-w-[var(--radix-popover-trigger-width)]", showSearch ? "w-56" : "w-[var(--radix-popover-trigger-width)]")} align="start">
           <Command>
-            <CommandInput placeholder="搜索..." className="h-9 text-[13px]" />
+            {showSearch && <CommandInput placeholder="搜索..." className="h-9 text-[13px]" />}
             <CommandList className="max-h-60 custom-scrollbar">
               <CommandEmpty>未找到结果</CommandEmpty>
               <CommandGroup>
@@ -258,15 +260,15 @@ export const Select: React.FC<SelectProps> = ({
                     }}
                     className={cn('text-[13px] py-1.5 px-2 cursor-pointer', optionClassName)}
                   >
-                    <CheckIcon
-                      className={cn(
-                        "mr-2 size-3.5",
-                        value === option.value ? "opacity-100" : "opacity-0"
-                      )}
-                    />
                     <span style={option.fontFamily ? { fontFamily: `"${option.fontFamily}"` } : undefined} className="truncate">
                       {option.label}
                     </span>
+                    <CheckIcon
+                      className={cn(
+                        "ml-auto size-3.5 shrink-0",
+                        value === option.value ? "opacity-100" : "opacity-0"
+                      )}
+                    />
                   </CommandItem>
                 ))}
               </CommandGroup>

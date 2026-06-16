@@ -51,6 +51,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({ cfg, onCfgChange, activeSt
             className="w-40"
             value={cfg.global.baseFontEn}
             onChange={(val) => onCfgChange({ ...cfg, global: { ...cfg.global, baseFontEn: val } })}
+            showSearch
             options={[
               { label: '跟随中文', value: '' },
               ...FONTS_EN.map(f => ({
