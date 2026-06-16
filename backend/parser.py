@@ -4,91 +4,74 @@ import re
 from typing import Any, Dict, Optional
 
 
+def _inline_segment(
+    text: str,
+    *,
+    bold: bool = False,
+    italic: bool = False,
+    code: bool = False,
+    underline: bool = False,
+    strike: bool = False,
+    link: Optional[str] = None,
+) -> Dict[str, Any]:
+    return {
+        "text": text,
+        "bold": bold,
+        "italic": italic,
+        "code": code,
+        "underline": underline,
+        "strike": strike,
+        "link": link,
+    }
+
+
 def parse_inline_formatting(text: str) -> list[Dict[str, Any]]:
     """
     Parse inline formatting from text and return a list of segments.
-    Each segment has: text, bold, italic, code, link (url or None)
+    Each segment has: text, bold, italic, code, underline, strike, link
 
-    Supports: **bold**, *italic*, `code`, [text](url)
+    Supports: ~~strike~~, <u>underline</u>, **bold**, *italic*, `code`, [text](url)
     """
     segments = []
 
-    # Combined pattern for all inline formatting
-    # Order matters: bold (**) before italic (*) to avoid conflicts
-    # Using non-greedy matching and proper escaping
-    pattern = r'(\*\*(.+?)\*\*)|(?<!\*)(\*([^*]+?)\*)(?!\*)|(`([^`]+)`)|(\[([^\]]+)\]\(([^)]+)\))'
+    pattern = (
+        r"(~~(.+?)~~)"
+        r"|(<u>(.+?)</u>)"
+        r"|(\*\*(.+?)\*\*)"
+        r"|(?<!\*)(\*([^*]+?)\*)(?!\*)"
+        r"|(`([^`]+)`)"
+        r"|(\[([^\]]+)\]\(([^)]+)\))"
+    )
 
     last_end = 0
     for match in re.finditer(pattern, text):
-        # Add any text before this match as plain text
         if match.start() > last_end:
             plain_text = text[last_end:match.start()]
             if plain_text:
-                segments.append({
-                    'text': plain_text,
-                    'bold': False,
-                    'italic': False,
-                    'code': False,
-                    'link': None
-                })
+                segments.append(_inline_segment(plain_text))
 
-        # Determine which group matched
-        if match.group(1):  # Bold: **text**
-            segments.append({
-                'text': match.group(2),
-                'bold': True,
-                'italic': False,
-                'code': False,
-                'link': None
-            })
-        elif match.group(3):  # Italic: *text*
-            segments.append({
-                'text': match.group(4),
-                'bold': False,
-                'italic': True,
-                'code': False,
-                'link': None
-            })
-        elif match.group(5):  # Code: `text`
-            segments.append({
-                'text': match.group(6),
-                'bold': False,
-                'italic': False,
-                'code': True,
-                'link': None
-            })
-        elif match.group(7):  # Link: [text](url)
-            segments.append({
-                'text': match.group(8),
-                'bold': False,
-                'italic': False,
-                'code': False,
-                'link': match.group(9)
-            })
+        if match.group(1):        # Strikethrough: ~~text~~
+            segments.append(_inline_segment(match.group(2), strike=True))
+        elif match.group(3):      # Underline: <u>text</u>
+            segments.append(_inline_segment(match.group(4), underline=True))
+        elif match.group(5):      # Bold: **text**
+            segments.append(_inline_segment(match.group(6), bold=True))
+        elif match.group(7):      # Italic: *text*
+            segments.append(_inline_segment(match.group(8), italic=True))
+        elif match.group(9):      # Code: `text`
+            segments.append(_inline_segment(match.group(10), code=True))
+        elif match.group(11):     # Link: [text](url)
+            segments.append(_inline_segment(match.group(12), link=match.group(13)))
 
         last_end = match.end()
 
-    # Add any remaining text after the last match
     if last_end < len(text):
         remaining = text[last_end:]
         if remaining:
-            segments.append({
-                'text': remaining,
-                'bold': False,
-                'italic': False,
-                'code': False,
-                'link': None
-            })
+            segments.append(_inline_segment(remaining))
 
-    # If no formatting found, return the whole text as plain
     if not segments:
-        segments.append({
-            'text': text,
-            'bold': False,
-            'italic': False,
-            'code': False,
-            'link': None
-        })
+        segments.append(_inline_segment(text))
 
     return segments
 

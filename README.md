@@ -29,12 +29,12 @@
 ## 快速开始
 ```bash
 pnpm install
-pnpm run tauri:dev
+pnpm run dev:tauri
 ```
 
 说明：
-- `npm run tauri:dev` 会自动启动 Vite 开发服务器（端口 `3000`）并运行桌面窗口。
-- 如仅调试前端页面，可使用 `npm run dev`。
+- `pnpm run dev:tauri` 会自动启动 Vite 开发服务器并运行桌面窗口。
+- 如仅调试前端页面，可使用 `pnpm run dev`。
 
 ## 常用命令
 ```bash

@@ -12,19 +12,19 @@
 ## Build, Test, and Development Commands
 
 ```bash
-npm install
-npm run dev          # Vite dev server
-npm run tauri:dev    # run desktop app
+pnpm install
+pnpm run dev             # Vite dev server
+pnpm run dev:tauri       # run desktop app
 
-npm run build        # Vite production build -> dist/
-npm run tauri:build  # build desktop bundles
-npm run inno:build   # build Windows installer (requires iscc)
+pnpm run build           # Vite production build -> dist/
+pnpm run build:tauri     # build desktop bundles
+pnpm run build:installer # build Windows installer (requires iscc)
 
-npm test             # Vitest (one-shot)
-npm run lint         # ESLint for .ts/.tsx
-npm run typecheck    # tsc --noEmit
+pnpm test                # Vitest (one-shot)
+pnpm run lint            # ESLint for .ts/.tsx
+pnpm run typecheck       # tsc --noEmit
 
-npm run build:python # PyInstaller backend -> src-tauri/binaries/
+pnpm run build:backend   # PyInstaller backend -> src-tauri/binaries/
 ```
 
 ## Coding Style & Naming Conventions
@@ -41,7 +41,7 @@ npm run build:python # PyInstaller backend -> src-tauri/binaries/
 
 - Use Conventional Commits: `feat:`, `fix:`, `refactor:`, `docs:`, `style:`; optional scope is common (e.g., `feat(ai-tab): ...`).
 - PRs include: what/why, how to test, and screenshots/GIFs for UI changes.
-- If you change `backend/`, rebuild and commit the updated binary in `src-tauri/binaries/` (`npm run build:python`), and note it in the PR.
+- If you change `backend/`, rebuild and commit the updated binary in `src-tauri/binaries/` (`pnpm run build:backend`), and note it in the PR.
 - Do not commit generated output (`dist/`, `build/`, `src-tauri/target/`, `*.docx`).
 
 ## Security & Configuration

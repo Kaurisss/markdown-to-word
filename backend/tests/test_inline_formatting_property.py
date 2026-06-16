@@ -195,3 +195,63 @@ def test_inline_formatting_renders_to_docx(bold_text):
                     break
         
         assert found_bold, f"Bold text '{bold_text}' not found with bold formatting in document"
+
+
+def test_parse_strikethrough_segments():
+    segments = parse_inline_formatting("before ~~deleted~~ after")
+
+    strike_segments = [segment for segment in segments if segment.get("strike")]
+
+    assert len(strike_segments) == 1
+    assert strike_segments[0]["text"] == "deleted"
+    assert strike_segments[0]["bold"] is False
+    assert strike_segments[0]["italic"] is False
+    assert strike_segments[0]["code"] is False
+    assert strike_segments[0]["underline"] is False
+    assert strike_segments[0]["link"] is None
+
+
+def test_parse_underline_segments():
+    segments = parse_inline_formatting("before <u>underlined</u> after")
+
+    underline_segments = [segment for segment in segments if segment.get("underline")]
+
+    assert len(underline_segments) == 1
+    assert underline_segments[0]["text"] == "underlined"
+    assert underline_segments[0]["bold"] is False
+    assert underline_segments[0]["italic"] is False
+    assert underline_segments[0]["code"] is False
+    assert underline_segments[0]["strike"] is False
+    assert underline_segments[0]["link"] is None
+
+
+def _convert_markdown_to_docx(tmp_path, markdown: str):
+    input_path = tmp_path / "input.md"
+    output_path = tmp_path / "output.docx"
+    input_path.write_text(markdown, encoding="utf-8")
+
+    class Args:
+        config = None
+        config_file = None
+
+    conf = load_config(Args())
+    convert(str(input_path), str(output_path), conf)
+    return Document(str(output_path))
+
+
+def test_convert_strikethrough_to_docx_run(tmp_path):
+    doc = _convert_markdown_to_docx(tmp_path, "This is ~~deleted~~ text")
+
+    runs = [run for paragraph in doc.paragraphs for run in paragraph.runs]
+    deleted = next(run for run in runs if run.text == "deleted")
+
+    assert deleted.font.strike is True
+
+
+def test_convert_underline_to_docx_run(tmp_path):
+    doc = _convert_markdown_to_docx(tmp_path, "This is <u>underlined</u> text")
+
+    runs = [run for paragraph in doc.paragraphs for run in paragraph.runs]
+    underlined = next(run for run in runs if run.text == "underlined")
+
+    assert underlined.underline is True

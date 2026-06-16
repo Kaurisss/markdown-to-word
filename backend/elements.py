@@ -49,11 +49,15 @@ def add_formatted_runs(paragraph, text: str, base_style: Dict[str, Any], global_
             else:
                 apply_run_fmt(run, base_style, global_config)
 
-            if segment['bold']:
+            if segment.get('bold'):
                 run.bold = True
-            if segment['italic']:
+            if segment.get('italic'):
                 run.italic = True
-            if segment['code']:
+            if segment.get('underline'):
+                run.underline = True
+            if segment.get('strike'):
+                run.font.strike = True
+            if segment.get('code'):
                 code_font = code_style.get('fontFamily', 'Courier New') if code_style else 'Courier New'
                 run.font.name = code_font
                 _ensure_east_asia_font(run, global_config.get('baseFontCn', 'SimSun'), code_font)

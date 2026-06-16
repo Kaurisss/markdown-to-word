@@ -4,6 +4,8 @@ export interface ElementStyle {
   color: string;
   bold: boolean;
   italic: boolean;
+  underline?: boolean;
+  strike?: boolean;
   lineSpacing: number | string;
   spaceBefore: number;
   spaceAfter: number;

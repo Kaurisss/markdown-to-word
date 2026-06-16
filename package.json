@@ -7,13 +7,13 @@
     "dev": "vite",
     "dev:tauri": "tauri dev",
     "build": "vite build",
-    "build:tauri": "npm run build && tauri build",
+    "build:tauri": "pnpm run build && tauri build",
     "build:installer": "iscc scripts/inno-setup.iss",
     "build:backend": "node scripts/build-python.js",
     "lint": "eslint . --ext .ts,.tsx",
     "typecheck": "tsc --noEmit",
     "clean": "rimraf dist node_modules/.vite src-tauri/target",
-    "rebuild": "npm run clean && npm run build && npm run tauri:build",
+    "rebuild": "pnpm run clean && pnpm run build && pnpm run build:tauri",
     "test": "vitest --run"
   },
   "dependencies": {

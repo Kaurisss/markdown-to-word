@@ -147,6 +147,10 @@ def apply_run_fmt(run, style_config: Dict[str, Any], global_config: Dict[str, An
         run.bold = bool(style_config.get("bold"))
     if style_config.get("italic") is not None:
         run.italic = bool(style_config.get("italic"))
+    if style_config.get("underline") is not None:
+        run.underline = bool(style_config.get("underline"))
+    if style_config.get("strike") is not None:
+        run.font.strike = bool(style_config.get("strike"))
     color_hex = style_config.get("color")
     if color_hex:
         run.font.color.rgb = hex_to_rgb(str(color_hex))

@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect, useLayoutEffect, useCallback } from 'react';
-import { ColorFilterLine, AlignLeftLine, AlignCenterLine, AlignRightLine, AlignJustifyLine, BoldFill, ItalicLine, FontLine } from '@mingcute/react';
+import { ColorFilterLine, AlignLeftLine, AlignCenterLine, AlignRightLine, AlignJustifyLine, BoldFill, ItalicLine, FontLine, UnderlineLine, StrikethroughLine } from '@mingcute/react';
 import { Select } from '../../ui/Select';
 import { Separator } from '@/components/ui/separator';
 import { ElementStyle, DocumentConfig } from '../../../interfaces/Config';
@@ -180,6 +180,20 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             title="斜体"
           >
             <ItalicLine className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => updateStyle({ underline: !currentStyle.underline })}
+            className={`w-7 h-7 rounded flex items-center justify-center transition-colors ${currentStyle.underline ? 'bg-brand-100 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-dark-element-hover'}`}
+            title="下划线"
+          >
+            <UnderlineLine className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => updateStyle({ strike: !currentStyle.strike })}
+            className={`w-7 h-7 rounded flex items-center justify-center transition-colors ${currentStyle.strike ? 'bg-brand-100 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-dark-element-hover'}`}
+            title="删除线"
+          >
+            <StrikethroughLine className="w-4 h-4" />
           </button>
           <Separator orientation="vertical" className="h-4 mx-0.5" />
 
