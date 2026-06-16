@@ -232,9 +232,9 @@ export const Select: React.FC<SelectProps> = ({
             aria-expanded={open}
             disabled={disabled}
             className={cn(
-              "flex w-full items-center justify-between gap-1 rounded-md border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-element px-2 py-1 text-sm whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 hover:bg-gray-50 dark:hover:bg-dark-element-hover disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-gray-400 dark:data-[placeholder]:text-gray-500 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5 [&_svg:not([class*='text-'])]:text-gray-400",
+              "flex w-full items-center justify-between gap-1 rounded-md border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-element px-2 py-1 text-sm whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 data-[state=open]:border-brand-500 data-[state=open]:ring-2 data-[state=open]:ring-brand-500/20 hover:bg-gray-50 dark:hover:bg-dark-element-hover disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-gray-400 dark:data-[placeholder]:text-gray-500 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5 [&_svg:not([class*='text-'])]:text-gray-400",
               'h-7 text-[13px]',
-              variant === 'ghost' && 'border-transparent bg-transparent shadow-none hover:bg-gray-100 dark:hover:bg-dark-element-hover',
+              variant === 'ghost' && 'border-transparent bg-transparent shadow-none hover:bg-gray-100 dark:hover:bg-dark-element-hover data-[state=open]:border-transparent data-[state=open]:ring-0 data-[state=open]:bg-gray-100 dark:data-[state=open]:bg-dark-element-hover',
               triggerClassName,
             )}
           >
