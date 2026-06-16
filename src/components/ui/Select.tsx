@@ -1,6 +1,8 @@
 import * as React from "react"
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react"
 import { Select as SelectPrimitive } from "radix-ui"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 
 import { cn } from "@/lib/utils"
 
@@ -216,50 +218,62 @@ export const Select: React.FC<SelectProps> = ({
   disabled = false,
   variant = 'default',
 }) => {
+  const [open, setOpen] = React.useState(false);
   const selected = options.find((option) => option.value === value);
-
-  const toSafeValue = (val: string | number) => val === '' ? '__empty__' : String(val);
 
   return (
     <div className={cn('relative', className)}>
-      <ShadcnSelect
-        value={toSafeValue(value)}
-        onValueChange={(nextValue) => {
-          const actualValue = nextValue === '__empty__' ? '' : nextValue;
-          const option = options.find((item) => String(item.value) === actualValue);
-          onChange(option ? option.value : actualValue);
-        }}
-        disabled={disabled}
-      >
-        <SelectTrigger
-          className={cn(
-            'h-7 text-[13px]',
-            variant === 'ghost' && 'border-transparent bg-transparent shadow-none hover:bg-gray-100 dark:hover:bg-dark-element-hover',
-            triggerClassName,
-          )}
-        >
-          <SelectValue placeholder={placeholder}>
-            <span style={selected?.fontFamily ? { fontFamily: `"${selected.fontFamily}"` } : undefined}>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <button
+            role="combobox"
+            aria-expanded={open}
+            disabled={disabled}
+            className={cn(
+              "flex w-full items-center justify-between gap-1 rounded-md border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-element px-2 py-1 text-sm whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/20 disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-gray-400 dark:data-[placeholder]:text-gray-500 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 dark:hover:bg-dark-element-hover [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5 [&_svg:not([class*='text-'])]:text-gray-400",
+              'h-7 text-[13px]',
+              variant === 'ghost' && 'border-transparent bg-transparent shadow-none hover:bg-gray-100 dark:hover:bg-dark-element-hover',
+              triggerClassName,
+            )}
+          >
+            <span style={selected?.fontFamily ? { fontFamily: `"${selected.fontFamily}"` } : undefined} className="truncate block text-left">
               {selected?.label ?? placeholder}
             </span>
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent className="max-h-60">
-          <SelectGroup>
-            {options.map((option) => (
-              <SelectItem
-                key={String(option.value)}
-                value={toSafeValue(option.value)}
-                className={cn('text-[13px]', optionClassName)}
-              >
-                <span style={option.fontFamily ? { fontFamily: `"${option.fontFamily}"` } : undefined}>
-                  {option.label}
-                </span>
-              </SelectItem>
-            ))}
-          </SelectGroup>
-        </SelectContent>
-      </ShadcnSelect>
+            <ChevronDownIcon className="size-3.5 opacity-50 shrink-0" />
+          </button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 shadow-xl" align="start">
+          <Command>
+            <CommandInput placeholder="搜索..." className="h-9 text-[13px]" />
+            <CommandList className="max-h-60 custom-scrollbar">
+              <CommandEmpty>未找到结果</CommandEmpty>
+              <CommandGroup>
+                {options.map((option) => (
+                  <CommandItem
+                    key={String(option.value)}
+                    value={String(option.label) + String(option.value)} // Use label + value for robust filtering
+                    onSelect={() => {
+                      onChange(option.value);
+                      setOpen(false);
+                    }}
+                    className={cn('text-[13px] py-1.5 px-2 cursor-pointer', optionClassName)}
+                  >
+                    <CheckIcon
+                      className={cn(
+                        "mr-2 size-3.5",
+                        value === option.value ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    <span style={option.fontFamily ? { fontFamily: `"${option.fontFamily}"` } : undefined} className="truncate">
+                      {option.label}
+                    </span>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
     </div>
   );
 };
