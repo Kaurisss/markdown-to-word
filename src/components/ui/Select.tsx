@@ -218,13 +218,16 @@ export const Select: React.FC<SelectProps> = ({
 }) => {
   const selected = options.find((option) => option.value === value);
 
+  const toSafeValue = (val: string | number) => val === '' ? '__empty__' : String(val);
+
   return (
     <div className={cn('relative', className)}>
       <ShadcnSelect
-        value={String(value)}
+        value={toSafeValue(value)}
         onValueChange={(nextValue) => {
-          const option = options.find((item) => String(item.value) === nextValue);
-          onChange(option ? option.value : nextValue);
+          const actualValue = nextValue === '__empty__' ? '' : nextValue;
+          const option = options.find((item) => String(item.value) === actualValue);
+          onChange(option ? option.value : actualValue);
         }}
         disabled={disabled}
       >
@@ -246,7 +249,7 @@ export const Select: React.FC<SelectProps> = ({
             {options.map((option) => (
               <SelectItem
                 key={String(option.value)}
-                value={String(option.value)}
+                value={toSafeValue(option.value)}
                 className={cn('text-[13px]', optionClassName)}
               >
                 <span style={option.fontFamily ? { fontFamily: `"${option.fontFamily}"` } : undefined}>
