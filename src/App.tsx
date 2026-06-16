@@ -12,7 +12,7 @@ import { DEFAULT_CONFIG } from './config/defaultConfig';
 import { DocumentConfig } from './interfaces/Config';
 import { exportWithPython, formatErrorMessage } from './services/pythonBackend';
 import { ContextMenu, ContextMenuItem } from './components/ui/ContextMenu';
-import { Copy, Clipboard, Scissors, CheckSquare, Undo2, Redo2 } from 'lucide-react';
+import { Copy2Line, ClipboardLine, ScissorsLine, Back2Line, Forward2Line, CheckboxLine } from '@mingcute/react';
 import { AIConfigWindow } from './components/AIConfigWindow';
 import { SettingsWindow } from './components/SettingsWindow';
 import { useAIConfigStore } from './services/aiConfigStore';
@@ -437,7 +437,7 @@ const App: React.FC = () => {
     const menuItems: ContextMenuItem[] = [
       {
         label: '撤回',
-        icon: <Undo2 className="w-4 h-4" />,
+        icon: <Back2Line className="w-4 h-4" />,
         shortcut: 'Ctrl+Z',
         disabled: !canUndo,
         action: () => {
@@ -446,7 +446,7 @@ const App: React.FC = () => {
       },
       {
         label: '重做',
-        icon: <Redo2 className="w-4 h-4" />,
+        icon: <Forward2Line className="w-4 h-4" />,
         shortcut: 'Ctrl+Y',
         disabled: !canRedo,
         action: () => {
@@ -456,7 +456,7 @@ const App: React.FC = () => {
       { separator: true },
       {
         label: '复制',
-        icon: <Copy className="w-4 h-4" />,
+        icon: <Copy2Line className="w-4 h-4" />,
         shortcut: 'Ctrl+C',
         disabled: !hasSelection,
         action: async () => {
@@ -467,7 +467,7 @@ const App: React.FC = () => {
       },
       {
         label: '剪切',
-        icon: <Scissors className="w-4 h-4" />,
+        icon: <ScissorsLine className="w-4 h-4" />,
         shortcut: 'Ctrl+X',
         disabled: !hasSelection || !isEditable,
         action: async () => {
@@ -482,7 +482,7 @@ const App: React.FC = () => {
       },
       {
         label: '粘贴',
-        icon: <Clipboard className="w-4 h-4" />,
+        icon: <ClipboardLine className="w-4 h-4" />,
         shortcut: 'Ctrl+V',
         disabled: !isEditable,
         action: async () => {
@@ -503,7 +503,7 @@ const App: React.FC = () => {
       { separator: true },
       {
         label: '全选',
-        icon: <CheckSquare className="w-4 h-4" />,
+        icon: <CheckboxLine className="w-4 h-4" />,
         shortcut: 'Ctrl+A',
         action: () => {
           if (textField) {

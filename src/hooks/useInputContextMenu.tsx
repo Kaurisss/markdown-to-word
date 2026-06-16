@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Copy, Scissors, Clipboard, CheckSquare } from 'lucide-react';
+import { Copy2Line, ScissorsLine, ClipboardLine, CheckboxLine } from '@mingcute/react';
 import { ContextMenuItem } from '../components/ui/ContextMenu';
 
 interface InputContextMenuState {
@@ -36,7 +36,7 @@ export const useInputContextMenu = () => {
         const menuItems: ContextMenuItem[] = [
             {
                 label: '复制',
-                icon: <Copy className="w-4 h-4" />,
+                icon: <Copy2Line className="w-4 h-4" />,
                 shortcut: 'Ctrl+C',
                 disabled: !hasSelection,
                 action: async () => {
@@ -47,7 +47,7 @@ export const useInputContextMenu = () => {
             },
             {
                 label: '剪切',
-                icon: <Scissors className="w-4 h-4" />,
+                icon: <ScissorsLine className="w-4 h-4" />,
                 shortcut: 'Ctrl+X',
                 disabled: !hasSelection,
                 action: async () => {
@@ -58,7 +58,7 @@ export const useInputContextMenu = () => {
             },
             {
                 label: '粘贴',
-                icon: <Clipboard className="w-4 h-4" />,
+                icon: <ClipboardLine className="w-4 h-4" />,
                 shortcut: 'Ctrl+V',
                 action: async () => {
                     try {
@@ -74,7 +74,7 @@ export const useInputContextMenu = () => {
             { separator: true },
             {
                 label: '全选',
-                icon: <CheckSquare className="w-4 h-4" />,
+                icon: <CheckboxLine className="w-4 h-4" />,
                 shortcut: 'Ctrl+A',
                 action: () => {
                     target.focus();

@@ -1,5 +1,5 @@
 ﻿﻿import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { Check, ChevronRight } from 'lucide-react';
+import { CheckLine, ArrowRightCircleLine } from '@mingcute/react';
 
 export interface ContextMenuItem {
   label?: string;
@@ -138,8 +138,8 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
               {item.shortcut && (
                 <span className="text-[10px] text-gray-400 font-sans">{item.shortcut}</span>
               )}
-              {item.checked && <Check className="w-3.5 h-3.5" />}
-              {item.submenu && <ChevronRight className="w-3.5 h-3.5 text-gray-400" />}
+              {item.checked && <CheckLine className="w-3.5 h-3.5" />}
+              {item.submenu && <ArrowRightCircleLine className="w-3.5 h-3.5 text-gray-400" />}
             </div>
           </button>
         );

@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect, useLayoutEffect, useCallback } from 'react';
-import { Palette, AlignLeft, AlignCenter, AlignRight, AlignJustify } from 'lucide-react';
+import { ColorFilterLine, AlignLeftLine, AlignCenterLine, AlignRightLine, AlignJustifyLine, BoldFill, ItalicLine, FontLine } from '@mingcute/react';
 import { Select } from '../../ui/Select';
 import { ElementStyle, DocumentConfig } from '../../../interfaces/Config';
 import { STYLES, FONTS_CN, FONTS_EN, FONT_LABELS, FONT_SIZES, FONT_SIZES_PT, THEME_COLORS, STANDARD_COLORS } from '../constants';
@@ -170,14 +170,14 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             className={`w-7 h-7 rounded flex items-center justify-center transition-colors ${currentStyle.bold ? 'bg-brand-100 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-dark-element-hover'}`}
             title="加粗"
           >
-            <span className="font-bold text-sm">B</span>
+            <BoldFill className="w-4 h-4" />
           </button>
           <button
             onClick={() => updateStyle({ italic: !currentStyle.italic })}
             className={`w-7 h-7 rounded flex items-center justify-center transition-colors ${currentStyle.italic ? 'bg-brand-100 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-dark-element-hover'}`}
             title="斜体"
           >
-            <span className="italic text-sm font-serif">I</span>
+            <ItalicLine className="w-4 h-4" />
           </button>
           <div className="w-px h-4 bg-gray-300 dark:bg-dark-border mx-0.5"></div>
 
@@ -188,7 +188,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               className="w-7 h-7 rounded flex flex-col items-center justify-center gap-0.5 hover:bg-gray-200 dark:hover:bg-dark-element-hover transition-colors"
               title="字体颜色"
             >
-              <span className="text-sm font-serif font-bold leading-none text-gray-700 dark:text-gray-300">A</span>
+              <FontLine className="w-3.5 h-3.5 text-gray-700 dark:text-gray-300" />
               <div className="w-4 h-1 rounded-sm border border-gray-200 dark:border-dark-border" style={{ backgroundColor: currentStyle.color || '#000000' }}></div>
             </button>
             {isColorRendered && (
@@ -247,7 +247,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               title="背景颜色"
             >
               <div className="flex flex-col items-center justify-center gap-0.5">
-                <Palette className="w-3.5 h-3.5 text-gray-600 dark:text-gray-300" />
+                <ColorFilterLine className="w-3.5 h-3.5 text-gray-600 dark:text-gray-300" />
                 <div className="w-4 h-1 rounded-sm border border-gray-200 dark:border-dark-border" style={{ backgroundColor: currentStyle.backgroundColor || 'transparent' }}></div>
               </div>
             </button>
@@ -306,10 +306,10 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               className={`w-7 h-7 rounded flex items-center justify-center transition-colors ${currentStyle.alignment === align ? 'bg-brand-100 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-dark-element-hover'}`}
               title={{ left: '左对齐', center: '居中', right: '右对齐', justify: '两端对齐' }[align]}
             >
-              {align === 'left' && <AlignLeft className="w-4 h-4" strokeWidth={2} />}
-              {align === 'center' && <AlignCenter className="w-4 h-4" strokeWidth={2} />}
-              {align === 'right' && <AlignRight className="w-4 h-4" strokeWidth={2} />}
-              {align === 'justify' && <AlignJustify className="w-4 h-4" strokeWidth={2} />}
+              {align === 'left' && <AlignLeftLine className="w-4 h-4" />}
+              {align === 'center' && <AlignCenterLine className="w-4 h-4" />}
+              {align === 'right' && <AlignRightLine className="w-4 h-4" />}
+              {align === 'justify' && <AlignJustifyLine className="w-4 h-4" />}
             </button>
           ))}
         </div>

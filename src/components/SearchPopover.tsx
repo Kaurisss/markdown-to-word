@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  Search,
-  X,
-  ChevronUp,
-  ChevronDown,
-  ChevronRight,
-  ArrowLeftRight
-} from 'lucide-react';
+import { Search2Line, Transfer3Line, CloseLine, ArrowDownCircleLine, ArrowRightCircleLine, ArrowUpCircleLine } from '@mingcute/react';
 
 export type SearchPopoverProps = {
   visible: boolean;
@@ -65,13 +58,13 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
             onClick={() => setShowReplace(!showReplace)}
             className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-dark-element-hover transition-colors"
           >
-            {showReplace ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+            {showReplace ? <ArrowDownCircleLine className="w-4 h-4" /> : <ArrowRightCircleLine className="w-4 h-4" />}
           </button>
 
           {/* Search Input Wrapper */}
           <div className="relative flex-1 group">
             <div className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-500 transition-colors">
-              <Search className="w-4 h-4" />
+              <Search2Line className="w-4 h-4" />
             </div>
             <input
               type="text"
@@ -97,7 +90,7 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
                   className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-dark-element-hover transition-colors mr-1"
                   title="清除"
                 >
-                  <X className="w-3 h-3" />
+                  <CloseLine className="w-3 h-3" />
                 </button>
               )}
 
@@ -146,7 +139,7 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
               className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-white dark:hover:bg-dark-element-hover rounded-md transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-sm hover:shadow"
               title="上一个 (Shift+Enter)"
             >
-              <ChevronUp className="w-4 h-4" />
+              <ArrowUpCircleLine className="w-4 h-4" />
             </button>
             <button
               onClick={() => setCurrentMatchIndex((prev) => prev + 1)}
@@ -154,7 +147,7 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
               className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-white dark:hover:bg-dark-element-hover rounded-md transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-sm hover:shadow"
               title="下一个 (Enter)"
             >
-              <ChevronDown className="w-4 h-4" />
+              <ArrowDownCircleLine className="w-4 h-4" />
             </button>
           </div>
 
@@ -164,7 +157,7 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
             className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-element-hover rounded-lg transition-colors"
             title="关闭 (Escape)"
           >
-            <X className="w-4 h-4" />
+            <CloseLine className="w-4 h-4" />
           </button>
         </div>
 
@@ -174,7 +167,7 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
             {/* Replace Input */}
             <div className="relative flex-1 group">
               <div className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-500 transition-colors">
-                <ArrowLeftRight className="w-4 h-4" />
+                <Transfer3Line className="w-4 h-4" />
               </div>
               <input
                 type="text"
@@ -198,7 +191,7 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
                   className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-dark-element-hover transition-colors"
                   title="清除"
                 >
-                  <X className="w-3 h-3" />
+                  <CloseLine className="w-3 h-3" />
                 </button>
               )}
             </div>

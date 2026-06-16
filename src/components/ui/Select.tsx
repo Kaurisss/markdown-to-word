@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Check } from 'lucide-react';
+import { CheckLine } from '@mingcute/react';
 
 export interface SelectOption {
   label: string;
@@ -107,7 +107,6 @@ export const Select: React.FC<SelectProps> = ({
         >
           {selectedOption ? selectedOption.label : placeholder}
         </span>
-        <ChevronDown className={`w-3.5 h-3.5 ml-1 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {/* Dropdown Menu */}
@@ -139,7 +138,7 @@ export const Select: React.FC<SelectProps> = ({
                   {option.label}
                 </span>
                 {option.value === value && (
-                  <Check className="w-3.5 h-3.5 ml-2 flex-shrink-0" />
+                  <CheckLine className="w-3.5 h-3.5 ml-2 flex-shrink-0" />
                 )}
               </button>
             ))}

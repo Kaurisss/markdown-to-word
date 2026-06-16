@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles } from 'lucide-react';
+import { AppleIntelligenceLine } from '@mingcute/react';
 
 interface AIGenerateButtonProps {
     onClick: () => void;
@@ -25,7 +25,7 @@ export const AIGenerateButton: React.FC<AIGenerateButtonProps> = ({
                 </>
             ) : (
                 <>
-                    <Sparkles className="w-3.5 h-3.5" />
+                    <AppleIntelligenceLine className="w-3.5 h-3.5" />
                     生成样式
                 </>
             )}

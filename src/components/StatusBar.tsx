@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Search } from 'lucide-react';
+import { Search2Line } from '@mingcute/react';
 
 interface StatusBarProps {
   content: string;
@@ -33,7 +33,7 @@ export const StatusBar: React.FC<StatusBarProps> = ({ content, onSearchClick }) 
           onClick={onSearchClick}
           className="flex items-center gap-1 hover:bg-gray-200 dark:hover:bg-gray-700 px-1.5 py-0.5 rounded cursor-pointer transition-colors"
         >
-          <Search className="w-3 h-3" />
+          <Search2Line className="w-3 h-3" />
         </div>
       </div>
     </div>

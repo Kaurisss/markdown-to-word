@@ -28,8 +28,8 @@
 
 ## 快速开始
 ```bash
-npm install
-npm run tauri:dev
+pnpm install
+pnpm run tauri:dev
 ```
 
 说明：
@@ -39,39 +39,39 @@ npm run tauri:dev
 ## 常用命令
 ```bash
 # 前端开发
-npm run dev
+pnpm run dev
 
 # 桌面端开发（推荐）
-npm run tauri:dev
+pnpm run dev:tauri
 
 # 前端构建
-npm run build
+pnpm run build
 
 # 桌面构建
-npm run tauri:build
+pnpm run build:tauri
 
 # 构建 Python 后端 sidecar 到 src-tauri/binaries/
-npm run build:python
+pnpm run build:backend
 
 # 生成 Windows 安装包（Inno Setup）
-npm run build:installer
+pnpm run build:installer
 
 # 质量检查
-npm run lint
-npm run typecheck
-npm test
+pnpm run lint
+pnpm run typecheck
+pnpm test
 ```
 
 ## Windows 发布流程
 ```bash
 # 1) 先构建 Python sidecar
-npm run build:python
+pnpm run build:backend
 
 # 2) 再构建桌面程序
-npm run tauri:build
+pnpm run build:tauri
 
 # 3) 最后产出 Inno 安装包
-npm run build:installer
+pnpm run build:installer
 ```
 
 安装包输出目录：

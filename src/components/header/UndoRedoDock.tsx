@@ -1,5 +1,5 @@
 import React from 'react';
-import { Redo2, Undo2 } from 'lucide-react';
+import { Forward2Line, Back2Line } from '@mingcute/react';
 
 interface UndoRedoDockProps {
   onUndo?: () => void;
@@ -25,7 +25,7 @@ export const UndoRedoDock: React.FC<UndoRedoDockProps> = ({ onUndo, onRedo, canU
         title="撤销"
         disabled={!onUndo || !canUndo}
       >
-        <Undo2 className="w-4 h-4" />
+        <Back2Line className="w-4 h-4" />
       </button>
       <button
         type="button"
@@ -39,7 +39,7 @@ export const UndoRedoDock: React.FC<UndoRedoDockProps> = ({ onUndo, onRedo, canU
         title="重做"
         disabled={!onRedo || !canRedo}
       >
-        <Redo2 className="w-4 h-4" />
+        <Forward2Line className="w-4 h-4" />
       </button>
     </div>
   );

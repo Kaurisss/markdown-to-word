@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { CheckCircle, XCircle, Info, X } from 'lucide-react';
+import { CheckCircleLine, CloseCircleLine, InformationLine, CloseLine } from '@mingcute/react';
 
 export type ToastType = 'success' | 'error' | 'info';
 
@@ -20,9 +20,9 @@ const Toast: React.FC<ToastProps> = ({ message, type = 'success', onClose, durat
   }, [onClose, duration]);
 
   const icons = {
-    success: <CheckCircle className="w-5 h-5 text-green-500" />,
-    error: <XCircle className="w-5 h-5 text-red-500" />,
-    info: <Info className="w-5 h-5 text-blue-500" />
+    success: <CheckCircleLine className="w-5 h-5 text-green-500" />,
+    error: <CloseCircleLine className="w-5 h-5 text-red-500" />,
+    info: <InformationLine className="w-5 h-5 text-blue-500" />
   };
 
   const colors = {
@@ -40,7 +40,7 @@ const Toast: React.FC<ToastProps> = ({ message, type = 'success', onClose, durat
           onClick={onClose}
           className="p-1 hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition-colors"
         >
-          <X className="w-4 h-4 opacity-50 hover:opacity-100" />
+          <CloseLine className="w-4 h-4 opacity-50 hover:opacity-100" />
         </button>
       </div>
     </div>

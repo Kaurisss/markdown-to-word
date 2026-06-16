@@ -1,5 +1,5 @@
 import React from 'react';
-import { Settings, SquarePen, Columns2, Eye } from 'lucide-react';
+import { EditLine, Columns2Line, Eye2Line, Settings3Line } from '@mingcute/react';
 import { ViewMode } from '../../types';
 
 interface ViewModeDockProps {
@@ -28,7 +28,7 @@ export const ViewModeDock: React.FC<ViewModeDockProps> = ({
         aria-label="编辑器视图"
         title="编辑器视图"
       >
-        <SquarePen className="w-4 h-4" />
+        <EditLine className="w-4 h-4" />
       </button>
       <button
         type="button"
@@ -37,7 +37,7 @@ export const ViewModeDock: React.FC<ViewModeDockProps> = ({
         aria-label="双栏视图"
         title="双栏视图"
       >
-        <Columns2 className="w-4 h-4" />
+        <Columns2Line className="w-4 h-4" />
       </button>
       <button
         type="button"
@@ -46,7 +46,7 @@ export const ViewModeDock: React.FC<ViewModeDockProps> = ({
         aria-label="预览视图"
         title="预览视图"
       >
-        <Eye className="w-4 h-4" />
+        <Eye2Line className="w-4 h-4" />
       </button>
       <button
         type="button"
@@ -55,7 +55,7 @@ export const ViewModeDock: React.FC<ViewModeDockProps> = ({
         aria-label="设置"
         title="设置"
       >
-        <Settings className="w-4 h-4" />
+        <Settings3Line className="w-4 h-4" />
       </button>
     </div>
   );

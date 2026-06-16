@@ -1,5 +1,5 @@
 import React from 'react';
-import { Settings2 } from 'lucide-react';
+import { Settings1Line } from '@mingcute/react';
 import { AIProvider } from '../../../../interfaces/AI';
 
 interface AIModelSelectorProps {
@@ -32,7 +32,7 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({
                         {getModelDisplayName().split(': ')[1] || '选择模型'}
                     </span>
                 </div>
-                <Settings2 className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300 shrink-0" />
+                <Settings1Line className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300 shrink-0" />
             </button>
         </div>
     );

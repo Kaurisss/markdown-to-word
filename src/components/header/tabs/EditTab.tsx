@@ -1,5 +1,5 @@
 import React from 'react';
-import { Undo2, Redo2, Scissors, Copy, Clipboard, Search, ArrowLeftRight } from 'lucide-react';
+import { Back2Line, Forward2Line, ScissorsLine, Copy2Line, ClipboardLine, Search2Line, Transfer3Line } from '@mingcute/react';
 import { STYLES } from '../constants';
 
 interface EditTabProps {
@@ -29,10 +29,10 @@ export const EditTab: React.FC<EditTabProps> = ({
             <div className={STYLES.groupClass}>
                 <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-dark-element p-0.5 rounded border border-gray-100 dark:border-dark-border">
                     <button onClick={onUndo} onMouseDown={e => e.preventDefault()} className={iconBtnClass} title="撤销 (Ctrl+Z)">
-                        <Undo2 className="w-4 h-4" />
+                        <Back2Line className="w-4 h-4" />
                     </button>
                     <button onClick={onRedo} onMouseDown={e => e.preventDefault()} className={iconBtnClass} title="重做 (Ctrl+Y)">
-                        <Redo2 className="w-4 h-4" />
+                        <Forward2Line className="w-4 h-4" />
                     </button>
                 </div>
             </div>
@@ -41,13 +41,13 @@ export const EditTab: React.FC<EditTabProps> = ({
             <div className={STYLES.groupClass}>
                 <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-dark-element p-0.5 rounded border border-gray-100 dark:border-dark-border">
                     <button onClick={onCut} onMouseDown={e => e.preventDefault()} className={iconBtnClass} title="剪切 (Ctrl+X)">
-                        <Scissors className="w-4 h-4" />
+                        <ScissorsLine className="w-4 h-4" />
                     </button>
                     <button onClick={onCopy} onMouseDown={e => e.preventDefault()} className={iconBtnClass} title="复制 (Ctrl+C)">
-                        <Copy className="w-4 h-4" />
+                        <Copy2Line className="w-4 h-4" />
                     </button>
                     <button onClick={onPaste} onMouseDown={e => e.preventDefault()} className={iconBtnClass} title="粘贴 (Ctrl+V)">
-                        <Clipboard className="w-4 h-4" />
+                        <ClipboardLine className="w-4 h-4" />
                     </button>
                 </div>
             </div>
@@ -60,7 +60,7 @@ export const EditTab: React.FC<EditTabProps> = ({
                     className={`${STYLES.btnClass} flex-col gap-0.5 h-12 w-12 !px-1`}
                     title="查找 (Ctrl+F)"
                 >
-                    <Search className="w-5 h-5" />
+                    <Search2Line className="w-5 h-5" />
                     <span className="text-[11px]">查找</span>
                 </button>
                 <button
@@ -69,7 +69,7 @@ export const EditTab: React.FC<EditTabProps> = ({
                     className={`${STYLES.btnClass} flex-col gap-0.5 h-12 w-12 !px-1`}
                     title="替换 (Ctrl+H)"
                 >
-                    <ArrowLeftRight className="w-5 h-5" />
+                    <Transfer3Line className="w-5 h-5" />
                     <span className="text-[11px]">替换</span>
                 </button>
             </div>

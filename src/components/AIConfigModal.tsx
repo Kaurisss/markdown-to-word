@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useLayoutEffect, useRef } from 'react';
-import { X, Plus, Play, Trash2, Check, Loader2, Pencil, Copy, Eye, EyeOff } from 'lucide-react';
+import { Copy2Line, CloseLine, CheckLine, LoadingLine, AddLine, PlayLine, Delete2Line, Edit2Line, Eye2Line, EyeCloseLine } from '@mingcute/react';
 import { AIProvider, AIModel } from '../interfaces/AI';
 import { useInputContextMenu } from '../hooks/useInputContextMenu';
 import { ContextMenu } from './ui/ContextMenu';
@@ -340,7 +340,7 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
               className="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-200 dark:hover:bg-dark-surface text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
               title="添加自定义平台"
             >
-              <Plus className="w-4 h-4" />
+              <AddLine className="w-4 h-4" />
             </button>
           </div>
           <div className="flex-1 overflow-y-auto px-2 pb-2 pt-0 space-y-1">
@@ -392,7 +392,7 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
                   className="w-8 h-8 grid place-items-center rounded-lg text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-element transition-colors"
                   aria-label="关闭"
                 >
-                  <X className="w-5 h-5" />
+                  <CloseLine className="w-5 h-5" />
                 </button>
               </div>
 
@@ -430,7 +430,7 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
                         className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors rounded-md hover:bg-gray-100 dark:hover:bg-dark-element-hover"
                         title={showApiKey ? '隐藏 API Key' : '显示 API Key'}
                       >
-                        {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        {showApiKey ? <EyeCloseLine className="w-4 h-4" /> : <Eye2Line className="w-4 h-4" />}
                       </button>
                     </div>
                   </div>
@@ -461,7 +461,7 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
                     onClick={() => setShowAddModel(true)}
                     className="flex items-center gap-2 px-4 h-9 text-sm font-medium text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/20 hover:bg-brand-100 dark:hover:bg-brand-900/30 border border-brand-200 dark:border-brand-800 rounded-lg transition-colors w-fit"
                   >
-                    <Plus className="w-4 h-4" />
+                    <AddLine className="w-4 h-4" />
                     添加模型
                   </button>
 
@@ -483,7 +483,7 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
                         >
                           <div className="flex flex-col">
                             <div className="flex items-center gap-2">
-                              {isSelected && <Check className="w-4 h-4 text-brand-500" />}
+                              {isSelected && <CheckLine className="w-4 h-4 text-brand-500" />}
                               <span className={`text-sm font-medium ${isSelected ? 'text-brand-700 dark:text-brand-400' : 'text-gray-700 dark:text-gray-200'}`}>{model.name}</span>
                             </div>
                           </div>
@@ -491,7 +491,7 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
                             {/* 测试状态显示 */}
                             {isTesting && (
                               <span className="flex items-center gap-1 text-[10px] text-gray-500">
-                                <Loader2 className="w-3 h-3 animate-spin" />
+                                <LoadingLine className="w-3 h-3 animate-spin" />
                                 测试中...
                               </span>
                             )}
@@ -694,21 +694,21 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
             onClick={handleEditModel}
             className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
-            <Pencil className="w-3.5 h-3.5" />
+            <Edit2Line className="w-3.5 h-3.5" />
             编辑模型
           </button>
           <button
             onClick={handleCopyModel}
             className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
-            <Copy className="w-3.5 h-3.5" />
+            <Copy2Line className="w-3.5 h-3.5" />
             复制模型
           </button>
           <button
             onClick={handleContextMenuTest}
             className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
-            <Play className="w-3.5 h-3.5" />
+            <PlayLine className="w-3.5 h-3.5" />
             测试模型
           </button>
           <div className="my-1 border-t border-gray-100 dark:border-dark-border" />
@@ -716,7 +716,7 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
             onClick={handleContextMenuDelete}
             className="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
           >
-            <Trash2 className="w-3.5 h-3.5" />
+            <Delete2Line className="w-3.5 h-3.5" />
             删除模型
           </button>
         </div>

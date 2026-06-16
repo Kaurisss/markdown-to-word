@@ -5,7 +5,7 @@ import { AIModelSelector } from './ai/AIModelSelector';
 import { AIPromptInput } from './ai/AIPromptInput';
 import { AIGenerateButton } from './ai/AIGenerateButton';
 import { useAIStyleGenerator } from './ai/useAIStyleGenerator';
-import { CircleHelp } from 'lucide-react';
+import { QuestionLine } from '@mingcute/react';
 
 import { STYLES } from '../constants';
 
@@ -120,7 +120,7 @@ export const AITab: React.FC<AITabProps> = ({
                 className="h-7 w-7 flex items-center justify-center rounded text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-surface transition-colors"
                 title="使用帮助"
               >
-                <CircleHelp className="w-4 h-4" />
+                <QuestionLine className="w-4 h-4" />
               </button>
               {(showHelp || isClosingHelp) && (
                 <div 
