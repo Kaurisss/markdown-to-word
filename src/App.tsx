@@ -3,7 +3,7 @@ import Header from './components/Header';
 import Editor from './components/Editor';
 import Preview from './components/Preview';
 import SearchPopover from './components/SearchPopover';
-import Toast, { ToastType } from './components/Toast';
+import { showAppToast, ToastType } from './components/Toast';
 import { StatusBar } from './components/StatusBar';
 import { DEFAULT_CONFIG } from './config/defaultConfig';
 import { DocumentConfig } from './interfaces/Config';
@@ -13,6 +13,7 @@ import { AIConfigWindow } from './components/AIConfigWindow';
 import { SettingsWindow } from './components/SettingsWindow';
 import { useAIConfigStore } from './services/aiConfigStore';
 import { useSettingsStore } from './services/settingsStore';
+import { Toaster } from '@/components/ui/sonner';
 
 import { useEditorState } from './hooks/useEditorState';
 import { useSearchReplace } from './hooks/useSearchReplace';
@@ -82,14 +83,8 @@ const App: React.FC = () => {
   const editorRef = useRef<HTMLTextAreaElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
 
-  const [toast, setToast] = useState<{ message: string; type: ToastType; visible: boolean }>({
-    message: '',
-    type: 'success',
-    visible: false
-  });
-
   const showToast = useCallback((message: string, type: ToastType = 'success') => {
-    setToast({ message, type, visible: true });
+    showAppToast(message, type);
   }, []);
 
   const {
@@ -359,13 +354,7 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {toast.visible && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(prev => ({ ...prev, visible: false }))}
-        />
-      )}
+      <Toaster richColors position="bottom-right" />
 
       <ContextMenu
         visible={contextMenu.visible}
