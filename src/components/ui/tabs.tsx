@@ -69,7 +69,8 @@ function TabsTrigger({
         "after:absolute after:bg-foreground after:opacity-0 after:transition-opacity",
         "group-data-[orientation=horizontal]/tabs:after:inset-x-0 group-data-[orientation=horizontal]/tabs:after:bottom-[-5px] group-data-[orientation=horizontal]/tabs:after:h-0.5",
         "group-data-[orientation=vertical]/tabs:after:inset-y-0 group-data-[orientation=vertical]/tabs:after:-right-1 group-data-[orientation=vertical]/tabs:after:w-0.5",
-        "group-data-[variant=line]/tabs-list:data-[state=active]:after:opacity-100",
+        "group-data-[variant=line]/tabs-list:data-[state=active]:after:opacity-100 group-data-[variant=line]/tabs-list:hover:after:opacity-100",
+        "group-data-[variant=line]/tabs-list:after:bg-gray-300 dark:group-data-[variant=line]/tabs-list:after:bg-gray-500",
         "group-data-[variant=line]/tabs-list:data-[state=active]:after:bg-brand-600 dark:group-data-[variant=line]/tabs-list:data-[state=active]:after:bg-brand-400",
         "group-data-[variant=line]/tabs-list:after:w-5 group-data-[variant=line]/tabs-list:after:left-1/2 group-data-[variant=line]/tabs-list:after:-translate-x-1/2 group-data-[variant=line]/tabs-list:after:rounded-full group-data-[variant=line]/tabs-list:after:bottom-[-2px]",
         className
