@@ -354,7 +354,7 @@ const App: React.FC = () => {
         </div>
       )}
 
-      <Toaster richColors position="bottom-right" />
+      <Toaster richColors position="top-center" />
 
       <ContextMenu
         visible={contextMenu.visible}
