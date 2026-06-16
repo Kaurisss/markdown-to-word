@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useLayoutEffect, useRef } from 'react';
 import { AIProvider, AIModel } from '../interfaces/AI';
 import { useInputContextMenu } from './useInputContextMenu';
+import { toast } from 'sonner';
 
 export interface UseAIConfigParams {
   providers: AIProvider[];
@@ -9,11 +10,6 @@ export interface UseAIConfigParams {
   updateSelectedModel: (model: { providerId: string; modelId: string } | null) => void;
 }
 
-export interface TestResult {
-  status: 'success' | 'error';
-  message: string;
-  time?: number;
-}
 
 export function useAIConfig({
   providers,
@@ -57,7 +53,6 @@ export function useAIConfig({
 
   // ── API testing ─────────────────────────────────────────────────────
   const [testingModelId, setTestingModelId] = useState<string | null>(null);
-  const [testResults, setTestResults] = useState<Record<string, TestResult>>({});
 
   // ── Model context menu ──────────────────────────────────────────────
   const [modelContextMenu, setModelContextMenu] = useState<{
@@ -151,72 +146,63 @@ export function useAIConfig({
 
   // ── API testing ─────────────────────────────────────────────────────
 
-  const handleTestModel = useCallback(async (modelId: string) => {
+  const handleTestModel = useCallback((modelId: string) => {
     if (!selectedProvider) return;
     if (!selectedProvider.apiKey) {
-      setTestResults(prev => ({
-        ...prev,
-        [modelId]: { status: 'error', message: '请先配置 API Key' },
-      }));
+      toast.error('配置错误', { description: '请先配置 API Key' });
       return;
     }
 
     setTestingModelId(modelId);
-    setTestResults(prev => {
-      const next = { ...prev };
-      delete next[modelId];
-      return next;
-    });
 
-    const startTime = Date.now();
-    try {
+    const testPromise = async () => {
+      const startTime = Date.now();
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 15000);
 
-      const response = await fetch(selectedProvider.baseUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${selectedProvider.apiKey}`,
-        },
-        body: JSON.stringify({
-          model: modelId,
-          messages: [{ role: 'user', content: 'Say "Test success"' }],
-          max_tokens: 10,
-          stream: false,
-        }),
-        signal: controller.signal,
-      });
+      try {
+        const response = await fetch(selectedProvider.baseUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${selectedProvider.apiKey}`,
+          },
+          body: JSON.stringify({
+            model: modelId,
+            messages: [{ role: 'user', content: 'Say "Test success"' }],
+            max_tokens: 10,
+            stream: false,
+          }),
+          signal: controller.signal,
+        });
 
-      clearTimeout(timeoutId);
-      const duration = Date.now() - startTime;
+        clearTimeout(timeoutId);
+        const duration = Date.now() - startTime;
 
-      if (!response.ok) {
-        let errorMsg = `HTTP ${response.status}`;
-        try {
-          const errorData = await response.json();
-          if (errorData.error?.message) {
-            errorMsg = errorData.error.message;
+        if (!response.ok) {
+          let errorMsg = `HTTP ${response.status}`;
+          try {
+            const errorData = await response.json();
+            if (errorData.error?.message) {
+              errorMsg = errorData.error.message;
+            }
+          } catch {
+            // ignore parse errors
           }
-        } catch {
-          // ignore parse errors
+          throw new Error(errorMsg);
         }
-        throw new Error(errorMsg);
-      }
 
-      setTestResults(prev => ({
-        ...prev,
-        [modelId]: { status: 'success', message: '测试成功', time: duration },
-      }));
-    } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : '连接失败';
-      setTestResults(prev => ({
-        ...prev,
-        [modelId]: { status: 'error', message: msg },
-      }));
-    } finally {
-      setTestingModelId(null);
-    }
+        return `连接成功 (${duration}ms)`;
+      } finally {
+        setTestingModelId(null);
+      }
+    };
+
+    toast.promise(testPromise(), {
+      loading: '正在测试连接...',
+      success: (data) => data,
+      error: (err) => err instanceof Error ? err.message : '连接失败',
+    });
   }, [selectedProvider]);
 
   // ── Model CRUD ──────────────────────────────────────────────────────
@@ -501,7 +487,6 @@ export function useAIConfig({
 
     // API testing
     testingModelId,
-    testResults,
     handleTestModel,
 
     // Model management

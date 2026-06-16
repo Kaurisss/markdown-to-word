@@ -1,6 +1,9 @@
 import React from 'react';
 import { Search2Line, Transfer3Line, CloseLine, ArrowDownCircleLine, ArrowRightCircleLine, ArrowUpCircleLine } from '@mingcute/react';
 import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Toggle } from '@/components/ui/toggle';
 
 export type SearchPopoverProps = {
   visible: boolean;
@@ -50,24 +53,26 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
         : 'opacity-0 -translate-y-2 scale-95 pointer-events-none'
         }`}
     >
-      <div className="w-[380px] bg-white dark:bg-dark-surface border border-gray-200 dark:border-dark-border rounded-xl shadow-2xl p-3 flex flex-col gap-3 backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95">
+      <div className="w-[380px] bg-background border border-border rounded-xl shadow-2xl p-3 flex flex-col gap-3 backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95">
 
         {/* Search Row */}
         <div className="flex items-center gap-2">
           {/* Expand/Collapse Replace */}
-          <button
+          <Button
+            variant="ghost"
+            size="icon-sm"
             onClick={() => setShowReplace(!showReplace)}
-            className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-dark-element-hover transition-colors"
+            className="text-muted-foreground hover:text-foreground"
           >
             {showReplace ? <ArrowDownCircleLine className="w-4 h-4" /> : <ArrowRightCircleLine className="w-4 h-4" />}
-          </button>
+          </Button>
 
           {/* Search Input Wrapper */}
           <div className="relative flex-1 group">
-            <div className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-500 transition-colors">
+            <div className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-brand-500 transition-colors z-10 pointer-events-none">
               <Search2Line className="w-4 h-4" />
             </div>
-            <input
+            <Input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -80,86 +85,91 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
               }}
               placeholder="查找..."
               autoFocus={visible}
-              className="w-full h-9 pl-9 pr-24 bg-gray-50 dark:bg-dark-element border border-gray-200 dark:border-dark-border rounded-lg text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
+              className="w-full h-9 pl-9 pr-[104px] bg-muted/50 border-border"
             />
 
             {/* Input Actions (Clear + Toggles) */}
             <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-0.5">
               {searchQuery && (
-                <button
+                <Button
+                  variant="ghost"
+                  size="icon"
                   onClick={() => setSearchQuery('')}
-                  className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-dark-element-hover transition-colors mr-1"
+                  className="h-6 w-6 rounded-sm text-muted-foreground hover:text-foreground mr-1"
                   title="清除"
                 >
                   <CloseLine className="w-3 h-3" />
-                </button>
+                </Button>
               )}
 
               <Separator orientation="vertical" className="h-4 mx-0.5" />
 
-              <button
-                onClick={() => setCaseSensitive((prev) => !prev)}
-                className={`p-1 rounded-md transition-colors ${caseSensitive
-                  ? 'text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/30'
-                  : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                  }`}
+              <Toggle
+                size="sm"
+                pressed={caseSensitive}
+                onPressedChange={setCaseSensitive}
+                className="h-6 w-6 p-0 rounded-sm data-[state=on]:bg-brand-50 data-[state=on]:text-brand-600 dark:data-[state=on]:bg-brand-900/30 dark:data-[state=on]:text-brand-400"
                 title="区分大小写 (Alt+C)"
               >
                 <span className="font-mono font-bold text-[10px] leading-none">Aa</span>
-              </button>
+              </Toggle>
 
-              <button
-                onClick={() => setWholeWord((prev) => !prev)}
-                className={`p-1 rounded-md transition-colors ${wholeWord
-                  ? 'text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/30'
-                  : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                  }`}
+              <Toggle
+                size="sm"
+                pressed={wholeWord}
+                onPressedChange={setWholeWord}
+                className="h-6 w-6 p-0 rounded-sm data-[state=on]:bg-brand-50 data-[state=on]:text-brand-600 dark:data-[state=on]:bg-brand-900/30 dark:data-[state=on]:text-brand-400"
                 title="全词匹配 (Alt+W)"
               >
                 <span className="font-mono font-bold text-[10px] leading-none">ab</span>
-              </button>
+              </Toggle>
 
-              <button
-                onClick={() => setUseRegex((prev) => !prev)}
-                className={`p-1 rounded-md transition-colors ${useRegex
-                  ? 'text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/30'
-                  : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                  }`}
+              <Toggle
+                size="sm"
+                pressed={useRegex}
+                onPressedChange={setUseRegex}
+                className="h-6 w-6 p-0 rounded-sm data-[state=on]:bg-brand-50 data-[state=on]:text-brand-600 dark:data-[state=on]:bg-brand-900/30 dark:data-[state=on]:text-brand-400"
                 title="使用正则表达式 (Alt+R)"
               >
                 <span className="font-mono font-bold text-[10px] leading-none">.*</span>
-              </button>
+              </Toggle>
             </div>
           </div>
 
           {/* Navigation */}
-          <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-dark-element border border-gray-200 dark:border-dark-border rounded-lg p-0.5 h-9">
-            <button
+          <div className="flex items-center gap-0.5 bg-muted/50 border border-border rounded-lg p-0.5 h-9">
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => setCurrentMatchIndex((prev) => Math.max(0, prev - 1))}
               disabled={!searchQuery}
-              className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-white dark:hover:bg-dark-element-hover rounded-md transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-sm hover:shadow"
+              className="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-background shadow-sm hover:shadow"
               title="上一个 (Shift+Enter)"
             >
               <ArrowUpCircleLine className="w-4 h-4" />
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => setCurrentMatchIndex((prev) => prev + 1)}
               disabled={!searchQuery}
-              className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-white dark:hover:bg-dark-element-hover rounded-md transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-sm hover:shadow"
+              className="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-background shadow-sm hover:shadow"
               title="下一个 (Enter)"
             >
               <ArrowDownCircleLine className="w-4 h-4" />
-            </button>
+            </Button>
           </div>
 
           {/* Close Button */}
-          <button
+          <Button
+            variant="ghost"
+            size="icon-sm"
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-element-hover rounded-lg transition-colors"
+            className="text-muted-foreground hover:text-foreground"
             title="关闭 (Escape)"
           >
             <CloseLine className="w-4 h-4" />
-          </button>
+          </Button>
         </div>
 
         {/* Replace Row */}
@@ -167,10 +177,10 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
           <div className="flex items-center gap-2 ml-8">
             {/* Replace Input */}
             <div className="relative flex-1 group">
-              <div className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-500 transition-colors">
+              <div className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-brand-500 transition-colors z-10 pointer-events-none">
                 <Transfer3Line className="w-4 h-4" />
               </div>
-              <input
+              <Input
                 type="text"
                 value={replaceText}
                 onChange={(e) => setReplaceText(e.target.value)}
@@ -184,37 +194,43 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
                   }
                 }}
                 placeholder="替换..."
-                className="w-full h-9 pl-9 pr-8 bg-gray-50 dark:bg-dark-element border border-gray-200 dark:border-dark-border rounded-lg text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
+                className="w-full h-9 pl-9 pr-8 bg-muted/50 border-border"
               />
               {replaceText && (
-                <button
+                <Button
+                  variant="ghost"
+                  size="icon"
                   onClick={() => setReplaceText('')}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-dark-element-hover transition-colors"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 text-muted-foreground hover:text-foreground"
                   title="清除"
                 >
                   <CloseLine className="w-3 h-3" />
-                </button>
+                </Button>
               )}
             </div>
 
             {/* Replace Actions */}
             <div className="flex items-center gap-2">
-              <button
+              <Button
+                variant="outline"
+                size="sm"
                 disabled={!searchQuery}
-                className="h-9 px-3 text-xs font-medium text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-dark-element border border-gray-200 dark:border-dark-border hover:bg-gray-100 dark:hover:bg-dark-element-hover hover:border-gray-300 dark:hover:border-gray-500 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm active:scale-95"
+                className="h-9 px-3 text-xs bg-muted/50"
                 title="替换 (Enter)"
                 onClick={onReplace}
               >
                 替换
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="default"
+                size="sm"
                 disabled={!searchQuery}
-                className="h-9 px-3 text-xs font-medium text-brand-50 dark:text-brand-50 bg-brand-600 hover:bg-brand-700 border border-transparent rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm active:scale-95"
+                className="h-9 px-3 text-xs bg-brand-600 hover:bg-brand-700 text-white"
                 title="全部替换 (Ctrl+Enter)"
                 onClick={onReplaceAll}
               >
                 全部替换
-              </button>
+              </Button>
             </div>
           </div>
         )}

@@ -4,6 +4,7 @@ import { AIProvider } from '../interfaces/AI';
 import { useAIConfig } from '../hooks/useAIConfig';
 import { ContextMenu } from './ui/ContextMenu';
 import { Switch } from './ui/switch';
+import { Toaster } from '@/components/ui/sonner';
 
 interface AIConfigModalProps {
   isOpen: boolean;
@@ -50,7 +51,7 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
     editModelId, setEditModelId, editModelName, setEditModelName,
     handleEditModel, handleSaveEditModel, closeEditModel,
     showApiKey, setShowApiKey,
-    testingModelId, testResults,
+    testingModelId,
     handleSelectModel,
     modelContextMenu, modelContextMenuRef,
     handleModelContextMenu,
@@ -221,8 +222,6 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
                   <div className="space-y-2">
                     {selectedProvider.models.map(model => {
                       const isSelected = currentModel?.providerId === selectedProvider.id && currentModel?.modelId === model.id;
-                      const testResult = testResults[model.id];
-                      const isTesting = testingModelId === model.id;
                       return (
                         <div
                           key={model.id}
@@ -241,19 +240,6 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            {isTesting && (
-                              <span className="flex items-center gap-1 text-[10px] text-gray-500">
-                                <LoadingLine className="w-3 h-3 animate-spin" />
-                                测试中...
-                              </span>
-                            )}
-                            {!isTesting && testResult && (
-                              <span className={`text-[10px] ${testResult.status === 'success' ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
-                                {testResult.status === 'success'
-                                  ? `✓ ${testResult.time}ms`
-                                  : `✗ ${testResult.message}`}
-                              </span>
-                            )}
                             <span className="text-[10px] text-gray-400 dark:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">右键菜单</span>
                           </div>
                         </div>
@@ -475,6 +461,7 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
       )}
 
       {/* Input Context Menu */}
+      <Toaster richColors position="top-center" closeButton />
       <ContextMenu
         visible={inputContextMenu.visible}
         x={inputContextMenu.x}

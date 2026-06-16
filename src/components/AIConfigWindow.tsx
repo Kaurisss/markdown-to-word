@@ -4,6 +4,10 @@ import { useAIConfigStore } from '../services/aiConfigStore';
 import { useAIConfig } from '../hooks/useAIConfig';
 import { ContextMenu } from './ui/ContextMenu';
 import { Switch } from './ui/switch';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from './ui/dialog';
+import { Toaster } from '@/components/ui/sonner';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
 
 export const AIConfigWindow: React.FC = () => {
   const { providers, updateProviders, selectedModel, updateSelectedModel } = useAIConfigStore();
@@ -35,7 +39,7 @@ export const AIConfigWindow: React.FC = () => {
     editModelId, setEditModelId, editModelName, setEditModelName,
     handleEditModel, handleSaveEditModel, closeEditModel,
     showApiKey, setShowApiKey,
-    testingModelId, testResults,
+    testingModelId,
     handleSelectModel,
     modelContextMenu, modelContextMenuRef,
     handleModelContextMenu,
@@ -241,14 +245,14 @@ export const AIConfigWindow: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-medium text-gray-500 dark:text-gray-400">API Key</label>
+                  <Label className="text-xs text-gray-500 dark:text-gray-400">API Key</Label>
                   <div className="relative">
-                    <input
+                    <Input
                       type={showApiKey ? 'text' : 'password'}
                       value={selectedProvider.apiKey}
                       onChange={(e) => handleUpdateProvider(selectedProvider.id, { apiKey: e.target.value })}
                       onContextMenu={handleInputContextMenu}
-                      className="w-full h-10 px-3 pr-9 text-sm rounded-lg border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-element text-gray-900 dark:text-gray-100 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-all"
+                      className="pr-9"
                       placeholder="请输入 API Key"
                     />
                     <button
@@ -263,13 +267,12 @@ export const AIConfigWindow: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Base URL</label>
-                  <input
+                  <Label className="text-xs text-gray-500 dark:text-gray-400">Base URL</Label>
+                  <Input
                     type="text"
                     value={selectedProvider.baseUrl}
                     onChange={(e) => handleUpdateProvider(selectedProvider.id, { baseUrl: e.target.value })}
                     onContextMenu={handleInputContextMenu}
-                    className="w-full h-10 px-3 text-sm rounded-lg border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-element text-gray-900 dark:text-gray-100 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-all"
                     placeholder="https://api.example.com/..."
                   />
                 </div>
@@ -295,8 +298,7 @@ export const AIConfigWindow: React.FC = () => {
                 <div className="space-y-2">
                   {selectedProvider.models.map(model => {
                     const isSelected = selectedModel?.providerId === selectedProvider.id && selectedModel?.modelId === model.id;
-                    const testResult = testResults[model.id];
-                    const isTesting = testingModelId === model.id;
+
                     return (
                       <div
                         key={model.id}
@@ -315,19 +317,6 @@ export const AIConfigWindow: React.FC = () => {
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          {isTesting && (
-                            <span className="flex items-center gap-1 text-[10px] text-gray-500">
-                              <LoadingLine className="w-3 h-3 animate-spin" />
-                              测试中...
-                            </span>
-                          )}
-                          {!isTesting && testResult && (
-                            <span className={`text-[10px] ${testResult.status === 'success' ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
-                              {testResult.status === 'success'
-                                ? `✓ ${testResult.time}ms`
-                                : `✗ ${testResult.message}`}
-                            </span>
-                          )}
                           <span className="text-[10px] text-gray-400 dark:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">右键菜单</span>
                         </div>
                       </div>
@@ -349,175 +338,146 @@ export const AIConfigWindow: React.FC = () => {
         )}
       </div>
 
-      {/* Add Platform Modal (Nested) */}
-      {(showAddPlatform || isAddPlatformClosing) && (
-        <div
-          className={`fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm ${isAddPlatformClosing ? 'animate-fade-out' : 'animate-fade-in'}`}
-          data-tauri-drag-region
-          onClick={(e) => { e.stopPropagation(); closeAddPlatform(); }}
-        >
-          <div
-            className={`bg-white dark:bg-dark-surface w-80 rounded-lg shadow-xl p-4 border border-gray-200 dark:border-dark-border ${isAddPlatformClosing ? 'animate-scale-out' : 'animate-scale-in'}`}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="text-sm font-semibold mb-4 text-gray-800 dark:text-gray-100">添加自定义平台</h3>
-            <div className="space-y-3">
-              <input
-                type="text"
-                value={newPlatformName}
-                onChange={(e) => setNewPlatformName(e.target.value)}
-                onContextMenu={handleInputContextMenu}
-                className="w-full px-3 py-1.5 text-xs border border-gray-300 dark:border-dark-border rounded focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none bg-white dark:bg-dark-element dark:text-gray-100"
-                placeholder="平台名称"
-              />
-              <input
-                type="text"
-                value={newPlatformUrl}
-                onChange={(e) => setNewPlatformUrl(e.target.value)}
-                onContextMenu={handleInputContextMenu}
-                className="w-full px-3 py-1.5 text-xs border border-gray-300 dark:border-dark-border rounded focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none bg-white dark:bg-dark-element dark:text-gray-100"
-                placeholder="Base URL (可选)"
-              />
-              <input
-                type="text"
-                value={newPlatformDescription}
-                onChange={(e) => setNewPlatformDescription(e.target.value)}
-                onContextMenu={handleInputContextMenu}
-                className="w-full px-3 py-1.5 text-xs border border-gray-300 dark:border-dark-border rounded focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none bg-white dark:bg-dark-element dark:text-gray-100"
-                placeholder="平台描述 (可选)"
-              />
-              <div className="flex justify-end gap-2 mt-4">
-                <button
-                  onClick={closeAddPlatform}
-                  className="px-3 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-element-hover rounded transition-colors"
-                >
-                  取消
-                </button>
-                <button
-                  onClick={handleAddPlatform}
-                  disabled={!newPlatformName.trim()}
-                  className="px-3 py-1.5 text-xs bg-brand-500 text-white rounded hover:bg-brand-600 disabled:opacity-50 transition-colors"
-                >
-                  确定
-                </button>
-              </div>
-            </div>
+      {/* Add Platform Modal */}
+      <Dialog open={showAddPlatform || isAddPlatformClosing} onOpenChange={(open) => { if (!open) closeAddPlatform(); }}>
+        <DialogContent className="w-80 p-4 gap-0 bg-white dark:bg-dark-surface border-gray-200 dark:border-dark-border" showCloseButton={false}>
+          <DialogHeader className="mb-4">
+            <DialogTitle className="text-sm font-semibold text-gray-800 dark:text-gray-100">添加自定义平台</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Input
+              type="text"
+              value={newPlatformName}
+              onChange={(e) => setNewPlatformName(e.target.value)}
+              onContextMenu={handleInputContextMenu}
+              placeholder="平台名称"
+            />
+            <Input
+              type="text"
+              value={newPlatformUrl}
+              onChange={(e) => setNewPlatformUrl(e.target.value)}
+              onContextMenu={handleInputContextMenu}
+              placeholder="Base URL (可选)"
+            />
+            <Input
+              type="text"
+              value={newPlatformDescription}
+              onChange={(e) => setNewPlatformDescription(e.target.value)}
+              onContextMenu={handleInputContextMenu}
+              placeholder="平台描述 (可选)"
+            />
+            <DialogFooter className="mt-4 flex-row justify-end gap-2 sm:justify-end">
+              <button
+                onClick={closeAddPlatform}
+                className="px-3 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-element-hover rounded transition-colors"
+              >
+                取消
+              </button>
+              <button
+                onClick={handleAddPlatform}
+                disabled={!newPlatformName.trim()}
+                className="px-3 py-1.5 text-xs bg-brand-500 text-white rounded hover:bg-brand-600 disabled:opacity-50 transition-colors"
+              >
+                确定
+              </button>
+            </DialogFooter>
           </div>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
 
       {/* Edit Platform Modal */}
-      {(showEditPlatform || isEditPlatformClosing) && (
-        <div
-          className={`fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm ${isEditPlatformClosing ? 'animate-fade-out' : 'animate-fade-in'}`}
-          data-tauri-drag-region
-          onClick={(e) => { e.stopPropagation(); closeEditPlatform(); }}
-        >
-          <div
-            className={`bg-white dark:bg-dark-surface w-80 rounded-lg shadow-xl p-4 border border-gray-200 dark:border-dark-border ${isEditPlatformClosing ? 'animate-scale-out' : 'animate-scale-in'}`}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="text-sm font-semibold mb-4 text-gray-800 dark:text-gray-100">编辑平台</h3>
-            <div className="space-y-3">
-              <input
-                type="text"
-                value={editPlatformName}
-                onChange={(e) => setEditPlatformName(e.target.value)}
-                onContextMenu={handleInputContextMenu}
-                className="w-full px-3 py-1.5 text-xs border border-gray-300 dark:border-dark-border rounded focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none bg-white dark:bg-dark-element dark:text-gray-100"
-                placeholder="平台名称"
-              />
-              <input
-                type="text"
-                value={editPlatformUrl}
-                onChange={(e) => setEditPlatformUrl(e.target.value)}
-                onContextMenu={handleInputContextMenu}
-                className="w-full px-3 py-1.5 text-xs border border-gray-300 dark:border-dark-border rounded focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none bg-white dark:bg-dark-element dark:text-gray-100"
-                placeholder="Base URL"
-              />
-              <input
-                type="text"
-                value={editPlatformDescription}
-                onChange={(e) => setEditPlatformDescription(e.target.value)}
-                onContextMenu={handleInputContextMenu}
-                className="w-full px-3 py-1.5 text-xs border border-gray-300 dark:border-dark-border rounded focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none bg-white dark:bg-dark-element dark:text-gray-100"
-                placeholder="平台描述 (可选)"
-              />
-              <div className="flex justify-end gap-2 mt-4">
-                <button
-                  onClick={closeEditPlatform}
-                  className="px-3 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-element-hover rounded transition-colors"
-                >
-                  取消
-                </button>
-                <button
-                  onClick={handleSaveEditPlatform}
-                  disabled={!editPlatformName.trim()}
-                  className="px-3 py-1.5 text-xs bg-brand-500 text-white rounded hover:bg-brand-600 disabled:opacity-50 transition-colors"
-                >
-                  保存
-                </button>
-              </div>
-            </div>
+      <Dialog open={showEditPlatform || isEditPlatformClosing} onOpenChange={(open) => { if (!open) closeEditPlatform(); }}>
+        <DialogContent className="w-80 p-4 gap-0 bg-white dark:bg-dark-surface border-gray-200 dark:border-dark-border" showCloseButton={false}>
+          <DialogHeader className="mb-4">
+            <DialogTitle className="text-sm font-semibold text-gray-800 dark:text-gray-100">编辑平台</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Input
+              type="text"
+              value={editPlatformName}
+              onChange={(e) => setEditPlatformName(e.target.value)}
+              onContextMenu={handleInputContextMenu}
+              placeholder="平台名称"
+            />
+            <Input
+              type="text"
+              value={editPlatformUrl}
+              onChange={(e) => setEditPlatformUrl(e.target.value)}
+              onContextMenu={handleInputContextMenu}
+              placeholder="Base URL"
+            />
+            <Input
+              type="text"
+              value={editPlatformDescription}
+              onChange={(e) => setEditPlatformDescription(e.target.value)}
+              onContextMenu={handleInputContextMenu}
+              placeholder="平台描述 (可选)"
+            />
+            <DialogFooter className="mt-4 flex-row justify-end gap-2 sm:justify-end">
+              <button
+                onClick={closeEditPlatform}
+                className="px-3 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-element-hover rounded transition-colors"
+              >
+                取消
+              </button>
+              <button
+                onClick={handleSaveEditPlatform}
+                disabled={!editPlatformName.trim()}
+                className="px-3 py-1.5 text-xs bg-brand-500 text-white rounded hover:bg-brand-600 disabled:opacity-50 transition-colors"
+              >
+                保存
+              </button>
+            </DialogFooter>
           </div>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
 
       {/* Add Model Modal */}
-      {(showAddModel || isAddModelClosing) && (
-        <div
-          className={`fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm ${isAddModelClosing ? 'animate-fade-out' : 'animate-fade-in'}`}
-          data-tauri-drag-region
-          onClick={(e) => { e.stopPropagation(); closeAddModel(); }}
-        >
-          <div
-            className={`bg-white dark:bg-dark-surface w-80 rounded-lg shadow-xl p-4 border border-gray-200 dark:border-dark-border ${isAddModelClosing ? 'animate-scale-out' : 'animate-scale-in'}`}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="text-sm font-semibold mb-4 text-gray-800 dark:text-gray-100">添加模型</h3>
-            <div className="space-y-3">
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-gray-500 dark:text-gray-400">模型 ID <span className="text-red-500">*</span></label>
-                <input
-                  type="text"
-                  value={newModelId}
-                  onChange={(e) => setNewModelId(e.target.value)}
-                  onContextMenu={handleInputContextMenu}
-                  className="w-full px-3 py-1.5 text-xs border border-gray-300 dark:border-dark-border rounded focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none bg-white dark:bg-dark-element dark:text-gray-100"
-                  placeholder="例如: gpt-4o, qwen-plus"
-                  autoFocus
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-gray-500 dark:text-gray-400">显示名称</label>
-                <input
-                  type="text"
-                  value={newModelName}
-                  onChange={(e) => setNewModelName(e.target.value)}
-                  onContextMenu={handleInputContextMenu}
-                  className="w-full px-3 py-1.5 text-xs border border-gray-300 dark:border-dark-border rounded focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none bg-white dark:bg-dark-element dark:text-gray-100"
-                  placeholder="留空则使用模型 ID"
-                />
-              </div>
-              <div className="flex justify-end gap-2 mt-4">
-                <button
-                  onClick={closeAddModel}
-                  className="px-3 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-element-hover rounded transition-colors"
-                >
-                  取消
-                </button>
-                <button
-                  onClick={handleAddModel}
-                  disabled={!newModelId.trim()}
-                  className="px-3 py-1.5 text-xs bg-brand-500 text-white rounded hover:bg-brand-600 disabled:opacity-50 transition-colors"
-                >
-                  确定
-                </button>
-              </div>
+      <Dialog open={showAddModel || isAddModelClosing} onOpenChange={(open) => { if (!open) closeAddModel(); }}>
+        <DialogContent className="w-80 p-4 gap-0 bg-white dark:bg-dark-surface border-gray-200 dark:border-dark-border" showCloseButton={false}>
+          <DialogHeader className="mb-4">
+            <DialogTitle className="text-sm font-semibold text-gray-800 dark:text-gray-100">添加模型</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <Label className="text-xs text-gray-500 dark:text-gray-400">模型 ID <span className="text-red-500">*</span></Label>
+              <Input
+                type="text"
+                value={newModelId}
+                onChange={(e) => setNewModelId(e.target.value)}
+                onContextMenu={handleInputContextMenu}
+                placeholder="例如: gpt-4o, qwen-plus"
+                autoFocus
+              />
             </div>
+            <div className="space-y-1">
+              <Label className="text-xs text-gray-500 dark:text-gray-400">显示名称</Label>
+              <Input
+                type="text"
+                value={newModelName}
+                onChange={(e) => setNewModelName(e.target.value)}
+                onContextMenu={handleInputContextMenu}
+                placeholder="留空则使用模型 ID"
+              />
+            </div>
+            <DialogFooter className="mt-4 flex-row justify-end gap-2 sm:justify-end">
+              <button
+                onClick={closeAddModel}
+                className="px-3 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-element-hover rounded transition-colors"
+              >
+                取消
+              </button>
+              <button
+                onClick={handleAddModel}
+                disabled={!newModelId.trim()}
+                className="px-3 py-1.5 text-xs bg-brand-500 text-white rounded hover:bg-brand-600 disabled:opacity-50 transition-colors"
+              >
+                确定
+              </button>
+            </DialogFooter>
           </div>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
 
       {/* Platform Context Menu */}
       {platformContextMenu.visible && (
@@ -586,61 +546,53 @@ export const AIConfigWindow: React.FC = () => {
       )}
 
       {/* Edit Model Modal */}
-      {(showEditModel || isEditModelClosing) && (
-        <div
-          className={`fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm ${isEditModelClosing ? 'animate-fade-out' : 'animate-fade-in'}`}
-          data-tauri-drag-region
-          onClick={(e) => { e.stopPropagation(); closeEditModel(); }}
-        >
-          <div
-            className={`bg-white dark:bg-dark-surface w-80 rounded-lg shadow-xl p-4 border border-gray-200 dark:border-dark-border ${isEditModelClosing ? 'animate-scale-out' : 'animate-scale-in'}`}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="text-sm font-semibold mb-4 text-gray-800 dark:text-gray-100">编辑模型</h3>
-            <div className="space-y-3">
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-gray-500 dark:text-gray-400">模型 ID <span className="text-red-500">*</span></label>
-                <input
-                  type="text"
-                  value={editModelId}
-                  onChange={(e) => setEditModelId(e.target.value)}
-                  onContextMenu={handleInputContextMenu}
-                  className="w-full px-3 py-1.5 text-xs border border-gray-300 dark:border-dark-border rounded focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none bg-white dark:bg-dark-bg dark:text-gray-100"
-                  placeholder="例如: gpt-4o, qwen-plus"
-                  autoFocus
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-gray-500 dark:text-gray-400">显示名称</label>
-                <input
-                  type="text"
-                  value={editModelName}
-                  onChange={(e) => setEditModelName(e.target.value)}
-                  onContextMenu={handleInputContextMenu}
-                  className="w-full px-3 py-1.5 text-xs border border-gray-300 dark:border-dark-border rounded focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none bg-white dark:bg-dark-bg dark:text-gray-100"
-                  placeholder="留空则使用模型 ID"
-                />
-              </div>
-              <div className="flex justify-end gap-2 mt-4">
-                <button
-                  onClick={closeEditModel}
-                  className="px-3 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
-                >
-                  取消
-                </button>
-                <button
-                  onClick={handleSaveEditModel}
-                  disabled={!editModelId.trim()}
-                  className="px-3 py-1.5 text-xs bg-brand-500 text-white rounded hover:bg-brand-600 disabled:opacity-50 transition-colors"
-                >
-                  保存
-                </button>
-              </div>
+      <Dialog open={showEditModel || isEditModelClosing} onOpenChange={(open) => { if (!open) closeEditModel(); }}>
+        <DialogContent className="w-80 p-4 gap-0 bg-white dark:bg-dark-surface border-gray-200 dark:border-dark-border" showCloseButton={false}>
+          <DialogHeader className="mb-4">
+            <DialogTitle className="text-sm font-semibold text-gray-800 dark:text-gray-100">编辑模型</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <Label className="text-xs text-gray-500 dark:text-gray-400">模型 ID <span className="text-red-500">*</span></Label>
+              <Input
+                type="text"
+                value={editModelId}
+                onChange={(e) => setEditModelId(e.target.value)}
+                onContextMenu={handleInputContextMenu}
+                placeholder="例如: gpt-4o, qwen-plus"
+                autoFocus
+              />
             </div>
+            <div className="space-y-1">
+              <Label className="text-xs text-gray-500 dark:text-gray-400">显示名称</Label>
+              <Input
+                type="text"
+                value={editModelName}
+                onChange={(e) => setEditModelName(e.target.value)}
+                onContextMenu={handleInputContextMenu}
+                placeholder="留空则使用模型 ID"
+              />
+            </div>
+            <DialogFooter className="mt-4 flex-row justify-end gap-2 sm:justify-end">
+              <button
+                onClick={closeEditModel}
+                className="px-3 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
+              >
+                取消
+              </button>
+              <button
+                onClick={handleSaveEditModel}
+                disabled={!editModelId.trim()}
+                className="px-3 py-1.5 text-xs bg-brand-500 text-white rounded hover:bg-brand-600 disabled:opacity-50 transition-colors"
+              >
+                保存
+              </button>
+            </DialogFooter>
           </div>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
       {/* Input Context Menu */}
+      <Toaster richColors position="top-center" closeButton />
       <ContextMenu
         visible={inputContextMenu.visible}
         x={inputContextMenu.x}
