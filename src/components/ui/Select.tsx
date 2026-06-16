@@ -244,7 +244,7 @@ export const Select: React.FC<SelectProps> = ({
             <ChevronDownIcon className="size-3.5 opacity-50 shrink-0" />
           </button>
         </PopoverTrigger>
-        <PopoverContent className={cn("p-0 shadow-xl min-w-[var(--radix-popover-trigger-width)]", showSearch ? "w-56" : "w-[var(--radix-popover-trigger-width)]")} align="start">
+        <PopoverContent className={cn("p-0 shadow-xl min-w-[var(--radix-popover-trigger-width)]", showSearch ? "w-56" : "w-max")} align="start">
           <Command>
             {showSearch && <CommandInput placeholder="搜索..." className="h-9 text-[13px]" />}
             <CommandList className="max-h-60 custom-scrollbar">
@@ -258,7 +258,7 @@ export const Select: React.FC<SelectProps> = ({
                       onChange(option.value);
                       setOpen(false);
                     }}
-                    className={cn('text-[13px] py-1.5 px-2 cursor-pointer', optionClassName)}
+                    className={cn('text-[13px] py-1.5 px-2 cursor-pointer whitespace-nowrap', optionClassName)}
                   >
                     <span style={option.fontFamily ? { fontFamily: `"${option.fontFamily}"` } : undefined} className="truncate">
                       {option.label}
