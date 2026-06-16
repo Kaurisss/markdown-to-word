@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { CloseLine, MinimizeLine } from '@mingcute/react';
 import { useSettingsStore, ViewMode } from '../services/settingsStore';
 import { FONTS_CN, FONTS_EN, FONT_LABELS, FONT_SIZES, FONT_SIZES_PT } from './header/constants';
 import { Select } from './ui/Select';
@@ -112,13 +113,7 @@ export const SettingsWindow: React.FC = () => {
               className="w-[46px] h-10 grid place-items-center text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-element active:bg-gray-200 dark:active:bg-dark-border transition-colors"
               aria-label="最小化"
             >
-              <span
-                aria-hidden="true"
-                className="select-none leading-none text-[10px]"
-                style={{ fontFamily: "'Segoe MDL2 Assets'" }}
-              >
-                &#xE921;
-              </span>
+              <MinimizeLine size={16} />
             </button>
             <button
               type="button"
@@ -126,13 +121,7 @@ export const SettingsWindow: React.FC = () => {
               className="w-[46px] h-10 grid place-items-center text-gray-600 dark:text-gray-300 hover:bg-red-500 hover:text-white active:bg-red-600 transition-colors"
               aria-label="关闭"
             >
-              <span
-                aria-hidden="true"
-                className="select-none leading-none text-[10px]"
-                style={{ fontFamily: "'Segoe MDL2 Assets'" }}
-              >
-                &#xE8BB;
-              </span>
+              <CloseLine size={16} />
             </button>
           </div>
         </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Copy2Line, CheckLine, LoadingLine, AddLine, PlayLine, Delete2Line, Edit2Line, Eye2Line, EyeCloseLine } from '@mingcute/react';
+import { Copy2Line, CheckLine, LoadingLine, AddLine, PlayLine, Delete2Line, Edit2Line, Eye2Line, EyeCloseLine, CloseLine, MinimizeLine } from '@mingcute/react';
 import { useAIConfigStore } from '../services/aiConfigStore';
 import { useAIConfig } from '../hooks/useAIConfig';
 import { ContextMenu } from './ui/ContextMenu';
@@ -163,13 +163,7 @@ export const AIConfigWindow: React.FC = () => {
                 className="absolute top-0 right-[46px] z-[80] w-[46px] h-10 grid place-items-center text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-element active:bg-gray-200 dark:active:bg-dark-border transition-colors"
                 aria-label="最小化"
               >
-                <span
-                  aria-hidden="true"
-                  className="select-none leading-none text-[10px]"
-                  style={{ fontFamily: "'Segoe MDL2 Assets'" }}
-                >
-                  &#xE921;
-                </span>
+                <MinimizeLine size={16} />
               </button>
               <button
                 type="button"
@@ -178,13 +172,7 @@ export const AIConfigWindow: React.FC = () => {
                 className="absolute top-0 right-0 z-[80] w-[46px] h-10 grid place-items-center text-gray-600 dark:text-gray-300 hover:bg-red-500 hover:text-white active:bg-red-600 transition-colors"
                 aria-label="关闭"
               >
-                <span
-                  aria-hidden="true"
-                  className="select-none leading-none text-[10px]"
-                  style={{ fontFamily: "'Segoe MDL2 Assets'" }}
-                >
-                  &#xE8BB;
-                </span>
+                <CloseLine size={16} />
               </button>
             </div>
             <div className="flex-1 overflow-y-auto p-6 space-y-8">
@@ -232,13 +220,7 @@ export const AIConfigWindow: React.FC = () => {
                 className="absolute top-0 right-[46px] z-[80] w-[46px] h-10 grid place-items-center text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-element active:bg-gray-200 dark:active:bg-dark-border transition-colors"
                 aria-label="最小化"
               >
-                <span
-                  aria-hidden="true"
-                  className="select-none leading-none text-[10px]"
-                  style={{ fontFamily: "'Segoe MDL2 Assets'" }}
-                >
-                  &#xE921;
-                </span>
+                <MinimizeLine size={16} />
               </button>
               <button
                 type="button"
@@ -247,13 +229,7 @@ export const AIConfigWindow: React.FC = () => {
                 className="absolute top-0 right-0 z-[80] w-[46px] h-10 grid place-items-center text-gray-600 dark:text-gray-300 hover:bg-red-500 hover:text-white active:bg-red-600 transition-colors"
                 aria-label="关闭"
               >
-                <span
-                  aria-hidden="true"
-                  className="select-none leading-none text-[10px]"
-                  style={{ fontFamily: "'Segoe MDL2 Assets'" }}
-                >
-                  &#xE8BB;
-                </span>
+                <CloseLine size={16} />
               </button>
             </div>
 

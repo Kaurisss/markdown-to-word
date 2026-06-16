@@ -1,7 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-
-const WINDOW_ICON_FONT_FAMILY = "'Segoe Fluent Icons', 'Segoe MDL2 Assets'";
-const WINDOW_ICON_CLASS = 'select-none leading-none text-[10px]';
+import { CloseLine, SquareLine, RestoreLine, MinimizeLine } from '@mingcute/react';
 
 export const WindowControls: React.FC = () => {
   const [isMaximized, setIsMaximized] = useState(false);
@@ -50,9 +48,7 @@ export const WindowControls: React.FC = () => {
         className="w-12 h-10 grid place-items-center border-b border-gray-100 dark:border-dark-border bg-white dark:bg-dark-bg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-element active:bg-gray-200 dark:active:bg-dark-border transition-colors"
         aria-label="最小化"
       >
-        <span aria-hidden="true" className={WINDOW_ICON_CLASS} style={{ fontFamily: WINDOW_ICON_FONT_FAMILY }}>
-          &#xE921;
-        </span>
+        <MinimizeLine size={16} />
       </button>
       <button
         type="button"
@@ -60,9 +56,7 @@ export const WindowControls: React.FC = () => {
         className="w-12 h-10 grid place-items-center border-b border-gray-100 dark:border-dark-border bg-white dark:bg-dark-bg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-element active:bg-gray-200 dark:active:bg-dark-border transition-colors"
         aria-label={isMaximized ? '还原' : '最大化'}
       >
-        <span aria-hidden="true" className={WINDOW_ICON_CLASS} style={{ fontFamily: WINDOW_ICON_FONT_FAMILY }}>
-          {isMaximized ? '\uE923' : '\uE922'}
-        </span>
+        {isMaximized ? <RestoreLine size={16} /> : <SquareLine size={16} />}
       </button>
       <button
         type="button"
@@ -70,9 +64,7 @@ export const WindowControls: React.FC = () => {
         className="w-12 h-10 grid place-items-center border-b border-gray-100 dark:border-dark-border bg-white dark:bg-dark-bg text-gray-600 dark:text-gray-300 hover:bg-red-500 hover:text-white active:bg-red-600 transition-colors"
         aria-label="关闭"
       >
-        <span aria-hidden="true" className={WINDOW_ICON_CLASS} style={{ fontFamily: WINDOW_ICON_FONT_FAMILY }}>
-          &#xE8BB;
-        </span>
+        <CloseLine size={16} />
       </button>
     </div>
   );

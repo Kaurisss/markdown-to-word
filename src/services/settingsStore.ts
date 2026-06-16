@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useSyncExternalStore } from 'react';
 
 const SETTINGS_KEY = 'md2word_settings';
 const AUTO_SAVE_CONTENT_KEY = 'md2word_auto_save_content';
@@ -24,98 +24,110 @@ const DEFAULT_SETTINGS: AppSettings = {
   defaultFontSize: 12,
 };
 
-function loadSettings(): AppSettings {
+// ── Persistence helpers ───────────────────────────────────────────
+
+function loadFromStorage(): AppSettings {
   try {
-    // Migrate existing theme from old key
     const oldTheme = localStorage.getItem('app_theme');
     const stored = localStorage.getItem(SETTINGS_KEY);
     const settings = stored ? JSON.parse(stored) : { ...DEFAULT_SETTINGS };
-
-    // If old theme key exists and settings don't have it yet, migrate
     if (oldTheme && !stored) {
       settings.theme = oldTheme === 'dark' ? 'dark' : 'light';
     }
-
     return { ...DEFAULT_SETTINGS, ...settings };
   } catch {
     return { ...DEFAULT_SETTINGS };
   }
 }
 
-function saveSettings(settings: AppSettings) {
+function saveToStorage(settings: AppSettings) {
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-  // Keep old theme key in sync for backward compatibility
   localStorage.setItem('app_theme', settings.theme);
 }
 
-export const useSettingsStore = () => {
-  const [settings, setSettings] = useState<AppSettings>(loadSettings);
+// ── Singleton state ───────────────────────────────────────────────
 
-  const updateSettings = useCallback((patch: Partial<AppSettings>) => {
-    setSettings(prev => {
-      const next = { ...prev, ...patch };
-      saveSettings(next);
-      // Dispatch storage event for other windows
-      window.dispatchEvent(new StorageEvent('storage', {
-        key: SETTINGS_KEY,
-        newValue: JSON.stringify(next),
-      }));
-      // Broadcast update for multi-webview sync in Tauri.
-      try {
-        const channel = new BroadcastChannel(SETTINGS_CHANNEL);
-        channel.postMessage(next);
-        channel.close();
-      } catch {
-        // Ignore when BroadcastChannel is unavailable.
-      }
-      return next;
-    });
-  }, []);
+let settings: AppSettings = loadFromStorage();
 
-  // Listen for storage changes from other windows
-  useEffect(() => {
-    let channel: BroadcastChannel | null = null;
+const listeners = new Set<() => void>();
 
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === SETTINGS_KEY && e.newValue) {
-        try {
-          setSettings({ ...DEFAULT_SETTINGS, ...JSON.parse(e.newValue) });
-        } catch {
-          // ignore
-        }
-      }
-    };
+function subscribe(cb: () => void) {
+  listeners.add(cb);
+  return () => listeners.delete(cb);
+}
 
-    const handleBroadcastMessage = (event: MessageEvent<AppSettings>) => {
-      if (!event.data) return;
-      try {
-        setSettings({ ...DEFAULT_SETTINGS, ...event.data });
-      } catch {
-        // ignore
-      }
-    };
+function emit() {
+  listeners.forEach(cb => cb());
+}
 
+function getSnapshot(): AppSettings {
+  return settings;
+}
+
+// ── Actions ───────────────────────────────────────────────────────
+
+function updateSettings(patch: Partial<AppSettings>) {
+  settings = { ...settings, ...patch };
+  saveToStorage(settings);
+
+  window.dispatchEvent(new StorageEvent('storage', {
+    key: SETTINGS_KEY,
+    newValue: JSON.stringify(settings),
+  }));
+
+  try {
+    const channel = new BroadcastChannel(SETTINGS_CHANNEL);
+    channel.postMessage(settings);
+    channel.close();
+  } catch {
+    // Ignore when BroadcastChannel is unavailable.
+  }
+
+  emit();
+}
+
+// ── Cross-window sync (registered once at module load) ───────────
+
+function handleStorageChange(e: StorageEvent) {
+  if (e.key === SETTINGS_KEY && e.newValue) {
     try {
-      channel = new BroadcastChannel(SETTINGS_CHANNEL);
-      channel.onmessage = handleBroadcastMessage;
+      settings = { ...DEFAULT_SETTINGS, ...JSON.parse(e.newValue) };
+      emit();
     } catch {
-      // Ignore when BroadcastChannel is unavailable.
+      // ignore
     }
+  }
+}
 
-    window.addEventListener('storage', handleStorageChange);
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      if (channel) {
-        channel.onmessage = null;
-        channel.close();
-      }
-    };
-  }, []);
+function handleBroadcastMessage(event: MessageEvent<AppSettings>) {
+  if (!event.data) return;
+  try {
+    settings = { ...DEFAULT_SETTINGS, ...event.data };
+    emit();
+  } catch {
+    // ignore
+  }
+}
 
-  return { settings, updateSettings };
+window.addEventListener('storage', handleStorageChange);
+
+let broadcastChannel: BroadcastChannel | null = null;
+try {
+  broadcastChannel = new BroadcastChannel(SETTINGS_CHANNEL);
+  broadcastChannel.onmessage = handleBroadcastMessage;
+} catch {
+  // Ignore when BroadcastChannel is unavailable.
+}
+
+// ── Hook ──────────────────────────────────────────────────────────
+
+export const useSettingsStore = () => {
+  const snapshot = useSyncExternalStore(subscribe, getSnapshot);
+  return { settings: snapshot, updateSettings };
 };
 
-// Auto-save helpers
+// ── Auto-save helpers (pure, not part of store) ──────────────────
+
 export function loadAutoSavedContent(): string | null {
   try {
     return localStorage.getItem(AUTO_SAVE_CONTENT_KEY);
