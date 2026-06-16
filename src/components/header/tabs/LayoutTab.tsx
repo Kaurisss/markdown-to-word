@@ -102,7 +102,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({ cfg, onCfgChange, activeSt
         <div className="flex gap-2">
           <div className="flex flex-col gap-0.5">
             <span className={STYLES.labelClass}>行距</span>
-            <div className="flex items-center border border-gray-300 dark:border-dark-border rounded-md bg-white dark:bg-dark-element overflow-visible h-8 w-24">
+            <div className="flex items-center border border-gray-300 dark:border-dark-border rounded-md bg-white dark:bg-dark-element overflow-hidden h-8 w-24">
               <input
                 type="number"
                 step="0.1"
@@ -126,6 +126,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({ cfg, onCfgChange, activeSt
               <Separator orientation="vertical" className="h-4 mx-0.5" />
               <Select
                 className="w-12"
+                triggerClassName="h-full rounded-none"
                 variant="ghost"
                 value={typeof currentStyle.lineSpacing === 'string' && currentStyle.lineSpacing.endsWith('pt') ? 'pt' : 'times'}
                 onChange={(val) => {

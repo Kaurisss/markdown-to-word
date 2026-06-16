@@ -2,12 +2,19 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Copy2Line, CheckLine, LoadingLine, AddLine, PlayLine, Delete2Line, Edit2Line, Eye2Line, EyeCloseLine, CloseLine, MinimizeLine } from '@mingcute/react';
 import { useAIConfigStore } from '../services/aiConfigStore';
 import { useAIConfig } from '../hooks/useAIConfig';
-import { ContextMenu } from './ui/ContextMenu';
 import { Switch } from './ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from './ui/dialog';
 import { Toaster } from '@/components/ui/sonner';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
+import {
+  ContextMenu,
+  ContextMenuTrigger,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuShortcut
+} from '@/components/ui/context-menu';
 
 export const AIConfigWindow: React.FC = () => {
   const { providers, updateProviders, selectedModel, updateSelectedModel } = useAIConfigStore();
@@ -41,13 +48,10 @@ export const AIConfigWindow: React.FC = () => {
     showApiKey, setShowApiKey,
     testingModelId,
     handleSelectModel,
-    modelContextMenu, modelContextMenuRef,
-    handleModelContextMenu,
-    handleContextMenuTest, handleContextMenuDelete,
-    platformContextMenu, platformContextMenuRef,
-    handlePlatformContextMenu,
-    handlePlatformContextEdit, handlePlatformContextDelete,
-    inputContextMenu, handleInputContextMenu, closeInputContextMenu,
+    handleTestModelClick,
+    handleDeleteModelClick,
+    handlePlatformEdit,
+    handlePlatformDelete,
   } = config;
 
   // ── Window-only state ───────────────────────────────────────────────
@@ -120,25 +124,45 @@ export const AIConfigWindow: React.FC = () => {
               </div>
             ))
           ) : (
-            providers.map(provider => (
-              <div
-                key={provider.id}
-                data-platform-card={provider.isCustom ? 'true' : undefined}
-                onClick={() => setSelectedProviderId(provider.id)}
-                onContextMenu={(e) => handlePlatformContextMenu(e, provider)}
-                className={`flex items-center justify-between px-3 py-2 rounded-md cursor-pointer transition-colors text-sm ${selectedProviderId === provider.id
-                  ? 'bg-blue-50 dark:bg-blue-900/20 text-brand-600 dark:text-brand-400 font-medium'
-                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-surface'
-                  }`}
-              >
-                <span className="truncate pr-2">{provider.name}</span>
-                <Switch
-                  checked={provider.isEnabled}
-                  onCheckedChange={(c) => handleToggleProvider(provider.id, c)}
-                  onClick={(e) => e.stopPropagation()}
-                />
-              </div>
-            ))
+            providers.map(provider => {
+              const card = (
+                <div
+                  key={provider.id}
+                  data-platform-card={provider.isCustom ? 'true' : undefined}
+                  onClick={() => setSelectedProviderId(provider.id)}
+                  className={`flex items-center justify-between px-3 py-2 rounded-md cursor-pointer transition-colors text-sm ${selectedProviderId === provider.id
+                    ? 'bg-blue-50 dark:bg-blue-900/20 text-brand-600 dark:text-brand-400 font-medium'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-surface'
+                    }`}
+                >
+                  <span className="truncate pr-2">{provider.name}</span>
+                  <Switch
+                    checked={provider.isEnabled}
+                    onCheckedChange={(c) => handleToggleProvider(provider.id, c)}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </div>
+              );
+
+              if (!provider.isCustom) return card;
+
+              return (
+                <ContextMenu key={provider.id}>
+                  <ContextMenuTrigger asChild>
+                    {card}
+                  </ContextMenuTrigger>
+                  <ContextMenuContent className="w-48">
+                    <ContextMenuItem onClick={() => handlePlatformEdit(provider)}>
+                      <Edit2Line className="w-4 h-4 mr-2" /> 编辑
+                    </ContextMenuItem>
+                    <ContextMenuSeparator />
+                    <ContextMenuItem onClick={() => handlePlatformDelete(provider)} className="text-red-500 hover:text-red-600 focus:text-red-600 dark:text-red-400 dark:hover:text-red-300 dark:focus:text-red-300">
+                      <Delete2Line className="w-4 h-4 mr-2" /> 删除
+                    </ContextMenuItem>
+                  </ContextMenuContent>
+                </ContextMenu>
+              );
+            })
           )}
         </div>
       </div>
@@ -251,8 +275,7 @@ export const AIConfigWindow: React.FC = () => {
                       type={showApiKey ? 'text' : 'password'}
                       value={selectedProvider.apiKey}
                       onChange={(e) => handleUpdateProvider(selectedProvider.id, { apiKey: e.target.value })}
-                      onContextMenu={handleInputContextMenu}
-                      className="pr-9"
+                      className="w-full pr-9 bg-white dark:bg-dark-element"
                       placeholder="请输入 API Key"
                     />
                     <button
@@ -272,7 +295,7 @@ export const AIConfigWindow: React.FC = () => {
                     type="text"
                     value={selectedProvider.baseUrl}
                     onChange={(e) => handleUpdateProvider(selectedProvider.id, { baseUrl: e.target.value })}
-                    onContextMenu={handleInputContextMenu}
+                    className="w-full bg-white dark:bg-dark-element"
                     placeholder="https://api.example.com/..."
                   />
                 </div>
@@ -300,26 +323,43 @@ export const AIConfigWindow: React.FC = () => {
                     const isSelected = selectedModel?.providerId === selectedProvider.id && selectedModel?.modelId === model.id;
 
                     return (
-                      <div
-                        key={model.id}
-                        data-model-card
-                        className={`flex items-center justify-between p-3 rounded-lg border group cursor-pointer transition-all ${isSelected
-                          ? 'bg-brand-50 dark:bg-brand-900/20 border-brand-200 dark:border-brand-800 shadow-sm'
-                          : 'bg-white dark:bg-dark-element border-gray-200 dark:border-dark-border hover:border-brand-300 dark:hover:border-brand-700 hover:shadow-sm'
-                          }`}
-                        onClick={() => handleSelectModel(model)}
-                        onContextMenu={(e) => handleModelContextMenu(e, model)}
-                      >
-                        <div className="flex flex-col">
-                          <div className="flex items-center gap-2">
-                            {isSelected && <CheckLine className="w-4 h-4 text-brand-500" />}
-                            <span className={`text-sm font-medium ${isSelected ? 'text-brand-700 dark:text-brand-400' : 'text-gray-700 dark:text-gray-200'}`}>{model.name}</span>
+                      <ContextMenu key={model.id}>
+                        <ContextMenuTrigger asChild>
+                          <div
+                            data-model-card
+                            className={`flex items-center justify-between p-3 rounded-lg border group cursor-pointer transition-all ${isSelected
+                              ? 'bg-brand-50 dark:bg-brand-900/20 border-brand-200 dark:border-brand-800 shadow-sm'
+                              : 'bg-white dark:bg-dark-element border-gray-200 dark:border-dark-border hover:border-brand-300 dark:hover:border-brand-700 hover:shadow-sm'
+                              }`}
+                            onClick={() => handleSelectModel(model)}
+                          >
+                            <div className="flex flex-col">
+                              <div className="flex items-center gap-2">
+                                {isSelected && <CheckLine className="w-4 h-4 text-brand-500" />}
+                                <span className={`text-sm font-medium ${isSelected ? 'text-brand-700 dark:text-brand-400' : 'text-gray-700 dark:text-gray-200'}`}>{model.name}</span>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] text-gray-400 dark:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">右键菜单</span>
+                            </div>
                           </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] text-gray-400 dark:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">右键菜单</span>
-                        </div>
-                      </div>
+                        </ContextMenuTrigger>
+                        <ContextMenuContent className="w-48">
+                          <ContextMenuItem onClick={() => handleTestModelClick(model)}>
+                            <PlayLine className="w-4 h-4 mr-2" /> 测试连接
+                          </ContextMenuItem>
+                          <ContextMenuItem onClick={() => handleEditModel(model)}>
+                            <Edit2Line className="w-4 h-4 mr-2" /> 编辑
+                          </ContextMenuItem>
+                          <ContextMenuItem onClick={() => config.handleCopyModel(model)}>
+                            <Copy2Line className="w-4 h-4 mr-2" /> 复制配置
+                          </ContextMenuItem>
+                          <ContextMenuSeparator />
+                          <ContextMenuItem onClick={() => handleDeleteModelClick(model)} className="text-red-500 hover:text-red-600 focus:text-red-600 dark:text-red-400 dark:hover:text-red-300 dark:focus:text-red-300">
+                            <Delete2Line className="w-4 h-4 mr-2" /> 删除
+                          </ContextMenuItem>
+                        </ContextMenuContent>
+                      </ContextMenu>
                     );
                   })}
                   {selectedProvider.models.length === 0 && (
@@ -349,21 +389,18 @@ export const AIConfigWindow: React.FC = () => {
               type="text"
               value={newPlatformName}
               onChange={(e) => setNewPlatformName(e.target.value)}
-              onContextMenu={handleInputContextMenu}
               placeholder="平台名称"
             />
             <Input
               type="text"
               value={newPlatformUrl}
               onChange={(e) => setNewPlatformUrl(e.target.value)}
-              onContextMenu={handleInputContextMenu}
               placeholder="Base URL (可选)"
             />
             <Input
               type="text"
               value={newPlatformDescription}
               onChange={(e) => setNewPlatformDescription(e.target.value)}
-              onContextMenu={handleInputContextMenu}
               placeholder="平台描述 (可选)"
             />
             <DialogFooter className="mt-4 flex-row justify-end gap-2 sm:justify-end">
@@ -396,21 +433,18 @@ export const AIConfigWindow: React.FC = () => {
               type="text"
               value={editPlatformName}
               onChange={(e) => setEditPlatformName(e.target.value)}
-              onContextMenu={handleInputContextMenu}
               placeholder="平台名称"
             />
             <Input
               type="text"
               value={editPlatformUrl}
               onChange={(e) => setEditPlatformUrl(e.target.value)}
-              onContextMenu={handleInputContextMenu}
               placeholder="Base URL"
             />
             <Input
               type="text"
               value={editPlatformDescription}
               onChange={(e) => setEditPlatformDescription(e.target.value)}
-              onContextMenu={handleInputContextMenu}
               placeholder="平台描述 (可选)"
             />
             <DialogFooter className="mt-4 flex-row justify-end gap-2 sm:justify-end">
@@ -445,7 +479,6 @@ export const AIConfigWindow: React.FC = () => {
                 type="text"
                 value={newModelId}
                 onChange={(e) => setNewModelId(e.target.value)}
-                onContextMenu={handleInputContextMenu}
                 placeholder="例如: gpt-4o, qwen-plus"
                 autoFocus
               />
@@ -456,7 +489,6 @@ export const AIConfigWindow: React.FC = () => {
                 type="text"
                 value={newModelName}
                 onChange={(e) => setNewModelName(e.target.value)}
-                onContextMenu={handleInputContextMenu}
                 placeholder="留空则使用模型 ID"
               />
             </div>
@@ -479,71 +511,6 @@ export const AIConfigWindow: React.FC = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Platform Context Menu */}
-      {platformContextMenu.visible && (
-        <div
-          className="fixed z-[70] bg-white dark:bg-dark-surface rounded-lg shadow-xl border border-gray-200 dark:border-dark-border py-1 min-w-[140px] animate-scale-in"
-          style={{ left: platformContextMenu.x, top: platformContextMenu.y }}
-          onClick={(e) => e.stopPropagation()}
-          ref={platformContextMenuRef}
-        >
-          <button
-            onClick={handlePlatformContextEdit}
-            className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-          >
-            <Edit2Line className="w-3.5 h-3.5" />
-            编辑平台
-          </button>
-          <div className="my-1 border-t border-gray-100 dark:border-dark-border" />
-          <button
-            onClick={handlePlatformContextDelete}
-            className="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-          >
-            <Delete2Line className="w-3.5 h-3.5" />
-            删除平台
-          </button>
-        </div>
-      )}
-
-      {/* Model Context Menu */}
-      {modelContextMenu.visible && (
-        <div
-          className="fixed z-[70] bg-white dark:bg-dark-surface rounded-lg shadow-xl border border-gray-200 dark:border-dark-border py-1 min-w-[140px] animate-scale-in"
-          style={{ left: modelContextMenu.x, top: modelContextMenu.y }}
-          onClick={(e) => e.stopPropagation()}
-          ref={modelContextMenuRef}
-        >
-          <button
-            onClick={handleEditModel}
-            className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-          >
-            <Edit2Line className="w-3.5 h-3.5" />
-            编辑模型
-          </button>
-          <button
-            onClick={config.handleCopyModel}
-            className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-          >
-            <Copy2Line className="w-3.5 h-3.5" />
-            复制模型
-          </button>
-          <button
-            onClick={handleContextMenuTest}
-            className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-          >
-            <PlayLine className="w-3.5 h-3.5" />
-            测试模型
-          </button>
-          <div className="my-1 border-t border-gray-100 dark:border-dark-border" />
-          <button
-            onClick={handleContextMenuDelete}
-            className="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-          >
-            <Delete2Line className="w-3.5 h-3.5" />
-            删除模型
-          </button>
-        </div>
-      )}
 
       {/* Edit Model Modal */}
       <Dialog open={showEditModel || isEditModelClosing} onOpenChange={(open) => { if (!open) closeEditModel(); }}>
@@ -558,7 +525,6 @@ export const AIConfigWindow: React.FC = () => {
                 type="text"
                 value={editModelId}
                 onChange={(e) => setEditModelId(e.target.value)}
-                onContextMenu={handleInputContextMenu}
                 placeholder="例如: gpt-4o, qwen-plus"
                 autoFocus
               />
@@ -569,7 +535,6 @@ export const AIConfigWindow: React.FC = () => {
                 type="text"
                 value={editModelName}
                 onChange={(e) => setEditModelName(e.target.value)}
-                onContextMenu={handleInputContextMenu}
                 placeholder="留空则使用模型 ID"
               />
             </div>
@@ -593,13 +558,6 @@ export const AIConfigWindow: React.FC = () => {
       </Dialog>
       {/* Input Context Menu */}
       <Toaster richColors position="top-center" closeButton />
-      <ContextMenu
-        visible={inputContextMenu.visible}
-        x={inputContextMenu.x}
-        y={inputContextMenu.y}
-        items={inputContextMenu.items}
-        onClose={closeInputContextMenu}
-      />
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { ContextMenuItem } from '../components/ui/ContextMenu';
+import { ContextMenuActionItem } from '../components/ui/context-menu';
 import { Copy2Line, ClipboardLine, ScissorsLine, Back2Line, Forward2Line, CheckboxLine } from '@mingcute/react';
 import { ToastType } from '../components/Toast';
 
@@ -7,7 +7,7 @@ interface ContextMenuState {
   visible: boolean;
   x: number;
   y: number;
-  items: ContextMenuItem[];
+  items: ContextMenuActionItem[];
 }
 
 interface UseContextMenuOptions {
@@ -39,6 +39,10 @@ export function useContextMenu({
     y: 0,
     items: []
   });
+
+  const closeContextMenu = useCallback(() => {
+    setContextMenu(prev => ({ ...prev, visible: false }));
+  }, []);
 
   const lastSelectionRef = useRef<Range | null>(null);
   const lastSelectionRootRef = useRef<HTMLElement | null>(null);
@@ -187,7 +191,7 @@ export function useContextMenu({
     const canUndoMenu = isEditorField && undoStackRef.current.length > 0;
     const canRedoMenu = isEditorField && redoStackRef.current.length > 0;
 
-    const menuItems: ContextMenuItem[] = [
+    const menuItems: ContextMenuActionItem[] = [
       {
         label: '撤回',
         icon: <Back2Line className="w-4 h-4" />,
@@ -259,14 +263,17 @@ export function useContextMenu({
         icon: <CheckboxLine className="w-4 h-4" />,
         shortcut: 'Ctrl+A',
         action: () => {
-          if (textField) {
-            textField.focus();
-            textField.select();
-            return;
-          }
-          if (editableRoot) {
-            setEditableSelection(0, content.length);
-          }
+          // Delay to run after Radix menu teardown completes
+          requestAnimationFrame(() => {
+            if (textField) {
+              textField.focus();
+              textField.select();
+              return;
+            }
+            if (editableRoot) {
+              setEditableSelection(0, content.length);
+            }
+          });
         }
       }
     ];
@@ -291,10 +298,6 @@ export function useContextMenu({
       });
     }
   }, [content, showToast, updateContent, undo, redo, editorRef, undoStackRef, redoStackRef]);
-
-  const closeContextMenu = useCallback(() => {
-    setContextMenu(prev => ({ ...prev, visible: false }));
-  }, []);
 
   return {
     contextMenu,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search2Line, Transfer3Line, CloseLine, ArrowDownCircleLine, ArrowRightCircleLine, ArrowUpCircleLine } from '@mingcute/react';
+import { Search2Line, Transfer3Line, CloseLine, ArrowDownLine, ArrowRightLine, ArrowUpLine } from '@mingcute/react';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -53,7 +53,7 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
         : 'opacity-0 -translate-y-2 scale-95 pointer-events-none'
         }`}
     >
-      <div className="w-[380px] bg-background border border-border rounded-xl shadow-2xl p-3 flex flex-col gap-3 backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95">
+      <div className="w-[380px] bg-white dark:bg-dark-surface border border-gray-200 dark:border-dark-border rounded-xl shadow-2xl p-3 flex flex-col gap-3 backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95">
 
         {/* Search Row */}
         <div className="flex items-center gap-2">
@@ -64,7 +64,7 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
             onClick={() => setShowReplace(!showReplace)}
             className="text-muted-foreground hover:text-foreground"
           >
-            {showReplace ? <ArrowDownCircleLine className="w-4 h-4" /> : <ArrowRightCircleLine className="w-4 h-4" />}
+            {showReplace ? <ArrowDownLine className="w-4 h-4" /> : <ArrowRightLine className="w-4 h-4" />}
           </Button>
 
           {/* Search Input Wrapper */}
@@ -85,7 +85,7 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
               }}
               placeholder="查找..."
               autoFocus={visible}
-              className="w-full h-9 pl-9 pr-[104px] bg-muted/50 border-border"
+              className="w-full h-9 !pl-9 !pr-[104px] bg-gray-50 dark:bg-dark-element border-gray-200 dark:border-dark-border"
             />
 
             {/* Input Actions (Clear + Toggles) */}
@@ -137,7 +137,7 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
           </div>
 
           {/* Navigation */}
-          <div className="flex items-center gap-0.5 bg-muted/50 border border-border rounded-lg p-0.5 h-9">
+          <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-dark-element border border-gray-200 dark:border-dark-border rounded-lg p-0.5 h-9">
             <Button
               variant="ghost"
               size="icon"
@@ -146,7 +146,7 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
               className="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-background shadow-sm hover:shadow"
               title="上一个 (Shift+Enter)"
             >
-              <ArrowUpCircleLine className="w-4 h-4" />
+              <ArrowUpLine className="w-4 h-4" />
             </Button>
             <Button
               variant="ghost"
@@ -156,7 +156,7 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
               className="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-background shadow-sm hover:shadow"
               title="下一个 (Enter)"
             >
-              <ArrowDownCircleLine className="w-4 h-4" />
+              <ArrowDownLine className="w-4 h-4" />
             </Button>
           </div>
 
@@ -194,7 +194,7 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
                   }
                 }}
                 placeholder="替换..."
-                className="w-full h-9 pl-9 pr-8 bg-muted/50 border-border"
+                className="w-full h-9 !pl-9 !pr-8 bg-gray-50 dark:bg-dark-element border-gray-200 dark:border-dark-border"
               />
               {replaceText && (
                 <Button
@@ -210,12 +210,12 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
             </div>
 
             {/* Replace Actions */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0">
               <Button
                 variant="outline"
                 size="sm"
                 disabled={!searchQuery}
-                className="h-9 px-3 text-xs bg-muted/50"
+                className="h-9 px-3 text-sm bg-gray-50 dark:bg-dark-element border-gray-200 dark:border-dark-border"
                 title="替换 (Enter)"
                 onClick={onReplace}
               >
@@ -225,7 +225,7 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
                 variant="default"
                 size="sm"
                 disabled={!searchQuery}
-                className="h-9 px-3 text-xs bg-brand-600 hover:bg-brand-700 text-white"
+                className="h-9 px-3 text-sm"
                 title="全部替换 (Ctrl+Enter)"
                 onClick={onReplaceAll}
               >

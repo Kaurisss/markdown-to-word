@@ -102,7 +102,7 @@ function ContextMenuContent({
       <ContextMenuPrimitive.Content
         data-slot="context-menu-content"
         className={cn(
-          "z-50 max-h-(--radix-context-menu-content-available-height) min-w-[8rem] origin-(--radix-context-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
+          "z-50 max-h-(--radix-context-menu-content-available-height) min-w-[8rem] origin-(--radix-context-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-surface p-1 text-gray-900 dark:text-gray-100 shadow-md data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
           className
         )}
         {...props}
@@ -126,7 +126,7 @@ function ShadcnContextMenuItem({
       data-inset={inset}
       data-variant={variant}
       className={cn(
-        "relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive dark:data-[variant=destructive]:focus:bg-destructive/20 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground data-[variant=destructive]:*:[svg]:text-destructive!",
+        "relative flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none select-none focus:bg-gray-100 focus:text-gray-900 dark:focus:bg-gray-800 dark:focus:text-gray-100 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-gray-100 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive dark:data-[variant=destructive]:focus:bg-destructive/20 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-gray-500 dark:[&_svg:not([class*='text-'])]:text-gray-400 data-[variant=destructive]:*:[svg]:text-destructive!",
         className
       )}
       {...props}
@@ -234,10 +234,10 @@ function ContextMenuShortcut({
 }
 
 export {
-  ShadcnContextMenu,
+  ShadcnContextMenu as ContextMenu,
   ContextMenuTrigger,
   ContextMenuContent,
-  ShadcnContextMenuItem,
+  ShadcnContextMenuItem as ContextMenuItem,
   ContextMenuCheckboxItem,
   ContextMenuRadioItem,
   ContextMenuLabel,
@@ -251,7 +251,7 @@ export {
   ContextMenuRadioGroup,
 }
 
-export interface ContextMenuItem {
+export interface ContextMenuActionItem {
   label?: string;
   action?: () => void;
   shortcut?: string;
@@ -260,18 +260,18 @@ export interface ContextMenuItem {
   checked?: boolean;
   icon?: React.ReactNode;
   danger?: boolean;
-  submenu?: ContextMenuItem[];
+  submenu?: ContextMenuActionItem[];
 }
 
-interface ContextMenuProps {
+interface DynamicContextMenuProps {
   visible: boolean;
   x: number;
   y: number;
-  items: ContextMenuItem[];
+  items: ContextMenuActionItem[];
   onClose: () => void;
 }
 
-export const ContextMenu: React.FC<ContextMenuProps> = ({
+export const DynamicContextMenu: React.FC<DynamicContextMenuProps> = ({
   visible,
   x,
   y,
@@ -322,6 +322,8 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
             item.action?.();
             onClose();
           }}
+          onPointerMove={(e) => e.preventDefault()}
+          onPointerLeave={(e) => e.preventDefault()}
         >
           {content}
         </ContextMenuCheckboxItem>
@@ -337,6 +339,8 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
           item.action?.();
           onClose();
         }}
+        onPointerMove={(e) => e.preventDefault()}
+        onPointerLeave={(e) => e.preventDefault()}
       >
         {content}
       </ShadcnContextMenuItem>
@@ -357,7 +361,11 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
           aria-hidden="true"
         />
       </ContextMenuTrigger>
-      <ContextMenuContent className="min-w-[160px]">
+      <ContextMenuContent
+        className="min-w-[160px]"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+        onCloseAutoFocus={(e) => e.preventDefault()}
+      >
         {renderedItems}
       </ContextMenuContent>
     </ShadcnContextMenu>

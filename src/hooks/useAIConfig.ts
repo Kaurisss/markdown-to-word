@@ -1,6 +1,5 @@
-import { useState, useEffect, useCallback, useLayoutEffect, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { AIProvider, AIModel } from '../interfaces/AI';
-import { useInputContextMenu } from './useInputContextMenu';
 import { toast } from 'sonner';
 
 export interface UseAIConfigParams {
@@ -54,24 +53,7 @@ export function useAIConfig({
   // ── API testing ─────────────────────────────────────────────────────
   const [testingModelId, setTestingModelId] = useState<string | null>(null);
 
-  // ── Model context menu ──────────────────────────────────────────────
-  const [modelContextMenu, setModelContextMenu] = useState<{
-    visible: boolean; x: number; y: number; model: AIModel | null;
-  }>({ visible: false, x: 0, y: 0, model: null });
-  const modelContextMenuRef = useRef<HTMLDivElement | null>(null);
-
-  // ── Platform context menu ───────────────────────────────────────────
-  const [platformContextMenu, setPlatformContextMenu] = useState<{
-    visible: boolean; x: number; y: number; provider: AIProvider | null;
-  }>({ visible: false, x: 0, y: 0, provider: null });
-  const platformContextMenuRef = useRef<HTMLDivElement | null>(null);
-
-  // ── Input context menu ──────────────────────────────────────────────
-  const {
-    contextMenu: inputContextMenu,
-    handleInputContextMenu,
-    closeContextMenu: closeInputContextMenu,
-  } = useInputContextMenu();
+  // (Removed Context Menus here)
 
   // ── Derived values ──────────────────────────────────────────────────
   const selectedProvider = providers.find(p => p.id === selectedProviderId);
@@ -124,13 +106,7 @@ export function useAIConfig({
     }, 200);
   }, []);
 
-  const closeModelContextMenu = useCallback(() => {
-    setModelContextMenu(prev => ({ ...prev, visible: false }));
-  }, []);
-
-  const closePlatformContextMenu = useCallback(() => {
-    setPlatformContextMenu(prev => ({ ...prev, visible: false }));
-  }, []);
+  // (Removed close context menu functions)
 
   // ── Core provider helpers ───────────────────────────────────────────
 
@@ -255,18 +231,16 @@ export function useAIConfig({
     closeEditModel();
   }, [selectedProvider, editingModel, editModelId, editModelName, handleUpdateProvider, closeEditModel]);
 
-  const handleCopyModel = useCallback(() => {
-    if (!selectedProvider || !modelContextMenu.model) return;
-    const original = modelContextMenu.model;
-    const model: AIModel = {
-      id: `${original.id}-copy`,
-      name: `${original.name} (副本)`,
+  const handleCopyModel = useCallback((model: AIModel) => {
+    if (!selectedProvider) return;
+    const newModel: AIModel = {
+      id: `${model.id}-copy`,
+      name: `${model.name} (副本)`,
     };
     handleUpdateProvider(selectedProvider.id, {
-      models: [...selectedProvider.models, model],
+      models: [...selectedProvider.models, newModel],
     });
-    closeModelContextMenu();
-  }, [selectedProvider, modelContextMenu.model, handleUpdateProvider, closeModelContextMenu]);
+  }, [selectedProvider, handleUpdateProvider]);
 
   // ── Platform CRUD ───────────────────────────────────────────────────
 
@@ -323,98 +297,32 @@ export function useAIConfig({
     }
   }, [providers, selectedProviderId, selectedModel, updateProviders, updateSelectedModel]);
 
-  // ── Context-menu action handlers ────────────────────────────────────
+  // ── Action handlers ─────────────────────────────────────────────────
 
-  const handleModelContextMenu = useCallback((e: React.MouseEvent, model: AIModel) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setModelContextMenu({ visible: true, x: e.clientX, y: e.clientY, model });
-  }, []);
-
-  const handleEditModel = useCallback(() => {
-    if (!modelContextMenu.model) return;
-    setEditingModel(modelContextMenu.model);
-    setEditModelId(modelContextMenu.model.id);
-    setEditModelName(modelContextMenu.model.name);
+  const handleEditModel = useCallback((model: AIModel) => {
+    setEditingModel(model);
+    setEditModelId(model.id);
+    setEditModelName(model.name);
     setShowEditModel(true);
-    closeModelContextMenu();
-  }, [modelContextMenu.model, closeModelContextMenu]);
-
-  const handleContextMenuTest = useCallback(() => {
-    if (!modelContextMenu.model) return;
-    handleTestModel(modelContextMenu.model.id);
-    closeModelContextMenu();
-  }, [modelContextMenu.model, handleTestModel, closeModelContextMenu]);
-
-  const handleContextMenuDelete = useCallback(() => {
-    if (!modelContextMenu.model) return;
-    handleDeleteModel(modelContextMenu.model.id);
-    closeModelContextMenu();
-  }, [modelContextMenu.model, handleDeleteModel, closeModelContextMenu]);
-
-  const handlePlatformContextMenu = useCallback((e: React.MouseEvent, provider: AIProvider) => {
-    if (!provider.isCustom) return;
-    e.preventDefault();
-    e.stopPropagation();
-    setPlatformContextMenu({ visible: true, x: e.clientX, y: e.clientY, provider });
   }, []);
 
-  const handlePlatformContextEdit = useCallback(() => {
-    if (!platformContextMenu.provider) return;
-    handleStartEditPlatform(platformContextMenu.provider);
-    closePlatformContextMenu();
-  }, [platformContextMenu.provider, handleStartEditPlatform, closePlatformContextMenu]);
+  const handleTestModelClick = useCallback((model: AIModel) => {
+    handleTestModel(model.id);
+  }, [handleTestModel]);
 
-  const handlePlatformContextDelete = useCallback(() => {
-    if (!platformContextMenu.provider) return;
-    handleDeletePlatform(platformContextMenu.provider);
-    closePlatformContextMenu();
-  }, [platformContextMenu.provider, handleDeletePlatform, closePlatformContextMenu]);
+  const handleDeleteModelClick = useCallback((model: AIModel) => {
+    handleDeleteModel(model.id);
+  }, [handleDeleteModel]);
 
-  // ── Dismiss context menus on outside click ──────────────────────────
+  const handlePlatformEdit = useCallback((provider: AIProvider) => {
+    handleStartEditPlatform(provider);
+  }, [handleStartEditPlatform]);
 
-  useEffect(() => {
-    const handleClick = () => {
-      if (modelContextMenu.visible) closeModelContextMenu();
-      if (platformContextMenu.visible) closePlatformContextMenu();
-    };
-    document.addEventListener('click', handleClick);
-    return () => document.removeEventListener('click', handleClick);
-  }, [modelContextMenu.visible, closeModelContextMenu, platformContextMenu.visible, closePlatformContextMenu]);
+  const handlePlatformDelete = useCallback((provider: AIProvider) => {
+    handleDeletePlatform(provider);
+  }, [handleDeletePlatform]);
 
-  // ── Keep context menus within viewport ──────────────────────────────
 
-  useLayoutEffect(() => {
-    if (!modelContextMenu.visible) return;
-    requestAnimationFrame(() => {
-      if (!modelContextMenuRef.current) return;
-      const { offsetWidth, offsetHeight } = modelContextMenuRef.current;
-      const padding = 8;
-      const maxX = window.innerWidth - offsetWidth - padding;
-      const maxY = window.innerHeight - offsetHeight - padding;
-      const nextX = Math.max(padding, Math.min(modelContextMenu.x, maxX));
-      const nextY = Math.max(padding, Math.min(modelContextMenu.y, maxY));
-      if (nextX !== modelContextMenu.x || nextY !== modelContextMenu.y) {
-        setModelContextMenu(prev => prev.visible ? { ...prev, x: nextX, y: nextY } : prev);
-      }
-    });
-  }, [modelContextMenu.visible, modelContextMenu.x, modelContextMenu.y]);
-
-  useLayoutEffect(() => {
-    if (!platformContextMenu.visible) return;
-    requestAnimationFrame(() => {
-      if (!platformContextMenuRef.current) return;
-      const { offsetWidth, offsetHeight } = platformContextMenuRef.current;
-      const padding = 8;
-      const maxX = window.innerWidth - offsetWidth - padding;
-      const maxY = window.innerHeight - offsetHeight - padding;
-      const nextX = Math.max(padding, Math.min(platformContextMenu.x, maxX));
-      const nextY = Math.max(padding, Math.min(platformContextMenu.y, maxY));
-      if (nextX !== platformContextMenu.x || nextY !== platformContextMenu.y) {
-        setPlatformContextMenu(prev => prev.visible ? { ...prev, x: nextX, y: nextY } : prev);
-      }
-    });
-  }, [platformContextMenu.visible, platformContextMenu.x, platformContextMenu.y]);
 
   // ── Return everything components need ───────────────────────────────
 
@@ -494,25 +402,10 @@ export function useAIConfig({
     handleDeleteModel,
     handleCopyModel,
 
-    // Model context menu
-    modelContextMenu,
-    modelContextMenuRef,
-    handleModelContextMenu,
-    closeModelContextMenu,
-    handleContextMenuTest,
-    handleContextMenuDelete,
-
-    // Platform context menu
-    platformContextMenu,
-    platformContextMenuRef,
-    handlePlatformContextMenu,
-    closePlatformContextMenu,
-    handlePlatformContextEdit,
-    handlePlatformContextDelete,
-
-    // Input context menu
-    inputContextMenu,
-    handleInputContextMenu,
-    closeInputContextMenu,
+    // Refactored handlers for Context Menu
+    handleTestModelClick,
+    handleDeleteModelClick,
+    handlePlatformEdit,
+    handlePlatformDelete,
   };
 }

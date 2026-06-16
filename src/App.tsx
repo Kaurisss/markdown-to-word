@@ -8,12 +8,13 @@ import { StatusBar } from './components/StatusBar';
 import { DEFAULT_CONFIG } from './config/defaultConfig';
 import { DocumentConfig } from './interfaces/Config';
 import { ViewMode } from './types';
-import { ContextMenu } from './components/ui/ContextMenu';
+
 import { AIConfigWindow } from './components/AIConfigWindow';
 import { SettingsWindow } from './components/SettingsWindow';
 import { useAIConfigStore } from './services/aiConfigStore';
 import { useSettingsStore } from './services/settingsStore';
 import { Toaster } from '@/components/ui/sonner';
+import { DynamicContextMenu } from '@/components/ui/context-menu';
 
 import { useEditorState } from './hooks/useEditorState';
 import { useSearchReplace } from './hooks/useSearchReplace';
@@ -261,10 +262,11 @@ const App: React.FC = () => {
   ) : isConfigWindow ? (
     <AIConfigWindow />
   ) : (
-    <div
-      className="flex flex-col h-screen w-screen overflow-hidden bg-gray-50 dark:bg-dark-bg text-gray-800 dark:text-gray-100 font-sans selection:bg-brand-100 selection:text-brand-900"
-      onContextMenu={handleContextMenu}
-    >
+    <>
+      <div
+        className="flex flex-col h-screen w-screen overflow-hidden bg-gray-50 dark:bg-dark-bg text-gray-900 dark:text-gray-100 transition-colors"
+        onContextMenu={handleContextMenu}
+      >
       <Header
         isExporting={isExporting}
         onExport={handleExport}
@@ -275,95 +277,96 @@ const App: React.FC = () => {
         onThemeChange={setTheme}
         cfg={cfg}
         onCfgChange={setCfg}
-        onSearchClick={() => setShowSearch(true)}
         onShowToast={showToast}
+        onSearchClick={() => setShowSearch(true)}
         onUndo={undo}
         onRedo={redo}
         canUndo={canUndo}
         canRedo={canRedo}
         onCut={handleCut}
         onCopy={handleCopy}
-        onPaste={handlePaste}
-        onReplaceClick={() => {
-          setShowSearch(true);
-          setShowReplace(true);
-        }}
-      />
-
-      <main className="flex-1 flex flex-row overflow-hidden relative">
-        <SearchPopover
-          visible={showSearch}
-          showReplace={showReplace}
-          setShowReplace={setShowReplace}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          currentMatchIndex={currentMatchIndex}
-          setCurrentMatchIndex={setCurrentMatchIndex}
-          replaceText={replaceText}
-          setReplaceText={setReplaceText}
-          caseSensitive={caseSensitive}
-          setCaseSensitive={setCaseSensitive}
-          wholeWord={wholeWord}
-          setWholeWord={setWholeWord}
-          useRegex={useRegex}
-          setUseRegex={setUseRegex}
-          onReplace={handleReplace}
-          onReplaceAll={handleReplaceAll}
-          onClose={closeSearch}
-        />
-
-        {/* Left Pane: Editor */}
-        <div
-          className={`h-full bg-white dark:bg-dark-bg relative z-0 overflow-hidden flex-shrink-0 transition-opacity duration-600 ease-out ${editorPaneClass}`}
-          aria-hidden={viewMode === 'preview'}
-        >
-          <Editor
-            ref={editorRef}
-            value={content}
-            onChange={updateContent}
-            onKeyDown={handleEditorKeyDown}
-            searchQuery={searchQuery}
-            showSearch={showSearch}
-            currentMatchIndex={currentMatchIndex}
-            caseSensitive={caseSensitive}
-            wholeWord={wholeWord}
-            useRegex={useRegex}
+            onPaste={handlePaste}
+            onReplaceClick={() => {
+              setShowSearch(true);
+              setShowReplace(true);
+            }}
           />
-        </div>
 
-        {/* Right Pane: Preview */}
-        <div
-          className={`h-full bg-gray-100 dark:bg-dark-bg relative z-0 overflow-hidden flex-shrink-0 transition-opacity duration-300 ease-out ${previewPaneClass}`}
-          aria-hidden={viewMode === 'editor'}
-        >
-          <Preview ref={previewRef} markdown={content} cfg={cfg} />
-        </div>
-      </main>
+          <main className="flex-1 flex flex-row overflow-hidden relative">
+            <SearchPopover
+              visible={showSearch}
+              showReplace={showReplace}
+              setShowReplace={setShowReplace}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              currentMatchIndex={currentMatchIndex}
+              setCurrentMatchIndex={setCurrentMatchIndex}
+              replaceText={replaceText}
+              setReplaceText={setReplaceText}
+              caseSensitive={caseSensitive}
+              setCaseSensitive={setCaseSensitive}
+              wholeWord={wholeWord}
+              setWholeWord={setWholeWord}
+              useRegex={useRegex}
+              setUseRegex={setUseRegex}
+              onReplace={handleReplace}
+              onReplaceAll={handleReplaceAll}
+              onClose={closeSearch}
+            />
 
-      <StatusBar content={content} onSearchClick={() => setShowSearch(true)} />
-
-      {isFileDragActive && (
-        <div className="fixed inset-0 z-[999] pointer-events-none">
-          <div className="absolute inset-0 bg-black/20" />
-          <div className="absolute inset-4 border-2 border-dashed border-brand-400 rounded-xl" />
-          <div className="absolute inset-0 grid place-items-center">
-            <div className="px-4 py-3 rounded-lg bg-white/95 dark:bg-dark-surface/95 border border-gray-200 dark:border-dark-border shadow-lg text-sm text-gray-800 dark:text-gray-100">
-              拖入 .md / .markdown / .txt 文件以导入
+            {/* Left Pane: Editor */}
+            <div
+              className={`h-full bg-white dark:bg-dark-bg relative z-0 overflow-hidden flex-shrink-0 transition-opacity duration-600 ease-out ${editorPaneClass}`}
+              aria-hidden={viewMode === 'preview'}
+            >
+              <Editor
+                ref={editorRef}
+                value={content}
+                onChange={updateContent}
+                onKeyDown={handleEditorKeyDown}
+                searchQuery={searchQuery}
+                showSearch={showSearch}
+                currentMatchIndex={currentMatchIndex}
+                caseSensitive={caseSensitive}
+                wholeWord={wholeWord}
+                useRegex={useRegex}
+              />
             </div>
-          </div>
+
+            {/* Right Pane: Preview */}
+            <div
+              className={`h-full bg-gray-100 dark:bg-dark-bg relative z-0 overflow-hidden flex-shrink-0 transition-opacity duration-300 ease-out ${previewPaneClass}`}
+              aria-hidden={viewMode === 'editor'}
+            >
+              <Preview ref={previewRef} markdown={content} cfg={cfg} />
+            </div>
+          </main>
+
+          <StatusBar content={content} onSearchClick={() => setShowSearch(true)} />
+
+          {isFileDragActive && (
+            <div className="fixed inset-0 z-[999] pointer-events-none">
+              <div className="absolute inset-0 bg-black/20" />
+              <div className="absolute inset-4 border-2 border-dashed border-brand-400 rounded-xl" />
+              <div className="absolute inset-0 grid place-items-center">
+                <div className="px-4 py-3 rounded-lg bg-white/95 dark:bg-dark-surface/95 border border-gray-200 dark:border-dark-border shadow-lg text-sm text-gray-800 dark:text-gray-100">
+                  拖入 .md / .markdown / .txt 文件以导入
+                </div>
+              </div>
+            </div>
+          )}
+
+          <Toaster richColors position="top-center" />
         </div>
-      )}
 
-      <Toaster richColors position="top-center" />
-
-      <ContextMenu
+      <DynamicContextMenu
         visible={contextMenu.visible}
         x={contextMenu.x}
         y={contextMenu.y}
         items={contextMenu.items}
         onClose={closeContextMenu}
       />
-    </div>
+    </>
   );
 };
 
