@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import logoUrl from '../../logo.png';
+import { TabsList, TabsTrigger } from '../ui/tabs';
 
 export type TabType = 'file' | 'edit' | 'home' | 'layout' | 'ai';
 
@@ -57,34 +58,20 @@ export const WindowBar: React.FC<WindowBarProps> = ({
       <div className="flex items-center" onMouseDown={(e) => e.stopPropagation()}>
         <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".md,.txt,.markdown" className="hidden" />
 
-        {(['file', 'edit', 'home', 'layout', 'ai'] as const).map(tab => {
-          const isActive = activeTab === tab;
-          const label = ({ file: '文件', edit: '编辑', home: '开始', layout: '布局', ai: '智能' } as const)[tab];
-
-          return (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`group px-3 py-1.5 text-[13px] leading-none font-medium subpixel-antialiased transition-colors relative rounded ${isActive
-                ? 'text-brand-700 dark:text-brand-300'
-                : 'text-gray-600 dark:text-gray-400'
-                }`}
-              aria-current={isActive ? 'page' : undefined}
-            >
-              <span className="relative inline-block">
+        <TabsList variant="line" className="h-9">
+          {(['file', 'edit', 'home', 'layout', 'ai'] as const).map(tab => {
+            const label = ({ file: '文件', edit: '编辑', home: '开始', layout: '布局', ai: '智能' } as const)[tab];
+            return (
+              <TabsTrigger
+                key={tab}
+                value={tab}
+                className="px-3 py-1.5 text-[13px] font-medium"
+              >
                 {label}
-                <span
-                  aria-hidden="true"
-                  className={`pointer-events-none absolute left-1/2 -translate-x-1/2 top-full mt-1 w-5 h-0.5 rounded-full transition-opacity ${
-                    isActive
-                      ? 'opacity-100 bg-brand-600 dark:bg-brand-400'
-                      : 'opacity-0 group-hover:opacity-100 bg-gray-300 dark:bg-gray-500'
-                  }`}
-                />
-              </span>
-            </button>
-          );
-        })}
+              </TabsTrigger>
+            );
+          })}
+        </TabsList>
       </div>
 
       <div className="flex-1" data-tauri-drag-region />

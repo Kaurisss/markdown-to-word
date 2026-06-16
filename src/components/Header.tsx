@@ -10,6 +10,7 @@ import { ViewModeDock } from './header/ViewModeDock';
 import { WindowControls } from './header/WindowControls';
 import { UndoRedoDock } from './header/UndoRedoDock';
 import { useAIConfigStore } from '../services/aiConfigStore';
+import { Tabs, TabsContent } from './ui/tabs';
 
 const Header: React.FC<HeaderProps> = ({
   isExporting,
@@ -117,7 +118,7 @@ const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <div className="app-chrome relative z-50 flex-shrink-0 bg-white dark:bg-dark-bg border-b border-gray-200 dark:border-dark-border transition-colors duration-200">
+    <Tabs value={activeTab} onValueChange={setActiveTab as any} className="app-chrome relative z-50 flex-shrink-0 bg-white dark:bg-dark-bg border-b border-gray-200 dark:border-dark-border transition-colors duration-200">
       <div className="h-10 bg-white dark:bg-dark-bg border-b border-gray-100 dark:border-dark-border flex items-stretch">
         <WindowBar
           activeTab={activeTab}
@@ -143,17 +144,16 @@ const Header: React.FC<HeaderProps> = ({
 
       {/* Ribbon Content - Compact Layout */}
       <div className="h-14 bg-white dark:bg-dark-bg flex items-center px-2 py-1 gap-2 flex-nowrap transition-colors duration-200">
-
-        {activeTab === 'file' && (
+        <TabsContent value="file" className="w-full m-0 p-0 outline-none data-[state=inactive]:hidden block">
           <FileTab
             onImport={onImport}
             onExport={onExport}
             isExporting={isExporting}
             fileInputRef={fileInputRef}
           />
-        )}
+        </TabsContent>
 
-        {activeTab === 'edit' && (
+        <TabsContent value="edit" className="w-full m-0 p-0 outline-none data-[state=inactive]:hidden block">
           <EditTab
             onUndo={onUndo}
             onRedo={onRedo}
@@ -163,9 +163,9 @@ const Header: React.FC<HeaderProps> = ({
             onSearchClick={onSearchClick}
             onReplaceClick={onReplaceClick}
           />
-        )}
+        </TabsContent>
 
-        {activeTab === 'home' && (
+        <TabsContent value="home" className="w-full m-0 p-0 outline-none data-[state=inactive]:hidden block">
           <HomeTab
             cfg={cfg}
             onCfgChange={onCfgChange}
@@ -173,18 +173,18 @@ const Header: React.FC<HeaderProps> = ({
             setActiveStyle={setActiveStyle}
             onSearchClick={onSearchClick}
           />
-        )}
+        </TabsContent>
 
-        {activeTab === 'layout' && (
+        <TabsContent value="layout" className="w-full m-0 p-0 outline-none data-[state=inactive]:hidden block">
           <LayoutTab
             cfg={cfg}
             onCfgChange={onCfgChange}
             activeStyle={activeStyle}
             onSearchClick={onSearchClick}
           />
-        )}
+        </TabsContent>
 
-        {activeTab === 'ai' && (
+        <TabsContent value="ai" className="w-full m-0 p-0 outline-none data-[state=inactive]:hidden block">
           <AITab
             aiProviders={aiProviders}
             selectedModel={selectedModel}
@@ -195,9 +195,9 @@ const Header: React.FC<HeaderProps> = ({
             prompt={aiPrompt}
             setPrompt={setAiPrompt}
           />
-        )}
+        </TabsContent>
       </div>
-    </div>
+    </Tabs>
   );
 };
 
