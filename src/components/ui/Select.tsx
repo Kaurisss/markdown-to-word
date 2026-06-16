@@ -62,7 +62,7 @@ function SelectContent({
       <SelectPrimitive.Content
         data-slot="select-content"
         className={cn(
-          "relative z-50 max-h-(--radix-select-content-available-height) min-w-[8rem] origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-surface text-gray-800 dark:text-gray-200 shadow-xl data-[state=open]:animate-menu-in data-[state=closed]:animate-menu-out",
+          "relative z-50 max-h-(--radix-select-content-available-height) min-w-[8rem] origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-surface text-gray-800 dark:text-gray-200 shadow-xl data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
           position === "popper" &&
             "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
           className
@@ -252,8 +252,8 @@ export const Select: React.FC<SelectProps> = ({
               <CommandGroup>
                 {options.map((option) => (
                   <CommandItem
-                    key={String(option.value)}
-                    value={String(option.label) + String(option.value)} // Use label + value for robust filtering
+                    key={`${option.label}-${option.value}`}
+                    value={`${option.label}-${option.value}`}
                     onSelect={() => {
                       onChange(option.value);
                       setOpen(false);
