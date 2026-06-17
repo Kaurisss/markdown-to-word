@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from 'react';
+import { create } from 'zustand';
 import { AIProvider, DEFAULT_PROVIDERS } from '../interfaces/AI';
 
 const CUSTOM_PROVIDERS_KEY = 'md2word_custom_providers';
@@ -14,12 +14,12 @@ interface BuiltinProviderConfig {
 
 type SelectedModel = { providerId: string; modelId: string } | null;
 
-interface AIConfigState {
+interface AIConfigStoreState {
   providers: AIProvider[];
+  updateProviders: (providers: AIProvider[]) => void;
   selectedModel: SelectedModel;
+  updateSelectedModel: (model: SelectedModel) => void;
 }
-
-// ── Persistence helpers ───────────────────────────────────────────
 
 function loadProvidersFromStorage(): AIProvider[] {
   try {
@@ -51,33 +51,7 @@ function loadSelectedModelFromStorage(): SelectedModel {
   }
 }
 
-// ── Singleton state ───────────────────────────────────────────────
-
-let state: AIConfigState = {
-  providers: loadProvidersFromStorage(),
-  selectedModel: loadSelectedModelFromStorage(),
-};
-
-const listeners = new Set<() => void>();
-
-function subscribe(cb: () => void) {
-  listeners.add(cb);
-  return () => listeners.delete(cb);
-}
-
-function emit() {
-  listeners.forEach(cb => cb());
-}
-
-function getSnapshot(): AIConfigState {
-  return state;
-}
-
-// ── Actions ───────────────────────────────────────────────────────
-
-function updateProviders(newProviders: AIProvider[]) {
-  state = { ...state, providers: newProviders };
-
+function splitProviders(newProviders: AIProvider[]) {
   const builtinIds = new Set(DEFAULT_PROVIDERS.map(p => p.id));
   const customProviders = newProviders.filter(p => p.isCustom || !builtinIds.has(p.id));
   const builtinProviders = newProviders.filter(p => builtinIds.has(p.id) && !p.isCustom);
@@ -92,10 +66,15 @@ function updateProviders(newProviders: AIProvider[]) {
     };
   });
 
+  return { builtinConfig, customProviders };
+}
+
+function persistProviders(newProviders: AIProvider[]) {
+  const { builtinConfig, customProviders } = splitProviders(newProviders);
+
   localStorage.setItem(BUILTIN_CONFIG_KEY, JSON.stringify(builtinConfig));
   localStorage.setItem(CUSTOM_PROVIDERS_KEY, JSON.stringify(customProviders));
 
-  // Cross-window sync via StorageEvent
   window.dispatchEvent(new StorageEvent('storage', {
     key: BUILTIN_CONFIG_KEY,
     newValue: JSON.stringify(builtinConfig),
@@ -104,53 +83,45 @@ function updateProviders(newProviders: AIProvider[]) {
     key: CUSTOM_PROVIDERS_KEY,
     newValue: JSON.stringify(customProviders),
   }));
-
-  emit();
 }
 
-function updateSelectedModel(model: SelectedModel) {
-  state = { ...state, selectedModel: model };
-
+function persistSelectedModel(model: SelectedModel) {
   if (model) {
     localStorage.setItem(MODEL_STORAGE_KEY, JSON.stringify(model));
     window.dispatchEvent(new StorageEvent('storage', {
       key: MODEL_STORAGE_KEY,
       newValue: JSON.stringify(model),
     }));
-  } else {
-    localStorage.removeItem(MODEL_STORAGE_KEY);
-    window.dispatchEvent(new StorageEvent('storage', {
-      key: MODEL_STORAGE_KEY,
-      newValue: null,
-    }));
+    return;
   }
 
-  emit();
+  localStorage.removeItem(MODEL_STORAGE_KEY);
+  window.dispatchEvent(new StorageEvent('storage', {
+    key: MODEL_STORAGE_KEY,
+    newValue: null,
+  }));
 }
 
-// ── Cross-window sync (registered once at module load) ───────────
+export const useAIConfigStore = create<AIConfigStoreState>((set) => ({
+  providers: loadProvidersFromStorage(),
+  updateProviders: (providers) => {
+    persistProviders(providers);
+    set({ providers });
+  },
+  selectedModel: loadSelectedModelFromStorage(),
+  updateSelectedModel: (selectedModel) => {
+    persistSelectedModel(selectedModel);
+    set({ selectedModel });
+  },
+}));
 
 function handleStorageChange(e: StorageEvent) {
   if (e.key === BUILTIN_CONFIG_KEY || e.key === CUSTOM_PROVIDERS_KEY) {
-    state = { ...state, providers: loadProvidersFromStorage() };
-    emit();
+    useAIConfigStore.setState({ providers: loadProvidersFromStorage() });
   }
   if (e.key === MODEL_STORAGE_KEY) {
-    state = { ...state, selectedModel: loadSelectedModelFromStorage() };
-    emit();
+    useAIConfigStore.setState({ selectedModel: loadSelectedModelFromStorage() });
   }
 }
 
 window.addEventListener('storage', handleStorageChange);
-
-// ── Hook ──────────────────────────────────────────────────────────
-
-export const useAIConfigStore = () => {
-  const snapshot = useSyncExternalStore(subscribe, getSnapshot);
-  return {
-    providers: snapshot.providers,
-    updateProviders,
-    selectedModel: snapshot.selectedModel,
-    updateSelectedModel,
-  };
-};

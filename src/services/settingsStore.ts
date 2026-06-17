@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from 'react';
+import { create } from 'zustand';
 
 const SETTINGS_KEY = 'md2word_settings';
 const AUTO_SAVE_CONTENT_KEY = 'md2word_auto_save_content';
@@ -15,6 +15,11 @@ export interface AppSettings {
   defaultFontSize: number;
 }
 
+interface SettingsStoreState {
+  settings: AppSettings;
+  updateSettings: (patch: Partial<AppSettings>) => void;
+}
+
 const DEFAULT_SETTINGS: AppSettings = {
   theme: 'light',
   defaultViewMode: 'split',
@@ -23,8 +28,6 @@ const DEFAULT_SETTINGS: AppSettings = {
   defaultFontEn: '',
   defaultFontSize: 12,
 };
-
-// ── Persistence helpers ───────────────────────────────────────────
 
 function loadFromStorage(): AppSettings {
   try {
@@ -45,31 +48,7 @@ function saveToStorage(settings: AppSettings) {
   localStorage.setItem('app_theme', settings.theme);
 }
 
-// ── Singleton state ───────────────────────────────────────────────
-
-let settings: AppSettings = loadFromStorage();
-
-const listeners = new Set<() => void>();
-
-function subscribe(cb: () => void) {
-  listeners.add(cb);
-  return () => listeners.delete(cb);
-}
-
-function emit() {
-  listeners.forEach(cb => cb());
-}
-
-function getSnapshot(): AppSettings {
-  return settings;
-}
-
-// ── Actions ───────────────────────────────────────────────────────
-
-function updateSettings(patch: Partial<AppSettings>) {
-  settings = { ...settings, ...patch };
-  saveToStorage(settings);
-
+function emitSettingsChange(settings: AppSettings) {
   window.dispatchEvent(new StorageEvent('storage', {
     key: SETTINGS_KEY,
     newValue: JSON.stringify(settings),
@@ -82,17 +61,30 @@ function updateSettings(patch: Partial<AppSettings>) {
   } catch {
     // Ignore when BroadcastChannel is unavailable.
   }
-
-  emit();
 }
 
-// ── Cross-window sync (registered once at module load) ───────────
+export const useSettingsStore = create<SettingsStoreState>((set) => ({
+  settings: loadFromStorage(),
+  updateSettings: (patch) => {
+    set((state) => {
+      const settings = { ...state.settings, ...patch };
+      saveToStorage(settings);
+      emitSettingsChange(settings);
+      return { settings };
+    });
+  },
+}));
+
+function applyExternalSettings(settings: Partial<AppSettings>) {
+  useSettingsStore.setState({
+    settings: { ...DEFAULT_SETTINGS, ...settings },
+  });
+}
 
 function handleStorageChange(e: StorageEvent) {
   if (e.key === SETTINGS_KEY && e.newValue) {
     try {
-      settings = { ...DEFAULT_SETTINGS, ...JSON.parse(e.newValue) };
-      emit();
+      applyExternalSettings(JSON.parse(e.newValue));
     } catch {
       // ignore
     }
@@ -102,8 +94,7 @@ function handleStorageChange(e: StorageEvent) {
 function handleBroadcastMessage(event: MessageEvent<AppSettings>) {
   if (!event.data) return;
   try {
-    settings = { ...DEFAULT_SETTINGS, ...event.data };
-    emit();
+    applyExternalSettings(event.data);
   } catch {
     // ignore
   }
@@ -118,15 +109,6 @@ try {
 } catch {
   // Ignore when BroadcastChannel is unavailable.
 }
-
-// ── Hook ──────────────────────────────────────────────────────────
-
-export const useSettingsStore = () => {
-  const snapshot = useSyncExternalStore(subscribe, getSnapshot);
-  return { settings: snapshot, updateSettings };
-};
-
-// ── Auto-save helpers (pure, not part of store) ──────────────────
 
 export function loadAutoSavedContent(): string | null {
   try {
