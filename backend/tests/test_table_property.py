@@ -20,7 +20,7 @@ from backend import parse_gfm_table, convert, load_config
 cell_content = st.text(
     alphabet=st.characters(
         whitelist_categories=('L', 'N', 'P', 'S'),
-        blacklist_characters='|\\\n\r'
+        blacklist_characters='|\\\n\r_*~`[]()'
     ),
     min_size=1,
     max_size=20

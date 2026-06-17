@@ -22,7 +22,7 @@
 ## 环境要求
 - Node.js 18+
 - Rust 1.77.2+（Tauri 构建）
-- Python 3.10+（后端转换和打包）
+- Python 3.10+（后端转换和打包），依赖见 `backend/requirements.txt`
 - Windows 打包安装程序时额外需要 Inno Setup（`iscc` 在 PATH 中）
 - 构建 Python sidecar 时额外需要 PyInstaller（`pyinstaller` 在 PATH 中）
 
@@ -77,14 +77,32 @@ pnpm run build:installer
 安装包输出目录：
 - `src-tauri/target/release/bundle/inno/`
 
-## Python 后端测试
+## Python 后端
+
+### 依赖
+后端依赖声明在 `backend/requirements.txt`：
+```bash
+pip install -r backend/requirements.txt
+```
+
+### 架构
+`backend/converters/` 包含隔离的转换子模块：
+- `table.py` — GFM 表格检测、解析、DOCX 渲染（基于 markdown-it-py）
+- `toc.py` — 目录生成
+- `styles.py` — OoXML 段落/字符格式注入
+- `code_block.py` — 代码块 fence 检测与渲染
+
+`converter.py` 为主循环，将各元素类型委托给对应 converter 子模块处理。
+
+### 测试
 ```bash
 python -m pytest backend/tests
 ```
 
 ## 项目结构
 - `src/`：React + TypeScript 前端（组件、hooks、服务、类型）。
-- `backend/`：Python 转换引擎与属性测试（pytest + hypothesis）。
+- `backend/`：Python 转换引擎（markdown-it-py + python-docx）、属性测试（pytest + hypothesis）。
+  - `converters/`：隔离的转换子模块（table、toc、styles、code_block）。
 - `src-tauri/`：Tauri 桌面壳、能力配置、Rust 入口、sidecar 二进制。
 - `scripts/`：打包脚本（Python sidecar 构建、Inno Setup 配置）。
 - `test/`：手工测试样例与文档素材。

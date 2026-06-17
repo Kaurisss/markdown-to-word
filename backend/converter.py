@@ -2,7 +2,6 @@
 
 import os
 import re
-import sys
 from typing import Any, Dict
 
 from docx import Document
@@ -11,11 +10,13 @@ from .errors import (
     FileError, PermissionError_, ConfigError,
     ConversionError, DocxGenerationError,
 )
+from .converters.code_block import flush_code_buffer, is_fence, process_code_buffer
 from .converters.table import flush_table_buffer, process_table_buffer
+from .converters.toc import add_toc
 from .elements import (
     add_heading, add_body, add_quote, add_list_item,
-    add_code_block, add_horizontal_rule,
-    set_page_margins, add_table_of_contents,
+    add_horizontal_rule,
+    set_page_margins,
 )
 
 
@@ -75,11 +76,7 @@ def convert(input_path: str, output_path: str, conf: Dict[str, Any]) -> None:
         raise ConfigError("Invalid pageMargin value", details=str(e))
     set_page_margins(doc, margin_value)
 
-    if conf.get("global", {}).get("includeTableOfContents", False):
-        try:
-            add_table_of_contents(doc, conf)
-        except Exception as e:
-            print(f"Warning: Failed to add table of contents: {e}", file=sys.stderr)
+    add_toc(doc, conf)
 
     try:
         with open(input_path, "r", encoding="utf-8") as f:
@@ -105,25 +102,17 @@ def convert(input_path: str, output_path: str, conf: Dict[str, Any]) -> None:
     while i < len(lines):
         line = lines[i].rstrip("\n")
 
-        # Handle code blocks
-        fence = re.match(r"^```", line)
-        if fence:
-            if in_table:
-                flush_table_buffer(doc, table_buf, conf)
-                table_buf = []
-                in_table = False
+        # Flush pending table before a fence so document order is preserved.
+        if is_fence(line) and in_table:
+            flush_table_buffer(doc, table_buf, conf)
+            table_buf = []
+            in_table = False
 
-            if in_code:
-                add_code_block(doc, code_buf, conf)
-                code_buf = []
-                in_code = False
-            else:
-                in_code = True
-            i += 1
-            continue
-
-        if in_code:
-            code_buf.append(line)
+        # Code block detection and buffering
+        consumed, code_buf, in_code = process_code_buffer(
+            doc, line, in_code, code_buf, conf,
+        )
+        if consumed:
             i += 1
             continue
 
@@ -177,8 +166,7 @@ def convert(input_path: str, output_path: str, conf: Dict[str, Any]) -> None:
         i += 1
 
     # Flush any remaining buffers
-    if in_code and code_buf:
-        add_code_block(doc, code_buf, conf)
+    flush_code_buffer(doc, code_buf, conf)
     flush_table_buffer(doc, table_buf, conf)
 
     try:

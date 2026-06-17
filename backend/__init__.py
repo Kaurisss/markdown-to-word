@@ -10,10 +10,6 @@ from .errors import (  # noqa: F401
     ConversionError, FileError, PermissionError_, ConfigError, DocxGenerationError,
 )
 from .config import validate_config, load_config, REQUIRED_STYLE_KEYS  # noqa: F401
-from .styling import (  # noqa: F401
-    hex_to_rgb, apply_paragraph_fmt, apply_run_fmt,
-    _set_paragraph_shading, _set_run_shading, _get_alignment, _ensure_east_asia_font,
-)
 from .parser import (  # noqa: F401
     parse_inline_formatting, parse_gfm_table, is_table_line, is_table_separator,
 )
@@ -25,4 +21,13 @@ from .elements import (  # noqa: F401
 from .converter import convert  # noqa: F401
 from .converters.table import (  # noqa: F401
     flush_table_buffer, process_table_buffer,
+)
+from .converters.toc import add_toc, should_add_toc  # noqa: F401
+from .converters.styles import (  # noqa: F401
+    hex_to_rgb, apply_paragraph_fmt, apply_run_fmt,
+    _set_paragraph_shading, _set_run_shading, _get_alignment,
+    _ensure_east_asia_font,
+)
+from .converters.code_block import (  # noqa: F401
+    flush_code_buffer, process_code_buffer,
 )

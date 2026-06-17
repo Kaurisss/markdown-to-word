@@ -10,7 +10,7 @@ from docx.oxml import OxmlElement
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from docx.enum.table import WD_TABLE_ALIGNMENT
 
-from .styling import (
+from .converters.styles import (
     apply_paragraph_fmt, apply_run_fmt, _ensure_east_asia_font,
     _set_run_shading, _get_alignment,
 )
