@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect, useLayoutEffect, useCallback } from 'react';
-import { ColorFilterLine, AlignLeftLine, AlignCenterLine, AlignRightLine, AlignJustifyLine, BoldFill, ItalicLine, FontLine, UnderlineLine, StrikethroughLine } from '@mingcute/react';
+import { ColorFilterLine, AlignLeftLine, AlignCenterLine, AlignRightLine, AlignJustifyLine, BoldFill, ItalicLine, FontLine } from '@mingcute/react';
 import { Select } from '../../ui/Select';
 import { Toggle } from '../../ui/toggle';
 import { ToggleGroup, ToggleGroupItem } from '../../ui/toggle-group';
@@ -186,24 +186,6 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             title="斜体"
           >
             <ItalicLine className="w-4 h-4" />
-          </Toggle>
-          <Toggle
-            size="sm"
-            pressed={currentStyle.underline || false}
-            onPressedChange={(pressed) => updateStyle({ underline: pressed })}
-            className="w-7 h-7 p-0 rounded hover:bg-gray-200 dark:hover:bg-dark-element-hover data-[state=on]:bg-brand-100 dark:data-[state=on]:bg-brand-900/30 data-[state=on]:text-brand-600 dark:data-[state=on]:text-brand-400"
-            title="下划线"
-          >
-            <UnderlineLine className="w-4 h-4" />
-          </Toggle>
-          <Toggle
-            size="sm"
-            pressed={currentStyle.strike || false}
-            onPressedChange={(pressed) => updateStyle({ strike: pressed })}
-            className="w-7 h-7 p-0 rounded hover:bg-gray-200 dark:hover:bg-dark-element-hover data-[state=on]:bg-brand-100 dark:data-[state=on]:bg-brand-900/30 data-[state=on]:text-brand-600 dark:data-[state=on]:text-brand-400"
-            title="删除线"
-          >
-            <StrikethroughLine className="w-4 h-4" />
           </Toggle>
           <Separator orientation="vertical" className="h-4 mx-0.5" />
 
