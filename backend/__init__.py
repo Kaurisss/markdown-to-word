@@ -23,3 +23,6 @@ from .elements import (  # noqa: F401
     set_page_margins, add_table_of_contents,
 )
 from .converter import convert  # noqa: F401
+from .converters.table import (  # noqa: F401
+    flush_table_buffer, process_table_buffer,
+)

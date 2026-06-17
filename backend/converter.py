@@ -11,10 +11,10 @@ from .errors import (
     FileError, PermissionError_, ConfigError,
     ConversionError, DocxGenerationError,
 )
-from .parser import parse_gfm_table, is_table_line, is_table_separator
+from .converters.table import flush_table_buffer, process_table_buffer
 from .elements import (
     add_heading, add_body, add_quote, add_list_item,
-    add_code_block, add_horizontal_rule, add_table,
+    add_code_block, add_horizontal_rule,
     set_page_margins, add_table_of_contents,
 )
 
@@ -108,10 +108,8 @@ def convert(input_path: str, output_path: str, conf: Dict[str, Any]) -> None:
         # Handle code blocks
         fence = re.match(r"^```", line)
         if fence:
-            if in_table and table_buf:
-                table_data = parse_gfm_table(table_buf)
-                if table_data:
-                    add_table(doc, table_data["rows"], conf, table_data["alignments"])
+            if in_table:
+                flush_table_buffer(doc, table_buf, conf)
                 table_buf = []
                 in_table = False
 
@@ -129,25 +127,14 @@ def convert(input_path: str, output_path: str, conf: Dict[str, Any]) -> None:
             i += 1
             continue
 
-        # Check for table start
-        if not in_table and is_table_line(line) and i + 1 < len(lines) and is_table_separator(lines[i + 1]):
-            in_table = True
-            table_buf = [line]
+        # Table detection and buffering
+        next_line = lines[i + 1] if i + 1 < len(lines) else None
+        consumed, table_buf, in_table = process_table_buffer(
+            doc, line, in_table, table_buf, conf, next_line,
+        )
+        if consumed:
             i += 1
             continue
-
-        # Continue collecting table lines
-        if in_table:
-            if is_table_line(line) or is_table_separator(line):
-                table_buf.append(line)
-                i += 1
-                continue
-            else:
-                table_data = parse_gfm_table(table_buf)
-                if table_data:
-                    add_table(doc, table_data["rows"], conf, table_data["alignments"])
-                table_buf = []
-                in_table = False
 
         m = re.match(r"^(#{1,6})\s+(.*)$", line)
         if m:
@@ -192,10 +179,7 @@ def convert(input_path: str, output_path: str, conf: Dict[str, Any]) -> None:
     # Flush any remaining buffers
     if in_code and code_buf:
         add_code_block(doc, code_buf, conf)
-    if in_table and table_buf:
-        table_data = parse_gfm_table(table_buf)
-        if table_data:
-            add_table(doc, table_data["rows"], conf, table_data["alignments"])
+    flush_table_buffer(doc, table_buf, conf)
 
     try:
         doc.save(output_path)
