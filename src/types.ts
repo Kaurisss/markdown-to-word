@@ -16,6 +16,8 @@ export interface EditorProps {
   value: string;
   onChange: (value: string) => void;
   onKeyDown?: (event: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+  onSelectionChange?: () => void;
+  onEditorBlur?: () => void;
   searchQuery?: string;
   showSearch?: boolean;
   currentMatchIndex?: number;

@@ -24,6 +24,8 @@ import { useExport } from './hooks/useExport';
 import { useTheme } from './hooks/useTheme';
 import { useScrollSync } from './hooks/useScrollSync';
 import { useAutoSave } from './hooks/useAutoSave';
+import { useSelectionToolbar } from './hooks/useSelectionToolbar';
+import { SelectionToolbar } from './components/SelectionToolbar';
 
 const App: React.FC = () => {
   // Simple router based on URL search params
@@ -83,6 +85,17 @@ const App: React.FC = () => {
 
   const editorRef = useRef<HTMLTextAreaElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
+
+  const {
+    toolbarState,
+    refreshSelectionToolbar,
+    hideSelectionToolbar,
+    applyFormat,
+  } = useSelectionToolbar({
+    editorRef,
+    content,
+    updateContent,
+  });
 
   const showToast = useCallback((message: string, type: ToastType = 'success') => {
     showAppToast(message, type);
@@ -324,6 +337,8 @@ const App: React.FC = () => {
                 value={content}
                 onChange={updateContent}
                 onKeyDown={handleEditorKeyDown}
+                onSelectionChange={refreshSelectionToolbar}
+                onEditorBlur={hideSelectionToolbar}
                 searchQuery={searchQuery}
                 showSearch={showSearch}
                 currentMatchIndex={currentMatchIndex}
@@ -365,6 +380,13 @@ const App: React.FC = () => {
         y={contextMenu.y}
         items={contextMenu.items}
         onClose={closeContextMenu}
+      />
+
+      <SelectionToolbar
+        visible={toolbarState.visible}
+        x={toolbarState.x}
+        y={toolbarState.y}
+        onFormat={applyFormat}
       />
     </>
   );
