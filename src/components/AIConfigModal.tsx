@@ -50,6 +50,7 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
     newPlatformName, setNewPlatformName,
     newPlatformUrl, setNewPlatformUrl,
     newPlatformDescription, setNewPlatformDescription,
+    addPlatformErrors,
     handleAddPlatform, closeAddPlatform,
     showAddModel, setShowAddModel, isAddModelClosing,
     newModelId, setNewModelId, newModelName, setNewModelName,
@@ -333,6 +334,9 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
                   className="w-full px-3 py-1.5 text-xs border border-gray-300 dark:border-dark-border rounded focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none bg-white dark:bg-dark-element dark:text-gray-100"
                   placeholder="Base URL (可选)"
                 />
+                {addPlatformErrors.baseUrl && (
+                  <p className="text-xs text-red-500">{addPlatformErrors.baseUrl.message}</p>
+                )}
                 <input
                   type="text"
                   value={newPlatformDescription}

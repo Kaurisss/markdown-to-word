@@ -393,6 +393,7 @@ export function useAIConfig({
     setNewPlatformUrl,
     newPlatformDescription,
     setNewPlatformDescription,
+    addPlatformErrors: addPlatformForm.formState.errors,
     handleAddPlatform,
     closeAddPlatform,
 
@@ -407,6 +408,7 @@ export function useAIConfig({
     setEditPlatformUrl,
     editPlatformDescription,
     setEditPlatformDescription,
+    editPlatformErrors: editPlatformForm.formState.errors,
     handleStartEditPlatform,
     handleSaveEditPlatform,
     handleDeletePlatform,

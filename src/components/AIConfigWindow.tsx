@@ -33,10 +33,12 @@ export const AIConfigWindow: React.FC = () => {
     newPlatformName, setNewPlatformName,
     newPlatformUrl, setNewPlatformUrl,
     newPlatformDescription, setNewPlatformDescription,
+    addPlatformErrors,
     handleAddPlatform, closeAddPlatform,
     showEditPlatform, isEditPlatformClosing,
     editPlatformName, setEditPlatformName,
     editPlatformUrl, setEditPlatformUrl,
+    editPlatformErrors,
     editPlatformDescription, setEditPlatformDescription,
     handleSaveEditPlatform, closeEditPlatform,
     showAddModel, setShowAddModel, isAddModelClosing,
@@ -397,6 +399,9 @@ export const AIConfigWindow: React.FC = () => {
               onChange={(e) => setNewPlatformUrl(e.target.value)}
               placeholder="Base URL (可选)"
             />
+            {addPlatformErrors.baseUrl && (
+              <p className="text-xs text-red-500">{addPlatformErrors.baseUrl.message}</p>
+            )}
             <Input
               type="text"
               value={newPlatformDescription}
@@ -441,6 +446,9 @@ export const AIConfigWindow: React.FC = () => {
               onChange={(e) => setEditPlatformUrl(e.target.value)}
               placeholder="Base URL"
             />
+            {editPlatformErrors.baseUrl && (
+              <p className="text-xs text-red-500">{editPlatformErrors.baseUrl.message}</p>
+            )}
             <Input
               type="text"
               value={editPlatformDescription}
