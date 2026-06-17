@@ -9,6 +9,7 @@ import {
 } from '@mingcute/react';
 import { useMemo } from 'react';
 import {
+  autoUpdate,
   flip,
   offset,
   shift,
@@ -59,11 +60,14 @@ export const SelectionToolbar: React.FC<SelectionToolbarProps> = ({
   const { refs, floatingStyles } = useFloating({
     open: visible,
     placement: 'top',
+    strategy: 'fixed',
+    whileElementsMounted: autoUpdate,
     middleware: [offset(10), flip(), shift({ padding: 8 })],
-    elements: {
-      reference: virtualRef as unknown as Element,
-    },
   });
+
+  React.useLayoutEffect(() => {
+    refs.setReference(virtualRef);
+  }, [refs, virtualRef]);
 
   if (!visible) return null;
 

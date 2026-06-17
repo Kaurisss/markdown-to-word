@@ -161,7 +161,13 @@ const Editor = React.memo(forwardRef<HTMLTextAreaElement, EditorProps>(
             onSelect={onSelectionChange}
             onMouseUp={onSelectionChange}
             onKeyUp={onSelectionChange}
-            onBlur={onEditorBlur}
+            onBlur={(event) => {
+              window.setTimeout(() => {
+                if (document.activeElement !== event.currentTarget) {
+                  onEditorBlur?.();
+                }
+              }, 0);
+            }}
             onScroll={handleScroll}
             className="relative z-10 w-full h-full p-8 resize-none focus:outline-none font-mono text-[15px] leading-8 text-gray-800 dark:text-gray-200 bg-transparent placeholder-gray-300 dark:placeholder-gray-600 overflow-auto custom-scrollbar transition-colors duration-200 whitespace-pre-wrap break-words"
             spellCheck={false}
