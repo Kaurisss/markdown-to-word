@@ -28,4 +28,27 @@ describe('Preview', () => {
     expect(document.querySelector('img')).toBeNull();
     expect(document.querySelector('input')).toBeNull();
   });
+
+  it('adds slug ids to markdown headings', () => {
+    render(<Preview markdown={'# Hello World\n\n## 中文 标题'} cfg={DEFAULT_CONFIG} />);
+
+    expect(document.querySelector('h1')?.getAttribute('id')).toBe('user-content-hello-world');
+    expect(document.querySelector('h2')?.getAttribute('id')).toBe('user-content-中文-标题');
+  });
+
+  it('deduplicates repeated heading ids', () => {
+    render(<Preview markdown={'# Same\n\n# Same'} cfg={DEFAULT_CONFIG} />);
+
+    const headings = Array.from(document.querySelectorAll('h1')).map((node) =>
+      node.getAttribute('id')
+    );
+
+    expect(headings).toEqual(['user-content-same', 'user-content-same-1']);
+  });
+
+  it('does not preserve raw heading ids from html input', () => {
+    render(<Preview markdown={'<h1 id="dangerous">Safe Title</h1>'} cfg={DEFAULT_CONFIG} />);
+
+    expect(document.querySelector('h1')?.getAttribute('id')).toBe('user-content-safe-title');
+  });
 });

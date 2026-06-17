@@ -1,8 +1,9 @@
-import React, { CSSProperties, forwardRef, useMemo, useRef } from 'react';
+import { CSSProperties, forwardRef, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import rehypeSanitize from 'rehype-sanitize';
+import rehypeSlug from 'rehype-slug';
 import { PreviewProps } from '../types';
 
 function ptToPx(pt: number): string {
@@ -30,32 +31,6 @@ function buildFontFamily(cfg: PreviewProps['cfg'], elementFontFamily?: string): 
   return parts.join(', ');
 }
 
-function extractText(node: React.ReactNode): string {
-  if (typeof node === 'string') return node;
-  if (Array.isArray(node)) return node.map(extractText).join('');
-  if (React.isValidElement(node)) {
-    const el = node as React.ReactElement<{ children?: React.ReactNode }>;
-    return extractText(el.props.children);
-  }
-  return '';
-}
-
-function createHeadingComponent(
-  Tag: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6',
-  style: CSSProperties,
-  counter: Map<string, number>
-) {
-  return ({ children, ...props }: { children?: React.ReactNode; [key: string]: any }) => {
-    const text = extractText(children);
-    const baseId = text
-      ? text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\u00C0-\u024F\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af-]/g, '') || 'heading'
-      : 'heading';
-    const count = counter.get(baseId) || 0;
-    counter.set(baseId, count + 1);
-    const id = count === 0 ? baseId : `${baseId}-${count}`;
-    return <Tag {...props} id={id} style={{ ...style, textIndent: undefined }}>{children}</Tag>;
-  };
-}
 
 function normalizeLineSpacing(value: number | string): number | string {
   if (typeof value === 'number') return value;
@@ -154,22 +129,17 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
   // 与 Word 后端一致的表头背景色
   const tableHeadBg = '#e5e7eb';
 
-  // Ref for heading ID deduplication — cleared each render, but the ref itself
-  // persists so memoized components always point to the same Map instance.
-  const headingIdCounterRef = useRef(new Map<string, number>());
-  headingIdCounterRef.current.clear();
-
   // Memoize the entire components map so ReactMarkdown receives stable references.
   // Without this, React unmounts and remounts every heading/paragraph/code block
   // on each re-render, causing DOM thrash and losing text selection in long documents.
   const markdownComponents = useMemo(() => ({
-    h1: createHeadingComponent('h1', h1Style, headingIdCounterRef.current),
-    h2: createHeadingComponent('h2', h2Style, headingIdCounterRef.current),
-    h3: createHeadingComponent('h3', h3Style, headingIdCounterRef.current),
+    h1: ({ children, ...props }: any) => <h1 {...props} style={{ ...h1Style, textIndent: undefined }}>{children}</h1>,
+    h2: ({ children, ...props }: any) => <h2 {...props} style={{ ...h2Style, textIndent: undefined }}>{children}</h2>,
+    h3: ({ children, ...props }: any) => <h3 {...props} style={{ ...h3Style, textIndent: undefined }}>{children}</h3>,
     // Config only defines h1/h2/h3 styles; backend falls back to h1 for h4-h6
-    h4: createHeadingComponent('h4', h1Style, headingIdCounterRef.current),
-    h5: createHeadingComponent('h5', h1Style, headingIdCounterRef.current),
-    h6: createHeadingComponent('h6', h1Style, headingIdCounterRef.current),
+    h4: ({ children, ...props }: any) => <h4 {...props} style={{ ...h1Style, textIndent: undefined }}>{children}</h4>,
+    h5: ({ children, ...props }: any) => <h5 {...props} style={{ ...h1Style, textIndent: undefined }}>{children}</h5>,
+    h6: ({ children, ...props }: any) => <h6 {...props} style={{ ...h1Style, textIndent: undefined }}>{children}</h6>,
     a: ({ href, onClick, ...props }: any) => {
       const safeHref = typeof href === 'string' ? href : '';
       const isInternal = safeHref.startsWith('#');
@@ -395,6 +365,7 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
                 rehypePlugins={[
                   rehypeRaw,
                   [rehypeSanitize, previewSanitizeSchema],
+                  [rehypeSlug, { prefix: 'user-content-' }],
                 ]}
                 components={markdownComponents}
               >
