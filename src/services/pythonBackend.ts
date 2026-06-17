@@ -207,6 +207,20 @@ export async function exportWithPython(options: ExportOptions): Promise<ExportRe
   } catch (error) {
     // Handle unexpected errors
     const errorMessage = error instanceof Error ? error.message : String(error);
+
+    // On Windows, when the output .docx is open in Word/WPS the sidecar's
+    // stderr may contain GBK-encoded bytes. Tauri's shell plugin fails to
+    // decode them as UTF-8 and throws before we can inspect the exit code.
+    // Detect this and surface the same precise message we'd show from
+    // parseBackendError for a locked output file.
+    if (/invalid utf-8/i.test(errorMessage)) {
+      return {
+        success: false,
+        error: '无法写入目标文件',
+        details: '目标 Word 文件可能正被 Word/WPS 或其他程序打开，请关闭后重试，或选择另一个保存路径。',
+      };
+    }
+
     return {
       success: false,
       error: '导出过程中发生错误',
