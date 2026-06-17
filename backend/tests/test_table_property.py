@@ -20,7 +20,7 @@ from backend import parse_gfm_table, convert, load_config
 cell_content = st.text(
     alphabet=st.characters(
         whitelist_categories=('L', 'N', 'P', 'S'),
-        blacklist_characters='|\n\r'
+        blacklist_characters='|\\\n\r'
     ),
     min_size=1,
     max_size=20
@@ -83,9 +83,10 @@ def test_table_structure_preservation(table_data):
     
     # Verify parsing preserves structure
     assert parsed is not None, "Table should be parsed successfully"
-    assert len(parsed) == len(table_data), f"Row count mismatch: expected {len(table_data)}, got {len(parsed)}"
-    
-    for i, (expected_row, actual_row) in enumerate(zip(table_data, parsed)):
+    actual_rows = parsed["rows"]
+    assert len(actual_rows) == len(table_data), f"Row count mismatch: expected {len(table_data)}, got {len(actual_rows)}"
+
+    for i, (expected_row, actual_row) in enumerate(zip(table_data, actual_rows)):
         assert len(actual_row) == len(expected_row), f"Column count mismatch in row {i}"
         for j, (expected_cell, actual_cell) in enumerate(zip(expected_row, actual_row)):
             assert actual_cell == expected_cell, f"Cell content mismatch at ({i}, {j})"

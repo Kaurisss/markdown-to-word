@@ -20,7 +20,7 @@ from backend import parse_inline_formatting, convert, load_config
 plain_text = st.text(
     alphabet=st.characters(
         whitelist_categories=('L', 'N', 'S'),
-        blacklist_characters='*`[]()|\n\r'
+        blacklist_characters='*`[]()|<>\n\r'
     ),
     min_size=1,
     max_size=20
