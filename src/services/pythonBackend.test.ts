@@ -7,6 +7,7 @@
 import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
 import { DocumentConfig, ElementStyle } from '../interfaces/Config';
+import { parseBackendError } from './pythonBackend';
 
 /**
  * Arbitrary for generating valid alignment values
@@ -65,6 +66,28 @@ const documentConfigArb: fc.Arbitrary<DocumentConfig> = fc.record({
     code: elementStyleArb,
     quote: elementStyleArb,
   }),
+});
+
+describe('parseBackendError', () => {
+  it('shows a precise message when the output file is locked', () => {
+    const stderr = [
+      'Error: Cannot write output file - Path: C:\\\\Users\\\\Logic\\\\Desktop\\\\导出测试.docx - Details: The target file may be open in Word/WPS or locked by another application.',
+    ].join('\n');
+
+    expect(parseBackendError(stderr, 2)).toEqual({
+      message: '无法写入目标文件',
+      details: '目标 Word 文件可能正被 Word/WPS 或其他程序打开，请关闭后重试，或选择另一个保存路径。',
+    });
+  });
+
+  it('keeps the generic permission message for unrelated permission errors', () => {
+    const stderr = 'Error: Permission denied reading input file';
+
+    expect(parseBackendError(stderr, 2)).toEqual({
+      message: '权限错误',
+      details: 'Permission denied reading input file',
+    });
+  });
 });
 
 describe('Style Config Serialization', () => {

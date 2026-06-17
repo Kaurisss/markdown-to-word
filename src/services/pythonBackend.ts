@@ -66,6 +66,8 @@ export function parseBackendError(stderr: string, exitCode: number): { message: 
   const errorMatch = stderr.match(/^Error:\s*(.+)$/m);
   const errorText = errorMatch ? errorMatch[1].trim() : stderr.trim();
 
+  const isLockedOutputFile = /cannot write output file|open in word\/wps|locked by another application|being used by another process|拒绝访问|另一个程序正在使用此文件/i.test(errorText);
+
   // Map exit codes to user-friendly messages
   switch (exitCode) {
     case BackendErrorCode.FILE_NOT_FOUND:
@@ -75,6 +77,13 @@ export function parseBackendError(stderr: string, exitCode: number): { message: 
       };
 
     case BackendErrorCode.PERMISSION_ERROR:
+      if (isLockedOutputFile) {
+        return {
+          message: '无法写入目标文件',
+          details: '目标 Word 文件可能正被 Word/WPS 或其他程序打开，请关闭后重试，或选择另一个保存路径。',
+        };
+      }
+
       return {
         message: '权限错误',
         details: errorText || '无法写入输出文件，请检查文件权限'

@@ -19,6 +19,29 @@ from .elements import (
 )
 
 
+def _is_output_permission_error(error: Exception) -> bool:
+    """Check if an exception is caused by output file permission/lock issues."""
+    if isinstance(error, PermissionError):
+        return True
+
+    winerror = getattr(error, "winerror", None)
+    if winerror in {5, 32}:
+        return True
+
+    errno = getattr(error, "errno", None)
+    if errno in {13, 16}:
+        return True
+
+    text = str(error).lower()
+    locked_markers = (
+        "permission denied",
+        "being used by another process",
+        "另一个程序正在使用此文件",
+        "拒绝访问",
+    )
+    return any(marker in text for marker in locked_markers)
+
+
 def convert(input_path: str, output_path: str, conf: Dict[str, Any]) -> None:
     """Convert Markdown file to Word document with proper error handling."""
     if not os.path.exists(input_path):
@@ -176,13 +199,14 @@ def convert(input_path: str, output_path: str, conf: Dict[str, Any]) -> None:
 
     try:
         doc.save(output_path)
-    except PermissionError as e:
-        raise PermissionError_(
-            "Permission denied writing output file",
-            path=output_path,
-            details=str(e)
-        )
     except Exception as e:
+        if _is_output_permission_error(e):
+            raise PermissionError_(
+                "Cannot write output file",
+                path=output_path,
+                details="The target file may be open in Word/WPS or locked by another application."
+            )
+
         raise DocxGenerationError(
             "Failed to save Word document",
             details=str(e)
