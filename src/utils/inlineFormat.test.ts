@@ -90,6 +90,19 @@ describe('applyInlineFormat', () => {
     expect(result.selectionEnd).toBe(11);
   });
 
+  it('wraps bold text with italic markers instead of unwrapping a single bold marker', () => {
+    const result = applyInlineFormat({
+      content: 'hello **world**',
+      selectionStart: 8,
+      selectionEnd: 13,
+      kind: 'italic',
+    });
+
+    expect(result.content).toBe('hello ***world***');
+    expect(result.selectionStart).toBe(9);
+    expect(result.selectionEnd).toBe(14);
+  });
+
   it('does nothing when selection is empty', () => {
     const result = applyInlineFormat({
       content: 'hello',
@@ -109,8 +122,16 @@ describe('getActiveInlineFormats', () => {
     const result = getActiveInlineFormats('hello **world**', 8, 13);
 
     expect(result.bold).toBe(true);
+    expect(result.italic).toBe(false);
     expect(result.underline).toBe(false);
     expect(result.strike).toBe(false);
+  });
+
+  it('does not detect italic when the whole bold marker range is selected', () => {
+    const result = getActiveInlineFormats('hello **world**', 6, 15);
+
+    expect(result.bold).toBe(true);
+    expect(result.italic).toBe(false);
   });
 
   it('detects active underline when the whole tagged text is selected', () => {

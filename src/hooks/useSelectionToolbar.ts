@@ -47,7 +47,8 @@ export function useSelectionToolbar({
 }: UseSelectionToolbarOptions) {
   const [state, setState] = useState<SelectionToolbarState>(HIDDEN_STATE);
 
-  const refreshSelectionToolbar = useCallback(() => {
+  const refreshSelectionToolbar = useCallback((contentOverride?: unknown) => {
+    const nextContent = typeof contentOverride === 'string' ? contentOverride : content;
     const editor = editorRef.current;
     if (!editor || document.activeElement !== editor) {
       setState(HIDDEN_STATE);
@@ -69,7 +70,7 @@ export function useSelectionToolbar({
       y: rect.top + coords.top - editor.scrollTop,
       selectionStart,
       selectionEnd,
-      activeFormats: getActiveInlineFormats(content, selectionStart, selectionEnd),
+      activeFormats: getActiveInlineFormats(nextContent, selectionStart, selectionEnd),
     });
   }, [content, editorRef]);
 
@@ -100,7 +101,7 @@ export function useSelectionToolbar({
     requestAnimationFrame(() => {
       editor.focus();
       editor.setSelectionRange(result.selectionStart, result.selectionEnd);
-      refreshSelectionToolbar();
+      refreshSelectionToolbar(result.content);
     });
   }, [content, editorRef, refreshSelectionToolbar, state, updateContent]);
 
@@ -111,9 +112,22 @@ export function useSelectionToolbar({
       }
     };
 
+    const handlePointerSelectionEnd = () => {
+      requestAnimationFrame(() => {
+        refreshSelectionToolbar();
+      });
+    };
+
     document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [hideSelectionToolbar]);
+    document.addEventListener('mouseup', handlePointerSelectionEnd);
+    window.addEventListener('pointerup', handlePointerSelectionEnd);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('mouseup', handlePointerSelectionEnd);
+      window.removeEventListener('pointerup', handlePointerSelectionEnd);
+    };
+  }, [hideSelectionToolbar, refreshSelectionToolbar]);
 
   return useMemo(() => ({
     toolbarState: state,

@@ -24,6 +24,53 @@ const FORMAT_WRAPPERS: Record<Exclude<InlineFormatKind, 'link'>, { before: strin
   strike: { before: '~~', after: '~~' },
 };
 
+function isEscapedMarkerAt(content: string, index: number, marker: string): boolean {
+  return content.slice(index, index + marker.length) === marker;
+}
+
+function isSingleAsteriskAt(content: string, index: number): boolean {
+  if (!isEscapedMarkerAt(content, index, '*')) return false;
+
+  return content[index - 1] !== '*' && content[index + 1] !== '*';
+}
+
+function hasExactWrapper(
+  content: string,
+  start: number,
+  end: number,
+  wrapper: { before: string; after: string },
+): boolean {
+  if (wrapper.before !== '*' || wrapper.after !== '*') {
+    return (
+      content.slice(start, start + wrapper.before.length) === wrapper.before &&
+      content.slice(end - wrapper.after.length, end) === wrapper.after
+    );
+  }
+
+  return isSingleAsteriskAt(content, start) && isSingleAsteriskAt(content, end - wrapper.after.length);
+}
+
+function hasExactWrapperAroundSelection(
+  content: string,
+  start: number,
+  end: number,
+  wrapper: { before: string; after: string },
+): boolean {
+  const beforeStart = start - wrapper.before.length;
+  const afterEnd = end + wrapper.after.length;
+
+  if (beforeStart < 0 || afterEnd > content.length) return false;
+
+  if (wrapper.before !== '*' || wrapper.after !== '*') {
+    return (
+      content.slice(beforeStart, start) === wrapper.before &&
+      content.slice(end, afterEnd) === wrapper.after
+    );
+  }
+
+  return isSingleAsteriskAt(content, beforeStart) && isSingleAsteriskAt(content, end);
+}
+
 function unwrapInlineFormat(
   content: string,
   start: number,
@@ -32,7 +79,7 @@ function unwrapInlineFormat(
 ): ApplyInlineFormatResult | null {
   const selected = content.slice(start, end);
 
-  if (selected.startsWith(wrapper.before) && selected.endsWith(wrapper.after)) {
+  if (hasExactWrapper(content, start, end, wrapper)) {
     const unwrapped = selected.slice(wrapper.before.length, selected.length - wrapper.after.length);
     const nextContent = `${content.slice(0, start)}${unwrapped}${content.slice(end)}`;
 
@@ -44,14 +91,7 @@ function unwrapInlineFormat(
   }
 
   const beforeStart = start - wrapper.before.length;
-  const afterEnd = end + wrapper.after.length;
-  const hasWrapperAroundSelection =
-    beforeStart >= 0 &&
-    afterEnd <= content.length &&
-    content.slice(beforeStart, start) === wrapper.before &&
-    content.slice(end, afterEnd) === wrapper.after;
-
-  if (!hasWrapperAroundSelection) return null;
+  if (!hasExactWrapperAroundSelection(content, start, end, wrapper)) return null;
 
   const nextContent = `${content.slice(0, beforeStart)}${selected}${content.slice(end + wrapper.after.length)}`;
 
@@ -72,19 +112,11 @@ function isInlineFormatWrapped(
 
   if (!selected) return false;
 
-  if (selected.startsWith(wrapper.before) && selected.endsWith(wrapper.after)) {
+  if (hasExactWrapper(content, start, end, wrapper)) {
     return true;
   }
 
-  const beforeStart = start - wrapper.before.length;
-  const afterEnd = end + wrapper.after.length;
-
-  return (
-    beforeStart >= 0 &&
-    afterEnd <= content.length &&
-    content.slice(beforeStart, start) === wrapper.before &&
-    content.slice(end, afterEnd) === wrapper.after
-  );
+  return hasExactWrapperAroundSelection(content, start, end, wrapper);
 }
 
 export function getActiveInlineFormats(
