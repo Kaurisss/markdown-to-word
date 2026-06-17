@@ -21,4 +21,11 @@ describe('Preview', () => {
     expect(document.querySelector('script')).toBeNull();
     expect(screen.getByText(/Before/)).toBeTruthy();
   });
+
+  it('strips raw img and input tags', () => {
+    render(<Preview markdown={'<img src="x" /> <input type="checkbox" />'} cfg={DEFAULT_CONFIG} />);
+
+    expect(document.querySelector('img')).toBeNull();
+    expect(document.querySelector('input')).toBeNull();
+  });
 });
