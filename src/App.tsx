@@ -371,7 +371,7 @@ const App: React.FC = () => {
             </div>
           )}
 
-          <Toaster richColors position="top-center" />
+          <Toaster closeButton richColors position="top-center" />
         </div>
 
       <DynamicContextMenu
