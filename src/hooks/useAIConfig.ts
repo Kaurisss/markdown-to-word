@@ -1,6 +1,20 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { AIProvider, AIModel } from '../interfaces/AI';
 import { toast } from 'sonner';
+import {
+  EMPTY_PROVIDER_FORM,
+  EMPTY_MODEL_FORM,
+  ProviderFormValues,
+  ModelFormValues,
+  buildCustomProvider,
+  buildModel,
+  patchCustomProvider,
+  providerFormSchema,
+  modelFormSchema,
+  toProviderFormValues,
+} from '../services/aiConfigValidation';
 
 export interface UseAIConfigParams {
   providers: AIProvider[];
@@ -22,30 +36,84 @@ export function useAIConfig({
   // ── Add-platform dialog ─────────────────────────────────────────────
   const [showAddPlatform, setShowAddPlatform] = useState(false);
   const [isAddPlatformClosing, setIsAddPlatformClosing] = useState(false);
-  const [newPlatformName, setNewPlatformName] = useState('');
-  const [newPlatformUrl, setNewPlatformUrl] = useState('');
-  const [newPlatformDescription, setNewPlatformDescription] = useState('');
+  const addPlatformForm = useForm<ProviderFormValues>({
+    resolver: zodResolver(providerFormSchema),
+    defaultValues: EMPTY_PROVIDER_FORM,
+    mode: 'onSubmit',
+  });
 
   // ── Edit-platform dialog ────────────────────────────────────────────
   const [showEditPlatform, setShowEditPlatform] = useState(false);
   const [isEditPlatformClosing, setIsEditPlatformClosing] = useState(false);
   const [editingPlatformId, setEditingPlatformId] = useState('');
-  const [editPlatformName, setEditPlatformName] = useState('');
-  const [editPlatformUrl, setEditPlatformUrl] = useState('');
-  const [editPlatformDescription, setEditPlatformDescription] = useState('');
+  const editPlatformForm = useForm<ProviderFormValues>({
+    resolver: zodResolver(providerFormSchema),
+    defaultValues: EMPTY_PROVIDER_FORM,
+    mode: 'onSubmit',
+  });
+
+  const newPlatformName = addPlatformForm.watch('name');
+  const newPlatformUrl = addPlatformForm.watch('baseUrl');
+  const newPlatformDescription = addPlatformForm.watch('description');
+  const editPlatformName = editPlatformForm.watch('name');
+  const editPlatformUrl = editPlatformForm.watch('baseUrl');
+  const editPlatformDescription = editPlatformForm.watch('description');
+
+  const setNewPlatformName = useCallback((value: string) => {
+    addPlatformForm.setValue('name', value, { shouldDirty: true, shouldValidate: false });
+  }, [addPlatformForm]);
+  const setNewPlatformUrl = useCallback((value: string) => {
+    addPlatformForm.setValue('baseUrl', value, { shouldDirty: true, shouldValidate: false });
+  }, [addPlatformForm]);
+  const setNewPlatformDescription = useCallback((value: string) => {
+    addPlatformForm.setValue('description', value, { shouldDirty: true, shouldValidate: false });
+  }, [addPlatformForm]);
+  const setEditPlatformName = useCallback((value: string) => {
+    editPlatformForm.setValue('name', value, { shouldDirty: true, shouldValidate: false });
+  }, [editPlatformForm]);
+  const setEditPlatformUrl = useCallback((value: string) => {
+    editPlatformForm.setValue('baseUrl', value, { shouldDirty: true, shouldValidate: false });
+  }, [editPlatformForm]);
+  const setEditPlatformDescription = useCallback((value: string) => {
+    editPlatformForm.setValue('description', value, { shouldDirty: true, shouldValidate: false });
+  }, [editPlatformForm]);
 
   // ── Add-model dialog ────────────────────────────────────────────────
   const [showAddModel, setShowAddModel] = useState(false);
   const [isAddModelClosing, setIsAddModelClosing] = useState(false);
-  const [newModelId, setNewModelId] = useState('');
-  const [newModelName, setNewModelName] = useState('');
+  const addModelForm = useForm<ModelFormValues>({
+    resolver: zodResolver(modelFormSchema),
+    defaultValues: EMPTY_MODEL_FORM,
+    mode: 'onSubmit',
+  });
 
   // ── Edit-model dialog ───────────────────────────────────────────────
   const [showEditModel, setShowEditModel] = useState(false);
   const [isEditModelClosing, setIsEditModelClosing] = useState(false);
   const [editingModel, setEditingModel] = useState<AIModel | null>(null);
-  const [editModelId, setEditModelId] = useState('');
-  const [editModelName, setEditModelName] = useState('');
+  const editModelForm = useForm<ModelFormValues>({
+    resolver: zodResolver(modelFormSchema),
+    defaultValues: EMPTY_MODEL_FORM,
+    mode: 'onSubmit',
+  });
+
+  const newModelId = addModelForm.watch('id');
+  const newModelName = addModelForm.watch('name');
+  const editModelId = editModelForm.watch('id');
+  const editModelName = editModelForm.watch('name');
+
+  const setNewModelId = useCallback((value: string) => {
+    addModelForm.setValue('id', value, { shouldDirty: true, shouldValidate: false });
+  }, [addModelForm]);
+  const setNewModelName = useCallback((value: string) => {
+    addModelForm.setValue('name', value, { shouldDirty: true, shouldValidate: false });
+  }, [addModelForm]);
+  const setEditModelId = useCallback((value: string) => {
+    editModelForm.setValue('id', value, { shouldDirty: true, shouldValidate: false });
+  }, [editModelForm]);
+  const setEditModelName = useCallback((value: string) => {
+    editModelForm.setValue('name', value, { shouldDirty: true, shouldValidate: false });
+  }, [editModelForm]);
 
   // ── API key visibility ──────────────────────────────────────────────
   const [showApiKey, setShowApiKey] = useState(false);
@@ -72,8 +140,9 @@ export function useAIConfig({
     setTimeout(() => {
       setShowAddPlatform(false);
       setIsAddPlatformClosing(false);
+      addPlatformForm.reset(EMPTY_PROVIDER_FORM);
     }, 200);
-  }, []);
+  }, [addPlatformForm]);
 
   const closeEditPlatform = useCallback(() => {
     setIsEditPlatformClosing(true);
@@ -81,21 +150,18 @@ export function useAIConfig({
       setShowEditPlatform(false);
       setIsEditPlatformClosing(false);
       setEditingPlatformId('');
-      setEditPlatformName('');
-      setEditPlatformUrl('');
-      setEditPlatformDescription('');
+      editPlatformForm.reset(EMPTY_PROVIDER_FORM);
     }, 200);
-  }, []);
+  }, [editPlatformForm]);
 
   const closeAddModel = useCallback(() => {
     setIsAddModelClosing(true);
     setTimeout(() => {
       setShowAddModel(false);
       setIsAddModelClosing(false);
-      setNewModelId('');
-      setNewModelName('');
+      addModelForm.reset(EMPTY_MODEL_FORM);
     }, 200);
-  }, []);
+  }, [addModelForm]);
 
   const closeEditModel = useCallback(() => {
     setIsEditModelClosing(true);
@@ -103,8 +169,9 @@ export function useAIConfig({
       setShowEditModel(false);
       setIsEditModelClosing(false);
       setEditingModel(null);
+      editModelForm.reset(EMPTY_MODEL_FORM);
     }, 200);
-  }, []);
+  }, [editModelForm]);
 
   // (Removed close context menu functions)
 
@@ -195,17 +262,15 @@ export function useAIConfig({
     }
   }, [selectedProvider, selectedModel, updateSelectedModel]);
 
-  const handleAddModel = useCallback(() => {
-    if (!selectedProvider || !newModelId.trim()) return;
-    const model: AIModel = {
-      id: newModelId.trim(),
-      name: newModelName.trim() || newModelId.trim(),
-    };
+  const handleAddModel = addModelForm.handleSubmit((values) => {
+    if (!selectedProvider) return;
+    const model = buildModel(values);
     handleUpdateProvider(selectedProvider.id, {
       models: [...selectedProvider.models, model],
     });
     closeAddModel();
-  }, [selectedProvider, newModelId, newModelName, handleUpdateProvider, closeAddModel]);
+    addModelForm.reset(EMPTY_MODEL_FORM);
+  });
 
   const handleDeleteModel = useCallback((modelId: string) => {
     if (!selectedProvider) return;
@@ -220,16 +285,16 @@ export function useAIConfig({
     }
   }, [selectedProvider, handleUpdateProvider, selectedModel, updateSelectedModel]);
 
-  const handleSaveEditModel = useCallback(() => {
-    if (!selectedProvider || !editingModel || !editModelId.trim()) return;
+  const handleSaveEditModel = editModelForm.handleSubmit((values) => {
+    if (!selectedProvider || !editingModel) return;
+    const normalizedModel = buildModel(values);
     const updatedModels = selectedProvider.models.map(m =>
-      m.id === editingModel.id
-        ? { id: editModelId.trim(), name: editModelName.trim() || editModelId.trim() }
-        : m,
+      m.id === editingModel.id ? normalizedModel : m,
     );
     handleUpdateProvider(selectedProvider.id, { models: updatedModels });
     closeEditModel();
-  }, [selectedProvider, editingModel, editModelId, editModelName, handleUpdateProvider, closeEditModel]);
+    editModelForm.reset(EMPTY_MODEL_FORM);
+  });
 
   const handleCopyModel = useCallback((model: AIModel) => {
     if (!selectedProvider) return;
@@ -244,45 +309,28 @@ export function useAIConfig({
 
   // ── Platform CRUD ───────────────────────────────────────────────────
 
-  const handleAddPlatform = useCallback(() => {
-    if (!newPlatformName.trim()) return;
+  const handleAddPlatform = addPlatformForm.handleSubmit((values) => {
     const newId = `custom-${Date.now()}`;
-    const provider: AIProvider = {
-      id: newId,
-      name: newPlatformName,
-      description: newPlatformDescription || undefined,
-      isEnabled: true,
-      apiKey: '',
-      baseUrl: newPlatformUrl || 'https://api.example.com/v1/chat/completions',
-      models: [],
-      isCustom: true,
-    };
+    const provider = buildCustomProvider({ id: newId, values });
     updateProviders([...providers, provider]);
     setSelectedProviderId(newId);
     closeAddPlatform();
-    setNewPlatformName('');
-    setNewPlatformUrl('');
-    setNewPlatformDescription('');
-  }, [newPlatformName, newPlatformUrl, newPlatformDescription, providers, updateProviders, closeAddPlatform]);
+    addPlatformForm.reset(EMPTY_PROVIDER_FORM);
+  });
 
   const handleStartEditPlatform = useCallback((provider: AIProvider) => {
     if (!provider.isCustom) return;
     setEditingPlatformId(provider.id);
-    setEditPlatformName(provider.name);
-    setEditPlatformUrl(provider.baseUrl);
-    setEditPlatformDescription(provider.description || '');
+    editPlatformForm.reset(toProviderFormValues(provider));
     setShowEditPlatform(true);
-  }, []);
+  }, [editPlatformForm]);
 
-  const handleSaveEditPlatform = useCallback(() => {
-    if (!editingPlatformId || !editPlatformName.trim()) return;
-    handleUpdateProvider(editingPlatformId, {
-      name: editPlatformName.trim(),
-      baseUrl: editPlatformUrl.trim() || 'https://api.example.com/v1/chat/completions',
-      description: editPlatformDescription.trim() || undefined,
-    });
+  const handleSaveEditPlatform = editPlatformForm.handleSubmit((values) => {
+    if (!editingPlatformId) return;
+    handleUpdateProvider(editingPlatformId, patchCustomProvider(values));
     closeEditPlatform();
-  }, [editingPlatformId, editPlatformName, editPlatformUrl, editPlatformDescription, handleUpdateProvider, closeEditPlatform]);
+    editPlatformForm.reset(EMPTY_PROVIDER_FORM);
+  });
 
   const handleDeletePlatform = useCallback((provider: AIProvider) => {
     if (!provider.isCustom) return;
@@ -301,10 +349,9 @@ export function useAIConfig({
 
   const handleEditModel = useCallback((model: AIModel) => {
     setEditingModel(model);
-    setEditModelId(model.id);
-    setEditModelName(model.name);
+    editModelForm.reset({ id: model.id, name: model.name });
     setShowEditModel(true);
-  }, []);
+  }, [editModelForm]);
 
   const handleTestModelClick = useCallback((model: AIModel) => {
     handleTestModel(model.id);
