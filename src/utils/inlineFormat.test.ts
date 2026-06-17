@@ -51,6 +51,45 @@ describe('applyInlineFormat', () => {
     expect(result.content).toBe('visit [site](https://example.com)');
   });
 
+  it('removes bold markers when selected text is already bold', () => {
+    const result = applyInlineFormat({
+      content: 'hello **world**',
+      selectionStart: 8,
+      selectionEnd: 13,
+      kind: 'bold',
+    });
+
+    expect(result.content).toBe('hello world');
+    expect(result.selectionStart).toBe(6);
+    expect(result.selectionEnd).toBe(11);
+  });
+
+  it('removes underline tags when the whole tagged text is selected', () => {
+    const result = applyInlineFormat({
+      content: 'hello <u>world</u>',
+      selectionStart: 6,
+      selectionEnd: 18,
+      kind: 'underline',
+    });
+
+    expect(result.content).toBe('hello world');
+    expect(result.selectionStart).toBe(6);
+    expect(result.selectionEnd).toBe(11);
+  });
+
+  it('removes strikethrough markers when selected text is already struck', () => {
+    const result = applyInlineFormat({
+      content: 'hello ~~world~~',
+      selectionStart: 8,
+      selectionEnd: 13,
+      kind: 'strike',
+    });
+
+    expect(result.content).toBe('hello world');
+    expect(result.selectionStart).toBe(6);
+    expect(result.selectionEnd).toBe(11);
+  });
+
   it('does nothing when selection is empty', () => {
     const result = applyInlineFormat({
       content: 'hello',
