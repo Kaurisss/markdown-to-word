@@ -1,6 +1,8 @@
 import React, { CSSProperties, forwardRef, useMemo, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
+import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import { PreviewProps } from '../types';
 
 function ptToPx(pt: number): string {
@@ -61,6 +63,18 @@ function normalizeLineSpacing(value: number | string): number | string {
   if (ptMatch) return ptToPx(parseFloat(ptMatch[1]));
   return value;
 }
+
+const previewSanitizeSchema = {
+  ...defaultSchema,
+  tagNames: [
+    ...(defaultSchema.tagNames || []),
+    'u',
+  ],
+  attributes: {
+    ...defaultSchema.attributes,
+    u: [],
+  },
+};
 
 function elementStyleToCss(cfg: PreviewProps['cfg'], style: PreviewProps['cfg']['styles']['body']): CSSProperties {
   return {
@@ -311,7 +325,18 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
           verticalAlign: 'middle'
         }}
       />
-    )
+    ),
+    u: ({ children, ...props }: any) => (
+      <u
+        {...props}
+        style={{
+          textDecorationLine: 'underline',
+          textUnderlineOffset: '0.12em',
+        }}
+      >
+        {children}
+      </u>
+    ),
   }), [h1Style, h2Style, h3Style, bodyStyle, quoteStyle, inlineCodeStyle, codeBlockStyle, tableBorder, tableHeadBg, cfg]);
 
   return (
@@ -346,6 +371,10 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
             {markdown ? (
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
+                rehypePlugins={[
+                  rehypeRaw,
+                  [rehypeSanitize, previewSanitizeSchema],
+                ]}
                 components={markdownComponents}
               >
                 {markdown}
