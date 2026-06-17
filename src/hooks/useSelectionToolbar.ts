@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import getCaretCoordinates from 'textarea-caret';
-import { applyInlineFormat, InlineFormatKind } from '../utils/inlineFormat';
+import {
+  ActiveInlineFormats,
+  applyInlineFormat,
+  getActiveInlineFormats,
+  InlineFormatKind,
+} from '../utils/inlineFormat';
 
 interface SelectionToolbarState {
   visible: boolean;
@@ -8,6 +13,7 @@ interface SelectionToolbarState {
   y: number;
   selectionStart: number;
   selectionEnd: number;
+  activeFormats: ActiveInlineFormats;
 }
 
 interface UseSelectionToolbarOptions {
@@ -16,12 +22,22 @@ interface UseSelectionToolbarOptions {
   updateContent: (next: string) => void;
 }
 
+const EMPTY_ACTIVE_FORMATS: ActiveInlineFormats = {
+  bold: false,
+  italic: false,
+  code: false,
+  underline: false,
+  strike: false,
+  link: false,
+};
+
 const HIDDEN_STATE: SelectionToolbarState = {
   visible: false,
   x: 0,
   y: 0,
   selectionStart: 0,
   selectionEnd: 0,
+  activeFormats: EMPTY_ACTIVE_FORMATS,
 };
 
 export function useSelectionToolbar({
@@ -53,8 +69,9 @@ export function useSelectionToolbar({
       y: rect.top + coords.top - editor.scrollTop,
       selectionStart,
       selectionEnd,
+      activeFormats: getActiveInlineFormats(content, selectionStart, selectionEnd),
     });
-  }, [editorRef]);
+  }, [content, editorRef]);
 
   const hideSelectionToolbar = useCallback(() => {
     setState(HIDDEN_STATE);

@@ -386,6 +386,7 @@ const App: React.FC = () => {
         visible={toolbarState.visible}
         x={toolbarState.x}
         y={toolbarState.y}
+        activeFormats={toolbarState.activeFormats}
         onFormat={applyFormat}
       />
     </>

@@ -14,6 +14,8 @@ export interface ApplyInlineFormatResult {
   selectionEnd: number;
 }
 
+export type ActiveInlineFormats = Record<InlineFormatKind, boolean>;
+
 const FORMAT_WRAPPERS: Record<Exclude<InlineFormatKind, 'link'>, { before: string; after: string }> = {
   bold: { before: '**', after: '**' },
   italic: { before: '*', after: '*' },
@@ -58,6 +60,61 @@ function unwrapInlineFormat(
     selectionStart: beforeStart,
     selectionEnd: beforeStart + selected.length,
   };
+}
+
+function isInlineFormatWrapped(
+  content: string,
+  start: number,
+  end: number,
+  wrapper: { before: string; after: string },
+): boolean {
+  const selected = content.slice(start, end);
+
+  if (!selected) return false;
+
+  if (selected.startsWith(wrapper.before) && selected.endsWith(wrapper.after)) {
+    return true;
+  }
+
+  const beforeStart = start - wrapper.before.length;
+  const afterEnd = end + wrapper.after.length;
+
+  return (
+    beforeStart >= 0 &&
+    afterEnd <= content.length &&
+    content.slice(beforeStart, start) === wrapper.before &&
+    content.slice(end, afterEnd) === wrapper.after
+  );
+}
+
+export function getActiveInlineFormats(
+  content: string,
+  selectionStart: number,
+  selectionEnd: number,
+): ActiveInlineFormats {
+  const start = Math.max(0, Math.min(selectionStart, content.length));
+  const end = Math.max(start, Math.min(selectionEnd, content.length));
+  const activeFormats: ActiveInlineFormats = {
+    bold: false,
+    italic: false,
+    code: false,
+    underline: false,
+    strike: false,
+    link: false,
+  };
+
+  if (end <= start) return activeFormats;
+
+  for (const [kind, wrapper] of Object.entries(FORMAT_WRAPPERS)) {
+    activeFormats[kind as Exclude<InlineFormatKind, 'link'>] = isInlineFormatWrapped(
+      content,
+      start,
+      end,
+      wrapper,
+    );
+  }
+
+  return activeFormats;
 }
 
 export function applyInlineFormat(input: ApplyInlineFormatInput): ApplyInlineFormatResult {
