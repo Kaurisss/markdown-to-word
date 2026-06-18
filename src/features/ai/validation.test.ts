@@ -16,6 +16,7 @@ describe('aiConfigValidation', () => {
       name: '   ',
       baseUrl: '',
       description: '',
+      iconKey: '',
     });
 
     expect(result.success).toBe(false);
@@ -26,6 +27,7 @@ describe('aiConfigValidation', () => {
       name: ' Local ',
       baseUrl: '   ',
       description: ' test provider ',
+      iconKey: '',
     });
 
     expect(result.success).toBe(true);
@@ -34,6 +36,7 @@ describe('aiConfigValidation', () => {
       name: 'Local',
       baseUrl: '',
       description: 'test provider',
+      iconKey: '',
     });
   });
 
@@ -42,6 +45,7 @@ describe('aiConfigValidation', () => {
       name: 'Local',
       baseUrl: 'ftp://example.com',
       description: '',
+      iconKey: '',
     });
 
     expect(result.success).toBe(false);
@@ -54,6 +58,7 @@ describe('aiConfigValidation', () => {
         name: ' Local ',
         baseUrl: ' ',
         description: '  ',
+        iconKey: '',
       },
     });
 
@@ -61,6 +66,7 @@ describe('aiConfigValidation', () => {
       id: 'custom-fixed',
       name: 'Local',
       description: undefined,
+      iconKey: undefined,
       isEnabled: true,
       apiKey: '',
       baseUrl: DEFAULT_CUSTOM_PROVIDER_BASE_URL,
@@ -74,12 +80,14 @@ describe('aiConfigValidation', () => {
       name: ' New Name ',
       baseUrl: ' https://api.example.com/v1/chat/completions ',
       description: ' ',
+      iconKey: ' openai ',
     });
 
     expect(patch).toEqual({
       name: 'New Name',
       baseUrl: 'https://api.example.com/v1/chat/completions',
       description: undefined,
+      iconKey: 'openai',
     });
   });
 
@@ -110,12 +118,14 @@ describe('aiConfigValidation', () => {
       apiKey: 'secret',
       baseUrl: 'https://api.example.com',
       description: 'Example',
+      iconKey: 'deepseek',
       models: [],
       isCustom: true,
     })).toEqual({
       name: 'Custom A',
       baseUrl: 'https://api.example.com',
       description: 'Example',
+      iconKey: 'deepseek',
     });
 
     expect(toModelFormValues({ id: 'gpt-4o', name: 'GPT-4o' })).toEqual({

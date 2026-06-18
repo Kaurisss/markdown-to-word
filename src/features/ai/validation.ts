@@ -15,6 +15,7 @@ export const providerFormSchema = z.object({
   name: z.string().trim().min(1, '平台名称不能为空'),
   baseUrl: httpUrlOrEmpty,
   description: z.string().trim(),
+  iconKey: z.string().trim(),
 });
 
 export const modelFormSchema = z.object({
@@ -31,6 +32,7 @@ export const EMPTY_PROVIDER_FORM: ProviderFormValues = {
   name: '',
   baseUrl: '',
   description: '',
+  iconKey: '',
 };
 
 export const EMPTY_MODEL_FORM: ModelFormValues = {
@@ -51,6 +53,7 @@ export function toProviderFormValues(provider: AIProvider): ProviderFormValues {
     name: provider.name,
     baseUrl: provider.baseUrl,
     description: provider.description ?? '',
+    iconKey: provider.iconKey ?? '',
   };
 }
 
@@ -73,6 +76,7 @@ export function buildCustomProvider({
     id,
     name: parsed.name,
     description: parsed.description || undefined,
+    iconKey: parsed.iconKey || undefined,
     isEnabled: true,
     apiKey: '',
     baseUrl: parsed.baseUrl || DEFAULT_CUSTOM_PROVIDER_BASE_URL,
@@ -81,12 +85,13 @@ export function buildCustomProvider({
   };
 }
 
-export function patchCustomProvider(values: ProviderFormValues): Pick<AIProvider, 'name' | 'baseUrl' | 'description'> {
+export function patchCustomProvider(values: ProviderFormValues): Pick<AIProvider, 'name' | 'baseUrl' | 'description' | 'iconKey'> {
   const parsed = normalizeProviderForm(values);
   return {
     name: parsed.name,
     baseUrl: parsed.baseUrl || DEFAULT_CUSTOM_PROVIDER_BASE_URL,
     description: parsed.description || undefined,
+    iconKey: parsed.iconKey || undefined,
   };
 }
 

@@ -7,6 +7,7 @@ export interface AIProvider {
   id: string;
   name: string;
   description?: string;
+  iconKey?: string;
   isEnabled: boolean;
   apiKey: string;
   baseUrl: string;
