@@ -82,12 +82,12 @@ export const STANDARD_COLORS = [
 ];
 
 export const STYLES = {
-  selectClass: "h-7 px-2 text-[13px] border border-gray-300 dark:border-dark-border rounded bg-white dark:bg-dark-element text-gray-900 dark:text-gray-200 hover:border-gray-400 dark:hover:border-gray-500 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-colors",
-  btnClass: "h-7 px-2 flex items-center justify-center border border-transparent rounded hover:bg-gray-100 dark:hover:bg-dark-element-hover active:bg-gray-200 dark:active:bg-dark-border transition-colors text-gray-700 dark:text-gray-200",
+  selectClass: "h-7 px-ui-control-x text-[13px] border border-ui-border rounded-ui-control bg-ui-control text-ui-text hover:bg-ui-control-hover focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-colors",
+  btnClass: "h-7 px-ui-control-x flex items-center justify-center border border-transparent rounded-ui-control hover:bg-ui-control-hover active:bg-ui-control-active transition-colors text-ui-text-muted",
   btnActiveClass: "bg-brand-100 dark:bg-brand-900/30 text-brand-700 dark:text-brand-400 border-brand-300 dark:border-brand-700",
-  dividerClass: "w-px h-6 bg-gray-200 dark:bg-dark-border mx-1",
-  groupClass: "flex items-center gap-1 h-full px-1 first:pl-0 last:pr-0 border-r border-gray-200 dark:border-dark-border last:border-r-0",
-  labelClass: "text-[11px] text-gray-500 dark:text-gray-400 mb-0.5 block",
-  inputClass: "h-7 px-2 text-[13px] border border-gray-300 dark:border-dark-border rounded bg-white dark:bg-dark-element text-gray-900 dark:text-gray-100 hover:border-gray-400 dark:hover:border-gray-500 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-colors",
-  menuItemClass: "w-full text-left px-3 py-1.5 text-[13px] hover:bg-gray-100 dark:hover:bg-dark-element-hover flex items-center space-x-2"
+  dividerClass: "w-px h-6 bg-ui-border-subtle mx-1",
+  groupClass: "flex items-center gap-1 h-full px-1 first:pl-0 last:pr-0 border-r border-ui-border-subtle last:border-r-0",
+  labelClass: "text-[11px] text-ui-text-subtle mb-0.5 block",
+  inputClass: "h-7 px-ui-control-x text-[13px] border border-ui-border rounded-ui-control bg-ui-control text-ui-text hover:bg-ui-control-hover focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-colors",
+  menuItemClass: "w-full text-left px-3 py-1.5 text-[13px] hover:bg-ui-control-hover flex items-center gap-2 text-ui-text"
 };
