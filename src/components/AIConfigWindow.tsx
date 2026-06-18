@@ -104,7 +104,7 @@ export const AIConfigWindow: React.FC = () => {
       {/* Left Categories */}
       <div className="w-64 bg-gray-50 dark:bg-dark-bg border-r border-gray-200 dark:border-dark-border flex flex-col">
         <div className="h-10 px-5 flex items-center justify-between bg-gray-50 dark:bg-dark-bg" data-tauri-drag-region>
-          <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200 pointer-events-none">AI 平台管理</h2>
+          <h2 className="ui-sidebar-kicker pointer-events-none">AI 平台管理</h2>
           <button
             onClick={() => setShowAddPlatform(true)}
             disabled={isBootstrapping}
@@ -231,7 +231,7 @@ export const AIConfigWindow: React.FC = () => {
             <div className="relative h-10 flex items-center justify-between pl-6 pr-12">
               <div className="absolute top-0 left-0 right-[92px] h-10" data-tauri-drag-region />
               <div className="relative z-10 flex-1 flex items-center pointer-events-none">
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 pointer-events-none">{selectedProvider.name}</h3>
+                <h3 className="ui-page-title pointer-events-none">{selectedProvider.name}</h3>
               </div>
               <button
                 type="button"
@@ -265,13 +265,13 @@ export const AIConfigWindow: React.FC = () => {
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="w-1 h-4 bg-blue-500 rounded-full"></div>
-                  <div className="text-base font-bold text-gray-900 dark:text-gray-100">
+                  <div className="ui-section-title">
                     API 配置
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-xs text-gray-500 dark:text-gray-400">API Key</Label>
+                  <Label className="ui-field-label">API Key</Label>
                   <div className="relative">
                     <Input
                       type={showApiKey ? 'text' : 'password'}
@@ -292,7 +292,7 @@ export const AIConfigWindow: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-xs text-gray-500 dark:text-gray-400">Base URL</Label>
+                  <Label className="ui-field-label">Base URL</Label>
                   <Input
                     type="text"
                     value={selectedProvider.baseUrl}
@@ -307,7 +307,7 @@ export const AIConfigWindow: React.FC = () => {
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="w-1 h-4 bg-purple-500 rounded-full"></div>
-                  <div className="text-base font-bold text-gray-900 dark:text-gray-100">
+                  <div className="ui-section-title">
                     模型管理
                   </div>
                 </div>
@@ -482,7 +482,7 @@ export const AIConfigWindow: React.FC = () => {
           </DialogHeader>
           <div className="space-y-3">
             <div className="space-y-1">
-              <Label className="text-xs text-gray-500 dark:text-gray-400">模型 ID <span className="text-red-500">*</span></Label>
+              <Label className="ui-field-label">模型 ID <span className="text-red-500">*</span></Label>
               <Input
                 type="text"
                 value={newModelId}
@@ -492,7 +492,7 @@ export const AIConfigWindow: React.FC = () => {
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs text-gray-500 dark:text-gray-400">显示名称</Label>
+              <Label className="ui-field-label">显示名称</Label>
               <Input
                 type="text"
                 value={newModelName}
@@ -528,7 +528,7 @@ export const AIConfigWindow: React.FC = () => {
           </DialogHeader>
           <div className="space-y-3">
             <div className="space-y-1">
-              <Label className="text-xs text-gray-500 dark:text-gray-400">模型 ID <span className="text-red-500">*</span></Label>
+              <Label className="ui-field-label">模型 ID <span className="text-red-500">*</span></Label>
               <Input
                 type="text"
                 value={editModelId}
@@ -538,7 +538,7 @@ export const AIConfigWindow: React.FC = () => {
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs text-gray-500 dark:text-gray-400">显示名称</Label>
+              <Label className="ui-field-label">显示名称</Label>
               <Input
                 type="text"
                 value={editModelName}
