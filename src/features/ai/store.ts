@@ -10,6 +10,7 @@ const DEFAULT_PROVIDERS: AIProvider[] = [
     id: 'dashscope',
     name: '阿里云百炼',
     description: '阿里云大模型服务平台，提供 Qwen 系列模型',
+    iconKey: 'alibaba',
     isEnabled: false,
     apiKey: '',
     baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',
@@ -23,6 +24,7 @@ const DEFAULT_PROVIDERS: AIProvider[] = [
     id: 'siliconflow',
     name: '硅基流动',
     description: '硅基流动平台，提供 Qwen 系列模型 与 DeepSeek 模型',
+    iconKey: 'siliconflow',
     isEnabled: false,
     apiKey: '',
     baseUrl: 'https://api.siliconflow.cn/v1/chat/completions',
@@ -37,6 +39,7 @@ const DEFAULT_PROVIDERS: AIProvider[] = [
     id: 'zhipu',
     name: '智谱开放平台',
     description: '智谱开放平台，提供 GLM 系列模型',
+    iconKey: 'zhipu',
     isEnabled: false,
     apiKey: '',
     baseUrl: 'https://open.bigmodel.cn/api/paas/v4/chat/completions',
@@ -50,6 +53,7 @@ const DEFAULT_PROVIDERS: AIProvider[] = [
     id: 'deepseek',
     name: '深度求索',
     description: '深度求索平台，提供 DeepSeek 系列模型',
+    iconKey: 'deepseek',
     isEnabled: false,
     apiKey: '',
     baseUrl: 'https://api.deepseek.com/chat/completions',
@@ -62,6 +66,7 @@ const DEFAULT_PROVIDERS: AIProvider[] = [
     id: 'moonshot',
     name: '月之暗面',
     description: '月之暗面平台，提供 Kimi 模型 与 Moonshot 模型',
+    iconKey: 'moonshot',
     isEnabled: false,
     apiKey: '',
     baseUrl: 'https://api.moonshot.cn/v1/chat/completions',
@@ -74,6 +79,7 @@ const DEFAULT_PROVIDERS: AIProvider[] = [
     id: 'openai',
     name: 'OpenAI',
     description: 'OpenAI平台，提供 GPT 系列模型 与 o 系列模型',
+    iconKey: 'openai',
     isEnabled: false,
     apiKey: '',
     baseUrl: 'https://api.openai.com/v1/chat/completions',
@@ -87,6 +93,7 @@ const DEFAULT_PROVIDERS: AIProvider[] = [
     id: 'google',
     name: 'Google Gemini',
     description: 'Google Gemini 平台，提供 Gemini 系列模型',
+    iconKey: 'gemini',
     isEnabled: false,
     apiKey: '',
     baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
@@ -102,6 +109,7 @@ interface BuiltinProviderConfig {
   baseUrl?: string;
   models?: { id: string; name: string }[];
   isEnabled?: boolean;
+  iconKey?: string;
 }
 
 type SelectedModel = { providerId: string; modelId: string } | null;
@@ -155,6 +163,7 @@ function splitProviders(newProviders: AIProvider[]) {
       baseUrl: p.baseUrl,
       models: p.models,
       isEnabled: p.isEnabled,
+      iconKey: p.iconKey,
     };
   });
 

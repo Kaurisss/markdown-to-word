@@ -57,6 +57,7 @@ describe('aiConfigStore', () => {
       baseUrl: 'http://localhost:11434/v1/chat/completions',
       models: [{ id: 'local-model', name: 'Local Model' }],
       isCustom: true,
+      iconKey: 'openai',
     };
 
     act(() => {
@@ -117,5 +118,23 @@ describe('aiConfigStore', () => {
       providerId: 'dashscope',
       modelId: 'qwen-plus',
     });
+  });
+
+  it('persists builtin provider icon overrides', async () => {
+    const { useAIConfigStore } = await loadModule();
+    const { result } = renderHook(() => useAIConfigStore());
+
+    const openai = result.current.providers.find((provider) => provider.id === 'openai');
+    expect(openai).toBeTruthy();
+
+    act(() => {
+      result.current.updateProviders([
+        ...result.current.providers.filter((provider) => provider.id !== 'openai'),
+        { ...openai!, iconKey: 'anthropic' },
+      ]);
+    });
+
+    const builtinConfig = JSON.parse(localStorage.getItem('md2word_builtin_config') || '{}');
+    expect(builtinConfig.openai.iconKey).toBe('anthropic');
   });
 });
