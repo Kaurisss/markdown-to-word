@@ -159,7 +159,7 @@ export const SettingsWindow: React.FC = () => {
                             className={`flex-1 h-9 text-sm rounded-lg border transition-all ${
                               settings.theme === opt.value
                                 ? 'bg-brand-50 dark:bg-brand-900/20 border-brand-300 dark:border-brand-700 text-brand-700 dark:text-brand-400 font-medium'
-                                : 'bg-white dark:bg-dark-element border-gray-200 dark:border-dark-border text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-500'
+                                : 'bg-white dark:bg-dark-element border-gray-200 dark:border-dark-border text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-dark-element-hover'
                             }`}
                           >
                             {opt.label}
@@ -182,7 +182,7 @@ export const SettingsWindow: React.FC = () => {
                             className={`flex-1 h-9 text-sm rounded-lg border transition-all ${
                               settings.defaultViewMode === opt.value
                                 ? 'bg-brand-50 dark:bg-brand-900/20 border-brand-300 dark:border-brand-700 text-brand-700 dark:text-brand-400 font-medium'
-                                : 'bg-white dark:bg-dark-element border-gray-200 dark:border-dark-border text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-500'
+                                : 'bg-white dark:bg-dark-element border-gray-200 dark:border-dark-border text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-dark-element-hover'
                             }`}
                           >
                             {opt.label}

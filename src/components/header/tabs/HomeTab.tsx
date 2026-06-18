@@ -212,7 +212,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                         <button
                           key={color}
                           onClick={() => { updateStyle({ color }); setShowColorPicker(false); }}
-                          className="w-5 h-5 rounded-sm border border-ui-border-subtle hover:border-ui-border hover:scale-110 transition-transform"
+                          className="w-5 h-5 rounded-sm border border-ui-border-subtle hover:scale-110 transition-transform"
                           style={{ backgroundColor: color }}
                           title={color}
                         />
@@ -226,7 +226,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                     <button
                       key={color}
                       onClick={() => { updateStyle({ color }); setShowColorPicker(false); }}
-                      className="w-5 h-5 rounded-sm border border-ui-border-subtle hover:border-ui-border hover:scale-110 transition-transform"
+                      className="w-5 h-5 rounded-sm border border-ui-border-subtle hover:scale-110 transition-transform"
                       style={{ backgroundColor: color }}
                       title={color}
                     />
@@ -273,7 +273,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                         <button
                           key={color}
                           onClick={() => { updateStyle({ backgroundColor: color }); setShowBgColorPicker(false); }}
-                          className="w-5 h-5 rounded-sm border border-ui-border-subtle hover:border-ui-border hover:scale-110 transition-transform"
+                          className="w-5 h-5 rounded-sm border border-ui-border-subtle hover:scale-110 transition-transform"
                           style={{ backgroundColor: color }}
                           title={color}
                         />
