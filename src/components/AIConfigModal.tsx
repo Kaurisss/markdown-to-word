@@ -109,7 +109,7 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
         {/* Sidebar */}
         <div className="w-64 bg-gray-50 dark:bg-dark-bg border-r border-gray-200 dark:border-dark-border flex flex-col">
           <div className="h-14 px-4 flex items-center justify-between border-b border-gray-200 dark:border-dark-border bg-gray-50 dark:bg-dark-bg">
-            <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200 pointer-events-none">AI 平台管理</h2>
+            <h2 className="text-[14px] font-medium leading-5 text-gray-700 dark:text-gray-200 pointer-events-none">AI 平台管理</h2>
             <button
               onClick={() => setShowAddPlatform(true)}
               className="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-200 dark:hover:bg-dark-surface text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
@@ -318,20 +318,20 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
               className={`bg-white dark:bg-dark-surface w-80 rounded-lg shadow-xl p-4 border border-gray-200 dark:border-dark-border ${isAddPlatformClosing ? 'animate-scale-out' : 'animate-scale-in'}`}
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 className="text-sm font-semibold mb-4 text-gray-800 dark:text-gray-100">添加自定义平台</h3>
+              <h3 className="text-[14px] font-medium leading-5 mb-4 text-gray-800 dark:text-gray-100">添加自定义平台</h3>
               <div className="space-y-3">
                 <input
                   type="text"
                   value={newPlatformName}
                   onChange={(e) => setNewPlatformName(e.target.value)}
-                  className="w-full px-3 py-1.5 text-xs border border-gray-300 dark:border-dark-border rounded focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none bg-white dark:bg-dark-element dark:text-gray-100"
+                  className="w-full px-3 py-1.5 text-[13px] border border-gray-300 dark:border-dark-border rounded focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none bg-white dark:bg-dark-element dark:text-gray-100"
                   placeholder="平台名称"
                 />
                 <input
                   type="text"
                   value={newPlatformUrl}
                   onChange={(e) => setNewPlatformUrl(e.target.value)}
-                  className="w-full px-3 py-1.5 text-xs border border-gray-300 dark:border-dark-border rounded focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none bg-white dark:bg-dark-element dark:text-gray-100"
+                  className="w-full px-3 py-1.5 text-[13px] border border-gray-300 dark:border-dark-border rounded focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none bg-white dark:bg-dark-element dark:text-gray-100"
                   placeholder="Base URL (可选)"
                 />
                 {addPlatformErrors.baseUrl && (
@@ -341,20 +341,20 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
                   type="text"
                   value={newPlatformDescription}
                   onChange={(e) => setNewPlatformDescription(e.target.value)}
-                  className="w-full px-3 py-1.5 text-xs border border-gray-300 dark:border-dark-border rounded focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none bg-white dark:bg-dark-element dark:text-gray-100"
+                  className="w-full px-3 py-1.5 text-[13px] border border-gray-300 dark:border-dark-border rounded focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none bg-white dark:bg-dark-element dark:text-gray-100"
                   placeholder="平台描述 (可选)"
                 />
                 <div className="flex justify-end gap-2 mt-4">
                   <button
                     onClick={closeAddPlatform}
-                    className="px-3 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-element-hover rounded transition-colors"
+                    className="px-3 py-1.5 text-[13px] text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-element-hover rounded transition-colors"
                   >
                     取消
                   </button>
                   <button
                     onClick={handleAddPlatform}
                     disabled={!newPlatformName.trim()}
-                    className="px-3 py-1.5 text-xs bg-brand-500 text-white rounded hover:bg-brand-600 disabled:opacity-50 transition-colors"
+                    className="px-3 py-1.5 text-[13px] bg-brand-500 text-white rounded hover:bg-brand-600 disabled:opacity-50 transition-colors"
                   >
                     确定
                   </button>
@@ -368,7 +368,7 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
         {(showAddModel || isAddModelClosing) && (
           <div className="absolute inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm animate-fade-in">
             <div className="bg-white dark:bg-dark-surface w-80 rounded-lg shadow-xl p-4 border border-gray-200 dark:border-dark-border animate-scale-in">
-              <h3 className="text-sm font-semibold mb-4 text-gray-800 dark:text-gray-100">添加模型</h3>
+              <h3 className="text-[14px] font-medium leading-5 mb-4 text-gray-800 dark:text-gray-100">添加模型</h3>
               <div className="space-y-3">
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-gray-500 dark:text-gray-400">模型 ID <span className="text-red-500">*</span></label>
@@ -376,7 +376,7 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
                     type="text"
                     value={newModelId}
                     onChange={(e) => setNewModelId(e.target.value)}
-                    className="w-full px-3 py-1.5 text-xs border border-gray-300 dark:border-dark-border rounded focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none bg-white dark:bg-dark-element dark:text-gray-100"
+                    className="w-full px-3 py-1.5 text-[13px] border border-gray-300 dark:border-dark-border rounded focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none bg-white dark:bg-dark-element dark:text-gray-100"
                     placeholder="例如: gpt-4o, qwen-plus"
                     autoFocus
                   />
@@ -387,21 +387,21 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
                     type="text"
                     value={newModelName}
                     onChange={(e) => setNewModelName(e.target.value)}
-                    className="w-full px-3 py-1.5 text-xs border border-gray-300 dark:border-dark-border rounded focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none bg-white dark:bg-dark-element dark:text-gray-100"
+                    className="w-full px-3 py-1.5 text-[13px] border border-gray-300 dark:border-dark-border rounded focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none bg-white dark:bg-dark-element dark:text-gray-100"
                     placeholder="留空则使用模型 ID"
                   />
                 </div>
                 <div className="flex justify-end gap-2 mt-4">
                   <button
                     onClick={closeAddModel}
-                    className="px-3 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-element-hover rounded transition-colors"
+                    className="px-3 py-1.5 text-[13px] text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-element-hover rounded transition-colors"
                   >
                     取消
                   </button>
                   <button
                     onClick={handleAddModel}
                     disabled={!newModelId.trim()}
-                    className="px-3 py-1.5 text-xs bg-brand-500 text-white rounded hover:bg-brand-600 disabled:opacity-50 transition-colors"
+                    className="px-3 py-1.5 text-[13px] bg-brand-500 text-white rounded hover:bg-brand-600 disabled:opacity-50 transition-colors"
                   >
                     确定
                   </button>
@@ -415,7 +415,7 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
         {(showEditModel || isEditModelClosing) && (
           <div className="absolute inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm animate-fade-in">
             <div className="bg-white dark:bg-dark-surface w-80 rounded-lg shadow-xl p-4 border border-gray-200 dark:border-dark-border animate-scale-in">
-              <h3 className="text-sm font-semibold mb-4 text-gray-800 dark:text-gray-100">编辑模型</h3>
+              <h3 className="text-[14px] font-medium leading-5 mb-4 text-gray-800 dark:text-gray-100">编辑模型</h3>
               <div className="space-y-3">
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-gray-500 dark:text-gray-400">模型 ID <span className="text-red-500">*</span></label>
@@ -423,7 +423,7 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
                     type="text"
                     value={editModelId}
                     onChange={(e) => setEditModelId(e.target.value)}
-                    className="w-full px-3 py-1.5 text-xs border border-gray-300 dark:border-dark-border rounded focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none bg-white dark:bg-dark-bg dark:text-gray-100"
+                    className="w-full px-3 py-1.5 text-[13px] border border-gray-300 dark:border-dark-border rounded focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none bg-white dark:bg-dark-bg dark:text-gray-100"
                     placeholder="例如: gpt-4o, qwen-plus"
                     autoFocus
                   />
@@ -434,21 +434,21 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
                     type="text"
                     value={editModelName}
                     onChange={(e) => setEditModelName(e.target.value)}
-                    className="w-full px-3 py-1.5 text-xs border border-gray-300 dark:border-dark-border rounded focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none bg-white dark:bg-dark-bg dark:text-gray-100"
+                    className="w-full px-3 py-1.5 text-[13px] border border-gray-300 dark:border-dark-border rounded focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none bg-white dark:bg-dark-bg dark:text-gray-100"
                     placeholder="留空则使用模型 ID"
                   />
                 </div>
                 <div className="flex justify-end gap-2 mt-4">
                   <button
                     onClick={closeEditModel}
-                    className="px-3 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
+                    className="px-3 py-1.5 text-[13px] text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
                   >
                     取消
                   </button>
                   <button
                     onClick={handleSaveEditModel}
                     disabled={!editModelId.trim()}
-                    className="px-3 py-1.5 text-xs bg-brand-500 text-white rounded hover:bg-brand-600 disabled:opacity-50 transition-colors"
+                    className="px-3 py-1.5 text-[13px] bg-brand-500 text-white rounded hover:bg-brand-600 disabled:opacity-50 transition-colors"
                   >
                     保存
                   </button>
