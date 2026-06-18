@@ -331,7 +331,7 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
   }), [h1Style, h2Style, h3Style, bodyStyle, quoteStyle, inlineCodeStyle, codeBlockStyle, tableBorder, tableHeadBg, cfg]);
 
   return (
-    <div className="flex flex-col h-full bg-gray-100/50 dark:bg-dark-bg overflow-hidden relative transition-colors duration-200">
+    <div className="flex flex-col h-full bg-ui-preview-canvas overflow-hidden relative transition-colors duration-200">
       {/* Background pattern or subtle gradient could go here */}
       <style>{`
         .prose code::before { content: none !important; }
@@ -346,7 +346,7 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
       */}
       <div
         ref={ref}
-        className="flex-1 overflow-auto p-4 md:p-8 custom-scrollbar"
+        className="flex-1 overflow-auto p-4 md:p-ui-preview-padding custom-scrollbar"
       >
         {/* 
           A4 Paper Simulation: 
@@ -354,7 +354,7 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
           min-h-full 确保至少填满容器高度，h-fit 让高度随内容增长
         */}
         <div
-          className="bg-white shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-gray-200/50 w-full max-w-[21cm] min-h-[29.7cm] h-fit p-6 md:p-[2.54cm] text-gray-900 mx-auto transition-transform duration-200"
+          className="bg-ui-preview-page shadow-ui-page border border-ui-border-subtle w-full max-w-[21cm] min-h-[29.7cm] h-fit p-6 md:p-[2.54cm] text-gray-900 mx-auto transition-transform duration-200"
           style={pageStyle}
         >
 
@@ -372,7 +372,7 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
                 {markdown}
               </ReactMarkdown>
             ) : (
-              <div className="flex items-center justify-center h-48 text-gray-300 italic select-none">
+              <div className="flex items-center justify-center h-48 text-ui-text-subtle italic select-none">
                 预览内容将显示在此处
               </div>
             )}

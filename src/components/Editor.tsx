@@ -1,4 +1,4 @@
-﻿﻿import React, { forwardRef, useCallback, useMemo, useRef, useState, useEffect } from 'react';
+﻿import React, { forwardRef, useCallback, useMemo, useRef, useState, useEffect } from 'react';
 import { EditorProps } from '../types';
 
 type Match = { index: number; length: number };
@@ -105,7 +105,7 @@ const Editor = React.memo(forwardRef<HTMLTextAreaElement, EditorProps>(
 
         const isCurrentMatch = idx === currentMatchIndex;
         const matchText = toHtml(value.substring(match.index, match.index + match.length));
-        const bgColor = isCurrentMatch ? '#fb923c' : '#fde047';
+        const bgColor = isCurrentMatch ? 'var(--ui-color-search-current)' : 'var(--ui-color-search)';
 
         html += `<mark style="background-color: ${bgColor}; padding: 0; border-radius: 0; color: transparent;">${matchText}</mark>`;
         lastIndex = match.index + match.length;
@@ -139,11 +139,11 @@ const Editor = React.memo(forwardRef<HTMLTextAreaElement, EditorProps>(
     }, [currentMatchIndex, matches, value]);
 
     return (
-      <div className="flex flex-col h-full bg-white dark:bg-dark-bg relative group transition-colors duration-200">
+      <div className="flex flex-col h-full bg-ui-editor relative group transition-colors duration-200">
         <div className="relative flex-1">
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
             <div
-              className="w-full h-full p-8 font-mono text-[15px] leading-8 whitespace-pre-wrap break-words text-transparent"
+              className="w-full h-full p-ui-editor-padding font-ui-editor text-[15px] leading-8 whitespace-pre-wrap break-words text-transparent"
               style={{
                 transform: `translate(${-scrollOffset.left}px, ${-scrollOffset.top}px)`
               }}
@@ -169,7 +169,7 @@ const Editor = React.memo(forwardRef<HTMLTextAreaElement, EditorProps>(
               }, 0);
             }}
             onScroll={handleScroll}
-            className="relative z-10 w-full h-full p-8 resize-none focus:outline-none font-mono text-[15px] leading-8 text-gray-800 dark:text-gray-200 bg-transparent placeholder-gray-300 dark:placeholder-gray-600 overflow-auto custom-scrollbar transition-colors duration-200 whitespace-pre-wrap break-words"
+            className="relative z-10 w-full h-full p-ui-editor-padding resize-none focus:outline-none font-ui-editor text-[15px] leading-8 text-ui-editor-text bg-transparent placeholder-ui-text-subtle overflow-auto custom-scrollbar transition-colors duration-200 whitespace-pre-wrap break-words"
             spellCheck={false}
             placeholder="# 开始您的写作.."
           />
