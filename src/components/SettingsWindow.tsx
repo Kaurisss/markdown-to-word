@@ -67,7 +67,7 @@ export const SettingsWindow: React.FC = () => {
   }, [runWindowAction]);
 
   const skeletonBaseClass = 'animate-pulse rounded-md bg-gray-200 dark:bg-dark-element';
-  const labelClass = 'text-xs font-medium text-gray-500 dark:text-gray-400';
+  const labelClass = 'ui-field-label';
   const settingsSelectTriggerClass = 'h-10 px-3 text-[14px] rounded-lg';
   const settingsSelectOptionClass = 'text-[14px]';
 
@@ -95,14 +95,14 @@ export const SettingsWindow: React.FC = () => {
     >
       <div className="h-10 flex items-stretch">
         <div
-          className="w-40 shrink-0 px-5 flex items-center text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-dark-bg border-r border-gray-200 dark:border-dark-border"
+          className="w-40 shrink-0 px-5 flex items-center ui-sidebar-kicker bg-gray-50 dark:bg-dark-bg border-r border-gray-200 dark:border-dark-border"
           data-tauri-drag-region
         >
           设置
         </div>
         <div className="flex-1 min-w-0 flex items-stretch bg-white dark:bg-dark-surface">
           <div
-            className="flex-1 flex items-center px-6 text-sm font-semibold text-gray-700 dark:text-gray-200"
+            className="flex-1 flex items-center px-6 ui-page-title"
             data-tauri-drag-region
           >
             {activeSectionLabel}
