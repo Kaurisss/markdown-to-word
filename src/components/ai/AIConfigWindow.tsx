@@ -304,7 +304,7 @@ export const AIConfigWindow: React.FC = () => {
 
       {/* Add Platform Modal */}
       <Dialog open={showAddPlatform || isAddPlatformClosing} onOpenChange={(open) => { if (!open) closeAddPlatform(); }}>
-        <DialogContent className="w-80 p-4 gap-0 bg-white dark:bg-dark-surface border-gray-200 dark:border-dark-border" showCloseButton={false}>
+        <DialogContent className="w-96 p-4 gap-0 bg-white dark:bg-dark-surface border-gray-200 dark:border-dark-border" showCloseButton={false}>
           <DialogHeader className="mb-4">
             <DialogTitle className="text-sm font-semibold text-gray-800 dark:text-gray-100">添加自定义平台</DialogTitle>
           </DialogHeader>

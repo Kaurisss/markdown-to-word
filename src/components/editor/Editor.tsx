@@ -1,9 +1,7 @@
-﻿import React, { forwardRef, useCallback, useMemo, useRef, useState, useEffect } from 'react';
+import React, { forwardRef, useCallback, useMemo, useRef, useEffect } from 'react';
 import { EditorProps } from '../../types';
 
 type Match = { index: number; length: number };
-
-type ScrollOffset = { top: number; left: number };
 
 const Editor = React.memo(forwardRef<HTMLTextAreaElement, EditorProps>(
   ({
@@ -19,7 +17,7 @@ const Editor = React.memo(forwardRef<HTMLTextAreaElement, EditorProps>(
     useRegex = false
   }, ref) => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
-    const [scrollOffset, setScrollOffset] = useState<ScrollOffset>({ top: 0, left: 0 });
+    const overlayRef = useRef<HTMLDivElement>(null);
 
     const setTextareaRef = useCallback((node: HTMLTextAreaElement | null) => {
       textareaRef.current = node;
@@ -30,10 +28,18 @@ const Editor = React.memo(forwardRef<HTMLTextAreaElement, EditorProps>(
       }
     }, [ref]);
 
-    const handleScroll = useCallback((e: React.UIEvent<HTMLTextAreaElement>) => {
-      const target = e.currentTarget;
-      setScrollOffset({ top: target.scrollTop, left: target.scrollLeft });
+    const syncScroll = useCallback(() => {
+      const ta = textareaRef.current;
+      const ov = overlayRef.current;
+      if (ta && ov) {
+        ov.scrollTop = ta.scrollTop;
+        ov.scrollLeft = ta.scrollLeft;
+      }
     }, []);
+
+    const handleScroll = useCallback(() => {
+      syncScroll();
+    }, [syncScroll]);
 
     const buildSearchRegex = useCallback((query: string): RegExp | null => {
       if (!query) return null;
@@ -86,13 +92,11 @@ const Editor = React.memo(forwardRef<HTMLTextAreaElement, EditorProps>(
         .replace(/>/g, '&gt;');
     }, []);
 
-    const toHtml = useCallback((text: string) => {
-      return escapeHtml(text).replace(/\n/g, '<br/>');
-    }, [escapeHtml]);
-
     const highlightedHTML = useMemo(() => {
+      // No <br/> conversion — keep \n as-is. The overlay's white-space:pre-wrap
+      // renders \n identically to how the textarea renders it.
       if (!searchQuery || !searchQuery.trim() || matches.length === 0) {
-        return toHtml(value);
+        return escapeHtml(value);
       }
 
       let html = '';
@@ -100,11 +104,11 @@ const Editor = React.memo(forwardRef<HTMLTextAreaElement, EditorProps>(
 
       matches.forEach((match, idx) => {
         if (match.index > lastIndex) {
-          html += toHtml(value.substring(lastIndex, match.index));
+          html += escapeHtml(value.substring(lastIndex, match.index));
         }
 
         const isCurrentMatch = idx === currentMatchIndex;
-        const matchText = toHtml(value.substring(match.index, match.index + match.length));
+        const matchText = escapeHtml(value.substring(match.index, match.index + match.length));
         const bgColor = isCurrentMatch ? 'var(--ui-color-search-current)' : 'var(--ui-color-search)';
 
         html += `<mark style="background-color: ${bgColor}; padding: 0; border-radius: 0; color: transparent;">${matchText}</mark>`;
@@ -112,12 +116,18 @@ const Editor = React.memo(forwardRef<HTMLTextAreaElement, EditorProps>(
       });
 
       if (lastIndex < value.length) {
-        html += toHtml(value.substring(lastIndex));
+        html += escapeHtml(value.substring(lastIndex));
       }
 
-      return html;
-    }, [value, searchQuery, matches, currentMatchIndex, toHtml]);
+      // Hack to sync textarea and div scrollHeight:
+      // A trailing newline in a textarea creates a new blank line, but in a pre-wrap div it does not.
+      // Appending an extra newline forces the div to render identical line boxes.
+      html += '\n';
 
+      return html;
+    }, [value, searchQuery, matches, currentMatchIndex, escapeHtml]);
+
+    // Scroll to current match
     useEffect(() => {
       const editor = textareaRef.current;
       if (!editor || matches.length === 0) return;
@@ -135,23 +145,25 @@ const Editor = React.memo(forwardRef<HTMLTextAreaElement, EditorProps>(
       const scrollTop = lineNumber * lineHeight - editor.clientHeight / 2;
 
       editor.scrollTop = Math.max(0, scrollTop);
-      setScrollOffset({ top: editor.scrollTop, left: editor.scrollLeft });
-    }, [currentMatchIndex, matches, value]);
+      syncScroll();
+    }, [currentMatchIndex, matches, value, syncScroll]);
+
+    // Sync scroll on content/layout changes
+    useEffect(() => {
+      syncScroll();
+    }, [value, syncScroll]);
 
     return (
       <div className="flex flex-col h-full bg-ui-editor relative group transition-colors duration-200">
         <div className="relative flex-1">
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            <div
-              className="w-full h-full p-ui-editor-padding font-ui-editor text-[15px] leading-8 whitespace-pre-wrap break-words text-transparent"
-              style={{
-                transform: `translate(${-scrollOffset.left}px, ${-scrollOffset.top}px)`
-              }}
-              aria-hidden
-            >
-              <span dangerouslySetInnerHTML={{ __html: highlightedHTML }} />
-            </div>
-          </div>
+          {/* Single-div highlight overlay — mirrors every text-layout property of
+              the textarea so \n wraps, word-breaks, and scrollbar width all match. */}
+          <div
+            ref={overlayRef}
+            className="absolute inset-0 pointer-events-none overflow-auto invisible-scrollbar p-ui-editor-padding font-ui-editor text-[15px] leading-8 whitespace-pre-wrap break-words text-transparent"
+            aria-hidden
+            dangerouslySetInnerHTML={{ __html: highlightedHTML }}
+          />
 
           <textarea
             ref={setTextareaRef}
@@ -182,3 +194,5 @@ const Editor = React.memo(forwardRef<HTMLTextAreaElement, EditorProps>(
 Editor.displayName = 'Editor';
 
 export default Editor;
+
+

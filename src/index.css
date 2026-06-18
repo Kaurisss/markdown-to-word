@@ -101,6 +101,17 @@
   background: var(--ui-color-text-subtle);
 }
 
+/* Invisible scrollbar — same width as custom-scrollbar so content area
+   matches, but fully transparent. Used by the search-highlight overlay. */
+.invisible-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.invisible-scrollbar::-webkit-scrollbar-thumb,
+.invisible-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 /* Hide scrollbar but allow scroll */
 .scrollbar-none {
   scrollbar-width: none;
@@ -126,7 +137,6 @@ body {
 
 button,
 input,
-textarea,
 select {
   font: inherit;
 }
