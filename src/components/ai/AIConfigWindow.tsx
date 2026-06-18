@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Copy2Line, CheckLine, LoadingLine, AddLine, PlayLine, Delete2Line, Edit2Line, Eye2Line, EyeCloseLine, CloseLine } from '@mingcute/react';
+import { Copy2Line, CheckLine, LoadingLine, AddLine, PlayLine, Delete2Line, Edit2Line, Eye2Line, EyeCloseLine, CloseLine, Key2Line, Link2Line } from '@mingcute/react';
 import { useAIConfigStore } from '../../features/ai/store';
 import { useAIConfig } from '../../features/ai/useAIConfig';
 import { Switch } from '../ui/switch';
@@ -199,11 +199,12 @@ export const AIConfigWindow: React.FC = () => {
                 <div className="space-y-2">
                   <Label className="ui-field-label">API Key</Label>
                   <div className="relative">
+                    <Key2Line className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <Input
                       type={showApiKey ? 'text' : 'password'}
                       value={selectedProvider.apiKey}
                       onChange={(e) => handleUpdateProvider(selectedProvider.id, { apiKey: e.target.value })}
-                      className="w-full pr-9 bg-white dark:bg-dark-element"
+                      className="w-full pl-9 pr-9 bg-white dark:bg-dark-element"
                       placeholder="请输入 API Key"
                     />
                     <button
@@ -219,13 +220,16 @@ export const AIConfigWindow: React.FC = () => {
 
                 <div className="space-y-2">
                   <Label className="ui-field-label">Base URL</Label>
-                  <Input
-                    type="text"
-                    value={selectedProvider.baseUrl}
-                    onChange={(e) => handleUpdateProvider(selectedProvider.id, { baseUrl: e.target.value })}
-                    className="w-full bg-white dark:bg-dark-element"
-                    placeholder="https://api.example.com/..."
-                  />
+                  <div className="relative">
+                    <Link2Line className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Input
+                      type="text"
+                      value={selectedProvider.baseUrl}
+                      onChange={(e) => handleUpdateProvider(selectedProvider.id, { baseUrl: e.target.value })}
+                      className="w-full pl-9 bg-white dark:bg-dark-element"
+                      placeholder="https://api.example.com/..."
+                    />
+                  </div>
                 </div>
               </div>
 

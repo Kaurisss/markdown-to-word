@@ -10,6 +10,7 @@ import {
 } from '../../../ui/popover';
 import { Separator } from '../../../ui/separator';
 import { cn } from '../../../../lib/utils';
+import { ProviderIcon } from '../../../ai/ProviderIcon';
 
 interface AIModelSelectorProps {
   aiProviders: AIProvider[];
@@ -108,8 +109,14 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({
             {enabledProviders.map((provider, index) => (
               <div key={provider.id}>
                 {index > 0 && <Separator className="my-1" />}
-                <div className="px-1 py-1 text-[11px] font-medium text-ui-text-subtle">
-                  {provider.name}
+                <div className="flex items-center gap-1.5 px-1 py-1">
+                  <ProviderIcon
+                    providerId={provider.id}
+                    name={provider.name}
+                    iconKey={provider.iconKey}
+                    size={14}
+                  />
+                  <span className="text-[11px] font-medium text-ui-text-subtle">{provider.name}</span>
                 </div>
                 {provider.models.length === 0 ? (
                   <div className="px-2 py-1.5 text-[12px] text-ui-text-subtle">暂无模型</div>
