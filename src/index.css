@@ -37,7 +37,7 @@
   --ui-shadow-popover: 0 8px 24px rgba(15, 23, 42, 0.14);
   --ui-shadow-page: 0 8px 30px rgba(0, 0, 0, 0.06);
   --ui-shadow-focus: 0 0 0 3px rgba(14, 165, 233, 0.22);
-  --ui-font-sans: Inter, Microsoft YaHei, system-ui, sans-serif;
+  --ui-font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", "PingFang SC", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans CJK SC", "Noto Sans SC", "Source Han Sans SC", "WenQuanYi Micro Hei", sans-serif;
   --ui-font-editor: Consolas, Monaco, Courier New, monospace;
   --ui-motion-fast: 100ms;
   --ui-motion-normal: 200ms;
@@ -115,7 +115,20 @@ body {
   background-color: var(--ui-color-app);
   color: var(--ui-color-text);
   font-family: var(--ui-font-sans);
+  font-size: 14px;
+  font-weight: 400;
+  font-kerning: normal;
+  font-optical-sizing: auto;
+  text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
 }
 
 /* Smooth theme transition without repainting every node */
