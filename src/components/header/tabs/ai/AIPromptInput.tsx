@@ -76,29 +76,32 @@ export const AIPromptInput: React.FC<AIPromptInputProps> = ({
             }
           }}
           className={cn(
-            'flex h-7 w-full min-w-[320px] max-w-[520px] items-center justify-between gap-2 rounded-ui-control border border-ui-border bg-ui-control px-3 text-left text-[13px] transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:border-brand-500 focus-visible:ring-1 focus-visible:ring-brand-500 focus-visible:ring-offset-0',
+            'group flex h-7 w-full min-w-[320px] max-w-[520px] items-center justify-between gap-2 rounded-ui-control border border-ui-border bg-ui-control px-3 text-left text-[13px] transition-colors hover:bg-ui-control-hover disabled:opacity-50 disabled:hover:bg-ui-control focus-visible:outline-none focus-visible:border-brand-500 focus-visible:ring-1 focus-visible:ring-brand-500 focus-visible:ring-offset-0',
             value.trim() ? 'text-ui-text' : 'text-ui-text-subtle'
           )}
           aria-label={preview}
         >
           <span className="truncate">{preview}</span>
-          <DownLine className="size-3.5 shrink-0 text-ui-text-subtle" />
+          <span className="text-ui-text-subtle group-hover:text-ui-text-muted transition-colors">
+            <DownLine className="size-3.5 shrink-0" />
+          </span>
         </button>
       </PopoverTrigger>
       <PopoverContent align="start" sideOffset={6} className="w-[var(--radix-popover-trigger-width)] p-3 z-[10000]">
         <PopoverHeader className="mb-2">
           <PopoverTitle className="flex items-center justify-between text-[13px]">
             <span>描述样式</span>
-            {value.trim() && (
-              <button
-                type="button"
-                onClick={() => onChange('')}
-                className="inline-flex h-6 items-center gap-1 rounded-ui-control px-1.5 text-[12px] text-ui-text-muted hover:bg-ui-control-hover hover:text-ui-text"
-              >
-                <CloseLine className="size-3.5" />
-                清空
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => onChange('')}
+              className={cn(
+                'inline-flex h-6 items-center gap-1 rounded-ui-control px-1.5 text-[12px] text-ui-text-muted hover:bg-ui-control-hover hover:text-ui-text',
+                !value.trim() && 'invisible'
+              )}
+            >
+              <CloseLine className="size-3.5" />
+              清空
+            </button>
           </PopoverTitle>
         </PopoverHeader>
 
@@ -107,7 +110,7 @@ export const AIPromptInput: React.FC<AIPromptInputProps> = ({
           value={value}
           onChange={(event) => onChange(event.target.value)}
           disabled={disabled}
-          className="min-h-[112px] resize-none text-[13px]"
+          className="h-[112px] resize-none text-[13px]"
           placeholder="例如：正文仿宋三号，标题黑体小二加粗，行距1.5倍。也可以描述页边距、代码块、引用、标题层级。"
           onKeyDown={(event) => {
             if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {

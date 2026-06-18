@@ -232,7 +232,7 @@ export const Select: React.FC<SelectProps> = ({
             aria-expanded={open}
             disabled={disabled}
             className={cn(
-              "flex w-full items-center justify-between gap-1 rounded-md border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-element px-2 py-1 text-sm whitespace-nowrap transition-[color,box-shadow] outline-none focus-visible:border-brand-500 focus-visible:ring-1 focus-visible:ring-brand-500 focus-visible:ring-offset-0 data-[state=open]:border-brand-500 data-[state=open]:ring-1 data-[state=open]:ring-brand-500 data-[state=open]:ring-offset-0 hover:bg-gray-50 dark:hover:bg-dark-element-hover disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-gray-400 dark:data-[placeholder]:text-gray-500 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5 [&_svg:not([class*='text-'])]:text-gray-400",
+              "group flex w-full items-center justify-between gap-1 rounded-md border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-element px-2 py-1 text-sm whitespace-nowrap transition-[color,box-shadow] outline-none focus-visible:border-brand-500 focus-visible:ring-1 focus-visible:ring-brand-500 focus-visible:ring-offset-0 data-[state=open]:border-brand-500 data-[state=open]:ring-1 data-[state=open]:ring-brand-500 data-[state=open]:ring-offset-0 hover:bg-gray-50 dark:hover:bg-dark-element-hover disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-gray-400 dark:data-[placeholder]:text-gray-500 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5",
               'h-8 text-[13px]',
               variant === 'ghost' && 'border-transparent bg-transparent hover:bg-gray-100 dark:hover:bg-dark-element-hover data-[state=open]:border-transparent data-[state=open]:ring-0 data-[state=open]:bg-gray-100 dark:data-[state=open]:bg-dark-element-hover',
               triggerClassName,
@@ -241,7 +241,9 @@ export const Select: React.FC<SelectProps> = ({
             <span style={selected?.fontFamily ? { fontFamily: `"${selected.fontFamily}"` } : undefined} className="truncate block text-left">
               {selected?.label ?? placeholder}
             </span>
-            <ChevronDownIcon className="size-3.5 opacity-50 shrink-0" />
+            <span className="text-ui-text-subtle group-hover:text-ui-text-muted transition-colors">
+              <ChevronDownIcon className="size-3.5 shrink-0" />
+            </span>
           </button>
         </PopoverTrigger>
         <PopoverContent className={cn("p-0 shadow-xl min-w-[var(--radix-popover-trigger-width)]", showSearch ? "w-56" : "w-max")} align="start">

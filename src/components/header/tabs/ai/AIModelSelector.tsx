@@ -66,7 +66,9 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({
             <span className={cn('size-1.5 shrink-0 rounded-full', statusClass)} />
             <span className="truncate text-left text-[13px]">{triggerLabel}</span>
           </span>
-          <DownLine className="size-3.5 shrink-0 text-ui-text-subtle group-hover:text-ui-text-muted" />
+          <span className="text-ui-text-subtle group-hover:text-ui-text-muted transition-colors">
+            <DownLine className="size-3.5 shrink-0" />
+          </span>
         </button>
       </PopoverTrigger>
       <PopoverContent align="start" sideOffset={6} className="w-80 p-2 z-[10000]">
