@@ -72,7 +72,7 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({
           </span>
         </button>
       </PopoverTrigger>
-      <PopoverContent align="center" sideOffset={6} className="w-80 p-2 z-[10000]">
+      <PopoverContent align="start" sideOffset={6} className="w-80 p-2 z-[10000]">
         <PopoverHeader className="px-1 pb-2">
           <PopoverTitle className="flex items-center justify-between text-[13px]">
             <span>选择模型</span>
