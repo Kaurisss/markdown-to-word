@@ -4,17 +4,13 @@ import { useSettingsStore, ViewMode } from '../../features/settings/store';
 import { FONTS_CN, FONTS_EN, FONT_LABELS, FONT_SIZES, FONT_SIZES_PT } from '../header/constants';
 import { Select } from '../ui/Select';
 import { Switch } from '../ui/switch';
+import { useShowWindowAfterFirstRender } from '../shell/useShowWindowAfterFirstRender';
 
 export const SettingsWindow: React.FC = () => {
   const { settings, updateSettings } = useSettingsStore();
-  const [showInitialSkeleton, setShowInitialSkeleton] = useState(true);
   const [activeSection, setActiveSection] = useState<'appearance' | 'editor' | 'styles'>('appearance');
   const isFirstThemePaintRef = useRef(true);
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => setShowInitialSkeleton(false), 260);
-    return () => window.clearTimeout(timer);
-  }, []);
+  useShowWindowAfterFirstRender();
 
   useEffect(() => {
     const root = document.documentElement;
@@ -62,8 +58,6 @@ export const SettingsWindow: React.FC = () => {
     void runWindowAction('close');
   }, [runWindowAction]);
 
-
-  const skeletonBaseClass = 'animate-pulse rounded-md bg-gray-200 dark:bg-dark-element';
   const labelClass = 'ui-field-label';
   const settingsSelectTriggerClass = 'h-10 px-3 text-[14px] rounded-lg';
   const settingsSelectOptionClass = 'text-[14px]';
@@ -136,16 +130,7 @@ export const SettingsWindow: React.FC = () => {
             {activeSectionLabel}
           </div>
           <div className="flex-1 overflow-y-auto px-6 pb-6 pt-2 space-y-6">
-            {showInitialSkeleton ? (
-              <div className="space-y-6">
-                <div className={`h-5 w-32 ${skeletonBaseClass}`} />
-                <div className={`h-9 w-full ${skeletonBaseClass}`} />
-                <div className={`h-9 w-full ${skeletonBaseClass}`} />
-                <div className={`h-9 w-full ${skeletonBaseClass}`} />
-              </div>
-            ) : (
-              <>
-                {activeSection === 'appearance' && (
+            {activeSection === 'appearance' && (
                   <div className="space-y-4">
                     <div className="space-y-2">
                       <label className={labelClass}>主题模式</label>
@@ -192,9 +177,9 @@ export const SettingsWindow: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                )}
+            )}
 
-                {activeSection === 'editor' && (
+            {activeSection === 'editor' && (
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <div>
@@ -207,9 +192,9 @@ export const SettingsWindow: React.FC = () => {
                       />
                     </div>
                   </div>
-                )}
+            )}
 
-                {activeSection === 'styles' && (
+            {activeSection === 'styles' && (
                   <div className="space-y-4">
                     <div className="space-y-2">
                       <label className={labelClass}>默认中文字体</label>
@@ -258,8 +243,6 @@ export const SettingsWindow: React.FC = () => {
                       />
                     </div>
                   </div>
-                )}
-              </>
             )}
           </div>
         </main>

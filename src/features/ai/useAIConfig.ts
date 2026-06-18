@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AIProvider, AIModel } from '../../types/ai';
@@ -27,7 +27,7 @@ export function useAIConfig({
   updateProviders,
 }: UseAIConfigParams) {
   // ── Provider selection ──────────────────────────────────────────────
-  const [selectedProviderId, setSelectedProviderId] = useState<string>('');
+  const [selectedProviderId, setSelectedProviderId] = useState<string>(() => providers[0]?.id ?? '');
 
   // ── Add-platform dialog ─────────────────────────────────────────────
   const [showAddPlatform, setShowAddPlatform] = useState(false);
@@ -120,14 +120,7 @@ export function useAIConfig({
   // (Removed Context Menus here)
 
   // ── Derived values ──────────────────────────────────────────────────
-  const selectedProvider = providers.find(p => p.id === selectedProviderId);
-
-  // ── Initialize selected provider ────────────────────────────────────
-  useEffect(() => {
-    if (!selectedProviderId && providers.length > 0) {
-      setSelectedProviderId(providers[0].id);
-    }
-  }, [providers, selectedProviderId]);
+  const selectedProvider = providers.find(p => p.id === selectedProviderId) ?? providers[0];
 
   // ── Animated dialog close helpers (no deps – defined first) ─────────
 

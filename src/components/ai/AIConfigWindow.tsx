@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { Copy2Line, CheckLine, LoadingLine, AddLine, PlayLine, Delete2Line, Edit2Line, Eye2Line, EyeCloseLine, CloseLine } from '@mingcute/react';
 import { useAIConfigStore } from '../../features/ai/store';
 import { useAIConfig } from '../../features/ai/useAIConfig';
@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Toaster } from '@/components/ui/sonner';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
+import { useShowWindowAfterFirstRender } from '../shell/useShowWindowAfterFirstRender';
 import {
   ContextMenu,
   ContextMenuTrigger,
@@ -18,6 +19,7 @@ import {
 
 export const AIConfigWindow: React.FC = () => {
   const { providers, updateProviders } = useAIConfigStore();
+  useShowWindowAfterFirstRender();
 
   const config = useAIConfig({
     providers,
@@ -52,19 +54,6 @@ export const AIConfigWindow: React.FC = () => {
     handlePlatformEdit,
     handlePlatformDelete,
   } = config;
-
-  // ── Window-only state ───────────────────────────────────────────────
-  const [showInitialSkeleton, setShowInitialSkeleton] = useState(true);
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setShowInitialSkeleton(false);
-    }, 260);
-    return () => window.clearTimeout(timer);
-  }, []);
-
-  const isBootstrapping = showInitialSkeleton && providers.length > 0;
-  const skeletonBaseClass = 'animate-pulse rounded-md bg-gray-200 dark:bg-dark-element';
 
   const runWindowAction = useCallback(async (action: 'close' | 'minimize') => {
     try {
@@ -115,106 +104,58 @@ export const AIConfigWindow: React.FC = () => {
           <h2 className="ui-sidebar-kicker relative z-10 pointer-events-none">AI 平台管理</h2>
           <button
             onClick={() => setShowAddPlatform(true)}
-            disabled={isBootstrapping}
-            className="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-200 dark:hover:bg-dark-surface text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors relative z-10"
+            className="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-200 dark:hover:bg-dark-surface text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors relative z-10"
             title="添加自定义平台"
           >
             <AddLine className="w-4 h-4" />
           </button>
         </div>
         <div className="flex-1 overflow-y-auto px-2 pb-2 space-y-1">
-          {isBootstrapping ? (
-            Array.from({ length: 6 }).map((_, index) => (
+          {providers.map(provider => {
+            const card = (
               <div
-                key={`provider-skeleton-${index}`}
-                className="flex items-center justify-between px-3 py-2 rounded-md"
+                key={provider.id}
+                data-platform-card={provider.isCustom ? 'true' : undefined}
+                onClick={() => setSelectedProviderId(provider.id)}
+                className={`flex items-center justify-between px-3 py-2 rounded-md cursor-pointer transition-colors text-sm ${selectedProviderId === provider.id
+                  ? 'bg-blue-50 dark:bg-blue-900/20 text-brand-600 dark:text-brand-400 font-medium'
+                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-surface'
+                  }`}
               >
-                <div className={`h-3.5 w-24 ${skeletonBaseClass}`} />
-                <div className={`h-5 w-9 rounded-full animate-pulse bg-gray-200 dark:bg-dark-element`} />
+                <span className="truncate pr-2">{provider.name}</span>
+                <Switch
+                  checked={provider.isEnabled}
+                  onCheckedChange={(c) => handleToggleProvider(provider.id, c)}
+                  onClick={(e) => e.stopPropagation()}
+                />
               </div>
-            ))
-          ) : (
-            providers.map(provider => {
-              const card = (
-                <div
-                  key={provider.id}
-                  data-platform-card={provider.isCustom ? 'true' : undefined}
-                  onClick={() => setSelectedProviderId(provider.id)}
-                  className={`flex items-center justify-between px-3 py-2 rounded-md cursor-pointer transition-colors text-sm ${selectedProviderId === provider.id
-                    ? 'bg-blue-50 dark:bg-blue-900/20 text-brand-600 dark:text-brand-400 font-medium'
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-surface'
-                    }`}
-                >
-                  <span className="truncate pr-2">{provider.name}</span>
-                  <Switch
-                    checked={provider.isEnabled}
-                    onCheckedChange={(c) => handleToggleProvider(provider.id, c)}
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                </div>
-              );
+            );
 
-              if (!provider.isCustom) return card;
+            if (!provider.isCustom) return card;
 
-              return (
-                <ContextMenu key={provider.id}>
-                  <ContextMenuTrigger asChild>
-                    {card}
-                  </ContextMenuTrigger>
-                  <ContextMenuContent className="w-48">
-                    <ContextMenuItem onClick={() => handlePlatformEdit(provider)}>
-                      <Edit2Line className="w-4 h-4 mr-2" /> 编辑
-                    </ContextMenuItem>
-                    <ContextMenuSeparator />
-                    <ContextMenuItem onClick={() => handlePlatformDelete(provider)} className="text-red-500 hover:text-red-600 focus:text-red-600 dark:text-red-400 dark:hover:text-red-300 dark:focus:text-red-300">
-                      <Delete2Line className="w-4 h-4 mr-2" /> 删除
-                    </ContextMenuItem>
-                  </ContextMenuContent>
-                </ContextMenu>
-              );
-            })
-          )}
+            return (
+              <ContextMenu key={provider.id}>
+                <ContextMenuTrigger asChild>
+                  {card}
+                </ContextMenuTrigger>
+                <ContextMenuContent className="w-48">
+                  <ContextMenuItem onClick={() => handlePlatformEdit(provider)}>
+                    <Edit2Line className="w-4 h-4 mr-2" /> 编辑
+                  </ContextMenuItem>
+                  <ContextMenuSeparator />
+                  <ContextMenuItem onClick={() => handlePlatformDelete(provider)} className="text-red-500 hover:text-red-600 focus:text-red-600 dark:text-red-400 dark:hover:text-red-300 dark:focus:text-red-300">
+                    <Delete2Line className="w-4 h-4 mr-2" /> 删除
+                  </ContextMenuItem>
+                </ContextMenuContent>
+              </ContextMenu>
+            );
+          })}
         </div>
       </div>
 
       {/* Right Content */}
       <div className="relative flex-1 flex flex-col bg-white dark:bg-dark-surface pt-12">
-        {isBootstrapping ? (
-          <>
-            <div className="px-6 pb-2 pt-2 shrink-0">
-              <div className={`h-5 w-36 ${skeletonBaseClass}`} />
-            </div>
-            <div className="flex-1 overflow-y-auto p-6 space-y-8">
-              <div className={`h-4 w-56 ${skeletonBaseClass}`} />
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-1 h-4 rounded-full bg-blue-500/60" />
-                  <div className={`h-5 w-24 ${skeletonBaseClass}`} />
-                </div>
-                <div className="space-y-2">
-                  <div className={`h-3 w-16 ${skeletonBaseClass}`} />
-                  <div className={`h-10 w-full ${skeletonBaseClass}`} />
-                </div>
-                <div className="space-y-2">
-                  <div className={`h-3 w-16 ${skeletonBaseClass}`} />
-                  <div className={`h-10 w-full ${skeletonBaseClass}`} />
-                </div>
-              </div>
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-1 h-4 rounded-full bg-purple-500/60" />
-                  <div className={`h-5 w-24 ${skeletonBaseClass}`} />
-                </div>
-                <div className={`h-9 w-28 ${skeletonBaseClass}`} />
-                <div className="space-y-2">
-                  {Array.from({ length: 3 }).map((_, index) => (
-                    <div key={`model-skeleton-${index}`} className={`h-10 w-full ${skeletonBaseClass}`} />
-                  ))}
-                </div>
-              </div>
-            </div>
-          </>
-        ) : selectedProvider ? (
+        {selectedProvider ? (
           <>
             <div className="px-6 pb-2 pt-2 shrink-0">
               <h3 className="ui-page-title">{selectedProvider.name}</h3>

@@ -58,6 +58,7 @@ const Header: React.FC<HeaderProps> = ({
         decorations: false,
         resizable: false,
         center: true,
+        visible: false,
         theme,
         backgroundColor: windowBg
       });
@@ -98,6 +99,7 @@ const Header: React.FC<HeaderProps> = ({
         decorations: false,
         resizable: false,
         center: true,
+        visible: false,
         theme,
         backgroundColor: windowBg
       });

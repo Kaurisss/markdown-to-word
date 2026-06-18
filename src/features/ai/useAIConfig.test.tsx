@@ -56,6 +56,13 @@ describe('useAIConfig forms', () => {
     vi.useRealTimers();
   });
 
+  it('selects the first provider on initial render', () => {
+    const { result } = renderConfig();
+
+    expect(result.current.selectedProviderId).toBe('builtin');
+    expect(result.current.selectedProvider?.id).toBe('builtin');
+  });
+
   it('adds a custom provider from normalized form values', async () => {
     vi.spyOn(Date, 'now').mockReturnValue(12345);
     const { result, updateProviders } = renderConfig();
