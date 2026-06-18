@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Copy2Line, CheckLine, LoadingLine, AddLine, PlayLine, Delete2Line, Edit2Line, Eye2Line, EyeCloseLine, CloseLine, MinimizeLine } from '@mingcute/react';
+import { Copy2Line, CheckLine, LoadingLine, AddLine, PlayLine, Delete2Line, Edit2Line, Eye2Line, EyeCloseLine, CloseLine } from '@mingcute/react';
 import { useAIConfigStore } from '../services/aiConfigStore';
 import { useAIConfig } from '../hooks/useAIConfig';
 import { Switch } from './ui/switch';
@@ -84,13 +84,10 @@ export const AIConfigWindow: React.FC = () => {
     void runWindowAction('close');
   }, [runWindowAction]);
 
-  const handleMinimizeWindow = useCallback(() => {
-    void runWindowAction('minimize');
-  }, [runWindowAction]);
 
   return (
     <div
-      className="flex h-screen w-screen overflow-hidden bg-gray-50 dark:bg-dark-bg text-gray-800 dark:text-gray-100 font-sans select-none"
+      className="flex h-screen w-screen overflow-hidden text-gray-800 dark:text-gray-100 font-sans select-none relative"
       onContextMenu={(e) => {
         const target = e.target as HTMLElement;
         const isInputElement = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
@@ -100,11 +97,24 @@ export const AIConfigWindow: React.FC = () => {
         }
       }}
     >
+      <div className="absolute top-0 left-0 right-0 h-10 flex items-stretch z-[9999] pointer-events-none">
+        <div className="flex-1 h-full pointer-events-auto" data-tauri-drag-region />
+        <div className="flex h-full items-stretch shrink-0 pointer-events-auto">
+          <button
+            type="button"
+            onClick={handleCloseWindow}
+            className="w-[46px] h-10 grid place-items-center text-gray-600 dark:text-gray-300 hover:bg-red-500 hover:text-white active:bg-red-600 transition-colors"
+            aria-label="关闭"
+          >
+            <CloseLine size={16} />
+          </button>
+        </div>
+      </div>
 
       {/* Left Categories */}
-      <div className="w-64 bg-gray-50 dark:bg-dark-bg border-r border-gray-200 dark:border-dark-border flex flex-col">
-        <div className="h-10 px-5 flex items-center justify-between bg-gray-50 dark:bg-dark-bg" data-tauri-drag-region>
-          <h2 className="ui-sidebar-kicker pointer-events-none">AI 平台管理</h2>
+      <div className="w-64 shrink-0 bg-gray-50 dark:bg-dark-bg border-r border-gray-200 dark:border-dark-border flex flex-col pt-10">
+        <div className="px-5 pb-3 pt-2 flex items-center justify-between shrink-0">
+          <h2 className="ui-sidebar-kicker">AI 平台管理</h2>
           <button
             onClick={() => setShowAddPlatform(true)}
             disabled={isBootstrapping}
@@ -114,7 +124,7 @@ export const AIConfigWindow: React.FC = () => {
             <AddLine className="w-4 h-4" />
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto px-2 pb-2 pt-0 space-y-1">
+        <div className="flex-1 overflow-y-auto px-2 pb-2 space-y-1">
           {isBootstrapping ? (
             Array.from({ length: 6 }).map((_, index) => (
               <div
@@ -170,30 +180,11 @@ export const AIConfigWindow: React.FC = () => {
       </div>
 
       {/* Right Content */}
-      <div className="relative flex-1 flex flex-col bg-white dark:bg-dark-surface">
+      <div className="relative flex-1 flex flex-col bg-white dark:bg-dark-surface pt-10">
         {isBootstrapping ? (
           <>
-            <div className="relative h-10 flex items-center justify-between pl-6 pr-12">
-              <div className="absolute top-0 left-0 right-[92px] h-10" data-tauri-drag-region />
-              <div className={`relative z-10 h-5 w-36 ${skeletonBaseClass}`} />
-              <button
-                type="button"
-                onClick={handleMinimizeWindow}
-                onMouseDown={(e) => e.stopPropagation()}
-                className="absolute top-0 right-[46px] z-[80] w-[46px] h-10 grid place-items-center text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-element active:bg-gray-200 dark:active:bg-dark-border transition-colors"
-                aria-label="最小化"
-              >
-                <MinimizeLine size={16} />
-              </button>
-              <button
-                type="button"
-                onClick={handleCloseWindow}
-                onMouseDown={(e) => e.stopPropagation()}
-                className="absolute top-0 right-0 z-[80] w-[46px] h-10 grid place-items-center text-gray-600 dark:text-gray-300 hover:bg-red-500 hover:text-white active:bg-red-600 transition-colors"
-                aria-label="关闭"
-              >
-                <CloseLine size={16} />
-              </button>
+            <div className="px-6 pb-2 pt-2 shrink-0">
+              <div className={`h-5 w-36 ${skeletonBaseClass}`} />
             </div>
             <div className="flex-1 overflow-y-auto p-6 space-y-8">
               <div className={`h-4 w-56 ${skeletonBaseClass}`} />
@@ -227,32 +218,9 @@ export const AIConfigWindow: React.FC = () => {
           </>
         ) : selectedProvider ? (
           <>
-            {/* Header */}
-            <div className="relative h-10 flex items-center justify-between pl-6 pr-12">
-              <div className="absolute top-0 left-0 right-[92px] h-10" data-tauri-drag-region />
-              <div className="relative z-10 flex-1 flex items-center pointer-events-none">
-                <h3 className="ui-page-title pointer-events-none">{selectedProvider.name}</h3>
-              </div>
-              <button
-                type="button"
-                onClick={handleMinimizeWindow}
-                onMouseDown={(e) => e.stopPropagation()}
-                className="absolute top-0 right-[46px] z-[80] w-[46px] h-10 grid place-items-center text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-element active:bg-gray-200 dark:active:bg-dark-border transition-colors"
-                aria-label="最小化"
-              >
-                <MinimizeLine size={16} />
-              </button>
-              <button
-                type="button"
-                onClick={handleCloseWindow}
-                onMouseDown={(e) => e.stopPropagation()}
-                className="absolute top-0 right-0 z-[80] w-[46px] h-10 grid place-items-center text-gray-600 dark:text-gray-300 hover:bg-red-500 hover:text-white active:bg-red-600 transition-colors"
-                aria-label="关闭"
-              >
-                <CloseLine size={16} />
-              </button>
+            <div className="px-6 pb-2 pt-2 shrink-0">
+              <h3 className="ui-page-title">{selectedProvider.name}</h3>
             </div>
-
             <div className="flex-1 overflow-y-auto px-6 pb-4 pt-2 space-y-6">
               {/* Description */}
               {selectedProvider.description && (

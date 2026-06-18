@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { CloseLine, MinimizeLine } from '@mingcute/react';
+import { CloseLine } from '@mingcute/react';
 import { useSettingsStore, ViewMode } from '../services/settingsStore';
 import { FONTS_CN, FONTS_EN, FONT_LABELS, FONT_SIZES, FONT_SIZES_PT } from './header/constants';
 import { Select } from './ui/Select';
@@ -62,9 +62,6 @@ export const SettingsWindow: React.FC = () => {
     void runWindowAction('close');
   }, [runWindowAction]);
 
-  const handleMinimizeWindow = useCallback(() => {
-    void runWindowAction('minimize');
-  }, [runWindowAction]);
 
   const skeletonBaseClass = 'animate-pulse rounded-md bg-gray-200 dark:bg-dark-element';
   const labelClass = 'ui-field-label';
@@ -86,51 +83,33 @@ export const SettingsWindow: React.FC = () => {
 
   return (
     <div
-      className="flex h-screen w-screen flex-col overflow-hidden bg-gray-50 dark:bg-dark-bg text-gray-800 dark:text-gray-100 font-sans select-none"
+      className="flex h-screen w-screen flex-col overflow-hidden text-gray-800 dark:text-gray-100 font-sans select-none relative"
       onContextMenu={(e) => {
         const target = e.target as HTMLElement;
         const isInputElement = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT';
         if (!isInputElement) e.preventDefault();
       }}
     >
-      <div className="h-10 flex items-stretch">
-        <div
-          className="w-40 shrink-0 px-5 flex items-center ui-sidebar-kicker bg-gray-50 dark:bg-dark-bg border-r border-gray-200 dark:border-dark-border"
-          data-tauri-drag-region
-        >
-          设置
-        </div>
-        <div className="flex-1 min-w-0 flex items-stretch bg-white dark:bg-dark-surface">
-          <div
-            className="flex-1 flex items-center px-6 ui-page-title"
-            data-tauri-drag-region
+      <div className="absolute top-0 left-0 right-0 h-10 flex items-stretch z-[9999] pointer-events-none">
+        <div className="flex-1 h-full pointer-events-auto" data-tauri-drag-region />
+        <div className="flex h-full items-stretch shrink-0 pointer-events-auto">
+          <button
+            type="button"
+            onClick={handleCloseWindow}
+            className="w-[46px] h-10 grid place-items-center text-gray-600 dark:text-gray-300 hover:bg-red-500 hover:text-white active:bg-red-600 transition-colors"
+            aria-label="关闭"
           >
-            {activeSectionLabel}
-          </div>
-          <div className="flex h-full items-stretch shrink-0" onMouseDown={(e) => e.stopPropagation()}>
-            <button
-              type="button"
-              onClick={handleMinimizeWindow}
-              className="w-[46px] h-10 grid place-items-center text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-element active:bg-gray-200 dark:active:bg-dark-border transition-colors"
-              aria-label="最小化"
-            >
-              <MinimizeLine size={16} />
-            </button>
-            <button
-              type="button"
-              onClick={handleCloseWindow}
-              className="w-[46px] h-10 grid place-items-center text-gray-600 dark:text-gray-300 hover:bg-red-500 hover:text-white active:bg-red-600 transition-colors"
-              aria-label="关闭"
-            >
-              <CloseLine size={16} />
-            </button>
-          </div>
+            <CloseLine size={16} />
+          </button>
         </div>
       </div>
 
       <div className="flex-1 min-h-0 flex">
-        <aside className="w-40 shrink-0 bg-gray-50 dark:bg-dark-bg border-r border-gray-200 dark:border-dark-border">
-          <nav className="p-2 space-y-1">
+        <aside className="w-40 shrink-0 bg-gray-50 dark:bg-dark-bg border-r border-gray-200 dark:border-dark-border flex flex-col pt-10">
+          <div className="px-5 pb-3 pt-2 ui-sidebar-kicker shrink-0">
+            设置
+          </div>
+          <nav className="p-2 space-y-1 flex-1 overflow-y-auto">
             {sectionOptions.map(section => (
               <button
                 key={section.id}
@@ -151,8 +130,11 @@ export const SettingsWindow: React.FC = () => {
           </nav>
         </aside>
 
-        <div className="flex-1 min-w-0 bg-white dark:bg-dark-surface">
-          <div className="h-full overflow-y-auto px-6 py-4 space-y-6">
+        <main className="flex-1 min-w-0 flex flex-col bg-white dark:bg-dark-surface pt-10">
+          <div className="px-6 pb-2 pt-2 ui-page-title shrink-0">
+            {activeSectionLabel}
+          </div>
+          <div className="flex-1 overflow-y-auto px-6 pb-6 pt-2 space-y-6">
             {showInitialSkeleton ? (
               <div className="space-y-6">
                 <div className={`h-5 w-32 ${skeletonBaseClass}`} />
@@ -279,7 +261,7 @@ export const SettingsWindow: React.FC = () => {
               </>
             )}
           </div>
-        </div>
+        </main>
       </div>
     </div>
   );
