@@ -90,13 +90,13 @@ export const SettingsWindow: React.FC = () => {
         if (!isInputElement) e.preventDefault();
       }}
     >
-      <div className="absolute top-0 left-0 right-0 h-10 flex items-stretch z-[9999] pointer-events-none">
-        <div className="flex-1 h-full pointer-events-auto" data-tauri-drag-region />
-        <div className="flex h-full items-stretch shrink-0 pointer-events-auto">
+      <div className="absolute top-0 left-0 right-0 h-12 flex items-start z-40 pointer-events-none">
+        <div className="absolute inset-0 pointer-events-auto" data-tauri-drag-region />
+        <div className="flex h-12 items-stretch shrink-0 pointer-events-auto ml-auto relative z-10">
           <button
             type="button"
             onClick={handleCloseWindow}
-            className="w-[46px] h-10 grid place-items-center text-gray-600 dark:text-gray-300 hover:bg-red-500 hover:text-white active:bg-red-600 transition-colors"
+            className="w-[46px] h-12 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-red-500 hover:text-white active:bg-red-600 transition-colors"
             aria-label="关闭"
           >
             <CloseLine size={16} />
@@ -105,9 +105,10 @@ export const SettingsWindow: React.FC = () => {
       </div>
 
       <div className="flex-1 min-h-0 flex">
-        <aside className="w-40 shrink-0 bg-gray-50 dark:bg-dark-bg border-r border-gray-200 dark:border-dark-border flex flex-col pt-10">
-          <div className="px-5 pb-3 pt-2 ui-sidebar-kicker shrink-0">
-            设置
+        <aside className="w-40 shrink-0 bg-gray-50 dark:bg-dark-bg border-r border-gray-200 dark:border-dark-border flex flex-col relative z-40">
+          <div className="h-12 px-5 flex items-center shrink-0 relative">
+            <div className="absolute inset-0 z-0" data-tauri-drag-region />
+            <div className="ui-sidebar-kicker relative z-10 pointer-events-none">设置</div>
           </div>
           <nav className="p-2 space-y-1 flex-1 overflow-y-auto">
             {sectionOptions.map(section => (
@@ -130,7 +131,7 @@ export const SettingsWindow: React.FC = () => {
           </nav>
         </aside>
 
-        <main className="flex-1 min-w-0 flex flex-col bg-white dark:bg-dark-surface pt-10">
+        <main className="flex-1 min-w-0 flex flex-col bg-white dark:bg-dark-surface pt-12">
           <div className="px-6 pb-2 pt-2 ui-page-title shrink-0">
             {activeSectionLabel}
           </div>

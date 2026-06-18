@@ -94,13 +94,13 @@ export const AIConfigWindow: React.FC = () => {
         }
       }}
     >
-      <div className="absolute top-0 left-0 right-0 h-10 flex items-stretch z-[9999] pointer-events-none">
-        <div className="flex-1 h-full pointer-events-auto" data-tauri-drag-region />
-        <div className="flex h-full items-stretch shrink-0 pointer-events-auto">
+      <div className="absolute top-0 left-0 right-0 h-12 flex items-start z-40 pointer-events-none">
+        <div className="absolute inset-0 pointer-events-auto" data-tauri-drag-region />
+        <div className="flex h-12 items-stretch shrink-0 pointer-events-auto ml-auto relative z-10">
           <button
             type="button"
             onClick={handleCloseWindow}
-            className="w-[46px] h-10 grid place-items-center text-gray-600 dark:text-gray-300 hover:bg-red-500 hover:text-white active:bg-red-600 transition-colors"
+            className="w-[46px] h-12 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-red-500 hover:text-white active:bg-red-600 transition-colors"
             aria-label="关闭"
           >
             <CloseLine size={16} />
@@ -109,13 +109,14 @@ export const AIConfigWindow: React.FC = () => {
       </div>
 
       {/* Left Categories */}
-      <div className="w-64 shrink-0 bg-gray-50 dark:bg-dark-bg border-r border-gray-200 dark:border-dark-border flex flex-col pt-10">
-        <div className="px-5 pb-3 pt-2 flex items-center justify-between shrink-0">
-          <h2 className="ui-sidebar-kicker">AI 平台管理</h2>
+      <div className="w-64 shrink-0 bg-gray-50 dark:bg-dark-bg border-r border-gray-200 dark:border-dark-border flex flex-col relative z-40">
+        <div className="h-12 px-5 flex items-center justify-between shrink-0 relative">
+          <div className="absolute inset-0 z-0" data-tauri-drag-region />
+          <h2 className="ui-sidebar-kicker relative z-10 pointer-events-none">AI 平台管理</h2>
           <button
             onClick={() => setShowAddPlatform(true)}
             disabled={isBootstrapping}
-            className="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-200 dark:hover:bg-dark-surface text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-200 dark:hover:bg-dark-surface text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors relative z-10"
             title="添加自定义平台"
           >
             <AddLine className="w-4 h-4" />
@@ -177,7 +178,7 @@ export const AIConfigWindow: React.FC = () => {
       </div>
 
       {/* Right Content */}
-      <div className="relative flex-1 flex flex-col bg-white dark:bg-dark-surface pt-10">
+      <div className="relative flex-1 flex flex-col bg-white dark:bg-dark-surface pt-12">
         {isBootstrapping ? (
           <>
             <div className="px-6 pb-2 pt-2 shrink-0">

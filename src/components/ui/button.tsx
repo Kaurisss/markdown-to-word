@@ -15,7 +15,7 @@ const buttonVariants = cva(
         outline:
           "border border-ui-border bg-ui-control text-ui-text hover:bg-ui-control-hover",
         secondary:
-          "bg-ui-surface-subtle text-ui-text hover:bg-ui-control-hover",
+          "bg-ui-surface-subtle text-ui-text hover:bg-gray-200 dark:hover:bg-ui-control-hover",
         ghost:
           "text-ui-text-muted hover:bg-ui-control-hover hover:text-ui-text",
         link: "text-brand-600 underline-offset-4 hover:underline dark:text-brand-400",

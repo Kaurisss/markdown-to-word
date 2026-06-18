@@ -173,7 +173,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             size="sm"
             pressed={currentStyle.bold || false}
             onPressedChange={(pressed) => updateStyle({ bold: pressed })}
-            className="w-7 h-7 p-0 rounded hover:bg-ui-control-hover data-[state=on]:bg-brand-100 dark:data-[state=on]:bg-brand-900/30 data-[state=on]:text-brand-600 dark:data-[state=on]:text-brand-400"
+            className="w-7 h-7 p-0 rounded hover:bg-gray-200 dark:hover:bg-ui-control-hover data-[state=on]:bg-brand-100 dark:data-[state=on]:bg-brand-900/30 data-[state=on]:text-brand-600 dark:data-[state=on]:text-brand-400"
             title="加粗"
           >
             <BoldFill className="w-4 h-4" />
@@ -182,7 +182,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             size="sm"
             pressed={currentStyle.italic || false}
             onPressedChange={(pressed) => updateStyle({ italic: pressed })}
-            className="w-7 h-7 p-0 rounded hover:bg-ui-control-hover data-[state=on]:bg-brand-100 dark:data-[state=on]:bg-brand-900/30 data-[state=on]:text-brand-600 dark:data-[state=on]:text-brand-400"
+            className="w-7 h-7 p-0 rounded hover:bg-gray-200 dark:hover:bg-ui-control-hover data-[state=on]:bg-brand-100 dark:data-[state=on]:bg-brand-900/30 data-[state=on]:text-brand-600 dark:data-[state=on]:text-brand-400"
             title="斜体"
           >
             <ItalicLine className="w-4 h-4" />
@@ -193,7 +193,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
           <div className="relative" ref={colorPickerRef}>
             <button
               onClick={() => setShowColorPicker(!showColorPicker)}
-              className="w-7 h-7 rounded flex flex-col items-center justify-center gap-0.5 hover:bg-ui-control-hover transition-colors"
+              className="w-7 h-7 rounded flex flex-col items-center justify-center gap-0.5 hover:bg-gray-200 dark:hover:bg-ui-control-hover transition-colors"
               title="字体颜色"
             >
               <FontLine className="w-3.5 h-3.5 text-gray-700 dark:text-gray-300" />
@@ -251,7 +251,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
           <div className="relative" ref={bgColorPickerRef}>
             <button
               onClick={() => setShowBgColorPicker(!showBgColorPicker)}
-              className="w-7 h-7 rounded flex items-center justify-center hover:bg-ui-control-hover transition-colors"
+              className="w-7 h-7 rounded flex items-center justify-center hover:bg-gray-200 dark:hover:bg-ui-control-hover transition-colors"
               title="背景颜色"
             >
               <div className="flex flex-col items-center justify-center gap-0.5">
@@ -319,7 +319,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               key={align}
               value={align}
               size="sm"
-              className="w-7 h-7 p-0 rounded hover:bg-ui-control-hover data-[state=on]:bg-brand-100 dark:data-[state=on]:bg-brand-900/30 data-[state=on]:text-brand-600 dark:data-[state=on]:text-brand-400"
+              className="w-7 h-7 p-0 rounded hover:bg-gray-200 dark:hover:bg-ui-control-hover data-[state=on]:bg-brand-100 dark:data-[state=on]:bg-brand-900/30 data-[state=on]:text-brand-600 dark:data-[state=on]:text-brand-400"
               title={{ left: '左对齐', center: '居中', right: '右对齐', justify: '两端对齐' }[align]}
             >
               {align === 'left' && <AlignLeftLine className="w-4 h-4" />}
