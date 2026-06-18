@@ -1,4 +1,5 @@
 import type React from 'react';
+import type { DocumentConfig } from './config';
 
 // Simplified AST Node types based on unist/mdast
 export interface MdNode {
@@ -28,7 +29,7 @@ export interface EditorProps {
 
 export interface PreviewProps {
   markdown: string;
-  cfg: import('./interfaces/Config').DocumentConfig;
+  cfg: DocumentConfig;
   searchQuery?: string;
 }
 
@@ -38,15 +39,15 @@ export type ViewMode = 'editor' | 'split' | 'preview';
 export interface HeaderProps {
   isExporting: boolean;
   onExport: () => void;
-  onImport: (content: string) => void; // 新增导入回调
+  onImport: (content: string) => void;
   viewMode: ViewMode;
   onViewModeChange: (mode: ViewMode) => void;
   theme: 'light' | 'dark';
   onThemeChange: (theme: 'light' | 'dark') => void;
-  cfg: import('./interfaces/Config').DocumentConfig;
-  onCfgChange: (next: import('./interfaces/Config').DocumentConfig) => void;
-  onSearchClick?: () => void; // 新增搜索回调
-  onReplaceClick?: () => void; // 新增替换回调
+  cfg: DocumentConfig;
+  onCfgChange: (next: DocumentConfig) => void;
+  onSearchClick?: () => void;
+  onReplaceClick?: () => void;
   onUndo?: () => void;
   onRedo?: () => void;
   canUndo?: boolean;

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { AIProvider } from '../../../interfaces/AI';
-import { DocumentConfig } from '../../../interfaces/Config';
+import { AIProvider } from '../../../types/ai';
+import { DocumentConfig } from '../../../types/config';
 import { AIModelSelector } from './ai/AIModelSelector';
 import { AIPromptInput } from './ai/AIPromptInput';
 

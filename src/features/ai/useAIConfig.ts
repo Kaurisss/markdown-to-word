@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AIProvider, AIModel } from '../interfaces/AI';
+import { AIProvider, AIModel } from '../../types/ai';
 import { toast } from 'sonner';
 import {
   EMPTY_PROVIDER_FORM,
@@ -14,7 +14,7 @@ import {
   providerFormSchema,
   modelFormSchema,
   toProviderFormValues,
-} from '../services/aiConfigValidation';
+} from './validation';
 
 export interface UseAIConfigParams {
   providers: AIProvider[];

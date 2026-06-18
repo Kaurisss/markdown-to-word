@@ -6,25 +6,25 @@ import SearchPopover from './components/editor/SearchPopover';
 import { showAppToast, ToastType } from './components/shell/Toast';
 import { StatusBar } from './components/shell/StatusBar';
 import { DEFAULT_CONFIG } from './config/defaultConfig';
-import { DocumentConfig } from './interfaces/Config';
+import { DocumentConfig } from './types/config';
 import { ViewMode } from './types';
 
 import { AIConfigWindow } from './components/ai/AIConfigWindow';
 import { SettingsWindow } from './components/settings/SettingsWindow';
-import { useAIConfigStore } from './services/aiConfigStore';
-import { useSettingsStore } from './services/settingsStore';
+import { useAIConfigStore } from './features/ai/store';
+import { useSettingsStore } from './features/settings/store';
 import { Toaster } from '@/components/ui/sonner';
 import { DynamicContextMenu } from '@/components/ui/context-menu';
 
-import { useEditorState } from './hooks/useEditorState';
-import { useSearchReplace } from './hooks/useSearchReplace';
-import { useContextMenu } from './hooks/useContextMenu';
-import { useFileDrop } from './hooks/useFileDrop';
-import { useExport } from './hooks/useExport';
-import { useTheme } from './hooks/useTheme';
-import { useScrollSync } from './hooks/useScrollSync';
-import { useAutoSave } from './hooks/useAutoSave';
-import { useSelectionToolbar } from './hooks/useSelectionToolbar';
+import { useEditorState } from './features/editor/useEditorState';
+import { useSearchReplace } from './features/editor/useSearchReplace';
+import { useContextMenu } from './features/editor/useContextMenu';
+import { useFileDrop } from './features/editor/useFileDrop';
+import { useExport } from './features/export/useExport';
+import { useTheme } from './features/settings/useTheme';
+import { useScrollSync } from './features/editor/useScrollSync';
+import { useAutoSave } from './features/editor/useAutoSave';
+import { useSelectionToolbar } from './features/editor/useSelectionToolbar';
 import { SelectionToolbar } from './components/editor/SelectionToolbar';
 
 const App: React.FC = () => {

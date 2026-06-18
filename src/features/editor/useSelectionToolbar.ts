@@ -5,7 +5,7 @@ import {
   applyInlineFormat,
   getActiveInlineFormats,
   InlineFormatKind,
-} from '../utils/inlineFormat';
+} from '../../utils/inlineFormat';
 
 interface SelectionToolbarState {
   visible: boolean;

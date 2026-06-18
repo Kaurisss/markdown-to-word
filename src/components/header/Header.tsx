@@ -9,7 +9,7 @@ import { AITab } from './tabs/AITab';
 import { ViewModeDock } from './ViewModeDock';
 import { WindowControls } from './WindowControls';
 import { UndoRedoDock } from './UndoRedoDock';
-import { useAIConfigStore } from '../../services/aiConfigStore';
+import { useAIConfigStore } from '../../features/ai/store';
 import { Tabs, TabsContent } from '../ui/tabs';
 
 const Header: React.FC<HeaderProps> = ({

@@ -8,7 +8,7 @@ import {
   modelFormSchema,
   toModelFormValues,
   toProviderFormValues,
-} from './aiConfigValidation';
+} from './validation';
 
 describe('aiConfigValidation', () => {
   it('validates required provider names', () => {

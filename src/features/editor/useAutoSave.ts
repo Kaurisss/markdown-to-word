@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { saveAutoSaveContent } from '../services/settingsStore';
+import { saveAutoSaveContent } from '../settings/store';
 
 interface UseAutoSaveOptions {
   content: string;

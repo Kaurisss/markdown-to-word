@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
-import { loadAutoSavedContent } from '../services/settingsStore';
-import { DEFAULT_MARKDOWN } from '../constants';
+import { loadAutoSavedContent } from '../settings/store';
+import { DEFAULT_MARKDOWN } from '../../constants';
 
 const MAX_HISTORY = 100;
 

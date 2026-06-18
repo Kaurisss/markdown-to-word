@@ -4,7 +4,7 @@ import { Select } from '../../ui/Select';
 import { Toggle } from '../../ui/toggle';
 import { ToggleGroup, ToggleGroupItem } from '../../ui/toggle-group';
 import { Separator } from '@/components/ui/separator';
-import { ElementStyle, DocumentConfig } from '../../../interfaces/Config';
+import { ElementStyle, DocumentConfig } from '../../../types/config';
 import { STYLES, FONTS_CN, FONTS_EN, FONT_LABELS, FONT_SIZES, FONT_SIZES_PT, THEME_COLORS, STANDARD_COLORS } from '../constants';
 
 interface HomeTabProps {

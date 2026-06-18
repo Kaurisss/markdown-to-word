@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { AIProvider } from '../../../../interfaces/AI';
-import { DocumentConfig } from '../../../../interfaces/Config';
+import { AIProvider } from '../../../../types/ai';
+import { DocumentConfig } from '../../../../types/config';
 
 interface UseAIStyleGeneratorProps {
     aiProviders: AIProvider[];

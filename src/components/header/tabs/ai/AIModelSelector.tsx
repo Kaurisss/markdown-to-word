@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { CheckLine, DownLine, Settings1Line } from '@mingcute/react';
-import { AIProvider } from '../../../../interfaces/AI';
+import { AIProvider } from '../../../../types/ai';
 import {
   Popover,
   PopoverContent,

@@ -1,4 +1,4 @@
-import { DocumentConfig } from '../interfaces/Config';
+import { DocumentConfig } from '../types/config';
 
 export const DEFAULT_CONFIG: DocumentConfig = {
   global: {

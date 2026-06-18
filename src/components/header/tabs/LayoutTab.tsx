@@ -1,7 +1,7 @@
 import React from 'react';
 import { Select } from '../../ui/Select';
 import { Separator } from '@/components/ui/separator';
-import { ElementStyle, DocumentConfig } from '../../../interfaces/Config';
+import { ElementStyle, DocumentConfig } from '../../../types/config';
 import { STYLES, FONTS_EN, FONT_LABELS } from '../constants';
 
 interface LayoutTabProps {

@@ -13,7 +13,7 @@
 import { Command } from '@tauri-apps/plugin-shell';
 import { writeTextFile, remove, BaseDirectory } from '@tauri-apps/plugin-fs';
 import { appCacheDir, join } from '@tauri-apps/api/path';
-import { DocumentConfig } from '../interfaces/Config';
+import { DocumentConfig } from '../../types/config';
 
 /**
  * Options for exporting a document using the Python backend

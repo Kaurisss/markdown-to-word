@@ -2,11 +2,11 @@
 
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AIProvider } from '../interfaces/AI';
+import { AIProvider } from '../../types/ai';
 
 async function loadModule() {
   vi.resetModules();
-  return import('./aiConfigStore');
+  return import('./store');
 }
 
 describe('aiConfigStore', () => {

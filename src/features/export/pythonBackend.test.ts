@@ -6,7 +6,7 @@
  */
 import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
-import { DocumentConfig, ElementStyle } from '../interfaces/Config';
+import { DocumentConfig, ElementStyle } from '../../types/config';
 import { parseBackendError } from './pythonBackend';
 
 /**

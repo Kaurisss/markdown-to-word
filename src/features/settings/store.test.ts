@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 async function loadModule() {
   vi.resetModules();
-  return import('./settingsStore');
+  return import('./store');
 }
 
 describe('settingsStore', () => {

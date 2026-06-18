@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Copy2Line, CheckLine, LoadingLine, AddLine, PlayLine, Delete2Line, Edit2Line, Eye2Line, EyeCloseLine, CloseLine } from '@mingcute/react';
-import { useAIConfigStore } from '../../services/aiConfigStore';
-import { useAIConfig } from '../../hooks/useAIConfig';
+import { useAIConfigStore } from '../../features/ai/store';
+import { useAIConfig } from '../../features/ai/useAIConfig';
 import { Switch } from '../ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog';
 import { Toaster } from '@/components/ui/sonner';

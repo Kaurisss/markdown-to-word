@@ -2,8 +2,8 @@
 
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AIProvider } from '../interfaces/AI';
-import { DEFAULT_CUSTOM_PROVIDER_BASE_URL } from '../services/aiConfigValidation';
+import { AIProvider } from '../../types/ai';
+import { DEFAULT_CUSTOM_PROVIDER_BASE_URL } from './validation';
 import { useAIConfig } from './useAIConfig';
 
 const baseProviders: AIProvider[] = [

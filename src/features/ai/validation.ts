@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AIModel, AIProvider } from '../interfaces/AI';
+import { AIModel, AIProvider } from '../../types/ai';
 
 export const DEFAULT_CUSTOM_PROVIDER_BASE_URL = 'https://api.example.com/v1/chat/completions';
 

@@ -1,8 +1,8 @@
 import { useState, useCallback } from 'react';
 import { save as saveDialog } from '@tauri-apps/plugin-dialog';
-import { DocumentConfig } from '../interfaces/Config';
-import { exportWithPython, formatErrorMessage } from '../services/pythonBackend';
-import { ToastType } from '../components/shell/Toast';
+import { DocumentConfig } from '../../types/config';
+import { exportWithPython, formatErrorMessage } from './pythonBackend';
+import { ToastType } from '../../components/shell/Toast';
 
 const INVALID_FILENAME_CHARS = /[<>:"/\\|?*\u0000-\u001F]/g;
 const MAX_BASENAME_LENGTH = 80;
