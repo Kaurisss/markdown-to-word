@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search2Line, CloseLine, ArrowUpLine, ArrowDownLine, RightLine, DownLine } from '@mingcute/react';
+import { Search2Line, CloseLine, ArrowUpLine, ArrowDownLine, RightLine, DownLine, TransferHorizontalLine } from '@mingcute/react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Toggle } from '@/components/ui/toggle';
@@ -55,102 +55,99 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
 
   return (
     <div
-      className={`absolute top-0 right-4 z-50 transition-all duration-200 ease-out ${
-        visible
-          ? 'opacity-100 translate-y-0'
-          : 'opacity-0 -translate-y-2 pointer-events-none'
-      }`}
+      className={`absolute top-3 right-4 z-50 transition-all duration-200 ease-out ${visible
+        ? 'opacity-100 translate-y-0'
+        : 'opacity-0 -translate-y-2 pointer-events-none'
+        }`}
     >
-      <div className="bg-ui-surface/95 dark:bg-dark-surface/95 border border-ui-border dark:border-dark-border rounded-b-lg shadow-lg backdrop-blur-sm py-1.5 px-1.5 flex flex-col">
+      <div className="bg-ui-surface/95 dark:bg-dark-surface/95 border border-ui-border dark:border-dark-border rounded-xl shadow-xl backdrop-blur-sm p-2.5 grid grid-cols-[auto_280px_auto] gap-x-2 gap-y-2 items-center">
 
-        {/* ── Row 1: Search ── */}
-        <div className="flex items-center gap-1">
+        {/* ── Row 1 ── */}
+        {/* Expand / collapse replace */}
+        <button
+          onClick={() => setShowReplace(!showReplace)}
+          className="w-6 h-6 flex items-center justify-center rounded text-ui-text-muted hover:text-ui-text hover:bg-ui-control-hover transition-colors shrink-0"
+          title={showReplace ? '折叠替换' : '展开替换'}
+        >
+          {showReplace
+            ? <DownLine className="w-4 h-4" />
+            : <RightLine className="w-4 h-4" />}
+        </button>
 
-          {/* Expand / collapse replace */}
-          <button
-            onClick={() => setShowReplace(!showReplace)}
-            className="w-5 h-5 flex items-center justify-center rounded text-ui-text-muted hover:text-ui-text hover:bg-ui-control-hover transition-colors shrink-0"
-            title={showReplace ? '折叠替换' : '展开替换'}
-          >
-            {showReplace
-              ? <DownLine className="w-3.5 h-3.5" />
-              : <RightLine className="w-3.5 h-3.5" />}
-          </button>
-
-          {/* Search input */}
-          <div className="relative flex-1 min-w-0">
-            <div className="absolute left-2 top-1/2 -translate-y-1/2 text-ui-text-subtle pointer-events-none z-10">
-              <Search2Line className="w-3.5 h-3.5" />
-            </div>
-            <Input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.shiftKey
-                    ? setCurrentMatchIndex((prev) => Math.max(0, prev - 1))
-                    : setCurrentMatchIndex((prev) => prev + 1);
-                }
-              }}
-              placeholder="查找"
-              autoFocus={visible}
-              className={`h-[30px] !pl-7 !pr-[100px] text-[13px] rounded-md ${
-                noResults
-                  ? 'border-red-400 dark:border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500'
-                  : ''
+        {/* Search input */}
+        <div className="relative min-w-0">
+          <div className="absolute left-2.5 top-1/2 -translate-y-1/2 text-ui-text-subtle pointer-events-none z-10">
+            <Search2Line className="w-4 h-4" />
+          </div>
+          <Input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.shiftKey
+                  ? setCurrentMatchIndex((prev) => Math.max(0, prev - 1))
+                  : setCurrentMatchIndex((prev) => prev + 1);
+              }
+            }}
+            placeholder="查找"
+            autoFocus={visible}
+            className={`h-[32px] w-full !pl-8 !pr-[104px] text-[13px] rounded-md ${noResults
+              ? 'border-red-400 dark:border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500'
+              : ''
               }`}
-            />
-            {/* Inline toggles */}
-            <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1">
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="w-5 h-5 flex items-center justify-center rounded text-ui-text-muted hover:text-ui-text hover:bg-ui-control-hover transition-colors"
-                  title="清除"
-                >
-                  <CloseLine className="w-3 h-3" />
-                </button>
-              )}
-              <div className="flex items-center gap-px">
-                <Toggle
-                  size="sm"
-                  pressed={caseSensitive}
-                  onPressedChange={setCaseSensitive}
-                  className={`h-[22px] w-[22px] min-w-0 p-0 rounded-sm hover:bg-ui-control-hover dark:hover:bg-white/10 ${toggleActiveClass}`}
-                  title="区分大小写 (Alt+C)"
-                >
-                  <span className="font-mono font-semibold text-[10px] leading-none">Aa</span>
-                </Toggle>
-                <Toggle
-                  size="sm"
-                  pressed={wholeWord}
-                  onPressedChange={setWholeWord}
-                  className={`h-[22px] w-[22px] min-w-0 p-0 rounded-sm hover:bg-ui-control-hover dark:hover:bg-white/10 ${toggleActiveClass}`}
-                  title="全词匹配 (Alt+W)"
-                >
-                  <span className="font-mono font-semibold text-[10px] leading-none">ab</span>
-                </Toggle>
-                <Toggle
-                  size="sm"
-                  pressed={useRegex}
-                  onPressedChange={setUseRegex}
-                  className={`h-[22px] w-[22px] min-w-0 p-0 rounded-sm hover:bg-ui-control-hover dark:hover:bg-white/10 ${toggleActiveClass}`}
-                  title="正则表达式 (Alt+R)"
-                >
-                  <span className="font-mono font-semibold text-[10px] leading-none">.*</span>
-                </Toggle>
-              </div>
+          />
+          {/* Inline toggles */}
+          <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1">
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="w-5 h-5 flex items-center justify-center rounded text-ui-text-muted hover:text-ui-text hover:bg-ui-control-hover transition-colors"
+                title="清除"
+              >
+                <CloseLine className="w-3.5 h-3.5" />
+              </button>
+            )}
+            <div className="flex items-center gap-px">
+              <Toggle
+                size="sm"
+                pressed={caseSensitive}
+                onPressedChange={setCaseSensitive}
+                className={`h-[24px] w-[24px] min-w-0 p-0 rounded-sm hover:bg-ui-control-hover dark:hover:bg-white/10 ${toggleActiveClass}`}
+                title="区分大小写 (Alt+C)"
+              >
+                <span className="font-mono font-semibold text-[11px] leading-none">Aa</span>
+              </Toggle>
+              <Toggle
+                size="sm"
+                pressed={wholeWord}
+                onPressedChange={setWholeWord}
+                className={`h-[24px] w-[24px] min-w-0 p-0 rounded-sm hover:bg-ui-control-hover dark:hover:bg-white/10 ${toggleActiveClass}`}
+                title="全词匹配 (Alt+W)"
+              >
+                <span className="font-mono font-semibold text-[11px] leading-none">ab</span>
+              </Toggle>
+              <Toggle
+                size="sm"
+                pressed={useRegex}
+                onPressedChange={setUseRegex}
+                className={`h-[24px] w-[24px] min-w-0 p-0 rounded-sm hover:bg-ui-control-hover dark:hover:bg-white/10 ${toggleActiveClass}`}
+                title="正则表达式 (Alt+R)"
+              >
+                <span className="font-mono font-semibold text-[11px] leading-none">.*</span>
+              </Toggle>
             </div>
           </div>
+        </div>
 
+        {/* Search Right Controls */}
+        <div className="flex items-center gap-1.5 justify-end min-w-0">
           {/* Match count */}
           <span
-            className={`shrink-0 text-[11px] tabular-nums min-w-[52px] text-center select-none ${
-              noResults
-                ? 'text-red-500 dark:text-red-400'
-                : 'text-ui-text-muted'
-            }`}
+            className={`shrink-0 text-[12px] tabular-nums min-w-[52px] text-center select-none ${noResults
+              ? 'text-red-500 dark:text-red-400'
+              : 'text-ui-text-muted'
+              }`}
           >
             {!hasQuery
               ? ''
@@ -164,40 +161,44 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
             <button
               onClick={() => setCurrentMatchIndex((prev) => Math.max(0, prev - 1))}
               disabled={!hasQuery}
-              className="w-6 h-6 flex items-center justify-center rounded text-ui-text-muted hover:text-ui-text hover:bg-ui-control-hover disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+              className="w-7 h-7 flex items-center justify-center rounded text-ui-text-muted hover:text-ui-text hover:bg-ui-control-hover disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
               title="上一个 (Shift+Enter)"
             >
-              <ArrowUpLine className="w-3.5 h-3.5" />
+              <ArrowUpLine className="w-4 h-4" />
             </button>
             <button
               onClick={() => setCurrentMatchIndex((prev) => prev + 1)}
               disabled={!hasQuery}
-              className="w-6 h-6 flex items-center justify-center rounded text-ui-text-muted hover:text-ui-text hover:bg-ui-control-hover disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+              className="w-7 h-7 flex items-center justify-center rounded text-ui-text-muted hover:text-ui-text hover:bg-ui-control-hover disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
               title="下一个 (Enter)"
             >
-              <ArrowDownLine className="w-3.5 h-3.5" />
+              <ArrowDownLine className="w-4 h-4" />
             </button>
           </div>
 
           {/* Close */}
-          <button
-            onClick={onClose}
-            className="w-6 h-6 flex items-center justify-center rounded text-ui-text-muted hover:text-ui-text hover:bg-ui-control-hover transition-colors shrink-0"
-            title="关闭 (Escape)"
-          >
-            <CloseLine className="w-3.5 h-3.5" />
-          </button>
+          <div className="pl-1 border-l border-gray-200 dark:border-gray-700 ml-0.5">
+            <button
+              onClick={onClose}
+              className="w-7 h-7 flex items-center justify-center rounded text-ui-text-muted hover:text-ui-text hover:bg-ui-control-hover transition-colors shrink-0"
+              title="关闭 (Escape)"
+            >
+              <CloseLine className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
-        {/* ── Row 2: Replace ── */}
+        {/* ── Row 2 ── */}
         {showReplace && (
-          <div className="flex items-center gap-1 mt-1">
-
-            {/* Spacer aligned with chevron */}
-            <div className="w-5 shrink-0" />
+          <>
+            {/* Spacer */}
+            <div className="w-6 shrink-0" />
 
             {/* Replace input */}
-            <div className="relative flex-1 min-w-0">
+            <div className="relative min-w-0">
+              <div className="absolute left-2.5 top-1/2 -translate-y-1/2 text-ui-text-subtle pointer-events-none z-10">
+                <TransferHorizontalLine className="w-4 h-4" />
+              </div>
               <Input
                 type="text"
                 value={replaceText}
@@ -212,7 +213,7 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
                   }
                 }}
                 placeholder="替换"
-                className="h-[30px] text-[13px] rounded-md"
+                className="h-[32px] w-full !pl-8 text-[13px] rounded-md"
               />
               {replaceText && (
                 <button
@@ -220,18 +221,18 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
                   className="absolute right-1.5 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center rounded text-ui-text-muted hover:text-ui-text hover:bg-ui-control-hover transition-colors"
                   title="清除"
                 >
-                  <CloseLine className="w-3 h-3" />
+                  <CloseLine className="w-3.5 h-3.5" />
                 </button>
               )}
             </div>
 
-            {/* Replace / Replace All */}
-            <div className="flex items-center gap-1 shrink-0">
+            {/* Replace Controls */}
+            <div className="flex items-center gap-2 w-full shrink-0">
               <Button
                 variant="outline"
-                size="xs"
+                size="sm"
                 disabled={!hasQuery}
-                className="text-[11px] h-[30px] px-2"
+                className="flex-1 text-[12px] h-[32px] px-0"
                 title="替换 (Enter)"
                 onClick={onReplace}
               >
@@ -239,16 +240,16 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
               </Button>
               <Button
                 variant="default"
-                size="xs"
+                size="sm"
                 disabled={!hasQuery}
-                className="text-[11px] h-[30px] px-2 bg-brand-500 hover:bg-brand-600 text-white border-0"
+                className="flex-1 text-[12px] h-[32px] px-0 bg-brand-500 hover:bg-brand-600 text-white border-0"
                 title="全部替换 (Ctrl+Enter)"
                 onClick={onReplaceAll}
               >
                 全部替换
               </Button>
             </div>
-          </div>
+          </>
         )}
       </div>
     </div>

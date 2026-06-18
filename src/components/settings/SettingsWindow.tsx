@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { CloseLine } from '@mingcute/react';
 import { useSettingsStore, ViewMode } from '../../features/settings/store';
 import {
   DEFAULT_KEYBOARD_SHORTCUTS,
@@ -16,6 +15,7 @@ import { Select } from '../ui/Select';
 import { Switch } from '../ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog';
 import { useShowWindowAfterFirstRender } from '../shell/useShowWindowAfterFirstRender';
+import { WindowTitleBar } from '../shell/WindowTitleBar';
 
 export const SettingsWindow: React.FC = () => {
   const { settings, updateSettings } = useSettingsStore();
@@ -55,21 +55,6 @@ export const SettingsWindow: React.FC = () => {
       if (transitionTimer) window.clearTimeout(transitionTimer);
     };
   }, [settings.theme]);
-
-  const runWindowAction = useCallback(async (action: 'close' | 'minimize') => {
-    try {
-      const { getCurrentWindow } = await import('@tauri-apps/api/window');
-      const win = getCurrentWindow();
-      if (action === 'close') await win.close();
-      if (action === 'minimize') await win.minimize();
-    } catch (e) {
-      console.error('Settings window action failed:', e);
-    }
-  }, []);
-
-  const handleCloseWindow = useCallback(() => {
-    void runWindowAction('close');
-  }, [runWindowAction]);
 
   const labelClass = 'ui-field-label';
   const settingsSelectTriggerClass = 'h-10 px-3 text-[14px] rounded-lg';
@@ -163,19 +148,7 @@ export const SettingsWindow: React.FC = () => {
         if (!isInputElement) e.preventDefault();
       }}
     >
-      <div className="absolute top-0 left-0 right-0 h-12 flex items-start z-40 pointer-events-none">
-        <div className="absolute inset-0 pointer-events-auto" data-tauri-drag-region />
-        <div className="flex h-12 items-stretch shrink-0 pointer-events-auto ml-auto relative z-10">
-          <button
-            type="button"
-            onClick={handleCloseWindow}
-            className="w-[46px] h-12 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-red-500 hover:text-white active:bg-red-600 transition-colors"
-            aria-label="关闭"
-          >
-            <CloseLine size={16} />
-          </button>
-        </div>
-      </div>
+      <WindowTitleBar />
 
       <div className="flex-1 min-h-0 flex">
         <aside className="w-40 shrink-0 bg-gray-50 dark:bg-dark-bg border-r border-gray-200 dark:border-dark-border flex flex-col relative z-40">

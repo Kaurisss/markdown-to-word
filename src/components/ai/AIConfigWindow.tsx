@@ -1,5 +1,5 @@
-import React, { useCallback } from 'react';
-import { Copy2Line, CheckLine, LoadingLine, AddLine, PlayLine, Delete2Line, Edit2Line, Eye2Line, EyeCloseLine, CloseLine, Key2Line, Link2Line } from '@mingcute/react';
+import React from 'react';
+import { Copy2Line, CheckLine, LoadingLine, AddLine, PlayLine, Delete2Line, Edit2Line, Eye2Line, EyeCloseLine, Key2Line, Link2Line } from '@mingcute/react';
 import { useAIConfigStore } from '../../features/ai/store';
 import { useAIConfig } from '../../features/ai/useAIConfig';
 import { Switch } from '../ui/switch';
@@ -8,6 +8,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { useShowWindowAfterFirstRender } from '../shell/useShowWindowAfterFirstRender';
+import { WindowTitleBar } from '../shell/WindowTitleBar';
 import { ProviderIcon } from './ProviderIcon';
 import { ProviderIconPicker } from './ProviderIconPicker';
 import {
@@ -59,22 +60,6 @@ export const AIConfigWindow: React.FC = () => {
     handlePlatformDelete,
   } = config;
 
-  const runWindowAction = useCallback(async (action: 'close' | 'minimize') => {
-    try {
-      const { getCurrentWebviewWindow } = await import('@tauri-apps/api/webviewWindow');
-      const currentWindow = getCurrentWebviewWindow();
-      if (action === 'close') await currentWindow.close();
-      if (action === 'minimize') await currentWindow.minimize();
-    } catch {
-      // ignore
-    }
-  }, []);
-
-  const handleCloseWindow = useCallback(() => {
-    void runWindowAction('close');
-  }, [runWindowAction]);
-
-
   return (
     <div
       className="flex h-screen w-screen overflow-hidden text-gray-800 dark:text-gray-100 select-none relative"
@@ -87,19 +72,7 @@ export const AIConfigWindow: React.FC = () => {
         }
       }}
     >
-      <div className="absolute top-0 left-0 right-0 h-12 flex items-start z-40 pointer-events-none">
-        <div className="absolute inset-0 pointer-events-auto" data-tauri-drag-region />
-        <div className="flex h-12 items-stretch shrink-0 pointer-events-auto ml-auto relative z-10">
-          <button
-            type="button"
-            onClick={handleCloseWindow}
-            className="w-[46px] h-12 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-red-500 hover:text-white active:bg-red-600 transition-colors"
-            aria-label="关闭"
-          >
-            <CloseLine size={16} />
-          </button>
-        </div>
-      </div>
+      <WindowTitleBar />
 
       {/* Left Categories */}
       <div className="w-64 shrink-0 bg-gray-50 dark:bg-dark-bg border-r border-gray-200 dark:border-dark-border flex flex-col relative z-40">

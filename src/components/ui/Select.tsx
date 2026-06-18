@@ -246,7 +246,7 @@ export const Select: React.FC<SelectProps> = ({
             </span>
           </button>
         </PopoverTrigger>
-        <PopoverContent className={cn("p-0 shadow-xl min-w-[var(--radix-popover-trigger-width)]", showSearch ? "w-56" : "w-max")} align="start">
+        <PopoverContent className={cn("p-0 shadow-xl min-w-[var(--radix-popover-trigger-width)]", showSearch ? "w-56" : "w-max")} align="center">
           <Command>
             {showSearch && <CommandInput placeholder="搜索..." className="h-9 text-[13px]" />}
             <CommandList className="max-h-60 custom-scrollbar">

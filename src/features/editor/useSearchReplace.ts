@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 
 interface SearchReplaceOptions {
   content: string;
@@ -73,13 +73,24 @@ export function useSearchReplace({ content, updateContent }: SearchReplaceOption
     setCurrentMatchIndex(0);
   }, [searchQuery, replaceText, content, buildSearchRegex, updateContent]);
 
+  const closeTimeoutRef = useRef<number>();
+
   const closeSearch = useCallback(() => {
     setShowSearch(false);
-    setShowReplace(false);
-    setSearchQuery('');
-    setReplaceText('');
-    setCurrentMatchIndex(0);
+    closeTimeoutRef.current = window.setTimeout(() => {
+      setShowReplace(false);
+      setSearchQuery('');
+      setReplaceText('');
+      setCurrentMatchIndex(0);
+    }, 200);
   }, []);
+
+  // Clear timeout if we open search again
+  useEffect(() => {
+    if (showSearch && closeTimeoutRef.current) {
+      window.clearTimeout(closeTimeoutRef.current);
+    }
+  }, [showSearch]);
 
   // Reset match index when search query changes
   useEffect(() => {
