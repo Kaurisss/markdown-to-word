@@ -14,12 +14,14 @@ import { Kbd } from '../ui/kbd';
 import { FONTS_CN, FONTS_EN, FONT_LABELS, FONT_SIZES, FONT_SIZES_PT } from '../header/constants';
 import { Select } from '../ui/Select';
 import { Switch } from '../ui/switch';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog';
 import { useShowWindowAfterFirstRender } from '../shell/useShowWindowAfterFirstRender';
 
 export const SettingsWindow: React.FC = () => {
   const { settings, updateSettings } = useSettingsStore();
   const [activeSection, setActiveSection] = useState<'appearance' | 'editor' | 'styles' | 'shortcuts'>('appearance');
   const [recordingActionId, setRecordingActionId] = useState<ShortcutActionId | null>(null);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
   const isFirstThemePaintRef = useRef(true);
   useShowWindowAfterFirstRender();
 
@@ -333,7 +335,7 @@ export const SettingsWindow: React.FC = () => {
                   </div>
                   <button
                     type="button"
-                    onClick={resetAllShortcuts}
+                    onClick={() => setShowResetConfirm(true)}
                     className="h-8 shrink-0 rounded-lg border border-gray-200 bg-white px-3 text-xs text-gray-600 hover:bg-gray-50 dark:border-dark-border dark:bg-dark-surface dark:text-gray-300 dark:hover:bg-dark-element-hover"
                   >
                     恢复默认
@@ -404,6 +406,35 @@ export const SettingsWindow: React.FC = () => {
           </div>
         </main>
       </div>
+
+      {/* Reset Shortcuts Confirmation Dialog */}
+      <Dialog open={showResetConfirm} onOpenChange={setShowResetConfirm}>
+        <DialogContent className="w-80 p-4 gap-0 bg-white dark:bg-dark-surface border-gray-200 dark:border-dark-border" showCloseButton={false}>
+          <DialogHeader className="mb-4">
+            <DialogTitle className="text-sm font-semibold text-gray-800 dark:text-gray-100">恢复默认快捷键</DialogTitle>
+          </DialogHeader>
+          <div className="text-sm text-gray-600 dark:text-gray-300">
+            确定要将所有快捷键恢复为默认设置吗？此操作不可撤销。
+          </div>
+          <DialogFooter className="mt-4 flex-row justify-end gap-2 sm:justify-end">
+            <button
+              onClick={() => setShowResetConfirm(false)}
+              className="px-3 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-element-hover rounded transition-colors"
+            >
+              取消
+            </button>
+            <button
+              onClick={() => {
+                resetAllShortcuts();
+                setShowResetConfirm(false);
+              }}
+              className="px-3 py-1.5 text-xs bg-brand-500 text-white rounded hover:bg-brand-600 transition-colors"
+            >
+              确定
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

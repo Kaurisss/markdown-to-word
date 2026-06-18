@@ -94,8 +94,8 @@ const Header: React.FC<HeaderProps> = ({
       const webview = new WebviewWindow(label, {
         url,
         title: '设置',
-        width: 520,
-        height: 680,
+        width: 542,
+        height: 720,
         decorations: false,
         resizable: false,
         center: true,
