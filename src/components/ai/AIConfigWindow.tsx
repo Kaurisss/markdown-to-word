@@ -171,7 +171,6 @@ export const AIConfigWindow: React.FC = () => {
               {/* API Config */}
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-1 h-4 bg-blue-500 rounded-full"></div>
                   <div className="ui-section-title">
                     API 配置
                   </div>
@@ -213,7 +212,6 @@ export const AIConfigWindow: React.FC = () => {
               {/* Model Management */}
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-1 h-4 bg-purple-500 rounded-full"></div>
                   <div className="ui-section-title">
                     模型管理
                   </div>
