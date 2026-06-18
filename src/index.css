@@ -152,6 +152,75 @@ select {
   }
 }
 
+/* App chrome typography */
+.ui-page-title {
+  font-size: 22px;
+  line-height: 28px;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: #111827;
+}
+
+.dark .ui-page-title {
+  color: #f3f4f6;
+}
+
+.ui-section-title {
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: #111827;
+}
+
+.dark .ui-section-title {
+  color: #f3f4f6;
+}
+
+.ui-sidebar-kicker {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
+.dark .ui-sidebar-kicker {
+  color: #9ca3af;
+}
+
+.ui-field-label {
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: #374151;
+}
+
+.dark .ui-field-label {
+  color: #d1d5db;
+}
+
+.ui-caption {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: #6b7280;
+}
+
+.dark .ui-caption {
+  color: #9ca3af;
+}
+
+.ui-compact-text {
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
 /* Brand color theme variable (for Tailwind v4) */
 @theme {
   --color-brand-50: #f0f9ff;
