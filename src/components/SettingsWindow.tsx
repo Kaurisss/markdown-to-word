@@ -83,7 +83,7 @@ export const SettingsWindow: React.FC = () => {
 
   return (
     <div
-      className="flex h-screen w-screen flex-col overflow-hidden text-gray-800 dark:text-gray-100 font-sans select-none relative"
+      className="flex h-screen w-screen flex-col overflow-hidden text-gray-800 dark:text-gray-100 select-none relative"
       onContextMenu={(e) => {
         const target = e.target as HTMLElement;
         const isInputElement = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT';

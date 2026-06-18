@@ -57,7 +57,6 @@ export const useAIStyleGenerator = ({
     onShowConfig
 }: UseAIStyleGeneratorProps) => {
     const [isGenerating, setIsGenerating] = useState(false);
-    const [error, setError] = useState<string | null>(null);
 
     const deepMerge = <T extends Record<string, any>>(target: T, source: Partial<T> | undefined): T => {
         if (!source) return target;
@@ -76,29 +75,28 @@ export const useAIStyleGenerator = ({
 
     const generate = async (prompt: string) => {
         if (!prompt.trim()) {
-            setError('请输入样式描述');
+            onShowToast?.('请输入样式描述', 'error');
             return false;
         }
 
         if (!selectedModel) {
-            setError('请先选择 AI 模型');
+            onShowToast?.('请先选择 AI 模型', 'error');
             return false;
         }
 
         const provider = aiProviders.find(p => p.id === selectedModel.providerId);
         if (!provider || !provider.isEnabled) {
-            setError('请先配置并启用 AI 模型');
+            onShowToast?.('请先配置并启用 AI 模型', 'error');
             return false;
         }
 
         if (!provider.apiKey) {
-            setError('请先配置 API Key');
+            onShowToast?.('请先配置 API Key', 'error');
             onShowConfig();
             return false;
         }
 
         setIsGenerating(true);
-        setError(null);
 
         try {
             const controller = new AbortController();
@@ -170,17 +168,16 @@ export const useAIStyleGenerator = ({
             };
 
             onCfgChange(newConfig);
-            setError(null);
             if (onShowToast) {
-                onShowToast('AI 样式生成成功！');
+                onShowToast('AI 样式生成成功！', 'success');
             }
             return true;
 
         } catch (error: any) {
             if (error.name === 'AbortError') {
-                setError('请求超时，请重试');
+                onShowToast?.('请求超时，请重试', 'error');
             } else {
-                setError(error.message || '生成失败，请重试');
+                onShowToast?.(error.message || '生成失败，请重试', 'error');
             }
             return false;
         } finally {
@@ -190,8 +187,6 @@ export const useAIStyleGenerator = ({
 
     return {
         isGenerating,
-        error,
-        generate,
-        clearError: () => setError(null)
+        generate
     };
 };

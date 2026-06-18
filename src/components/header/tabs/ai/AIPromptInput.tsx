@@ -1,39 +1,132 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { CloseLine, DownLine } from '@mingcute/react';
+import { Button } from '../../../ui/button';
+import {
+  Popover,
+  PopoverContent,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from '../../../ui/popover';
+import { Textarea } from '../../../ui/textarea';
+import { cn } from '../../../../lib/utils';
 
 interface AIPromptInputProps {
-    value: string;
-    onChange: (value: string) => void;
-    onSubmit: () => void;
-    disabled?: boolean;
-    placeholder?: string;
+  value: string;
+  onChange: (value: string) => void;
+  onSubmit: () => void;
+  disabled?: boolean;
+  placeholder?: string;
 }
 
-export const AIPromptInput: React.FC<AIPromptInputProps> = ({
-    value,
-    onChange,
-    onSubmit,
-    disabled = false,
-    placeholder = "描述你想要的文档样式..."
-}) => {
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter' && !disabled) {
-            onSubmit();
-        }
-    };
+const PROMPT_EXAMPLES = [
+  {
+    label: '公文风格',
+    value: '正文仿宋三号，标题黑体小二加粗，行距1.5倍',
+  },
+  {
+    label: '技术文档',
+    value: '正文宋体小四，标题微软雅黑小三，代码块灰色背景',
+  },
+  {
+    label: '论文排版',
+    value: '正文宋体小四，一级标题黑体三号居中，段前段后间距适中',
+  },
+];
 
-    return (
-        <div className="flex-1 min-w-0">
-            <div className="relative group h-full">
-                <input
-                    type="text"
-                    value={value}
-                    onChange={(e) => onChange(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    disabled={disabled}
-                    className="w-full h-7 px-3 text-[13px] border border-gray-300 dark:border-dark-border rounded bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100 hover:border-gray-400 dark:hover:border-gray-500 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-colors placeholder:text-gray-400 disabled:opacity-50"
-                    placeholder={placeholder}
-                />
-            </div>
+export const AIPromptInput: React.FC<AIPromptInputProps> = ({
+  value,
+  onChange,
+  onSubmit,
+  disabled = false,
+  placeholder = '描述文档样式...',
+}) => {
+  const [open, setOpen] = useState(false);
+  const preview = value.trim() || placeholder;
+
+  const submit = () => {
+    if (disabled || !value.trim()) return;
+    onSubmit();
+    setOpen(false);
+  };
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          disabled={disabled}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              event.preventDefault();
+              submit();
+            }
+          }}
+          className={cn(
+            'flex h-7 w-full min-w-[320px] max-w-[520px] items-center justify-between gap-2 rounded-ui-control border border-ui-border bg-ui-control px-3 text-left text-[13px] transition-colors hover:bg-ui-control-hover disabled:opacity-50',
+            value.trim() ? 'text-ui-text' : 'text-ui-text-subtle'
+          )}
+          aria-label={preview}
+        >
+          <span className="truncate">{preview}</span>
+          <DownLine className="size-3.5 shrink-0 text-ui-text-subtle" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="start" sideOffset={6} className="w-[540px] p-3 z-[10000]">
+        <PopoverHeader className="mb-2">
+          <PopoverTitle className="flex items-center justify-between text-[13px]">
+            <span>描述样式</span>
+            {value.trim() && (
+              <button
+                type="button"
+                onClick={() => onChange('')}
+                className="inline-flex h-6 items-center gap-1 rounded-ui-control px-1.5 text-[12px] text-ui-text-muted hover:bg-ui-control-hover hover:text-ui-text"
+              >
+                <CloseLine className="size-3.5" />
+                清空
+              </button>
+            )}
+          </PopoverTitle>
+        </PopoverHeader>
+
+        <Textarea
+          aria-label="详细描述样式"
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          disabled={disabled}
+          className="min-h-[112px] resize-none text-[13px]"
+          placeholder="例如：正文仿宋三号，标题黑体小二加粗，行距1.5倍。也可以描述页边距、代码块、引用、标题层级。"
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+              event.preventDefault();
+              submit();
+            }
+          }}
+        />
+
+        <div className="mt-3">
+          <div className="mb-1 text-[11px] text-ui-text-subtle">范例</div>
+          <div className="flex flex-wrap gap-1.5">
+            {PROMPT_EXAMPLES.map(example => (
+              <button
+                key={example.label}
+                type="button"
+                className="h-7 rounded-ui-control border border-ui-border bg-ui-control px-2 text-[12px] text-ui-text-muted hover:bg-ui-control-hover hover:text-ui-text"
+                onClick={() => onChange(example.value)}
+              >
+                {example.label}
+              </button>
+            ))}
+          </div>
         </div>
-    );
+
+        <div className="mt-3 flex items-center justify-between">
+          <div className="text-[11px] text-ui-text-subtle">Ctrl+Enter 生成。生成会覆盖当前样式设置。</div>
+          <Button size="sm" onClick={submit} disabled={disabled || !value.trim()}>
+            生成样式
+          </Button>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
 };

@@ -30,20 +30,15 @@ const baseProviders: AIProvider[] = [
 
 function renderConfig(overrides?: Partial<{
   providers: AIProvider[];
-  selectedModel: { providerId: string; modelId: string } | null;
 }>) {
   let providers = overrides?.providers ?? baseProviders;
   const updateProviders = vi.fn((next: AIProvider[]) => {
     providers = next;
   });
-  const updateSelectedModel = vi.fn();
-
   const rendered = renderHook(() =>
     useAIConfig({
       providers,
       updateProviders,
-      selectedModel: overrides?.selectedModel ?? null,
-      updateSelectedModel,
     })
   );
 
@@ -53,7 +48,6 @@ function renderConfig(overrides?: Partial<{
       return providers;
     },
     updateProviders,
-    updateSelectedModel,
   };
 }
 

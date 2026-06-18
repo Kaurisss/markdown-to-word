@@ -19,16 +19,12 @@ import {
 export interface UseAIConfigParams {
   providers: AIProvider[];
   updateProviders: (providers: AIProvider[]) => void;
-  selectedModel: { providerId: string; modelId: string } | null;
-  updateSelectedModel: (model: { providerId: string; modelId: string } | null) => void;
 }
 
 
 export function useAIConfig({
   providers,
   updateProviders,
-  selectedModel,
-  updateSelectedModel,
 }: UseAIConfigParams) {
   // ── Provider selection ──────────────────────────────────────────────
   const [selectedProviderId, setSelectedProviderId] = useState<string>('');
@@ -250,18 +246,6 @@ export function useAIConfig({
 
   // ── Model CRUD ──────────────────────────────────────────────────────
 
-  const handleSelectModel = useCallback((model: AIModel) => {
-    if (!selectedProvider) return;
-    const isCurrentlySelected =
-      selectedModel?.providerId === selectedProvider.id &&
-      selectedModel?.modelId === model.id;
-    if (isCurrentlySelected) {
-      updateSelectedModel(null);
-    } else {
-      updateSelectedModel({ providerId: selectedProvider.id, modelId: model.id });
-    }
-  }, [selectedProvider, selectedModel, updateSelectedModel]);
-
   const handleAddModel = addModelForm.handleSubmit((values) => {
     if (!selectedProvider) return;
     const model = buildModel(values);
@@ -277,13 +261,7 @@ export function useAIConfig({
     handleUpdateProvider(selectedProvider.id, {
       models: selectedProvider.models.filter(m => m.id !== modelId),
     });
-    if (
-      selectedModel?.providerId === selectedProvider.id &&
-      selectedModel?.modelId === modelId
-    ) {
-      updateSelectedModel(null);
-    }
-  }, [selectedProvider, handleUpdateProvider, selectedModel, updateSelectedModel]);
+  }, [selectedProvider, handleUpdateProvider]);
 
   const handleSaveEditModel = editModelForm.handleSubmit((values) => {
     if (!selectedProvider || !editingModel) return;
@@ -340,10 +318,7 @@ export function useAIConfig({
       const next = updated.find(p => p.id !== provider.id);
       setSelectedProviderId(next?.id ?? '');
     }
-    if (selectedModel?.providerId === provider.id) {
-      updateSelectedModel(null);
-    }
-  }, [providers, selectedProviderId, selectedModel, updateProviders, updateSelectedModel]);
+  }, [providers, selectedProviderId, updateProviders]);
 
   // ── Action handlers ─────────────────────────────────────────────────
 
@@ -447,7 +422,6 @@ export function useAIConfig({
     handleTestModel,
 
     // Model management
-    handleSelectModel,
     handleDeleteModel,
     handleCopyModel,
 

@@ -18,8 +18,6 @@ interface AIConfigModalProps {
   onClose: () => void;
   providers: AIProvider[];
   onUpdateProviders: (providers: AIProvider[]) => void;
-  currentModel?: { providerId: string; modelId: string } | null;
-  onSelectModel: (model: { providerId: string; modelId: string }) => void;
 }
 
 export const AIConfigModal: React.FC<AIConfigModalProps> = ({
@@ -27,20 +25,10 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
   onClose,
   providers,
   onUpdateProviders,
-  currentModel,
-  onSelectModel,
 }) => {
   const config = useAIConfig({
     providers,
     updateProviders: onUpdateProviders,
-    selectedModel: currentModel ?? null,
-    updateSelectedModel: (model) => {
-      if (model) {
-        onSelectModel(model);
-      } else {
-        onSelectModel({ providerId: '', modelId: '' });
-      }
-    },
   });
 
   const {
@@ -60,7 +48,6 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
     handleEditModel, handleSaveEditModel, closeEditModel,
     showApiKey, setShowApiKey,
     testingModelId,
-    handleSelectModel,
     handleTestModelClick,
     handleDeleteModelClick,
     handlePlatformEdit,
@@ -248,22 +235,16 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({
 
                   <div className="space-y-2">
                     {selectedProvider.models.map(model => {
-                      const isSelected = currentModel?.providerId === selectedProvider.id && currentModel?.modelId === model.id;
                       return (
                         <ContextMenu key={model.id}>
                           <ContextMenuTrigger asChild>
                             <div
                               data-model-card
-                              className={`flex items-center justify-between p-3 rounded-lg border group cursor-pointer transition-all ${isSelected
-                                ? 'bg-brand-50 dark:bg-brand-900/20 border-brand-200 dark:border-brand-800 shadow-sm'
-                                : 'bg-white dark:bg-dark-element border-gray-200 dark:border-dark-border hover:border-brand-300 dark:hover:border-brand-700 hover:shadow-sm'
-                                }`}
-                              onClick={() => handleSelectModel(model)}
+                              className="flex items-center justify-between p-3 rounded-lg border group transition-all bg-white dark:bg-dark-element border-gray-200 dark:border-dark-border hover:border-brand-300 dark:hover:border-brand-700 hover:shadow-sm"
                             >
                               <div className="flex flex-col">
                                 <div className="flex items-center gap-2">
-                                  {isSelected && <CheckLine className="w-4 h-4 text-brand-500" />}
-                                  <span className={`text-sm font-medium ${isSelected ? 'text-brand-700 dark:text-brand-400' : 'text-gray-700 dark:text-gray-200'}`}>{model.name}</span>
+                                  <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{model.name}</span>
                                 </div>
                               </div>
                               <div className="flex items-center gap-2">

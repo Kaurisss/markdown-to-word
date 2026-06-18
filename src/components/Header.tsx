@@ -38,7 +38,7 @@ const Header: React.FC<HeaderProps> = ({
   const [activeStyle, setActiveStyle] = useState<'body' | 'h1' | 'h2' | 'h3' | 'code' | 'quote'>('body');
   const [aiPrompt, setAiPrompt] = useState('');
 
-  const { providers: aiProviders, selectedModel } = useAIConfigStore();
+  const { providers: aiProviders, selectedModel, updateSelectedModel } = useAIConfigStore();
 
   const openAIConfigWindow = async () => {
     try {
@@ -188,6 +188,7 @@ const Header: React.FC<HeaderProps> = ({
           <AITab
             aiProviders={aiProviders}
             selectedModel={selectedModel}
+            onModelChange={updateSelectedModel}
             setShowAIConfig={() => openAIConfigWindow()}
             cfg={cfg}
             onCfgChange={onCfgChange}
