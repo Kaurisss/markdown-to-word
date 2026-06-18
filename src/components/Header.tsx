@@ -118,8 +118,8 @@ const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab as any} className="app-chrome relative z-50 flex-shrink-0 bg-white dark:bg-dark-bg border-b border-gray-200 dark:border-dark-border transition-colors duration-200 gap-0">
-      <div className="h-10 bg-white dark:bg-dark-bg border-b border-gray-100 dark:border-dark-border flex items-stretch">
+    <Tabs value={activeTab} onValueChange={setActiveTab as any} className="app-chrome relative z-50 flex-shrink-0 bg-ui-surface border-b border-ui-border transition-colors duration-200 gap-0">
+      <div className="h-10 bg-ui-surface border-b border-ui-border-subtle flex items-stretch">
         <WindowBar
           activeTab={activeTab}
           setActiveTab={setActiveTab}
@@ -132,7 +132,7 @@ const Header: React.FC<HeaderProps> = ({
           canUndo={canUndo}
           canRedo={canRedo}
         />
-        <div className="flex h-full items-stretch border-l border-gray-100 dark:border-dark-border shrink-0">
+        <div className="flex h-full items-stretch border-l border-ui-border-subtle shrink-0">
           <ViewModeDock
             viewMode={viewMode}
             onViewModeChange={onViewModeChange}
@@ -143,7 +143,7 @@ const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Ribbon Content - Compact Layout */}
-      <div className="h-14 bg-white dark:bg-dark-bg flex items-center px-2 py-1 gap-2 flex-nowrap transition-colors duration-200">
+      <div className="h-14 bg-ui-surface flex items-center px-ui-chrome-x py-ui-chrome-y gap-ui-ribbon-gap flex-nowrap transition-colors duration-200">
         <TabsContent value="file" className="w-full m-0 p-0 outline-none data-[state=inactive]:hidden block">
           <FileTab
             onImport={onImport}

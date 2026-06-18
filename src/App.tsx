@@ -277,7 +277,7 @@ const App: React.FC = () => {
   ) : (
     <>
       <div
-        className="flex flex-col h-screen w-screen overflow-hidden bg-gray-50 dark:bg-dark-bg text-gray-900 dark:text-gray-100 transition-colors"
+        className="flex flex-col h-screen w-screen overflow-hidden bg-ui-app text-ui-text transition-colors"
         onContextMenu={handleContextMenu}
       >
       <Header
@@ -329,7 +329,7 @@ const App: React.FC = () => {
 
             {/* Left Pane: Editor */}
             <div
-              className={`h-full bg-white dark:bg-dark-bg relative z-0 overflow-hidden flex-shrink-0 transition-opacity duration-600 ease-out ${editorPaneClass}`}
+              className={`h-full bg-ui-editor relative z-0 overflow-hidden flex-shrink-0 transition-opacity duration-600 ease-out ${editorPaneClass}`}
               aria-hidden={viewMode === 'preview'}
             >
               <Editor
@@ -350,7 +350,7 @@ const App: React.FC = () => {
 
             {/* Right Pane: Preview */}
             <div
-              className={`h-full bg-gray-100 dark:bg-dark-bg relative z-0 overflow-hidden flex-shrink-0 transition-opacity duration-300 ease-out ${previewPaneClass}`}
+              className={`h-full bg-ui-preview-canvas relative z-0 overflow-hidden flex-shrink-0 transition-opacity duration-300 ease-out ${previewPaneClass}`}
               aria-hidden={viewMode === 'editor'}
             >
               <Preview ref={previewRef} markdown={content} cfg={cfg} />
@@ -362,9 +362,9 @@ const App: React.FC = () => {
           {isFileDragActive && (
             <div className="fixed inset-0 z-[999] pointer-events-none">
               <div className="absolute inset-0 bg-black/20" />
-              <div className="absolute inset-4 border-2 border-dashed border-brand-400 rounded-xl" />
+              <div className="absolute inset-4 border-2 border-dashed border-brand-400 rounded-ui-popover" />
               <div className="absolute inset-0 grid place-items-center">
-                <div className="px-4 py-3 rounded-lg bg-white/95 dark:bg-dark-surface/95 border border-gray-200 dark:border-dark-border shadow-lg text-sm text-gray-800 dark:text-gray-100">
+                <div className="px-4 py-3 rounded-ui-popover bg-ui-surface-raised/95 border border-ui-border shadow-ui-popover text-sm text-ui-text">
                   拖入 .md / .markdown / .txt 文件以导入
                 </div>
               </div>

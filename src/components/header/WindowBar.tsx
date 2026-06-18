@@ -41,7 +41,7 @@ export const WindowBar: React.FC<WindowBarProps> = ({
 
   return (
     <div
-      className="flex-1 min-w-0 bg-inherit flex items-center text-xs text-gray-600 dark:text-gray-300 select-none transition-colors duration-200"
+      className="flex-1 min-w-0 bg-inherit flex items-center text-xs text-ui-text-muted select-none transition-colors duration-200"
       data-tauri-drag-region
       onDoubleClick={() => void runWindowAction()}
     >
