@@ -45,13 +45,26 @@ export const AIPromptInput: React.FC<AIPromptInputProps> = ({
   const preview = value.trim() || placeholder;
 
   const submit = () => {
-    if (disabled || !value.trim()) return;
-    onSubmit();
-    setOpen(false);
+    const cleanedValue = value.replace(/[\u0000-\u001F\u007F-\u009F]/g, '').trim();
+    if (disabled || !cleanedValue) return;
+    
+    if (cleanedValue !== value) {
+      onChange(cleanedValue);
+    }
+    
+    setTimeout(() => {
+      onSubmit();
+      setOpen(false);
+    }, 0);
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={(isOpen) => {
+      setOpen(isOpen);
+      if (!isOpen) {
+        onChange(value);
+      }
+    }}>
       <PopoverTrigger asChild>
         <button
           type="button"

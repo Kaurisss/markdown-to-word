@@ -77,7 +77,7 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({
               type="button"
               onClick={() => {
                 setOpen(false);
-                onConfigClick();
+                setTimeout(() => onConfigClick(), 150);
               }}
               className="inline-flex h-6 items-center justify-center gap-1 rounded-ui-control px-1.5 text-[12px] font-medium text-ui-text-muted hover:bg-ui-control-hover hover:text-ui-text"
             >
@@ -95,7 +95,7 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({
               className="mt-2 h-7 rounded-ui-control bg-brand-500 px-3 text-[13px] font-medium text-white hover:bg-brand-600"
               onClick={() => {
                 setOpen(false);
-                onConfigClick();
+                setTimeout(() => onConfigClick(), 150);
               }}
             >
               打开 AI 配置
