@@ -12,4 +12,11 @@ describe('design tokens', () => {
 
     expect(validateDesignTokens(invalidTokens)).toContain('color.light.app must be a 6-digit hex color');
   });
+
+  it('rejects gracefully if whole groups are missing', () => {
+    const invalidTokens = structuredClone(tokens) as any;
+    delete invalidTokens.color;
+
+    expect(validateDesignTokens(invalidTokens)).toContain('color token group is missing');
+  });
 });

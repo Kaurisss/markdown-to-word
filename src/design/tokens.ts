@@ -40,26 +40,40 @@ function assertStringRecord(groupName: string, group: Record<string, unknown>): 
   ));
 }
 
-export function validateDesignTokens(candidate: DesignTokens = tokens): string[] {
+export function validateDesignTokens(candidate: any = tokens): string[] {
   const errors: string[] = [];
 
+  if (!candidate || typeof candidate !== 'object') {
+    return ['Tokens must be an object'];
+  }
+
   for (const group of tokenGroups) {
-    if (!(group in candidate)) {
+    if (!(group in candidate) || !candidate[group]) {
       errors.push(`${group} token group is missing`);
     }
   }
 
-  for (const key of brandColorKeys) {
-    if (!isHexColor(candidate.color.brand[key])) {
-      errors.push(`color.brand.${key} must be a 6-digit hex color`);
+  if (errors.length > 0) return errors;
+
+  if (candidate.color?.brand) {
+    for (const key of brandColorKeys) {
+      if (!isHexColor(candidate.color.brand[key])) {
+        errors.push(`color.brand.${key} must be a 6-digit hex color`);
+      }
     }
+  } else {
+    errors.push('color.brand is missing');
   }
 
   for (const theme of ['light', 'dark'] satisfies ThemeName[]) {
-    for (const key of semanticColorKeys) {
-      if (!isHexColor(candidate.color[theme][key])) {
-        errors.push(`color.${theme}.${key} must be a 6-digit hex color`);
+    if (candidate.color?.[theme]) {
+      for (const key of semanticColorKeys) {
+        if (!isHexColor(candidate.color[theme][key])) {
+          errors.push(`color.${theme}.${key} must be a 6-digit hex color`);
+        }
       }
+    } else {
+      errors.push(`color.${theme} is missing`);
     }
   }
 

@@ -4,9 +4,9 @@
   "version": "2.0.1",
   "type": "module",
   "scripts": {
-    "dev": "vite --port 3000 --strictPort",
+    "dev": "pnpm run generate:tokens && vite --port 3000 --strictPort",
     "dev:tauri": "tauri dev",
-    "build": "vite build",
+    "build": "pnpm run generate:tokens && vite build",
     "build:tauri": "pnpm run build && tauri build",
     "build:installer": "iscc scripts/inno-setup.iss",
     "build:backend": "node scripts/build-python.js",
@@ -14,7 +14,8 @@
     "typecheck": "tsc --noEmit",
     "clean": "rimraf dist node_modules/.vite src-tauri/target",
     "rebuild": "pnpm run clean && pnpm run build && pnpm run build:tauri",
-    "test": "vitest --run"
+    "test": "vitest --run",
+    "generate:tokens": "node scripts/generate-css-tokens.js"
   },
   "dependencies": {
     "@floating-ui/react": "^0.27.19",
