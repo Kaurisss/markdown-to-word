@@ -292,7 +292,7 @@ export const AIConfigWindow: React.FC = () => {
                         <ContextMenuTrigger asChild>
                           <div
                             data-model-card
-                            className="flex items-center justify-between p-3 rounded-lg border group transition-all bg-white dark:bg-dark-element border-gray-200 dark:border-dark-border hover:border-brand-300 dark:hover:border-brand-700 hover:shadow-sm"
+                            className="flex items-center justify-between p-3 rounded-lg border group transition-all bg-white dark:bg-dark-element border-gray-200 dark:border-dark-border hover:border-brand-300 dark:hover:border-brand-700"
                           >
                             <div className="flex flex-col">
                               <div className="flex items-center gap-2">

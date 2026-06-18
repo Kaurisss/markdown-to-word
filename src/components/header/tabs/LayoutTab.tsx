@@ -34,7 +34,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({ cfg, onCfgChange, activeSt
             <input
               type="number"
               step="0.1"
-              className="h-8 w-16 pl-2 pr-6 text-[13px] border border-gray-300 dark:border-dark-border rounded-md bg-white dark:bg-dark-element text-gray-900 dark:text-gray-100 hover:border-gray-400 dark:hover:border-gray-500 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-colors"
+              className="h-8 w-16 pl-2 pr-6 text-[13px] border border-gray-300 dark:border-dark-border rounded-md bg-white dark:bg-dark-element text-gray-900 dark:text-gray-100 hover:border-gray-400 dark:hover:border-gray-500 focus-visible:border-brand-500 focus-visible:ring-1 focus-visible:ring-brand-500 focus-visible:ring-offset-0 outline-none transition-colors"
               value={cfg.global.pageMargin}
               onChange={(e) => onCfgChange({ ...cfg, global: { ...cfg.global, pageMargin: Number(e.target.value) } })}
             />
@@ -90,7 +90,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({ cfg, onCfgChange, activeSt
               type="checkbox"
               checked={cfg.global.includeTableOfContents || false}
               onChange={(e) => onCfgChange({ ...cfg, global: { ...cfg.global, includeTableOfContents: e.target.checked } })}
-              className="rounded text-brand-500 focus:ring-brand-500 border-gray-300 dark:border-dark-border"
+              className="rounded text-brand-500 focus-visible:ring-1 focus-visible:ring-brand-500 focus-visible:ring-offset-0 border-gray-300 dark:border-dark-border"
             />
             <span className="text-[13px] text-gray-700 dark:text-gray-300">生成目录</span>
           </label>
@@ -106,7 +106,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({ cfg, onCfgChange, activeSt
               <input
                 type="number"
                 step="0.1"
-                className="w-full text-[13px] border-0 p-1 text-center focus:ring-0 outline-none h-full bg-transparent dark:text-gray-100"
+                className="w-full text-[13px] border-0 p-1 text-center focus-visible:ring-0 outline-none h-full bg-transparent dark:text-gray-100"
                 value={(() => {
                   const val = currentStyle.lineSpacing;
                   if (typeof val === 'string' && val.endsWith('pt')) {

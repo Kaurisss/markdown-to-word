@@ -31,9 +31,9 @@ export const StatusBar: React.FC<StatusBarProps> = ({ content, onSearchClick }) 
       <div className="flex items-center">
         <div 
           onClick={onSearchClick}
-          className="flex items-center gap-1 hover:bg-gray-200 dark:hover:bg-gray-700 px-1.5 py-0.5 rounded cursor-pointer transition-colors"
+          className="flex items-center justify-center w-5 h-5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded cursor-pointer transition-colors"
         >
-          <Search2Line className="w-3 h-3" />
+          <Search2Line className="w-3.5 h-3.5" />
         </div>
       </div>
     </div>

@@ -76,7 +76,7 @@ export const AIPromptInput: React.FC<AIPromptInputProps> = ({
             }
           }}
           className={cn(
-            'flex h-7 w-full min-w-[320px] max-w-[520px] items-center justify-between gap-2 rounded-ui-control border border-ui-border bg-ui-control px-3 text-left text-[13px] transition-colors hover:bg-ui-control-hover disabled:opacity-50',
+            'flex h-7 w-full min-w-[320px] max-w-[520px] items-center justify-between gap-2 rounded-ui-control border border-ui-border bg-ui-control px-3 text-left text-[13px] transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:border-brand-500 focus-visible:ring-1 focus-visible:ring-brand-500 focus-visible:ring-offset-0',
             value.trim() ? 'text-ui-text' : 'text-ui-text-subtle'
           )}
           aria-label={preview}

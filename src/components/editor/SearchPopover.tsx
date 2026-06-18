@@ -143,7 +143,7 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
               size="icon"
               onClick={() => setCurrentMatchIndex((prev) => Math.max(0, prev - 1))}
               disabled={!searchQuery}
-              className="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-background shadow-sm hover:shadow"
+              className="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-background"
               title="上一个 (Shift+Enter)"
             >
               <ArrowUpLine className="w-4 h-4" />
@@ -153,7 +153,7 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
               size="icon"
               onClick={() => setCurrentMatchIndex((prev) => prev + 1)}
               disabled={!searchQuery}
-              className="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-background shadow-sm hover:shadow"
+              className="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-background"
               title="下一个 (Enter)"
             >
               <ArrowDownLine className="w-4 h-4" />

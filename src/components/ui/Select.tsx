@@ -109,7 +109,7 @@ function SelectItem({
     <SelectPrimitive.Item
       data-slot="select-item"
       className={cn(
-        "relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm whitespace-nowrap outline-hidden select-none focus:bg-brand-50 dark:focus:bg-brand-900/30 focus:text-brand-600 dark:focus:text-brand-400 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-gray-400 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
+        "relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm whitespace-nowrap outline-hidden select-none focus-visible:bg-brand-50 dark:focus-visible:bg-brand-900/30 focus-visible:text-brand-600 dark:focus-visible:text-brand-400 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-gray-400 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
         className
       )}
       {...props}
@@ -232,9 +232,9 @@ export const Select: React.FC<SelectProps> = ({
             aria-expanded={open}
             disabled={disabled}
             className={cn(
-              "flex w-full items-center justify-between gap-1 rounded-md border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-element px-2 py-1 text-sm whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 data-[state=open]:border-brand-500 data-[state=open]:ring-2 data-[state=open]:ring-brand-500/20 hover:bg-gray-50 dark:hover:bg-dark-element-hover disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-gray-400 dark:data-[placeholder]:text-gray-500 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5 [&_svg:not([class*='text-'])]:text-gray-400",
+              "flex w-full items-center justify-between gap-1 rounded-md border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-element px-2 py-1 text-sm whitespace-nowrap transition-[color,box-shadow] outline-none focus-visible:border-brand-500 focus-visible:ring-1 focus-visible:ring-brand-500 focus-visible:ring-offset-0 data-[state=open]:border-brand-500 data-[state=open]:ring-1 data-[state=open]:ring-brand-500 data-[state=open]:ring-offset-0 hover:bg-gray-50 dark:hover:bg-dark-element-hover disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-gray-400 dark:data-[placeholder]:text-gray-500 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5 [&_svg:not([class*='text-'])]:text-gray-400",
               'h-8 text-[13px]',
-              variant === 'ghost' && 'border-transparent bg-transparent shadow-none hover:bg-gray-100 dark:hover:bg-dark-element-hover data-[state=open]:border-transparent data-[state=open]:ring-0 data-[state=open]:bg-gray-100 dark:data-[state=open]:bg-dark-element-hover',
+              variant === 'ghost' && 'border-transparent bg-transparent hover:bg-gray-100 dark:hover:bg-dark-element-hover data-[state=open]:border-transparent data-[state=open]:ring-0 data-[state=open]:bg-gray-100 dark:data-[state=open]:bg-dark-element-hover',
               triggerClassName,
             )}
           >
