@@ -1,5 +1,5 @@
 import * as React from "react"
-import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react"
+import { CheckLine as CheckIcon, DownLine as ChevronDownIcon, UpLine as ChevronUpIcon } from "@mingcute/react"
 import { Select as SelectPrimitive } from "radix-ui"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"

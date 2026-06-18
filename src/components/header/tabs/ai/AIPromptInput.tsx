@@ -122,7 +122,7 @@ export const AIPromptInput: React.FC<AIPromptInputProps> = ({
 
         <div className="mt-3 flex items-center justify-between">
           <div className="text-[11px] text-ui-text-subtle">Ctrl+Enter 生成。生成会覆盖当前样式设置。</div>
-          <Button size="sm" onClick={submit} disabled={disabled || !value.trim()}>
+          <Button size="sm" className="bg-brand-500 hover:bg-brand-600 text-white" onClick={submit} disabled={disabled || !value.trim()}>
             生成样式
           </Button>
         </div>

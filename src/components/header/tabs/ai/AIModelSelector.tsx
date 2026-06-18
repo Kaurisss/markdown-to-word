@@ -45,7 +45,7 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({
     () => aiProviders.filter(provider => provider.isEnabled),
     [aiProviders]
   );
-  const selected = getSelectedModelLabel(aiProviders, selectedModel);
+  const selected = getSelectedModelLabel(enabledProviders, selectedModel);
   const hasSelectableModels = enabledProviders.some(provider => provider.models.length > 0);
   const triggerLabel = selected?.modelName || (hasSelectableModels ? '选择模型' : '配置模型');
   const statusClass = selected?.isEnabled && selected?.hasApiKey
@@ -79,10 +79,10 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({
                 setOpen(false);
                 onConfigClick();
               }}
-              className="inline-flex h-6 items-center gap-1 rounded-ui-control px-1.5 text-[12px] text-ui-text-muted hover:bg-ui-control-hover hover:text-ui-text"
+              className="inline-flex h-6 items-center justify-center gap-1 rounded-ui-control px-1.5 text-[12px] font-medium text-ui-text-muted hover:bg-ui-control-hover hover:text-ui-text"
             >
-              <Settings1Line className="size-3.5" />
-              AI 配置
+              <Settings1Line className="size-3.5 shrink-0" />
+              <span className="leading-none mt-px">AI 配置</span>
             </button>
           </PopoverTitle>
         </PopoverHeader>
