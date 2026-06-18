@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 
 interface SearchReplaceOptions {
   content: string;
@@ -86,6 +86,8 @@ export function useSearchReplace({ content, updateContent }: SearchReplaceOption
     setCurrentMatchIndex(0);
   }, [searchQuery]);
 
+  const matchCount = useMemo(() => getMatches(content).length, [content, getMatches]);
+
   return {
     searchQuery,
     setSearchQuery,
@@ -95,6 +97,7 @@ export function useSearchReplace({ content, updateContent }: SearchReplaceOption
     setShowReplace,
     currentMatchIndex,
     setCurrentMatchIndex,
+    matchCount,
     replaceText,
     setReplaceText,
     caseSensitive,

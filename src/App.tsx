@@ -72,6 +72,7 @@ const App: React.FC = () => {
     setShowReplace,
     currentMatchIndex,
     setCurrentMatchIndex,
+    matchCount,
     replaceText,
     setReplaceText,
     caseSensitive,
@@ -213,6 +214,7 @@ const App: React.FC = () => {
               setSearchQuery={setSearchQuery}
               currentMatchIndex={currentMatchIndex}
               setCurrentMatchIndex={setCurrentMatchIndex}
+              matchCount={matchCount}
               replaceText={replaceText}
               setReplaceText={setReplaceText}
               caseSensitive={caseSensitive}
