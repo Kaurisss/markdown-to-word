@@ -7,6 +7,7 @@ import { describe, expect, it, vi } from 'vitest';
 // Mock @lobehub/icons to avoid transitive @emoji-mart/data JSON import issues in vitest.
 // vi.mock is hoisted, so all helpers must be defined inside the factory.
 vi.mock('@lobehub/icons', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports -- vi.mock is hoisted; cannot use ESM imports
   const React = require('react');
   const MockSvg = ({ size }: { size?: number }) =>
     React.createElement('svg', { width: size, height: size, 'data-testid': 'mock-icon' });
