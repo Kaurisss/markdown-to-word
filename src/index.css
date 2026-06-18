@@ -154,8 +154,8 @@ select {
 
 /* App chrome typography */
 .ui-page-title {
-  font-size: 22px;
-  line-height: 28px;
+  font-size: 15px;
+  line-height: 20px;
   font-weight: 600;
   letter-spacing: 0;
   color: #111827;
@@ -166,8 +166,8 @@ select {
 }
 
 .ui-section-title {
-  font-size: 15px;
-  line-height: 22px;
+  font-size: 14px;
+  line-height: 20px;
   font-weight: 600;
   letter-spacing: 0;
   color: #111827;
@@ -178,16 +178,15 @@ select {
 }
 
 .ui-sidebar-kicker {
-  font-size: 12px;
-  line-height: 16px;
+  font-size: 13px;
+  line-height: 18px;
   font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: #6b7280;
+  letter-spacing: 0.02em;
+  color: #4b5563;
 }
 
 .dark .ui-sidebar-kicker {
-  color: #9ca3af;
+  color: #d1d5db;
 }
 
 .ui-field-label {
@@ -195,7 +194,7 @@ select {
   line-height: 18px;
   font-weight: 500;
   letter-spacing: 0;
-  color: #374151;
+  color: #4b5563;
 }
 
 .dark .ui-field-label {
@@ -276,6 +275,7 @@ select {
   --shadow-ui-page: var(--ui-shadow-page);
   --font-ui-sans: var(--ui-font-sans);
   --font-ui-editor: var(--ui-font-editor);
+  --font-sans: var(--ui-font-sans);
 }
 
 /* Hide number input spinners */
