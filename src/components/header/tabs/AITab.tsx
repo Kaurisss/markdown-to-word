@@ -74,21 +74,6 @@ export const AITab: React.FC<AITabProps> = ({
           />
         </div>
       </div>
-
-
-      <div className={STYLES.groupClass}>
-        <div className="flex flex-col gap-0.5">
-          <span className={STYLES.labelClass}>更多</span>
-          <button
-            type="button"
-            className="flex h-7 w-7 items-center justify-center rounded-ui-control text-ui-text-muted transition-colors hover:bg-ui-control-hover hover:text-ui-text"
-            title="更多 AI 工具"
-          >
-            <More2Line className="size-4" />
-          </button>
-        </div>
-      </div>
-
     </div>
   );
 };

@@ -4,7 +4,7 @@ import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import rehypeSanitize from 'rehype-sanitize';
 import rehypeSlug from 'rehype-slug';
-import { PreviewProps } from '../types';
+import { PreviewProps } from '../../types';
 
 function ptToPx(pt: number): string {
   return `${(pt * 96) / 72}px`;

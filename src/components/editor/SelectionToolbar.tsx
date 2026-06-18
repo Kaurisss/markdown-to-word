@@ -15,7 +15,7 @@ import {
   shift,
   useFloating,
 } from '@floating-ui/react';
-import { ActiveInlineFormats, InlineFormatKind } from '../utils/inlineFormat';
+import { ActiveInlineFormats, InlineFormatKind } from '../../utils/inlineFormat';
 
 interface SelectionToolbarProps {
   visible: boolean;

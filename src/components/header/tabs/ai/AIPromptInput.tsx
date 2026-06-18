@@ -85,7 +85,7 @@ export const AIPromptInput: React.FC<AIPromptInputProps> = ({
           <DownLine className="size-3.5 shrink-0 text-ui-text-subtle" />
         </button>
       </PopoverTrigger>
-      <PopoverContent align="start" sideOffset={6} className="w-[540px] p-3 z-[10000]">
+      <PopoverContent align="start" sideOffset={6} className="w-[var(--radix-popover-trigger-width)] p-3 z-[10000]">
         <PopoverHeader className="mb-2">
           <PopoverTitle className="flex items-center justify-between text-[13px]">
             <span>描述样式</span>

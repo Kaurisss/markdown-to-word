@@ -1,16 +1,16 @@
 import React, { useRef, useState } from 'react';
-import { HeaderProps } from '../types';
-import { WindowBar, TabType } from './header/WindowBar';
-import { FileTab } from './header/tabs/FileTab';
-import { EditTab } from './header/tabs/EditTab';
-import { HomeTab } from './header/tabs/HomeTab';
-import { LayoutTab } from './header/tabs/LayoutTab';
-import { AITab } from './header/tabs/AITab';
-import { ViewModeDock } from './header/ViewModeDock';
-import { WindowControls } from './header/WindowControls';
-import { UndoRedoDock } from './header/UndoRedoDock';
-import { useAIConfigStore } from '../services/aiConfigStore';
-import { Tabs, TabsContent } from './ui/tabs';
+import { HeaderProps } from '../../types';
+import { WindowBar, TabType } from './WindowBar';
+import { FileTab } from './tabs/FileTab';
+import { EditTab } from './tabs/EditTab';
+import { HomeTab } from './tabs/HomeTab';
+import { LayoutTab } from './tabs/LayoutTab';
+import { AITab } from './tabs/AITab';
+import { ViewModeDock } from './ViewModeDock';
+import { WindowControls } from './WindowControls';
+import { UndoRedoDock } from './UndoRedoDock';
+import { useAIConfigStore } from '../../services/aiConfigStore';
+import { Tabs, TabsContent } from '../ui/tabs';
 
 const Header: React.FC<HeaderProps> = ({
   isExporting,

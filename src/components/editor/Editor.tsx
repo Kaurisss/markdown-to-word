@@ -1,5 +1,5 @@
 ﻿import React, { forwardRef, useCallback, useMemo, useRef, useState, useEffect } from 'react';
-import { EditorProps } from '../types';
+import { EditorProps } from '../../types';
 
 type Match = { index: number; length: number };
 

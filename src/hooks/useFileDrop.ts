@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { ToastType } from '../components/Toast';
+import { ToastType } from '../components/shell/Toast';
 
 interface UseFileDropOptions {
   isConfigWindow: boolean;

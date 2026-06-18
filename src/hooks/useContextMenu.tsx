@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { ContextMenuActionItem } from '../components/ui/context-menu';
 import { Copy2Line, ClipboardLine, ScissorsLine, Back2Line, Forward2Line, CheckboxLine } from '@mingcute/react';
-import { ToastType } from '../components/Toast';
+import { ToastType } from '../components/shell/Toast';
 
 interface ContextMenuState {
   visible: boolean;

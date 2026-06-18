@@ -4,7 +4,7 @@ import React from 'react';
 import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import Preview from './Preview';
-import { DEFAULT_CONFIG } from '../config/defaultConfig';
+import { DEFAULT_CONFIG } from '../../config/defaultConfig';
 
 describe('Preview', () => {
   it('renders underline html as an underline element', () => {

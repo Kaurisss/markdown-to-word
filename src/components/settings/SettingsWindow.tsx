@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { CloseLine } from '@mingcute/react';
-import { useSettingsStore, ViewMode } from '../services/settingsStore';
-import { FONTS_CN, FONTS_EN, FONT_LABELS, FONT_SIZES, FONT_SIZES_PT } from './header/constants';
-import { Select } from './ui/Select';
-import { Switch } from './ui/switch';
+import { useSettingsStore, ViewMode } from '../../services/settingsStore';
+import { FONTS_CN, FONTS_EN, FONT_LABELS, FONT_SIZES, FONT_SIZES_PT } from '../header/constants';
+import { Select } from '../ui/Select';
+import { Switch } from '../ui/switch';
 
 export const SettingsWindow: React.FC = () => {
   const { settings, updateSettings } = useSettingsStore();

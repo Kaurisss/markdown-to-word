@@ -1,16 +1,16 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import Header from './components/Header';
-import Editor from './components/Editor';
-import Preview from './components/Preview';
-import SearchPopover from './components/SearchPopover';
-import { showAppToast, ToastType } from './components/Toast';
-import { StatusBar } from './components/StatusBar';
+import Header from './components/header/Header';
+import Editor from './components/editor/Editor';
+import Preview from './components/preview/Preview';
+import SearchPopover from './components/editor/SearchPopover';
+import { showAppToast, ToastType } from './components/shell/Toast';
+import { StatusBar } from './components/shell/StatusBar';
 import { DEFAULT_CONFIG } from './config/defaultConfig';
 import { DocumentConfig } from './interfaces/Config';
 import { ViewMode } from './types';
 
-import { AIConfigWindow } from './components/AIConfigWindow';
-import { SettingsWindow } from './components/SettingsWindow';
+import { AIConfigWindow } from './components/ai/AIConfigWindow';
+import { SettingsWindow } from './components/settings/SettingsWindow';
 import { useAIConfigStore } from './services/aiConfigStore';
 import { useSettingsStore } from './services/settingsStore';
 import { Toaster } from '@/components/ui/sonner';
@@ -25,7 +25,7 @@ import { useTheme } from './hooks/useTheme';
 import { useScrollSync } from './hooks/useScrollSync';
 import { useAutoSave } from './hooks/useAutoSave';
 import { useSelectionToolbar } from './hooks/useSelectionToolbar';
-import { SelectionToolbar } from './components/SelectionToolbar';
+import { SelectionToolbar } from './components/editor/SelectionToolbar';
 
 const App: React.FC = () => {
   // Simple router based on URL search params
