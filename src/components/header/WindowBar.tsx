@@ -41,7 +41,7 @@ export const WindowBar: React.FC<WindowBarProps> = ({
 
   return (
     <div
-      className="flex-1 min-w-0 bg-inherit flex items-center text-xs text-ui-text-muted select-none transition-colors duration-200"
+      className="flex-1 min-w-0 bg-inherit flex items-center text-ui-text-muted select-none transition-colors duration-200"
       data-tauri-drag-region
       onDoubleClick={() => void runWindowAction()}
     >
@@ -65,7 +65,7 @@ export const WindowBar: React.FC<WindowBarProps> = ({
               <TabsTrigger
                 key={tab}
                 value={tab}
-                className="px-3 py-1.5 text-[13px] font-medium"
+                className="px-3 py-1.5 text-[14px] font-medium"
               >
                 {label}
               </TabsTrigger>

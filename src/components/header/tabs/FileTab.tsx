@@ -18,14 +18,14 @@ export const FileTab: React.FC<FileTabProps> = ({ onImport, onExport, isExportin
           className={`${STYLES.btnClass} flex-col gap-0.5 h-12 w-12 !px-1`}
         >
           <FileNewLine className="w-5 h-5" />
-          <span className="text-[11px]">新建</span>
+          <span className="text-xs">新建</span>
         </button>
         <button
           onClick={() => fileInputRef.current?.click()}
           className={`${STYLES.btnClass} flex-col gap-0.5 h-12 w-12 !px-1`}
         >
           <FileUploadLine className="w-5 h-5" />
-          <span className="text-[11px]">导入</span>
+          <span className="text-xs">导入</span>
         </button>
         <button
           onClick={onExport}
@@ -33,7 +33,7 @@ export const FileTab: React.FC<FileTabProps> = ({ onImport, onExport, isExportin
           className={`${STYLES.btnClass} flex-col gap-0.5 h-12 w-12 !px-1 ${isExporting ? 'opacity-50' : ''}`}
         >
           <DocLine className="w-5 h-5" />
-          <span className="text-[11px]">{isExporting ? '导出中' : '导出'}</span>
+          <span className="text-xs">{isExporting ? '导出中' : '导出'}</span>
         </button>
       </div>
     </div>
