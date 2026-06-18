@@ -8,6 +8,8 @@ import { Toaster } from '@/components/ui/sonner';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { useShowWindowAfterFirstRender } from '../shell/useShowWindowAfterFirstRender';
+import { ProviderIcon } from './ProviderIcon';
+import { ProviderIconPicker } from './ProviderIconPicker';
 import {
   ContextMenu,
   ContextMenuTrigger,
@@ -33,6 +35,7 @@ export const AIConfigWindow: React.FC = () => {
     newPlatformName, setNewPlatformName,
     newPlatformUrl, setNewPlatformUrl,
     newPlatformDescription, setNewPlatformDescription,
+    newPlatformIconKey, setNewPlatformIconKey,
     addPlatformErrors,
     handleAddPlatform, closeAddPlatform,
     showEditPlatform, isEditPlatformClosing,
@@ -40,6 +43,7 @@ export const AIConfigWindow: React.FC = () => {
     editPlatformUrl, setEditPlatformUrl,
     editPlatformErrors,
     editPlatformDescription, setEditPlatformDescription,
+    editPlatformIconKey, setEditPlatformIconKey,
     handleSaveEditPlatform, closeEditPlatform,
     showAddModel, setShowAddModel, isAddModelClosing,
     newModelId, setNewModelId, newModelName, setNewModelName,
@@ -122,7 +126,15 @@ export const AIConfigWindow: React.FC = () => {
                   : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-surface'
                   }`}
               >
-                <span className="truncate pr-2">{provider.name}</span>
+                <span className="flex min-w-0 items-center gap-2 pr-2">
+                  <ProviderIcon
+                    providerId={provider.id}
+                    name={provider.name}
+                    iconKey={provider.iconKey}
+                    size={18}
+                  />
+                  <span className="truncate">{provider.name}</span>
+                </span>
                 <Switch
                   checked={provider.isEnabled}
                   onCheckedChange={(c) => handleToggleProvider(provider.id, c)}
@@ -158,7 +170,15 @@ export const AIConfigWindow: React.FC = () => {
         {selectedProvider ? (
           <>
             <div className="px-6 pb-2 pt-2 shrink-0">
-              <h3 className="ui-page-title">{selectedProvider.name}</h3>
+              <div className="flex items-center gap-2">
+                <ProviderIcon
+                  providerId={selectedProvider.id}
+                  name={selectedProvider.name}
+                  iconKey={selectedProvider.iconKey}
+                  size={24}
+                />
+                <h3 className="ui-page-title">{selectedProvider.name}</h3>
+              </div>
             </div>
             <div className="flex-1 overflow-y-auto px-6 pb-4 pt-2 space-y-6">
               {/* Description */}
@@ -291,6 +311,10 @@ export const AIConfigWindow: React.FC = () => {
               onChange={(e) => setNewPlatformName(e.target.value)}
               placeholder="平台名称"
             />
+            <ProviderIconPicker
+              value={newPlatformIconKey}
+              onChange={setNewPlatformIconKey}
+            />
             <Input
               type="text"
               value={newPlatformUrl}
@@ -337,6 +361,10 @@ export const AIConfigWindow: React.FC = () => {
               value={editPlatformName}
               onChange={(e) => setEditPlatformName(e.target.value)}
               placeholder="平台名称"
+            />
+            <ProviderIconPicker
+              value={editPlatformIconKey}
+              onChange={setEditPlatformIconKey}
             />
             <Input
               type="text"

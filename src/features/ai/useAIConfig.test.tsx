@@ -71,6 +71,7 @@ describe('useAIConfig forms', () => {
       result.current.setNewPlatformName('  Local AI  ');
       result.current.setNewPlatformUrl('   ');
       result.current.setNewPlatformDescription('  Local endpoint  ');
+      result.current.setNewPlatformIconKey('openai');
     });
 
     await act(async () => {
@@ -83,6 +84,7 @@ describe('useAIConfig forms', () => {
         id: 'custom-12345',
         name: 'Local AI',
         description: 'Local endpoint',
+        iconKey: 'openai',
         isEnabled: true,
         apiKey: '',
         baseUrl: DEFAULT_CUSTOM_PROVIDER_BASE_URL,
@@ -119,11 +121,13 @@ describe('useAIConfig forms', () => {
 
     expect(result.current.editPlatformName).toBe('Existing Custom');
     expect(result.current.editPlatformUrl).toBe('https://old.example.com/v1/chat/completions');
+    expect(result.current.editPlatformIconKey).toBe(provider.iconKey ?? '');
 
     await act(async () => {
       result.current.setEditPlatformName('  Renamed Provider  ');
       result.current.setEditPlatformUrl(' ');
       result.current.setEditPlatformDescription(' ');
+      result.current.setEditPlatformIconKey('deepseek');
     });
 
     await act(async () => {
@@ -137,6 +141,7 @@ describe('useAIConfig forms', () => {
         name: 'Renamed Provider',
         baseUrl: DEFAULT_CUSTOM_PROVIDER_BASE_URL,
         description: undefined,
+        iconKey: 'deepseek',
       },
     ]);
   });

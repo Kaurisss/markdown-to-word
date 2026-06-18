@@ -51,9 +51,11 @@ export function useAIConfig({
   const newPlatformName = addPlatformForm.watch('name');
   const newPlatformUrl = addPlatformForm.watch('baseUrl');
   const newPlatformDescription = addPlatformForm.watch('description');
+  const newPlatformIconKey = addPlatformForm.watch('iconKey');
   const editPlatformName = editPlatformForm.watch('name');
   const editPlatformUrl = editPlatformForm.watch('baseUrl');
   const editPlatformDescription = editPlatformForm.watch('description');
+  const editPlatformIconKey = editPlatformForm.watch('iconKey');
 
   const setNewPlatformName = useCallback((value: string) => {
     addPlatformForm.setValue('name', value, { shouldDirty: true, shouldValidate: false });
@@ -64,6 +66,9 @@ export function useAIConfig({
   const setNewPlatformDescription = useCallback((value: string) => {
     addPlatformForm.setValue('description', value, { shouldDirty: true, shouldValidate: false });
   }, [addPlatformForm]);
+  const setNewPlatformIconKey = useCallback((value: string) => {
+    addPlatformForm.setValue('iconKey', value, { shouldDirty: true, shouldValidate: false });
+  }, [addPlatformForm]);
   const setEditPlatformName = useCallback((value: string) => {
     editPlatformForm.setValue('name', value, { shouldDirty: true, shouldValidate: false });
   }, [editPlatformForm]);
@@ -72,6 +77,9 @@ export function useAIConfig({
   }, [editPlatformForm]);
   const setEditPlatformDescription = useCallback((value: string) => {
     editPlatformForm.setValue('description', value, { shouldDirty: true, shouldValidate: false });
+  }, [editPlatformForm]);
+  const setEditPlatformIconKey = useCallback((value: string) => {
+    editPlatformForm.setValue('iconKey', value, { shouldDirty: true, shouldValidate: false });
   }, [editPlatformForm]);
 
   // ── Add-model dialog ────────────────────────────────────────────────
@@ -361,6 +369,8 @@ export function useAIConfig({
     setNewPlatformUrl,
     newPlatformDescription,
     setNewPlatformDescription,
+    newPlatformIconKey,
+    setNewPlatformIconKey,
     addPlatformErrors: addPlatformForm.formState.errors,
     handleAddPlatform,
     closeAddPlatform,
@@ -376,6 +386,8 @@ export function useAIConfig({
     setEditPlatformUrl,
     editPlatformDescription,
     setEditPlatformDescription,
+    editPlatformIconKey,
+    setEditPlatformIconKey,
     editPlatformErrors: editPlatformForm.formState.errors,
     handleStartEditPlatform,
     handleSaveEditPlatform,
