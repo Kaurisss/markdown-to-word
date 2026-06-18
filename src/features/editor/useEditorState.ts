@@ -1,10 +1,11 @@
 import { useState, useCallback, useRef } from 'react';
 import { loadAutoSavedContent } from '../settings/store';
+import { KeyboardShortcutMap, isShortcutMatch } from '../settings/keyboardShortcuts';
 import { DEFAULT_MARKDOWN } from '../../constants';
 
 const MAX_HISTORY = 100;
 
-export function useEditorState(autoSave: boolean) {
+export function useEditorState(autoSave: boolean, shortcuts: KeyboardShortcutMap) {
   const [content, setContent] = useState<string>(() => {
     if (autoSave) {
       const saved = loadAutoSavedContent();
@@ -63,22 +64,17 @@ export function useEditorState(autoSave: boolean) {
   }, [applyContent, syncHistoryState]);
 
   const handleEditorKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (!(e.ctrlKey || e.metaKey)) return;
-    const key = e.key.toLowerCase();
-    if (key === 'z') {
+    if (isShortcutMatch(e.nativeEvent, shortcuts.undo)) {
       e.preventDefault();
-      if (e.shiftKey) {
-        redo();
-      } else {
-        undo();
-      }
+      undo();
       return;
     }
-    if (key === 'y') {
+
+    if (isShortcutMatch(e.nativeEvent, shortcuts.redo)) {
       e.preventDefault();
       redo();
     }
-  }, [redo, undo]);
+  }, [redo, shortcuts.redo, shortcuts.undo, undo]);
 
   return {
     content,

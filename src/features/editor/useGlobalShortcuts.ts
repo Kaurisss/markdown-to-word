@@ -1,16 +1,29 @@
 import { useEffect, RefObject } from 'react';
+import {
+  isEditableShortcutTarget,
+  isShortcutMatch,
+  KeyboardShortcutBinding,
+  KeyboardShortcutMap,
+} from '../settings/keyboardShortcuts';
+import { InlineFormatKind } from '../../utils/inlineFormat';
+
+function isBareKey(shortcut: KeyboardShortcutBinding) {
+  return !shortcut.ctrl && !shortcut.alt && !shortcut.meta;
+}
 
 interface UseGlobalShortcutsParams {
   editorRef: RefObject<HTMLTextAreaElement | null>;
   isConfigWindow: boolean;
   isSettingsWindow: boolean;
   showSearch: boolean;
+  shortcuts: KeyboardShortcutMap;
   setShowSearch: (v: boolean) => void;
   setShowReplace: (v: boolean) => void;
   closeSearch: () => void;
   setCaseSensitive: React.Dispatch<React.SetStateAction<boolean>>;
   setWholeWord: React.Dispatch<React.SetStateAction<boolean>>;
   setUseRegex: React.Dispatch<React.SetStateAction<boolean>>;
+  onFormat: (kind: InlineFormatKind) => void;
 }
 
 export function useGlobalShortcuts({
@@ -18,25 +31,24 @@ export function useGlobalShortcuts({
   isConfigWindow,
   isSettingsWindow,
   showSearch,
+  shortcuts,
   setShowSearch,
   setShowReplace,
   closeSearch,
   setCaseSensitive,
   setWholeWord,
   setUseRegex,
+  onFormat,
 }: UseGlobalShortcutsParams) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ctrl+A: avoid selecting the whole UI document; select editor content instead.
-      if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
-        const target = e.target as HTMLElement | null;
-        const isEditableTarget = !!target && (
-          target.tagName === 'INPUT' ||
-          target.tagName === 'TEXTAREA' ||
-          target.isContentEditable
-        );
+      if (isConfigWindow || isSettingsWindow) return;
 
-        if (!isEditableTarget && !isConfigWindow && !isSettingsWindow) {
+      // Guard: skip bare-key non-format shortcuts when typing in editable fields
+      const inEditable = isEditableShortcutTarget(e.target);
+
+      if (isShortcutMatch(e, shortcuts.selectAll)) {
+        if (!inEditable) {
           e.preventDefault();
           const editor = editorRef.current;
           if (editor) {
@@ -44,39 +56,81 @@ export function useGlobalShortcuts({
             editor.setSelectionRange(0, editor.value.length);
           }
         }
+        return;
       }
 
-      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+      if (isShortcutMatch(e, shortcuts.find)) {
+        if (inEditable && isBareKey(shortcuts.find)) return;
         e.preventDefault();
         setShowSearch(true);
+        return;
       }
-      // Ctrl+H: open replace
-      if ((e.ctrlKey || e.metaKey) && e.key === 'h') {
+
+      if (isShortcutMatch(e, shortcuts.replace)) {
+        if (inEditable && isBareKey(shortcuts.replace)) return;
         e.preventDefault();
         setShowSearch(true);
         setShowReplace(true);
+        return;
       }
-      if (e.key === 'Escape' && showSearch) {
+
+      if (showSearch && isShortcutMatch(e, shortcuts.closeSearch)) {
+        e.preventDefault();
         closeSearch();
+        return;
       }
-      // Alt+C: toggle case sensitive
-      if (e.altKey && e.key === 'c' && showSearch) {
+
+      if (showSearch && isShortcutMatch(e, shortcuts.searchCaseSensitive)) {
         e.preventDefault();
         setCaseSensitive(prev => !prev);
+        return;
       }
-      // Alt+W: toggle whole word
-      if (e.altKey && e.key === 'w' && showSearch) {
+
+      if (showSearch && isShortcutMatch(e, shortcuts.searchWholeWord)) {
         e.preventDefault();
         setWholeWord(prev => !prev);
+        return;
       }
-      // Alt+R: toggle regex
-      if (e.altKey && e.key === 'r' && showSearch) {
+
+      if (showSearch && isShortcutMatch(e, shortcuts.searchRegex)) {
         e.preventDefault();
         setUseRegex(prev => !prev);
+        return;
+      }
+
+      const editor = editorRef.current;
+      if (document.activeElement === editor) {
+        if (isShortcutMatch(e, shortcuts.bold)) {
+          e.preventDefault();
+          onFormat('bold');
+          return;
+        }
+        if (isShortcutMatch(e, shortcuts.italic)) {
+          e.preventDefault();
+          onFormat('italic');
+          return;
+        }
+        if (isShortcutMatch(e, shortcuts.underline)) {
+          e.preventDefault();
+          onFormat('underline');
+        }
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [closeSearch, showSearch, isConfigWindow, isSettingsWindow, editorRef, setShowSearch, setShowReplace, setCaseSensitive, setWholeWord, setUseRegex]);
+  }, [
+    closeSearch,
+    showSearch,
+    isConfigWindow,
+    isSettingsWindow,
+    editorRef,
+    shortcuts,
+    setShowSearch,
+    setShowReplace,
+    setCaseSensitive,
+    setWholeWord,
+    setUseRegex,
+    onFormat,
+  ]);
 }

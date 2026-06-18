@@ -80,7 +80,11 @@ export function useSelectionToolbar({
 
   const applyFormat = useCallback((kind: InlineFormatKind) => {
     const editor = editorRef.current;
-    if (!editor || !state.visible) return;
+    if (!editor) return;
+
+    const selectionStart = editor.selectionStart;
+    const selectionEnd = editor.selectionEnd;
+    if (selectionEnd <= selectionStart) return;
 
     const linkUrl = kind === 'link'
       ? window.prompt('请输入链接地址', 'https://')
@@ -90,8 +94,8 @@ export function useSelectionToolbar({
 
     const result = applyInlineFormat({
       content,
-      selectionStart: state.selectionStart,
-      selectionEnd: state.selectionEnd,
+      selectionStart,
+      selectionEnd,
       kind,
       linkUrl,
     });
@@ -103,7 +107,7 @@ export function useSelectionToolbar({
       editor.setSelectionRange(result.selectionStart, result.selectionEnd);
       refreshSelectionToolbar(result.content);
     });
-  }, [content, editorRef, refreshSelectionToolbar, state, updateContent]);
+  }, [content, editorRef, refreshSelectionToolbar, updateContent]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {

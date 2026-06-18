@@ -61,7 +61,7 @@ const App: React.FC = () => {
     handleEditorKeyDown,
     undoStackRef,
     redoStackRef,
-  } = useEditorState(appSettings.autoSave);
+  } = useEditorState(appSettings.autoSave, appSettings.keyboardShortcuts);
 
   const {
     searchQuery,
@@ -151,12 +151,14 @@ const App: React.FC = () => {
     isConfigWindow,
     isSettingsWindow,
     showSearch,
+    shortcuts: appSettings.keyboardShortcuts,
     setShowSearch,
     setShowReplace,
     closeSearch,
     setCaseSensitive,
     setWholeWord,
     setUseRegex,
+    onFormat: applyFormat,
   });
 
   const editorPaneClass = viewMode === 'split'

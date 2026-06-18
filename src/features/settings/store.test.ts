@@ -25,6 +25,11 @@ describe('settingsStore', () => {
       defaultFontCn: 'SimSun',
       defaultFontEn: '',
       defaultFontSize: 12,
+      keyboardShortcuts: {
+        find: { ctrl: true, alt: false, shift: false, meta: false, key: 'F' },
+        replace: { ctrl: true, alt: false, shift: false, meta: false, key: 'H' },
+        bold: { ctrl: true, alt: false, shift: false, meta: false, key: 'B' },
+      },
     });
   });
 
@@ -35,6 +40,28 @@ describe('settingsStore', () => {
     const { result } = renderHook(() => useSettingsStore());
 
     expect(result.current.settings.theme).toBe('dark');
+  });
+
+  it('migrates old settings by filling default keyboard shortcuts', async () => {
+    localStorage.setItem('md2word_settings', JSON.stringify({
+      theme: 'dark',
+      defaultViewMode: 'preview',
+      autoSave: true,
+      defaultFontCn: 'SimHei',
+      defaultFontEn: 'Arial',
+      defaultFontSize: 14,
+    }));
+
+    const { useSettingsStore } = await loadModule();
+    const { result } = renderHook(() => useSettingsStore());
+
+    expect(result.current.settings.keyboardShortcuts.find).toEqual({
+      ctrl: true,
+      alt: false,
+      shift: false,
+      meta: false,
+      key: 'F',
+    });
   });
 
   it('persists setting updates to both storage keys', async () => {

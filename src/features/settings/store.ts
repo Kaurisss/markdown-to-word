@@ -1,4 +1,8 @@
 import { create } from 'zustand';
+import {
+  DEFAULT_KEYBOARD_SHORTCUTS,
+  KeyboardShortcutMap,
+} from './keyboardShortcuts';
 
 const SETTINGS_KEY = 'md2word_settings';
 const AUTO_SAVE_CONTENT_KEY = 'md2word_auto_save_content';
@@ -13,6 +17,7 @@ export interface AppSettings {
   defaultFontCn: string;
   defaultFontEn: string;
   defaultFontSize: number;
+  keyboardShortcuts: KeyboardShortcutMap;
 }
 
 interface SettingsStoreState {
@@ -27,7 +32,19 @@ const DEFAULT_SETTINGS: AppSettings = {
   defaultFontCn: 'SimSun',
   defaultFontEn: '',
   defaultFontSize: 12,
+  keyboardShortcuts: DEFAULT_KEYBOARD_SHORTCUTS,
 };
+
+function normalizeSettings(settings: Partial<AppSettings>): AppSettings {
+  return {
+    ...DEFAULT_SETTINGS,
+    ...settings,
+    keyboardShortcuts: {
+      ...DEFAULT_KEYBOARD_SHORTCUTS,
+      ...(settings.keyboardShortcuts ?? {}),
+    },
+  };
+}
 
 function loadFromStorage(): AppSettings {
   try {
@@ -37,7 +54,7 @@ function loadFromStorage(): AppSettings {
     if (oldTheme && !stored) {
       settings.theme = oldTheme === 'dark' ? 'dark' : 'light';
     }
-    return { ...DEFAULT_SETTINGS, ...settings };
+    return normalizeSettings(settings);
   } catch {
     return { ...DEFAULT_SETTINGS };
   }
@@ -77,7 +94,7 @@ export const useSettingsStore = create<SettingsStoreState>((set) => ({
 
 function applyExternalSettings(settings: Partial<AppSettings>) {
   useSettingsStore.setState({
-    settings: { ...DEFAULT_SETTINGS, ...settings },
+    settings: normalizeSettings(settings),
   });
 }
 
