@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import React from 'react';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { AIProvider } from '../../../../types/ai';
 import { AIModelSelector } from './AIModelSelector';
@@ -89,7 +89,7 @@ describe('AIModelSelector', () => {
     expect(screen.getByText('已选择')).toBeDefined();
   });
 
-  it('opens configuration when no enabled provider has selectable models', () => {
+  it('opens configuration when no enabled provider has selectable models', async () => {
     const onConfigClick = vi.fn();
 
     render(
@@ -104,6 +104,6 @@ describe('AIModelSelector', () => {
     fireEvent.click(screen.getByRole('button', { name: /配置模型/ }));
     fireEvent.click(screen.getByRole('button', { name: /打开 AI 配置/ }));
 
-    expect(onConfigClick).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(onConfigClick).toHaveBeenCalledTimes(1));
   });
 });

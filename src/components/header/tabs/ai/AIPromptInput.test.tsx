@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { AIPromptInput } from './AIPromptInput';
 
@@ -54,7 +54,7 @@ describe('AIPromptInput', () => {
     expect(onChange).toHaveBeenCalledWith('正文仿宋三号，标题黑体小二加粗，行距1.5倍');
   });
 
-  it('submits from the panel button', () => {
+  it('submits from the panel button', async () => {
     const onSubmit = vi.fn();
 
     render(
@@ -68,10 +68,10 @@ describe('AIPromptInput', () => {
     fireEvent.click(screen.getByRole('button', { name: /正文宋体小四/ }));
     fireEvent.click(screen.getByRole('button', { name: /生成样式/ }));
 
-    expect(onSubmit).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
   });
 
-  it('submits with Enter from the compact trigger when focused', () => {
+  it('submits with Enter from the compact trigger when focused', async () => {
     const onSubmit = vi.fn();
 
     render(
@@ -84,6 +84,6 @@ describe('AIPromptInput', () => {
 
     fireEvent.keyDown(screen.getByRole('button', { name: /正文宋体小四/ }), { key: 'Enter' });
 
-    expect(onSubmit).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
   });
 });
