@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import Header from './components/header/Header';
 import Editor from './components/editor/Editor';
 import Preview from './components/preview/Preview';
@@ -25,6 +25,8 @@ import { useTheme } from './features/settings/useTheme';
 import { useScrollSync } from './features/editor/useScrollSync';
 import { useAutoSave } from './features/editor/useAutoSave';
 import { useSelectionToolbar } from './features/editor/useSelectionToolbar';
+import { useClipboard } from './features/editor/useClipboard';
+import { useGlobalShortcuts } from './features/editor/useGlobalShortcuts';
 import { SelectionToolbar } from './components/editor/SelectionToolbar';
 
 const App: React.FC = () => {
@@ -141,123 +143,20 @@ const App: React.FC = () => {
   useScrollSync({ viewMode, editorRef, previewRef });
   useAutoSave({ content, autoSave: appSettings.autoSave });
 
-  // Clipboard handlers
-  const handleCopy = useCallback(async () => {
-    const textarea = editorRef.current;
-    if (!textarea) return;
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const text = textarea.value.slice(start, end);
-    if (!text) return;
-    try {
-      await navigator.clipboard.writeText(text);
-      showToast('已复制', 'success');
-    } catch (err) {
-      console.error('Failed to copy:', err);
-      showToast('复制失败', 'error');
-    }
-  }, [showToast]);
+  const { handleCopy, handleCut, handlePaste } = useClipboard({ editorRef, updateContent, showToast });
 
-  const handleCut = useCallback(async () => {
-    const textarea = editorRef.current;
-    if (!textarea) return;
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const text = textarea.value.slice(start, end);
-    if (!text) return;
-    try {
-      await navigator.clipboard.writeText(text);
-      const next = textarea.value.slice(0, start) + textarea.value.slice(end);
-      updateContent(next);
-      // Restore cursor
-      requestAnimationFrame(() => {
-        textarea.focus();
-        textarea.setSelectionRange(start, start);
-      });
-      showToast('已剪切', 'success');
-    } catch (err) {
-      console.error('Failed to cut:', err);
-      showToast('剪切失败', 'error');
-    }
-  }, [updateContent, showToast]);
-
-  const handlePaste = useCallback(async () => {
-    const textarea = editorRef.current;
-    if (!textarea) return;
-    try {
-      const text = await navigator.clipboard.readText();
-      if (!text) return;
-      const start = textarea.selectionStart;
-      const end = textarea.selectionEnd;
-      const next = textarea.value.slice(0, start) + text + textarea.value.slice(end);
-      updateContent(next);
-      // Move cursor to end of pasted text
-      const nextPos = start + text.length;
-      requestAnimationFrame(() => {
-        textarea.focus();
-        textarea.setSelectionRange(nextPos, nextPos);
-      });
-    } catch (err) {
-      console.error('Failed to paste:', err);
-      showToast('无法读取剪贴板', 'error');
-    }
-  }, [updateContent, showToast]);
-
-  // Global keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Ctrl+A: avoid selecting the whole UI document; select editor content instead.
-      if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
-        const target = e.target as HTMLElement | null;
-        const isEditableTarget = !!target && (
-          target.tagName === 'INPUT' ||
-          target.tagName === 'TEXTAREA' ||
-          target.isContentEditable
-        );
-
-        if (!isEditableTarget && !isConfigWindow && !isSettingsWindow) {
-          e.preventDefault();
-          const editor = editorRef.current;
-          if (editor) {
-            editor.focus();
-            editor.setSelectionRange(0, editor.value.length);
-          }
-        }
-      }
-
-      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
-        e.preventDefault();
-        setShowSearch(true);
-      }
-      // Ctrl+H: open replace
-      if ((e.ctrlKey || e.metaKey) && e.key === 'h') {
-        e.preventDefault();
-        setShowSearch(true);
-        setShowReplace(true);
-      }
-      if (e.key === 'Escape' && showSearch) {
-        closeSearch();
-      }
-      // Alt+C: toggle case sensitive
-      if (e.altKey && e.key === 'c' && showSearch) {
-        e.preventDefault();
-        setCaseSensitive(prev => !prev);
-      }
-      // Alt+W: toggle whole word
-      if (e.altKey && e.key === 'w' && showSearch) {
-        e.preventDefault();
-        setWholeWord(prev => !prev);
-      }
-      // Alt+R: toggle regex
-      if (e.altKey && e.key === 'r' && showSearch) {
-        e.preventDefault();
-        setUseRegex(prev => !prev);
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [closeSearch, showSearch, isConfigWindow, isSettingsWindow, setShowSearch, setShowReplace, setCaseSensitive, setWholeWord, setUseRegex]);
+  useGlobalShortcuts({
+    editorRef,
+    isConfigWindow,
+    isSettingsWindow,
+    showSearch,
+    setShowSearch,
+    setShowReplace,
+    closeSearch,
+    setCaseSensitive,
+    setWholeWord,
+    setUseRegex,
+  });
 
   const editorPaneClass = viewMode === 'split'
     ? 'w-1/2 opacity-100'
