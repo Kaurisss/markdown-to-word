@@ -193,6 +193,7 @@ export interface SelectOption {
   label: string;
   value: string | number;
   fontFamily?: string;
+  icon?: React.ReactNode;
 }
 
 export interface SelectProps {
@@ -254,7 +255,8 @@ export const Select: React.FC<SelectProps> = ({
               triggerClassName,
             )}
           >
-            <span style={selected?.fontFamily ? { fontFamily: `"${selected.fontFamily}"` } : undefined} className="truncate block text-left">
+            <span style={selected?.fontFamily ? { fontFamily: `"${selected.fontFamily}"` } : undefined} className="truncate block text-left flex items-center gap-2">
+              {selected?.icon && <span className="shrink-0 [&_svg]:size-4 [&_svg]:text-gray-500 dark:[&_svg]:text-gray-400">{selected.icon}</span>}
               {selected?.label ?? placeholder}
             </span>
             <span className="text-ui-text-subtle group-hover:text-ui-text-muted transition-colors">
@@ -278,7 +280,8 @@ export const Select: React.FC<SelectProps> = ({
                     }}
                     className={cn('w-full text-[13px] py-1.5 px-2 cursor-pointer whitespace-nowrap', optionClassName)}
                   >
-                    <span style={option.fontFamily ? { fontFamily: `"${option.fontFamily}"` } : undefined} className="truncate">
+                    <span style={option.fontFamily ? { fontFamily: `"${option.fontFamily}"` } : undefined} className="truncate flex items-center gap-2">
+                      {option.icon && <span className="shrink-0 [&_svg]:size-4 [&_svg]:text-gray-500 dark:[&_svg]:text-gray-400">{option.icon}</span>}
                       {option.label}
                     </span>
                     <CheckIcon

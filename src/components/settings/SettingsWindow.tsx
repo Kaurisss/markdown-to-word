@@ -16,7 +16,7 @@ import { Switch } from '../ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog';
 import { useShowWindowAfterFirstRender } from '../shell/useShowWindowAfterFirstRender';
 import { WindowTitleBar } from '../shell/WindowTitleBar';
-import { Palette3Line, Edit4Line, KeyboardLine, Box3Line, InformationLine, GithubLine, Settings3Line } from '@mingcute/react';
+import { Palette3Line, Edit4Line, KeyboardLine, Box3Line, InformationLine, GithubLine, Settings3Line, SunLine, MoonLine, LayoutTopLine, ArrowsDownLine, More1Line, Columns2Line, DocumentLine, Save2Line, LayoutBottomLine, ScrollableListLine } from '@mingcute/react';
 import appLogo from '../../logo.png';
 
 
@@ -206,86 +206,71 @@ export const SettingsWindow: React.FC = () => {
           </div>
           <div className="flex-1 overflow-y-auto px-6 pb-6 pt-2 space-y-6">
             {activeSection === 'appearance' && (
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <label className={labelClass}>主题模式</label>
-                      <div className="flex gap-2">
-                        {([
-                          { value: 'light' as const, label: '浅色' },
-                          { value: 'dark' as const, label: '深色' },
-                        ]).map(opt => (
-                          <button
-                            key={opt.value}
-                            onClick={() => updateSettings({ theme: opt.value })}
-                            className={`flex-1 h-9 text-sm rounded-lg border transition-all ${
-                              settings.theme === opt.value
-                                ? 'bg-brand-50 dark:bg-brand-900/20 border-brand-300 dark:border-brand-700 text-brand-700 dark:text-brand-400 font-medium'
-                                : 'bg-white dark:bg-dark-element border-gray-200 dark:border-dark-border text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-dark-element-hover'
-                            }`}
-                          >
-                            {opt.label}
-                          </button>
-                        ))}
+                <div className="space-y-5">
+                  <section className="space-y-3">
+                    <div className="text-sm font-medium text-gray-700 dark:text-gray-200">显示与视图</div>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <label className={labelClass}>主题模式</label>
+                        <Select
+                          className="w-full"
+                          value={settings.theme}
+                          onChange={(value) => updateSettings({ theme: value as 'light' | 'dark' })}
+                          triggerClassName={settingsSelectTriggerClass}
+                          optionClassName={settingsSelectOptionClass}
+                          options={[
+                            { value: 'light', label: '浅色', icon: <SunLine /> },
+                            { value: 'dark', label: '深色', icon: <MoonLine /> },
+                          ]}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className={labelClass}>窗口栏模式</label>
+                        <Select
+                          className="w-full"
+                          value={settings.windowBarDisplayMode || 'tabs'}
+                          onChange={(value) => updateSettings({ windowBarDisplayMode: value as WindowBarDisplayMode })}
+                          triggerClassName={settingsSelectTriggerClass}
+                          optionClassName={settingsSelectOptionClass}
+                          options={[
+                            { value: 'tabs', label: '标签页', icon: <LayoutTopLine /> },
+                            { value: 'dropdown', label: '下拉菜单', icon: <ArrowsDownLine /> },
+                            { value: 'compact', label: '紧凑', icon: <More1Line /> },
+                          ]}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className={labelClass}>默认视图模式</label>
+                        <Select
+                          className="w-full"
+                          value={settings.defaultViewMode}
+                          onChange={(value) => updateSettings({ defaultViewMode: value as ViewMode })}
+                          triggerClassName={settingsSelectTriggerClass}
+                          optionClassName={settingsSelectOptionClass}
+                          options={[
+                            { value: 'editor', label: '编辑器', icon: <Edit4Line /> },
+                            { value: 'split', label: '双栏', icon: <Columns2Line /> },
+                            { value: 'preview', label: '预览', icon: <DocumentLine /> },
+                          ]}
+                        />
                       </div>
                     </div>
-
-                    <div className="space-y-2">
-                      <label className={labelClass}>默认视图模式</label>
-                      <div className="flex gap-2">
-                        {([
-                          { value: 'editor' as ViewMode, label: '编辑器' },
-                          { value: 'split' as ViewMode, label: '双栏' },
-                          { value: 'preview' as ViewMode, label: '预览' },
-                        ]).map(opt => (
-                          <button
-                            key={opt.value}
-                            onClick={() => updateSettings({ defaultViewMode: opt.value })}
-                            className={`flex-1 h-9 text-sm rounded-lg border transition-all ${
-                              settings.defaultViewMode === opt.value
-                                ? 'bg-brand-50 dark:bg-brand-900/20 border-brand-300 dark:border-brand-700 text-brand-700 dark:text-brand-400 font-medium'
-                                : 'bg-white dark:bg-dark-element border-gray-200 dark:border-dark-border text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-dark-element-hover'
-                            }`}
-                          >
-                            {opt.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className={labelClass}>窗口栏模式</label>
-                      <div className="flex gap-2">
-                        {([
-                          { value: 'tabs' as WindowBarDisplayMode, label: '标签页' },
-                          { value: 'dropdown' as WindowBarDisplayMode, label: '下拉菜单' },
-                          { value: 'compact' as WindowBarDisplayMode, label: '紧凑' },
-                        ]).map(opt => (
-                          <button
-                            key={opt.value}
-                            onClick={() => updateSettings({ windowBarDisplayMode: opt.value })}
-                            className={`flex-1 h-9 text-sm rounded-lg border transition-all ${
-                              settings.windowBarDisplayMode === opt.value
-                                ? 'bg-brand-50 dark:bg-brand-900/20 border-brand-300 dark:border-brand-700 text-brand-700 dark:text-brand-400 font-medium'
-                                : 'bg-white dark:bg-dark-element border-gray-200 dark:border-dark-border text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-dark-element-hover'
-                            }`}
-                          >
-                            {opt.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
+                  </section>
+                </div>
             )}
 
             {activeSection === 'editor' && (
                 <div className="space-y-5">
                   <section className="space-y-3">
-                    <div className="text-xs font-medium text-gray-500 dark:text-gray-400">写作行为</div>
+                    <div className="text-sm font-medium text-gray-700 dark:text-gray-200">写作行为</div>
                     <div className="rounded-lg border border-gray-200 dark:border-dark-border">
                       <div className="flex items-center justify-between gap-4 border-b border-gray-100 px-3 py-3 dark:border-dark-border">
-                        <div>
-                          <div className="text-sm text-gray-700 dark:text-gray-200">自动保存</div>
-                          <div className="text-xs text-gray-400 dark:text-gray-500">自动保存编辑器内容，下次打开时恢复</div>
+                        <div className="flex items-center gap-3">
+                          <Save2Line className="w-5 h-5 text-gray-500 dark:text-gray-400 shrink-0" />
+                          <div>
+                            <div className="text-sm text-gray-700 dark:text-gray-200">自动保存</div>
+                            <div className="text-xs text-gray-400 dark:text-gray-500">自动保存编辑器内容，下次打开时恢复</div>
+                          </div>
                         </div>
                         <Switch
                           checked={settings.autoSave}
@@ -293,9 +278,12 @@ export const SettingsWindow: React.FC = () => {
                         />
                       </div>
                       <div className="flex items-center justify-between gap-4 px-3 py-3">
-                        <div>
-                          <div className="text-sm text-gray-700 dark:text-gray-200">底部状态栏</div>
-                          <div className="text-xs text-gray-400 dark:text-gray-500">显示字符、行数、段落和查找入口</div>
+                        <div className="flex items-center gap-3">
+                          <LayoutBottomLine className="w-5 h-5 text-gray-500 dark:text-gray-400 shrink-0" />
+                          <div>
+                            <div className="text-sm text-gray-700 dark:text-gray-200">底部状态栏</div>
+                            <div className="text-xs text-gray-400 dark:text-gray-500">显示字符、行数、段落和查找入口</div>
+                          </div>
                         </div>
                         <Switch
                           checked={settings.showStatusBar}
@@ -306,8 +294,8 @@ export const SettingsWindow: React.FC = () => {
                   </section>
 
                   <section className="space-y-3">
-                    <div className="text-xs font-medium text-gray-500 dark:text-gray-400">编辑器显示</div>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="text-sm font-medium text-gray-700 dark:text-gray-200">编辑器显示</div>
+                    <div className="space-y-4">
                       <div className="space-y-2">
                         <label className={labelClass}>编辑器字号</label>
                         <Select
@@ -332,9 +320,12 @@ export const SettingsWindow: React.FC = () => {
                       </div>
                     </div>
                     <div className="flex items-center justify-between gap-4 rounded-lg border border-gray-200 px-3 py-3 dark:border-dark-border">
-                      <div>
-                        <div className="text-sm text-gray-700 dark:text-gray-200">自动换行</div>
-                        <div className="text-xs text-gray-400 dark:text-gray-500">长行按编辑器宽度折行；关闭后可横向滚动</div>
+                      <div className="flex items-center gap-3">
+                        <ScrollableListLine className="w-5 h-5 text-gray-500 dark:text-gray-400 shrink-0" />
+                        <div>
+                          <div className="text-sm text-gray-700 dark:text-gray-200">自动换行</div>
+                          <div className="text-xs text-gray-400 dark:text-gray-500">长行按编辑器宽度折行；关闭后可横向滚动</div>
+                        </div>
                       </div>
                       <Switch
                         checked={settings.editorWordWrap}
