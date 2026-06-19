@@ -53,7 +53,7 @@ const Header: React.FC<HeaderProps> = ({
       const webview = new WebviewWindow(label, {
         url,
         title: 'AI 配置',
-        width: 600,
+        width: 680,
         height: 800,
         decorations: false,
         resizable: false,

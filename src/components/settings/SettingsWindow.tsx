@@ -16,6 +16,8 @@ import { Switch } from '../ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog';
 import { useShowWindowAfterFirstRender } from '../shell/useShowWindowAfterFirstRender';
 import { WindowTitleBar } from '../shell/WindowTitleBar';
+import { Palette3Line, Edit4Line, KeyboardLine, Box3Line, InformationLine, GithubLine } from '@mingcute/react';
+import appLogo from '../../logo.png';
 
 const APP_VERSION = '2.0.1';
 
@@ -79,12 +81,12 @@ export const SettingsWindow: React.FC = () => {
     { label: '超宽 (44px)', value: 44 },
   ];
 
-  const sectionOptions: Array<{ id: 'appearance' | 'editor' | 'styles' | 'shortcuts' | 'about'; label: string; desc: string }> = [
-    { id: 'appearance', label: '外观', desc: '主题与视图' },
-    { id: 'editor', label: '编辑器', desc: '写作与显示' },
-    { id: 'styles', label: '默认样式', desc: '字体与字号' },
-    { id: 'shortcuts', label: '快捷键', desc: 'Word 风格' },
-    { id: 'about', label: '关于', desc: '版本与存储' },
+  const sectionOptions: Array<{ id: 'appearance' | 'editor' | 'styles' | 'shortcuts' | 'about'; label: string; desc: string; icon: React.ElementType }> = [
+    { id: 'appearance', label: '外观', desc: '主题与视图', icon: Palette3Line },
+    { id: 'editor', label: '编辑器', desc: '写作与显示', icon: Edit4Line },
+    { id: 'styles', label: '默认样式', desc: '字体与字号', icon: Box3Line },
+    { id: 'shortcuts', label: '快捷键', desc: 'Word 风格', icon: KeyboardLine },
+    { id: 'about', label: '关于', desc: '版本与存储', icon: InformationLine },
   ];
 
   const activeSectionLabel = sectionOptions.find(s => s.id === activeSection)?.label ?? '设置';
@@ -177,16 +179,19 @@ export const SettingsWindow: React.FC = () => {
                 key={section.id}
                 type="button"
                 onClick={() => setActiveSection(section.id)}
-                className={`w-full text-left px-3 py-2 rounded-md border transition-colors ${
+                className={`w-full text-left px-3 py-2 rounded-md border transition-colors flex items-center gap-2 ${
                   activeSection === section.id
                     ? 'bg-brand-50 dark:bg-brand-900/20 border-brand-200 dark:border-brand-800'
                     : 'bg-transparent border-transparent hover:bg-gray-100 dark:hover:bg-dark-element'
                 }`}
               >
-                <div className={`text-sm ${activeSection === section.id ? 'text-brand-700 dark:text-brand-400 font-medium' : 'text-gray-700 dark:text-gray-200'}`}>
-                  {section.label}
+                <section.icon className={`w-4 h-4 shrink-0 ${activeSection === section.id ? 'text-brand-600 dark:text-brand-400' : 'text-gray-400 dark:text-gray-500'}`} />
+                <div className="min-w-0">
+                  <div className={`text-sm ${activeSection === section.id ? 'text-brand-700 dark:text-brand-400 font-medium' : 'text-gray-700 dark:text-gray-200'}`}>
+                    {section.label}
+                  </div>
+                  <div className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">{section.desc}</div>
                 </div>
-                <div className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">{section.desc}</div>
               </button>
             ))}
           </nav>
@@ -466,8 +471,17 @@ export const SettingsWindow: React.FC = () => {
 
             {activeSection === 'about' && (
                 <div className="space-y-5">
+                  {/* App Logo & Name */}
+                  <section className="flex flex-col items-center gap-3 pt-4 pb-2">
+                    <img src={appLogo} alt="简阅转档" className="w-16 h-16 rounded-2xl border border-gray-200 dark:border-gray-600 object-contain" />
+                    <div className="text-center">
+                      <div className="text-lg font-semibold text-gray-800 dark:text-gray-100">简阅转档</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">v{APP_VERSION}</div>
+                    </div>
+                  </section>
+
                   <section className="rounded-lg border border-gray-200 p-4 dark:border-dark-border">
-                    <div className="text-sm font-medium text-gray-700 dark:text-gray-200">简阅转档</div>
+                    <div className="text-sm font-medium text-gray-700 dark:text-gray-200">关于应用</div>
                     <div className="mt-1 text-xs leading-5 text-gray-500 dark:text-gray-400">
                       Markdown 写作、样式预览和 Word 导出工具。
                     </div>
@@ -502,6 +516,23 @@ export const SettingsWindow: React.FC = () => {
                       <div>编辑器行高：{settings.editorLineHeight}px</div>
                     </div>
                   </section>
+
+                  {/* GitHub Link */}
+                  <a
+                    href="https://github.com/Kaurisss/markdown-to-word"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-3 transition-colors hover:bg-gray-50 dark:border-dark-border dark:hover:bg-dark-element"
+                  >
+                    <GithubLine className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm text-gray-700 dark:text-gray-200">GitHub 仓库</div>
+                      <div className="text-[11px] text-gray-400 dark:text-gray-500 truncate">Kaurisss/markdown-to-word</div>
+                    </div>
+                    <svg className="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M7 17L17 7M17 7H7M17 7v10" />
+                    </svg>
+                  </a>
                 </div>
             )}
           </div>

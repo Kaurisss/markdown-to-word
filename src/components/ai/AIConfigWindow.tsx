@@ -1,5 +1,5 @@
-import React from 'react';
-import { Copy2Line, CheckLine, LoadingLine, AddLine, PlayLine, Delete2Line, Edit2Line, Eye2Line, EyeCloseLine, Key2Line, Link2Line } from '@mingcute/react';
+import React, { useState } from 'react';
+import { Copy2Line, AddLine, PlayLine, Delete2Line, Edit2Line, Eye2Line, EyeCloseLine, Key2Line, Link2Line, InformationLine } from '@mingcute/react';
 import { useAIConfigStore } from '../../features/ai/store';
 import { useAIConfig } from '../../features/ai/useAIConfig';
 import { Switch } from '../ui/switch';
@@ -12,6 +12,12 @@ import { WindowTitleBar } from '../shell/WindowTitleBar';
 import { ProviderIcon } from './ProviderIcon';
 import { ProviderIconPicker } from './ProviderIconPicker';
 import {
+  AI_API_ENDPOINT_EXAMPLES,
+  AI_API_GUIDE,
+  AI_MODEL_ID_EXAMPLES,
+  PROVIDER_CONSOLE_URLS,
+} from './apiGuide';
+import {
   ContextMenu,
   ContextMenuTrigger,
   ContextMenuContent,
@@ -19,10 +25,16 @@ import {
   ContextMenuSeparator,
   ContextMenuShortcut
 } from '@/components/ui/context-menu';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 
 export const AIConfigWindow: React.FC = () => {
   const { providers, updateProviders } = useAIConfigStore();
   useShowWindowAfterFirstRender();
+  const [showApiGuide, setShowApiGuide] = useState(false);
 
   const config = useAIConfig({
     providers,
@@ -73,6 +85,41 @@ export const AIConfigWindow: React.FC = () => {
       }}
     >
       <WindowTitleBar />
+      <div className="absolute top-0 right-12 z-[9999] flex items-center h-12">
+        <Popover open={showApiGuide} onOpenChange={setShowApiGuide}>
+          <PopoverTrigger asChild>
+            <button
+              type="button"
+              className="w-7 h-7 flex items-center justify-center rounded text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-dark-surface hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+              title="API 配置指南"
+            >
+              <InformationLine className="w-4 h-4" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent align="end" sideOffset={6} className="w-96 p-0 z-[10000]">
+            <div className="p-4 space-y-3 text-xs">
+              <div className="text-sm font-semibold text-gray-800 dark:text-gray-100">支持的 API 类型</div>
+              <div className="leading-5 text-gray-600 dark:text-gray-300">{AI_API_GUIDE.supportedProtocol}</div>
+              <div className="leading-5 text-gray-600 dark:text-gray-300">{AI_API_GUIDE.baseUrlRule}</div>
+              <div className="leading-5 text-gray-600 dark:text-gray-300">{AI_API_GUIDE.authRule}</div>
+              <div className="leading-5 text-gray-500 dark:text-gray-400">{AI_API_GUIDE.unsupportedRule}</div>
+              <div className="mt-2 pt-2 border-t border-gray-200 dark:border-dark-border space-y-1">
+                <div className="text-xs font-medium text-gray-500 dark:text-gray-400">端点示例</div>
+                {AI_API_ENDPOINT_EXAMPLES.map(example => (
+                  <div key={example.provider} className="grid grid-cols-[5rem_1fr] gap-2">
+                    <span className="text-gray-400 dark:text-gray-500 truncate">{example.provider}</span>
+                    <code className="select-text break-all font-mono text-[11px] text-gray-600 dark:text-gray-300">{example.url}</code>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-2 pt-2 border-t border-gray-200 dark:border-dark-border space-y-1">
+                <div className="text-xs font-medium text-gray-500 dark:text-gray-400">模型 ID 示例</div>
+                <div className="text-gray-600 dark:text-gray-300">{AI_MODEL_ID_EXAMPLES.join('、')}</div>
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
 
       {/* Left Categories */}
       <div className="w-64 shrink-0 bg-gray-50 dark:bg-dark-bg border-r border-gray-200 dark:border-dark-border flex flex-col relative z-40">
@@ -170,7 +217,21 @@ export const AIConfigWindow: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="ui-field-label">API Key</Label>
+                  <div className="flex items-center justify-between">
+                    <Label className="ui-field-label">API Key</Label>
+                    {PROVIDER_CONSOLE_URLS[selectedProvider.id] && (
+                      <a
+                        href={PROVIDER_CONSOLE_URLS[selectedProvider.id]}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs text-brand-600 dark:text-brand-400 hover:underline"
+                        title="前往官网获取 API Key"
+                      >
+                        <Link2Line className="w-3.5 h-3.5" />
+                        获取密钥
+                      </a>
+                    )}
+                  </div>
                   <div className="relative">
                     <Key2Line className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <Input
@@ -203,6 +264,7 @@ export const AIConfigWindow: React.FC = () => {
                       placeholder="https://api.example.com/..."
                     />
                   </div>
+
                 </div>
               </div>
 
@@ -298,6 +360,9 @@ export const AIConfigWindow: React.FC = () => {
               onChange={(e) => setNewPlatformUrl(e.target.value)}
               placeholder="Base URL (可选)"
             />
+            <div className="rounded-lg bg-gray-50 p-2 text-xs leading-5 text-gray-500 dark:bg-dark-element dark:text-gray-400">
+              自定义平台需要提供 OpenAI 兼容的 Chat Completions 完整端点。留空时使用默认示例地址，之后仍可编辑。
+            </div>
             {addPlatformErrors.baseUrl && (
               <p className="text-xs text-red-500">{addPlatformErrors.baseUrl.message}</p>
             )}
@@ -349,6 +414,9 @@ export const AIConfigWindow: React.FC = () => {
               onChange={(e) => setEditPlatformUrl(e.target.value)}
               placeholder="Base URL"
             />
+            <div className="rounded-lg bg-gray-50 p-2 text-xs leading-5 text-gray-500 dark:bg-dark-element dark:text-gray-400">
+              请填写完整请求地址，例如 {AI_API_ENDPOINT_EXAMPLES[0].url}。
+            </div>
             {editPlatformErrors.baseUrl && (
               <p className="text-xs text-red-500">{editPlatformErrors.baseUrl.message}</p>
             )}
@@ -393,6 +461,9 @@ export const AIConfigWindow: React.FC = () => {
                 placeholder="例如: gpt-4o, qwen-plus"
                 autoFocus
               />
+            </div>
+            <div className="text-xs leading-5 text-gray-400 dark:text-gray-500">
+              填供应商要求的模型 ID，例如 {AI_MODEL_ID_EXAMPLES.slice(0, 3).join('、')}；显示名称可以自定义。
             </div>
             <div className="space-y-1">
               <Label className="ui-field-label">显示名称</Label>
@@ -439,6 +510,9 @@ export const AIConfigWindow: React.FC = () => {
                 placeholder="例如: gpt-4o, qwen-plus"
                 autoFocus
               />
+            </div>
+            <div className="text-xs leading-5 text-gray-400 dark:text-gray-500">
+              模型 ID 会直接发送给 API 的 model 字段；请与供应商控制台或文档保持一致。
             </div>
             <div className="space-y-1">
               <Label className="ui-field-label">显示名称</Label>
