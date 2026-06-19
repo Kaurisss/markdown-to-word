@@ -4,6 +4,8 @@
 
 <div align="center">
   <img src="public/logo.png" width="96" height="96" alt="简阅转档 Logo" />
+  <br />
+  <br />
   <p>
     <a href="https://tauri.app/"><img alt="Tauri" src="https://img.shields.io/badge/Tauri-2-24c8db?logo=tauri&logoColor=white" /></a>
     <a href="https://react.dev/"><img alt="React" src="https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=white" /></a>
