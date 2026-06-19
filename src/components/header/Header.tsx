@@ -10,6 +10,7 @@ import { ViewModeDock } from './ViewModeDock';
 import { WindowControls } from './WindowControls';
 import { UndoRedoDock } from './UndoRedoDock';
 import { useAIConfigStore } from '../../features/ai/store';
+import { useSettingsStore } from '../../features/settings/store';
 import { Tabs, TabsContent } from '../ui/tabs';
 
 const Header: React.FC<HeaderProps> = ({
@@ -39,6 +40,7 @@ const Header: React.FC<HeaderProps> = ({
   const [aiPrompt, setAiPrompt] = useState('');
 
   const { providers: aiProviders, selectedModel, updateSelectedModel } = useAIConfigStore();
+  const { settings: appSettings } = useSettingsStore();
 
   const openAIConfigWindow = async () => {
     try {
@@ -127,6 +129,7 @@ const Header: React.FC<HeaderProps> = ({
           setActiveTab={setActiveTab}
           onImport={onImport}
           fileInputRef={fileInputRef}
+          displayMode={appSettings.windowBarDisplayMode}
         />
         <UndoRedoDock
           onUndo={onUndo}

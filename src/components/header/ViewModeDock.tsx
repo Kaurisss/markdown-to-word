@@ -13,12 +13,12 @@ export const ViewModeDock: React.FC<ViewModeDockProps> = ({
   onViewModeChange,
   onOpenSettings
 }) => {
-  const btnClass = 'w-8 h-8 grid place-items-center rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-element active:bg-gray-200 dark:active:bg-dark-border transition-colors';
-  const activeClass = 'bg-gray-100 dark:bg-dark-element';
+  const btnClass = 'w-8 h-8 flex items-center justify-center rounded text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors';
+  const activeClass = 'bg-gray-200 dark:bg-gray-700';
 
   return (
     <div
-      className="flex h-full items-center gap-0.5 px-1 border-r border-gray-100 dark:border-dark-border"
+      className="flex h-full items-center gap-0.5 px-1"
       onMouseDown={(e) => e.stopPropagation()}
     >
       <button

@@ -10,6 +10,8 @@ const SETTINGS_CHANNEL = 'md2word_settings_channel';
 
 export type ViewMode = 'editor' | 'preview' | 'split';
 
+export type WindowBarDisplayMode = 'tabs' | 'dropdown' | 'compact';
+
 export interface AppSettings {
   theme: 'light' | 'dark';
   defaultViewMode: ViewMode;
@@ -21,6 +23,7 @@ export interface AppSettings {
   editorLineHeight: number;
   editorWordWrap: boolean;
   showStatusBar: boolean;
+  windowBarDisplayMode: WindowBarDisplayMode;
   keyboardShortcuts: KeyboardShortcutMap;
 }
 
@@ -40,6 +43,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   editorLineHeight: 32,
   editorWordWrap: true,
   showStatusBar: true,
+  windowBarDisplayMode: 'tabs',
   keyboardShortcuts: DEFAULT_KEYBOARD_SHORTCUTS,
 };
 

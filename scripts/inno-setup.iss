@@ -1,4 +1,19 @@
-#define AppVersion "2.0.1"
+#define FileHandle
+#define FileLine
+#define TempVersion ""
+#sub ProcessPackageJson
+  #if FileHandle = FileOpen(SourcePath + "\..\package.json")
+    #for {FileLine = FileRead(FileHandle); FileLine != ""; FileLine = FileRead(FileHandle)} \
+      (Pos('"version"', FileLine) > 0) && (TempVersion == "") ? (TempVersion = FileLine) : ""
+    #expr FileClose(FileHandle)
+  #endif
+#endsub
+#expr ProcessPackageJson
+
+#define AppVersion StringChange(TempVersion, '"version":', '')
+#define AppVersion StringChange(AppVersion, '"', '')
+#define AppVersion StringChange(AppVersion, ',', '')
+#define AppVersion Trim(AppVersion)
 #define AppExe "MarkdownToWord_" + AppVersion + "_x64" + "_Portable" + ".exe"
 #define Publisher "kauriss"
 #define AppId "{{9B9A7D8E-9E90-4B68-A71A-8CFC61D2A6B6}}"

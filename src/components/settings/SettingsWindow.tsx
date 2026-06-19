@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { useSettingsStore, ViewMode } from '../../features/settings/store';
+import { useSettingsStore, ViewMode, WindowBarDisplayMode } from '../../features/settings/store';
 import {
   DEFAULT_KEYBOARD_SHORTCUTS,
   KeyboardShortcutBinding,
@@ -242,6 +242,29 @@ export const SettingsWindow: React.FC = () => {
                             onClick={() => updateSettings({ defaultViewMode: opt.value })}
                             className={`flex-1 h-9 text-sm rounded-lg border transition-all ${
                               settings.defaultViewMode === opt.value
+                                ? 'bg-brand-50 dark:bg-brand-900/20 border-brand-300 dark:border-brand-700 text-brand-700 dark:text-brand-400 font-medium'
+                                : 'bg-white dark:bg-dark-element border-gray-200 dark:border-dark-border text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-dark-element-hover'
+                            }`}
+                          >
+                            {opt.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className={labelClass}>窗口栏模式</label>
+                      <div className="flex gap-2">
+                        {([
+                          { value: 'tabs' as WindowBarDisplayMode, label: '标签页' },
+                          { value: 'dropdown' as WindowBarDisplayMode, label: '下拉菜单' },
+                          { value: 'compact' as WindowBarDisplayMode, label: '紧凑' },
+                        ]).map(opt => (
+                          <button
+                            key={opt.value}
+                            onClick={() => updateSettings({ windowBarDisplayMode: opt.value })}
+                            className={`flex-1 h-9 text-sm rounded-lg border transition-all ${
+                              settings.windowBarDisplayMode === opt.value
                                 ? 'bg-brand-50 dark:bg-brand-900/20 border-brand-300 dark:border-brand-700 text-brand-700 dark:text-brand-400 font-medium'
                                 : 'bg-white dark:bg-dark-element border-gray-200 dark:border-dark-border text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-dark-element-hover'
                             }`}
