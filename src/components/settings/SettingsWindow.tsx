@@ -200,7 +200,7 @@ export const SettingsWindow: React.FC = () => {
           </nav>
         </aside>
 
-        <main className="flex-1 min-w-0 flex flex-col bg-white dark:bg-dark-surface pt-12">
+        <main key={activeSection} className="animate-section-enter flex-1 min-w-0 flex flex-col bg-white dark:bg-dark-surface pt-12">
           <div className="px-6 pb-2 pt-2 ui-page-title shrink-0">
             {activeSectionLabel}
           </div>
