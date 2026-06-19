@@ -14,7 +14,10 @@ const Editor = React.memo(forwardRef<HTMLTextAreaElement, EditorProps>(
     currentMatchIndex = 0,
     caseSensitive = false,
     wholeWord = false,
-    useRegex = false
+    useRegex = false,
+    fontSize = 15,
+    lineHeight = 32,
+    wordWrap = true
   }, ref) => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const overlayRef = useRef<HTMLDivElement>(null);
@@ -40,6 +43,14 @@ const Editor = React.memo(forwardRef<HTMLTextAreaElement, EditorProps>(
     const handleScroll = useCallback(() => {
       syncScroll();
     }, [syncScroll]);
+
+    const editorTextStyle = useMemo<React.CSSProperties>(() => ({
+      fontSize,
+      lineHeight: `${lineHeight}px`,
+      overflowWrap: wordWrap ? 'break-word' : 'normal',
+      wordBreak: wordWrap ? 'break-word' : 'normal',
+      whiteSpace: wordWrap ? 'pre-wrap' : 'pre',
+    }), [fontSize, lineHeight, wordWrap]);
 
     const buildSearchRegex = useCallback((query: string): RegExp | null => {
       if (!query) return null;
@@ -160,7 +171,8 @@ const Editor = React.memo(forwardRef<HTMLTextAreaElement, EditorProps>(
               the textarea so \n wraps, word-breaks, and scrollbar width all match. */}
           <div
             ref={overlayRef}
-            className="absolute inset-0 pointer-events-none overflow-auto invisible-scrollbar p-ui-editor-padding font-ui-editor text-[15px] leading-8 whitespace-pre-wrap break-words text-transparent"
+            className="absolute inset-0 pointer-events-none overflow-auto invisible-scrollbar p-ui-editor-padding font-ui-editor text-transparent"
+            style={editorTextStyle}
             aria-hidden
             dangerouslySetInnerHTML={{ __html: highlightedHTML }}
           />
@@ -181,7 +193,8 @@ const Editor = React.memo(forwardRef<HTMLTextAreaElement, EditorProps>(
               }, 0);
             }}
             onScroll={handleScroll}
-            className="relative z-10 w-full h-full p-ui-editor-padding resize-none focus:outline-none font-ui-editor text-[15px] leading-8 text-ui-editor-text bg-transparent placeholder-ui-text-subtle overflow-auto custom-scrollbar transition-colors duration-200 whitespace-pre-wrap break-words"
+            className="relative z-10 w-full h-full p-ui-editor-padding resize-none focus:outline-none font-ui-editor text-ui-editor-text bg-transparent placeholder-ui-text-subtle overflow-auto custom-scrollbar transition-colors duration-200"
+            style={editorTextStyle}
             spellCheck={false}
             placeholder="# 开始您的写作.."
           />

@@ -25,6 +25,9 @@ export interface EditorProps {
   caseSensitive?: boolean;
   wholeWord?: boolean;
   useRegex?: boolean;
+  fontSize?: number;
+  lineHeight?: number;
+  wordWrap?: boolean;
 }
 
 export interface PreviewProps {

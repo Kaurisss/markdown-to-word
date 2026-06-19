@@ -25,6 +25,10 @@ describe('settingsStore', () => {
       defaultFontCn: 'SimSun',
       defaultFontEn: '',
       defaultFontSize: 12,
+      editorFontSize: 15,
+      editorLineHeight: 32,
+      editorWordWrap: true,
+      showStatusBar: true,
       keyboardShortcuts: {
         find: { ctrl: true, alt: false, shift: false, meta: false, key: 'F' },
         replace: { ctrl: true, alt: false, shift: false, meta: false, key: 'H' },
@@ -62,6 +66,12 @@ describe('settingsStore', () => {
       meta: false,
       key: 'F',
     });
+    expect(result.current.settings).toMatchObject({
+      editorFontSize: 15,
+      editorLineHeight: 32,
+      editorWordWrap: true,
+      showStatusBar: true,
+    });
   });
 
   it('persists setting updates to both storage keys', async () => {
@@ -69,12 +79,23 @@ describe('settingsStore', () => {
     const { result } = renderHook(() => useSettingsStore());
 
     act(() => {
-      result.current.updateSettings({ theme: 'dark', autoSave: true });
+      result.current.updateSettings({
+        theme: 'dark',
+        autoSave: true,
+        editorFontSize: 16,
+        editorLineHeight: 34,
+        editorWordWrap: false,
+        showStatusBar: false,
+      });
     });
 
     expect(JSON.parse(localStorage.getItem('md2word_settings') || '{}')).toMatchObject({
       theme: 'dark',
       autoSave: true,
+      editorFontSize: 16,
+      editorLineHeight: 34,
+      editorWordWrap: false,
+      showStatusBar: false,
     });
     expect(localStorage.getItem('app_theme')).toBe('dark');
   });

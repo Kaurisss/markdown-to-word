@@ -17,6 +17,10 @@ export interface AppSettings {
   defaultFontCn: string;
   defaultFontEn: string;
   defaultFontSize: number;
+  editorFontSize: number;
+  editorLineHeight: number;
+  editorWordWrap: boolean;
+  showStatusBar: boolean;
   keyboardShortcuts: KeyboardShortcutMap;
 }
 
@@ -32,6 +36,10 @@ const DEFAULT_SETTINGS: AppSettings = {
   defaultFontCn: 'SimSun',
   defaultFontEn: '',
   defaultFontSize: 12,
+  editorFontSize: 15,
+  editorLineHeight: 32,
+  editorWordWrap: true,
+  showStatusBar: true,
   keyboardShortcuts: DEFAULT_KEYBOARD_SHORTCUTS,
 };
 

@@ -17,9 +17,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { useShowWindowAfterFirstRender } from '../shell/useShowWindowAfterFirstRender';
 import { WindowTitleBar } from '../shell/WindowTitleBar';
 
+const APP_VERSION = '2.0.1';
+
 export const SettingsWindow: React.FC = () => {
   const { settings, updateSettings } = useSettingsStore();
-  const [activeSection, setActiveSection] = useState<'appearance' | 'editor' | 'styles' | 'shortcuts'>('appearance');
+  const [activeSection, setActiveSection] = useState<'appearance' | 'editor' | 'styles' | 'shortcuts' | 'about'>('appearance');
   const [recordingActionId, setRecordingActionId] = useState<ShortcutActionId | null>(null);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const isFirstThemePaintRef = useRef(true);
@@ -65,11 +67,24 @@ export const SettingsWindow: React.FC = () => {
     ...FONT_SIZES_PT.filter(pt => !FONT_SIZES.some(fs => fs.value === pt)).map(pt => ({ label: `${pt}pt`, value: pt })),
   ];
 
-  const sectionOptions: Array<{ id: 'appearance' | 'editor' | 'styles' | 'shortcuts'; label: string; desc: string }> = [
+  const editorFontSizeOptions = [13, 14, 15, 16, 18, 20].map(value => ({
+    label: `${value}px`,
+    value,
+  }));
+
+  const editorLineHeightOptions = [
+    { label: '紧凑 (26px)', value: 26 },
+    { label: '标准 (32px)', value: 32 },
+    { label: '宽松 (38px)', value: 38 },
+    { label: '超宽 (44px)', value: 44 },
+  ];
+
+  const sectionOptions: Array<{ id: 'appearance' | 'editor' | 'styles' | 'shortcuts' | 'about'; label: string; desc: string }> = [
     { id: 'appearance', label: '外观', desc: '主题与视图' },
-    { id: 'editor', label: '编辑器', desc: '自动保存' },
+    { id: 'editor', label: '编辑器', desc: '写作与显示' },
     { id: 'styles', label: '默认样式', desc: '字体与字号' },
     { id: 'shortcuts', label: '快捷键', desc: 'Word 风格' },
+    { id: 'about', label: '关于', desc: '版本与存储' },
   ];
 
   const activeSectionLabel = sectionOptions.find(s => s.id === activeSection)?.label ?? '设置';
@@ -232,18 +247,71 @@ export const SettingsWindow: React.FC = () => {
             )}
 
             {activeSection === 'editor' && (
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
+                <div className="space-y-5">
+                  <section className="space-y-3">
+                    <div className="text-xs font-medium text-gray-500 dark:text-gray-400">写作行为</div>
+                    <div className="rounded-lg border border-gray-200 dark:border-dark-border">
+                      <div className="flex items-center justify-between gap-4 border-b border-gray-100 px-3 py-3 dark:border-dark-border">
+                        <div>
+                          <div className="text-sm text-gray-700 dark:text-gray-200">自动保存</div>
+                          <div className="text-xs text-gray-400 dark:text-gray-500">自动保存编辑器内容，下次打开时恢复</div>
+                        </div>
+                        <Switch
+                          checked={settings.autoSave}
+                          onCheckedChange={(c) => updateSettings({ autoSave: c })}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between gap-4 px-3 py-3">
+                        <div>
+                          <div className="text-sm text-gray-700 dark:text-gray-200">底部状态栏</div>
+                          <div className="text-xs text-gray-400 dark:text-gray-500">显示字符、行数、段落和查找入口</div>
+                        </div>
+                        <Switch
+                          checked={settings.showStatusBar}
+                          onCheckedChange={(c) => updateSettings({ showStatusBar: c })}
+                        />
+                      </div>
+                    </div>
+                  </section>
+
+                  <section className="space-y-3">
+                    <div className="text-xs font-medium text-gray-500 dark:text-gray-400">编辑器显示</div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-2">
+                        <label className={labelClass}>编辑器字号</label>
+                        <Select
+                          className="w-full"
+                          value={settings.editorFontSize}
+                          onChange={(value) => updateSettings({ editorFontSize: Number(value) })}
+                          triggerClassName={settingsSelectTriggerClass}
+                          optionClassName={settingsSelectOptionClass}
+                          options={editorFontSizeOptions}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className={labelClass}>编辑器行高</label>
+                        <Select
+                          className="w-full"
+                          value={settings.editorLineHeight}
+                          onChange={(value) => updateSettings({ editorLineHeight: Number(value) })}
+                          triggerClassName={settingsSelectTriggerClass}
+                          optionClassName={settingsSelectOptionClass}
+                          options={editorLineHeightOptions}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between gap-4 rounded-lg border border-gray-200 px-3 py-3 dark:border-dark-border">
                       <div>
-                        <div className="text-sm text-gray-700 dark:text-gray-200">自动保存</div>
-                        <div className="text-xs text-gray-400 dark:text-gray-500">自动保存编辑器内容，下次打开时恢复</div>
+                        <div className="text-sm text-gray-700 dark:text-gray-200">自动换行</div>
+                        <div className="text-xs text-gray-400 dark:text-gray-500">长行按编辑器宽度折行；关闭后可横向滚动</div>
                       </div>
                       <Switch
-                        checked={settings.autoSave}
-                        onCheckedChange={(c) => updateSettings({ autoSave: c })}
+                        checked={settings.editorWordWrap}
+                        onCheckedChange={(c) => updateSettings({ editorWordWrap: c })}
                       />
                     </div>
-                  </div>
+                  </section>
+                </div>
             )}
 
             {activeSection === 'styles' && (
@@ -315,6 +383,25 @@ export const SettingsWindow: React.FC = () => {
                   </button>
                 </div>
 
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  {[
+                    ['查找', 'Ctrl+F'],
+                    ['替换', 'Ctrl+H'],
+                    ['全选', 'Ctrl+A'],
+                    ['加粗', 'Ctrl+B'],
+                    ['斜体', 'Ctrl+I'],
+                    ['下划线', 'Ctrl+U'],
+                  ].map(([label, shortcut]) => (
+                    <div
+                      key={label}
+                      className="flex items-center justify-between rounded-lg border border-gray-200 px-3 py-2 dark:border-dark-border"
+                    >
+                      <span className="text-gray-500 dark:text-gray-400">{label}</span>
+                      <Kbd>{shortcut}</Kbd>
+                    </div>
+                  ))}
+                </div>
+
                 {shortcutConflicts.length > 0 && (
                   <div className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-200">
                     存在重复快捷键：{shortcutConflicts.map(conflict => conflict.signature).join('、')}。重复时靠前的动作会先响应。
@@ -375,6 +462,47 @@ export const SettingsWindow: React.FC = () => {
                   </section>
                 ))}
               </div>
+            )}
+
+            {activeSection === 'about' && (
+                <div className="space-y-5">
+                  <section className="rounded-lg border border-gray-200 p-4 dark:border-dark-border">
+                    <div className="text-sm font-medium text-gray-700 dark:text-gray-200">简阅转档</div>
+                    <div className="mt-1 text-xs leading-5 text-gray-500 dark:text-gray-400">
+                      Markdown 写作、样式预览和 Word 导出工具。
+                    </div>
+                    <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
+                      <div>
+                        <div className="text-gray-400 dark:text-gray-500">应用版本</div>
+                        <div className="mt-1 text-gray-700 dark:text-gray-200">{APP_VERSION}</div>
+                      </div>
+                      <div>
+                        <div className="text-gray-400 dark:text-gray-500">设置存储</div>
+                        <div className="mt-1 text-gray-700 dark:text-gray-200">本机 localStorage</div>
+                      </div>
+                      <div>
+                        <div className="text-gray-400 dark:text-gray-500">默认快捷键</div>
+                        <div className="mt-1 text-gray-700 dark:text-gray-200">Word 常用键位</div>
+                      </div>
+                      <div>
+                        <div className="text-gray-400 dark:text-gray-500">导出引擎</div>
+                        <div className="mt-1 text-gray-700 dark:text-gray-200">本地 Python 后端</div>
+                      </div>
+                    </div>
+                  </section>
+
+                  <section className="rounded-lg border border-gray-200 p-4 dark:border-dark-border">
+                    <div className="text-sm font-medium text-gray-700 dark:text-gray-200">当前偏好</div>
+                    <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-xs text-gray-500 dark:text-gray-400">
+                      <div>主题：{settings.theme === 'dark' ? '深色' : '浅色'}</div>
+                      <div>默认视图：{settings.defaultViewMode === 'split' ? '双栏' : settings.defaultViewMode === 'editor' ? '编辑器' : '预览'}</div>
+                      <div>自动保存：{settings.autoSave ? '已开启' : '已关闭'}</div>
+                      <div>状态栏：{settings.showStatusBar ? '显示' : '隐藏'}</div>
+                      <div>编辑器字号：{settings.editorFontSize}px</div>
+                      <div>编辑器行高：{settings.editorLineHeight}px</div>
+                    </div>
+                  </section>
+                </div>
             )}
           </div>
         </main>

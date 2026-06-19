@@ -248,6 +248,9 @@ const App: React.FC = () => {
                 caseSensitive={caseSensitive}
                 wholeWord={wholeWord}
                 useRegex={useRegex}
+                fontSize={appSettings.editorFontSize}
+                lineHeight={appSettings.editorLineHeight}
+                wordWrap={appSettings.editorWordWrap}
               />
             </div>
 
@@ -260,7 +263,9 @@ const App: React.FC = () => {
             </div>
           </main>
 
-          <StatusBar content={content} onSearchClick={() => setShowSearch(true)} />
+          {appSettings.showStatusBar && (
+            <StatusBar content={content} onSearchClick={() => setShowSearch(true)} />
+          )}
 
           {isFileDragActive && (
             <div className="fixed inset-0 z-[999] pointer-events-none">

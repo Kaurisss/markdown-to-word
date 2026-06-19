@@ -222,10 +222,26 @@ export const Select: React.FC<SelectProps> = ({
 }) => {
   const [open, setOpen] = React.useState(false);
   const selected = options.find((option) => option.value === value);
+  const getCommandValue = React.useCallback((option: SelectOption) => `${option.label}-${option.value}`, []);
+  const selectedCommandValue = selected ? getCommandValue(selected) : '';
+  const [commandValue, setCommandValue] = React.useState(selectedCommandValue);
+
+  const handleOpenChange = React.useCallback((isOpen: boolean) => {
+    setOpen(isOpen);
+    if (isOpen) {
+      setCommandValue(selectedCommandValue);
+    }
+  }, [selectedCommandValue]);
+
+  React.useEffect(() => {
+    if (open) {
+      setCommandValue(selectedCommandValue);
+    }
+  }, [open, selectedCommandValue]);
 
   return (
     <div className={cn('relative', className)}>
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover open={open} onOpenChange={handleOpenChange}>
         <PopoverTrigger asChild>
           <button
             role="combobox"
@@ -247,7 +263,7 @@ export const Select: React.FC<SelectProps> = ({
           </button>
         </PopoverTrigger>
         <PopoverContent className={cn("p-0 shadow-xl min-w-[var(--radix-popover-trigger-width)]", showSearch ? "w-56" : "w-max")} align="center">
-          <Command>
+          <Command value={commandValue} onValueChange={setCommandValue}>
             {showSearch && <CommandInput placeholder="搜索..." className="h-9 text-[13px]" />}
             <CommandList className="max-h-60 custom-scrollbar">
               <CommandEmpty>未找到结果</CommandEmpty>
@@ -255,7 +271,7 @@ export const Select: React.FC<SelectProps> = ({
                 {options.map((option) => (
                   <CommandItem
                     key={`${option.label}-${option.value}`}
-                    value={`${option.label}-${option.value}`}
+                    value={getCommandValue(option)}
                     onSelect={() => {
                       onChange(option.value);
                       setOpen(false);
