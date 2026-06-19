@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Copy2Line, AddLine, PlayLine, Delete2Line, Edit2Line, Eye2Line, EyeCloseLine, Key2Line, Link2Line, InformationLine } from '@mingcute/react';
+import { Copy2Line, AddLine, PlayLine, Delete2Line, Edit2Line, Eye2Line, EyeCloseLine, Key2Line, Link2Line, InformationLine, AiLine } from '@mingcute/react';
 import { useAIConfigStore } from '../../features/ai/store';
 import { useAIConfig } from '../../features/ai/useAIConfig';
 import { Switch } from '../ui/switch';
@@ -125,7 +125,10 @@ export const AIConfigWindow: React.FC = () => {
       <div className="w-64 shrink-0 bg-gray-50 dark:bg-dark-bg border-r border-gray-200 dark:border-dark-border flex flex-col relative z-40">
         <div className="h-12 px-5 flex items-center justify-between shrink-0 relative">
           <div className="absolute inset-0 z-0" data-tauri-drag-region />
-          <h2 className="ui-sidebar-kicker relative z-10 pointer-events-none">AI 平台管理</h2>
+          <h2 className="ui-sidebar-kicker relative z-10 pointer-events-none flex items-center gap-1.5">
+            <AiLine className="w-4 h-4" />
+            AI 平台管理
+          </h2>
           <button
             onClick={() => setShowAddPlatform(true)}
             className="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-200 dark:hover:bg-dark-surface text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors relative z-10"

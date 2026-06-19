@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react';
-import logoUrl from '../../logo.png';
 import { TabsList, TabsTrigger } from '../ui/tabs';
 
 export type TabType = 'file' | 'edit' | 'home' | 'layout' | 'ai';
@@ -45,16 +44,6 @@ export const WindowBar: React.FC<WindowBarProps> = ({
       data-tauri-drag-region
       onDoubleClick={() => void runWindowAction()}
     >
-      <div className="flex items-center justify-center w-11 h-full" data-tauri-drag-region>
-        <div className="w-7 h-7 p-0.5 rounded-md">
-          <img
-            src={logoUrl}
-            alt="Logo"
-            className="w-full h-full pointer-events-none rounded-[3px]"
-          />
-        </div>
-      </div>
-
       <div className="flex items-center" onMouseDown={(e) => e.stopPropagation()}>
         <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".md,.txt,.markdown" className="hidden" />
 

@@ -27,7 +27,7 @@ export type SearchPopoverProps = {
 };
 
 const toggleActiveClass =
-  'data-[state=on]:bg-brand-50 data-[state=on]:text-brand-600 dark:data-[state=on]:bg-brand-900/30 dark:data-[state=on]:text-brand-400';
+  'text-ui-text-subtle data-[state=on]:bg-gray-200/70 data-[state=on]:text-ui-text-subtle dark:data-[state=on]:bg-white/10 dark:data-[state=on]:text-ui-text-subtle';
 
 const SearchPopover: React.FC<SearchPopoverProps> = ({
   visible,

@@ -1,7 +1,7 @@
 {
   "name": "markdown-to-word",
   "private": true,
-  "version": "2.0.1",
+  "version": "2.0.2",
   "type": "module",
   "scripts": {
     "dev": "pnpm run generate:tokens && vite --port 3000 --strictPort",

@@ -16,10 +16,10 @@ import { Switch } from '../ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog';
 import { useShowWindowAfterFirstRender } from '../shell/useShowWindowAfterFirstRender';
 import { WindowTitleBar } from '../shell/WindowTitleBar';
-import { Palette3Line, Edit4Line, KeyboardLine, Box3Line, InformationLine, GithubLine } from '@mingcute/react';
+import { Palette3Line, Edit4Line, KeyboardLine, Box3Line, InformationLine, GithubLine, Settings3Line } from '@mingcute/react';
 import appLogo from '../../logo.png';
 
-const APP_VERSION = '2.0.1';
+
 
 export const SettingsWindow: React.FC = () => {
   const { settings, updateSettings } = useSettingsStore();
@@ -171,7 +171,10 @@ export const SettingsWindow: React.FC = () => {
         <aside className="w-40 shrink-0 bg-gray-50 dark:bg-dark-bg border-r border-gray-200 dark:border-dark-border flex flex-col relative z-40">
           <div className="h-12 px-5 flex items-center shrink-0 relative">
             <div className="absolute inset-0 z-0" data-tauri-drag-region />
-            <div className="ui-sidebar-kicker relative z-10 pointer-events-none">设置</div>
+            <div className="ui-sidebar-kicker relative z-10 pointer-events-none flex items-center gap-1.5">
+              <Settings3Line className="w-4 h-4" />
+              设置
+            </div>
           </div>
           <nav className="p-2 space-y-1 flex-1 overflow-y-auto">
             {sectionOptions.map(section => (
@@ -476,7 +479,7 @@ export const SettingsWindow: React.FC = () => {
                     <img src={appLogo} alt="简阅转档" className="w-16 h-16 rounded-2xl border border-gray-200 dark:border-gray-600 object-contain" />
                     <div className="text-center">
                       <div className="text-lg font-semibold text-gray-800 dark:text-gray-100">简阅转档</div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">v{APP_VERSION}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">v{__APP_VERSION__}</div>
                     </div>
                   </section>
 
@@ -488,7 +491,7 @@ export const SettingsWindow: React.FC = () => {
                     <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
                       <div>
                         <div className="text-gray-400 dark:text-gray-500">应用版本</div>
-                        <div className="mt-1 text-gray-700 dark:text-gray-200">{APP_VERSION}</div>
+                        <div className="mt-1 text-gray-700 dark:text-gray-200">{__APP_VERSION__}</div>
                       </div>
                       <div>
                         <div className="text-gray-400 dark:text-gray-500">设置存储</div>
