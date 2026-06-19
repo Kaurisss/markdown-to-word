@@ -141,6 +141,42 @@ const App: React.FC = () => {
     appSettingsTheme: appSettings.theme,
   });
 
+  const openSettingsWindow = useCallback(async () => {
+    try {
+      const label = 'settings';
+      const { WebviewWindow } = await import('@tauri-apps/api/webviewWindow');
+      const isDark = theme === 'dark';
+      const windowBg = isDark ? '#1e1e1e' : '#f9fafb';
+
+      const url = `/?window=settings&theme=${encodeURIComponent(theme)}`;
+      const webview = new WebviewWindow(label, {
+        url,
+        title: '设置',
+        width: 580,
+        height: 720,
+        decorations: false,
+        resizable: false,
+        center: true,
+        visible: false,
+        theme,
+        backgroundColor: windowBg,
+      });
+
+      webview.once('tauri://created', function () {
+        void webview.setBackgroundColor(windowBg);
+      });
+
+      webview.once('tauri://error', function () {
+        import('@tauri-apps/api/window').then(({ Window }) => {
+          const win = new Window(label);
+          win.setFocus();
+        });
+      });
+    } catch (e) {
+      console.error('Failed to open settings window:', e);
+    }
+  }, [theme]);
+
   useScrollSync({ viewMode, editorRef, previewRef });
   useAutoSave({ content, autoSave: appSettings.autoSave });
 
@@ -264,7 +300,19 @@ const App: React.FC = () => {
           </main>
 
           {appSettings.showStatusBar && (
-            <StatusBar content={content} onSearchClick={() => setShowSearch(true)} />
+            <StatusBar
+              content={content}
+              viewMode={viewMode}
+              onSearchClick={() => setShowSearch(true)}
+              onReplaceClick={() => {
+                setShowSearch(true);
+                setShowReplace(true);
+              }}
+              onViewModeChange={setViewMode}
+              onExport={handleExport}
+              isExporting={isExporting}
+              onSettingsClick={openSettingsWindow}
+            />
           )}
 
           {isFileDragActive && (
