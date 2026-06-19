@@ -7,25 +7,31 @@ import { PROVIDER_ICON_KEYS, PROVIDER_ICON_LABELS } from './providerIcons';
 interface ProviderIconPickerProps {
   value: string;
   onChange: (value: string) => void;
+  compact?: boolean;
 }
 
-export function ProviderIconPicker({ value, onChange }: ProviderIconPickerProps) {
+export function ProviderIconPicker({ value, onChange, compact }: ProviderIconPickerProps) {
   return (
     <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <div className="ui-field-label">供应商图标</div>
-        {value && (
-          <button
-            type="button"
-            onClick={() => onChange('')}
-            className="inline-flex h-6 items-center gap-1 rounded-ui-control px-1.5 text-[12px] text-ui-text-muted hover:bg-ui-control-hover hover:text-ui-text"
-          >
-            <CloseLine className="size-3.5" />
-            清除
-          </button>
-        )}
-      </div>
-      <div className="grid grid-cols-4 gap-2">
+      {!compact && (
+        <div className="flex items-center justify-between">
+          <div className="ui-field-label">供应商图标</div>
+          {value && (
+            <button
+              type="button"
+              onClick={() => onChange('')}
+              className="inline-flex h-6 items-center gap-1 rounded-ui-control px-1.5 text-[12px] text-ui-text-muted hover:bg-ui-control-hover hover:text-ui-text"
+            >
+              <CloseLine className="size-3.5" />
+              清除
+            </button>
+          )}
+        </div>
+      )}
+      <div
+        className={cn('grid gap-2', compact ? 'grid-cols-6 gap-1.5 max-h-[220px] overflow-y-auto scrollbar-none' : 'grid-cols-4')}
+        onWheel={(e) => e.stopPropagation()}
+      >
         {PROVIDER_ICON_KEYS.map((iconKey) => {
           const selected = value === iconKey;
           return (
@@ -34,15 +40,19 @@ export function ProviderIconPicker({ value, onChange }: ProviderIconPickerProps)
               type="button"
               onClick={() => onChange(iconKey)}
               className={cn(
-                'flex h-16 flex-col items-center justify-center gap-1 rounded-ui-panel border text-[11px] transition-colors',
+                'flex items-center justify-center rounded-ui-panel border transition-colors',
+                compact
+                  ? 'size-11'
+                  : 'h-16 flex-col gap-1 text-[11px]',
                 selected
                   ? 'border-brand-400 bg-brand-50 text-brand-700 dark:border-brand-700 dark:bg-brand-900/30 dark:text-brand-400'
                   : 'border-ui-border bg-ui-control text-ui-text-muted hover:bg-ui-control-hover hover:text-ui-text'
               )}
               aria-pressed={selected}
+              title={PROVIDER_ICON_LABELS[iconKey]}
             >
-              <ProviderIcon iconKey={iconKey} name={PROVIDER_ICON_LABELS[iconKey]} size={22} />
-              <span className="max-w-full truncate px-1">{PROVIDER_ICON_LABELS[iconKey]}</span>
+              <ProviderIcon iconKey={iconKey} name={PROVIDER_ICON_LABELS[iconKey]} size={compact ? 20 : 22} />
+              {!compact && <span className="max-w-full truncate px-1">{PROVIDER_ICON_LABELS[iconKey]}</span>}
             </button>
           );
         })}
