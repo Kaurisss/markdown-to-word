@@ -148,8 +148,8 @@ const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Ribbon Content - Ribbon Layout */}
-      <div className="h-[90px] bg-ui-surface flex items-center px-ui-chrome-x py-0 gap-ui-ribbon-gap flex-nowrap transition-colors duration-200 overflow-x-auto overflow-y-hidden scrollbar-none">
-        <TabsContent value="file" className="w-full m-0 p-0 outline-none data-[state=inactive]:hidden block">
+      <div className="h-[76px] bg-ui-surface flex items-start px-ui-chrome-x py-0 gap-ui-ribbon-gap flex-nowrap transition-colors duration-200 overflow-x-auto overflow-y-hidden scrollbar-none">
+        <TabsContent value="file" className="w-full h-full m-0 p-0 outline-none data-[state=inactive]:hidden block">
           <FileTab
             onImport={onImport}
             onExport={onExport}
@@ -158,7 +158,7 @@ const Header: React.FC<HeaderProps> = ({
           />
         </TabsContent>
 
-        <TabsContent value="edit" className="w-full m-0 p-0 outline-none data-[state=inactive]:hidden block">
+        <TabsContent value="edit" className="w-full h-full m-0 p-0 outline-none data-[state=inactive]:hidden block">
           <EditTab
             onUndo={onUndo}
             onRedo={onRedo}
@@ -170,7 +170,7 @@ const Header: React.FC<HeaderProps> = ({
           />
         </TabsContent>
 
-        <TabsContent value="home" className="w-full m-0 p-0 outline-none data-[state=inactive]:hidden block">
+        <TabsContent value="home" className="w-full h-full m-0 p-0 outline-none data-[state=inactive]:hidden block">
           <HomeTab
             cfg={cfg}
             onCfgChange={onCfgChange}
@@ -180,7 +180,7 @@ const Header: React.FC<HeaderProps> = ({
           />
         </TabsContent>
 
-        <TabsContent value="layout" className="w-full m-0 p-0 outline-none data-[state=inactive]:hidden block">
+        <TabsContent value="layout" className="w-full h-full m-0 p-0 outline-none data-[state=inactive]:hidden block">
           <LayoutTab
             cfg={cfg}
             onCfgChange={onCfgChange}
@@ -189,7 +189,7 @@ const Header: React.FC<HeaderProps> = ({
           />
         </TabsContent>
 
-        <TabsContent value="ai" className="w-full m-0 p-0 outline-none data-[state=inactive]:hidden block">
+        <TabsContent value="ai" className="w-full h-full m-0 p-0 outline-none data-[state=inactive]:hidden block">
           <AITab
             aiProviders={aiProviders}
             selectedModel={selectedModel}
