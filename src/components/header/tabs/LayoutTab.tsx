@@ -1,13 +1,20 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Select } from '../../ui/Select';
-import { Separator } from '@/components/ui/separator';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../../ui/dropdown-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../ui/dialog';
 import { Button } from '../../ui/button';
-import { BoardLine, LayoutLine, DownSmallLine } from '@mingcute/react';
+import { BoardLine, LayoutLine, DownSmallLine, DownSmallFill, DividingLineLine, MenuLine, CheckLine } from '@mingcute/react';
 import { ElementStyle, DocumentConfig, PageMargin } from '../../../types/config';
 
 import { STYLES, FONTS_EN, FONT_LABELS } from '../constants';
+
+const LINE_SPACING_MODES = [
+  { value: '1', label: '单倍行距' },
+  { value: '1.5', label: '1.5 倍行距' },
+  { value: '2', label: '2 倍行距' },
+  { value: 'exact', label: '固定值' },
+  { value: 'multiple', label: '多倍行距' },
+];
 
 interface LayoutTabProps {
   cfg: DocumentConfig;
@@ -107,6 +114,56 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({ cfg, onCfgChange, activeSt
             initialMargins={currentMarginObject}
             onSave={(m) => onCfgChange({ ...cfg, global: { ...cfg.global, pageMargin: m } })}
           />
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className={`${STYLES.btnClass} flex-col h-14 w-14 !px-1 justify-center`}>
+                <DividingLineLine className="w-6 h-6 mb-1" />
+                <span className="text-[11px] leading-none mb-0.5">分割线</span>
+                <DownSmallLine className="w-4 h-4 opacity-70" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-[140px]">
+              {([['default', '默认'], ['page_break', '换页'], ['hidden', '隐藏']] as const).map(([val, label]) => {
+                const active = (cfg.global.horizontalRule || 'default') === val;
+                return (
+                  <DropdownMenuItem
+                    key={val}
+                    className={`py-2 px-3 text-[13px] cursor-pointer flex items-center justify-between ${active ? 'bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 font-medium' : ''}`}
+                    onClick={() => onCfgChange({ ...cfg, global: { ...cfg.global, horizontalRule: val as any } })}
+                  >
+                    {label}
+                    {active && <CheckLine className="w-4 h-4" />}
+                  </DropdownMenuItem>
+                );
+              })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className={`${STYLES.btnClass} flex-col h-14 w-14 !px-1 justify-center`}>
+                <MenuLine className="w-6 h-6 mb-1" />
+                <span className="text-[11px] leading-none mb-0.5">目录</span>
+                <DownSmallLine className="w-4 h-4 opacity-70" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-[140px]">
+              {([true, false] as const).map((val) => {
+                const active = (cfg.global.includeTableOfContents || false) === val;
+                return (
+                  <DropdownMenuItem
+                    key={String(val)}
+                    className={`py-2 px-3 text-[13px] cursor-pointer flex items-center justify-between ${active ? 'bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 font-medium' : ''}`}
+                    onClick={() => onCfgChange({ ...cfg, global: { ...cfg.global, includeTableOfContents: val } })}
+                  >
+                    {val ? '生成目录' : '不生成'}
+                    {active && <CheckLine className="w-4 h-4" />}
+                  </DropdownMenuItem>
+                );
+              })}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         <span className={STYLES.groupLabelClass}>页面设置</span>
       </div>
@@ -135,149 +192,89 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({ cfg, onCfgChange, activeSt
         <span className={STYLES.groupLabelClass}>排版字体</span>
       </div>
 
-      {/* Horizontal Rule Setup */}
-      <div className={STYLES.groupClass}>
-        <div className={STYLES.groupContentClass}>
-          <div className="flex flex-col gap-0.5">
-            <span className={STYLES.labelClass}>分割线</span>
-            <Select
-              className="w-24"
-              value={cfg.global.horizontalRule || 'default'}
-              onChange={(val) => onCfgChange({ ...cfg, global: { ...cfg.global, horizontalRule: val as any } })}
-              options={[
-                { label: '默认', value: 'default' },
-                { label: '换页', value: 'page_break' },
-                { label: '隐藏', value: 'hidden' },
-              ]}
-            />
-          </div>
-        </div>
-        <span className={STYLES.groupLabelClass}>全局设置</span>
-      </div>
-
-      {/* Table of Contents Toggle */}
-      <div className={STYLES.groupClass}>
-        <div className={STYLES.groupContentClass}>
-          <div className="flex flex-col gap-0.5">
-            <span className={STYLES.labelClass}>目录</span>
-            <label className="flex items-center gap-2 cursor-pointer h-8 px-2 rounded-md border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-element hover:bg-gray-50 dark:hover:bg-dark-element-hover transition-colors">
-              <input
-                type="checkbox"
-                checked={cfg.global.includeTableOfContents || false}
-                onChange={(e) => onCfgChange({ ...cfg, global: { ...cfg.global, includeTableOfContents: e.target.checked } })}
-                className="rounded text-brand-500 focus-visible:ring-1 focus-visible:ring-brand-500 focus-visible:ring-offset-0 border-gray-300 dark:border-dark-border"
-              />
-              <span className="text-[13px] text-gray-700 dark:text-gray-300">生成目录</span>
-            </label>
-          </div>
-        </div>
-        <span className={STYLES.groupLabelClass}>导航</span>
-      </div>
-
       {/* Paragraph Setup */}
       <div className={STYLES.groupClass}>
         <div className={STYLES.groupContentClass}>
-          <div className="flex gap-2">
+          <div className="flex gap-1.5">
             <div className="flex flex-col gap-0.5">
               <span className={STYLES.labelClass}>行距</span>
-              <div className="flex items-center border border-gray-300 dark:border-dark-border rounded-md bg-white dark:bg-dark-element overflow-hidden h-8 w-24">
-                <input
-                  type="number"
-                  step="0.1"
-                  className="w-full text-[13px] border-0 p-1 text-center focus-visible:ring-0 outline-none h-full bg-transparent dark:text-gray-100"
-                  value={(() => {
-                    const val = currentStyle.lineSpacing;
-                    if (typeof val === 'string' && val.endsWith('pt')) {
-                      return parseFloat(val);
-                    }
-                    return val;
-                  })()}
-                  onChange={(e) => {
-                    const num = parseFloat(e.target.value);
-                    if (isNaN(num)) return;
-
-                    const isPt = typeof currentStyle.lineSpacing === 'string' && currentStyle.lineSpacing.endsWith('pt');
-                    updateStyle({ lineSpacing: isPt ? `${num}pt` : num });
-                  }}
-                  title="行距值"
-                />
-                <Separator orientation="vertical" className="h-4 mx-0.5" />
+              <div className="flex gap-1">
                 <Select
-                  className="w-12"
-                  triggerClassName="h-full rounded-none"
-                  variant="ghost"
-                  value={typeof currentStyle.lineSpacing === 'string' && currentStyle.lineSpacing.endsWith('pt') ? 'pt' : 'times'}
+                  className="w-[100px]"
+                  value={(() => {
+                    const ls = currentStyle.lineSpacing;
+                    if (typeof ls === 'string' && ls.endsWith('pt')) return 'exact';
+                    const s = String(ls);
+                    return LINE_SPACING_MODES.some(m => m.value === s) ? s : 'multiple';
+                  })()}
                   onChange={(val) => {
-                    const newUnit = val;
-                    let currentVal = currentStyle.lineSpacing;
-                    let numVal = 1.5; // default fallback
-
-                    if (typeof currentVal === 'number') {
-                      numVal = currentVal;
-                    } else if (typeof currentVal === 'string' && currentVal.endsWith('pt')) {
-                      numVal = parseFloat(currentVal);
-                    }
-
-                    if (newUnit === 'pt') {
-                      if (numVal < 5) numVal = 20;
-                      updateStyle({ lineSpacing: `${numVal}pt` });
+                    if (val === '1') updateStyle({ lineSpacing: 1 });
+                    else if (val === '1.5') updateStyle({ lineSpacing: 1.5 });
+                    else if (val === '2') updateStyle({ lineSpacing: 2 });
+                    else if (val === 'exact') {
+                      const cur = typeof currentStyle.lineSpacing === 'string' && currentStyle.lineSpacing.endsWith('pt')
+                        ? parseFloat(currentStyle.lineSpacing) : 20;
+                      updateStyle({ lineSpacing: `${cur}pt` });
                     } else {
-                      if (numVal > 5) numVal = 1.5;
-                      updateStyle({ lineSpacing: numVal });
+                      const cur = typeof currentStyle.lineSpacing === 'number' ? currentStyle.lineSpacing : 1.5;
+                      updateStyle({ lineSpacing: cur });
                     }
                   }}
-                  options={[
-                    { label: '倍', value: 'times' },
-                    { label: 'pt', value: 'pt' },
-                  ]}
+                  options={LINE_SPACING_MODES.map(m => ({ label: m.label, value: m.value }))}
                 />
+                {(
+                  typeof currentStyle.lineSpacing === 'string' && currentStyle.lineSpacing.endsWith('pt')
+                ) || (
+                  typeof currentStyle.lineSpacing === 'number' && ![1, 1.5, 2].includes(currentStyle.lineSpacing)
+                ) ? (
+                  <SpinnerInput
+                    value={typeof currentStyle.lineSpacing === 'string' ? parseFloat(currentStyle.lineSpacing) : currentStyle.lineSpacing}
+                    step={typeof currentStyle.lineSpacing === 'string' && currentStyle.lineSpacing.endsWith('pt') ? 1 : 0.1}
+                    min={typeof currentStyle.lineSpacing === 'string' && currentStyle.lineSpacing.endsWith('pt') ? 1 : 0.1}
+                    onChange={(v) => {
+                      if (typeof currentStyle.lineSpacing === 'string' && currentStyle.lineSpacing.endsWith('pt')) {
+                        updateStyle({ lineSpacing: `${v}pt` });
+                      } else {
+                        updateStyle({ lineSpacing: v });
+                      }
+                    }}
+                    className="w-16"
+                  />
+                ) : null}
               </div>
             </div>
 
             <div className="flex flex-col gap-0.5">
               <span className={STYLES.labelClass}>首行缩进</span>
-              <Select
-                className="w-20"
+              <SpinnerInput
                 value={currentStyle.firstLineIndent}
-                onChange={(val) => updateStyle({ firstLineIndent: Number(val) })}
-                options={[
-                  { label: '无', value: 0 },
-                  { label: '2 字符', value: 2 },
-                  { label: '3 字符', value: 3 },
-                  { label: '4 字符', value: 4 },
-                ]}
+                step={1}
+                min={0}
+                max={10}
+                onChange={(v) => updateStyle({ firstLineIndent: v })}
+                className="w-[68px]"
               />
             </div>
 
             <div className="flex flex-col gap-0.5">
               <span className={STYLES.labelClass}>段前</span>
-              <Select
-                className="w-20"
+              <SpinnerInput
                 value={currentStyle.spaceBefore}
-                onChange={(val) => updateStyle({ spaceBefore: Number(val) })}
-                options={[
-                  { label: '0 磅', value: 0 },
-                  { label: '6 磅', value: 6 },
-                  { label: '12 磅', value: 12 },
-                  { label: '18 磅', value: 18 },
-                  { label: '24 磅', value: 24 },
-                ]}
+                step={1}
+                min={0}
+                onChange={(v) => updateStyle({ spaceBefore: v })}
+                className="w-[68px]"
               />
             </div>
 
             <div className="flex flex-col gap-0.5">
               <span className={STYLES.labelClass}>段后</span>
-              <Select
-                className="w-20"
+              <SpinnerInput
                 value={currentStyle.spaceAfter}
-                onChange={(val) => updateStyle({ spaceAfter: Number(val) })}
-                options={[
-                  { label: '0 磅', value: 0 },
-                  { label: '6 磅', value: 6 },
-                  { label: '8 磅', value: 8 },
-                  { label: '12 磅', value: 12 },
-                  { label: '18 磅', value: 18 },
-                ]}
+                step={1}
+                min={0}
+                onChange={(v) => updateStyle({ spaceAfter: v })}
+                className="w-[68px]"
               />
             </div>
           </div>
@@ -342,5 +339,55 @@ const CustomMarginDialog = ({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+};
+
+const SpinnerInput = ({ value, onChange, step = 1, min, max, suffix, className = 'w-20' }: {
+  value: number;
+  onChange: (v: number) => void;
+  step?: number;
+  min?: number;
+  max?: number;
+  suffix?: string;
+  className?: string;
+}) => {
+  const decimals = step < 1 ? Math.max(1, String(step).split('.')[1]?.length ?? 1) : 0;
+  const displayVal = decimals > 0 ? value.toFixed(decimals) : String(value);
+
+  const adjust = (delta: number) => {
+    let next = parseFloat((value + delta).toFixed(decimals));
+    if (min !== undefined) next = Math.max(min, next);
+    if (max !== undefined) next = Math.min(max, next);
+    onChange(next);
+  };
+
+  return (
+    <div className={`flex items-center border border-gray-200 dark:border-dark-border rounded-md bg-white dark:bg-dark-element overflow-hidden h-8 ${className}`}>
+      <input
+        className="flex-1 min-w-0 text-[13px] text-center border-0 bg-transparent outline-none focus-visible:ring-0 h-full dark:text-gray-100 px-1"
+        value={displayVal}
+        onChange={(e) => {
+          const raw = e.target.value.trim();
+          if (raw === '' || raw === '-') return;
+          const num = parseFloat(raw);
+          if (isNaN(num)) return;
+          let v = decimals > 0 ? parseFloat(num.toFixed(decimals)) : Math.round(num);
+          if (min !== undefined) v = Math.max(min, v);
+          if (max !== undefined) v = Math.min(max, v);
+          onChange(v);
+        }}
+      />
+      {suffix && (
+        <span className="text-[11px] text-ui-text-muted pr-0.5 flex-shrink-0 select-none">{suffix}</span>
+      )}
+      <div className="flex flex-col border-l border-gray-200 dark:border-gray-700 flex-shrink-0">
+        <button type="button" className="flex items-center justify-center w-6 h-4 text-ui-text-muted hover:text-ui-text hover:bg-gray-100 dark:hover:bg-dark-element-hover transition-colors border-b border-gray-200 dark:border-gray-700" onClick={() => adjust(step)} tabIndex={-1}>
+          <DownSmallFill className="w-4 h-4 rotate-180" />
+        </button>
+        <button type="button" className="flex items-center justify-center w-6 h-4 text-ui-text-muted hover:text-ui-text hover:bg-gray-100 dark:hover:bg-dark-element-hover transition-colors" onClick={() => adjust(-step)} tabIndex={-1}>
+          <DownSmallFill className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
   );
 };
