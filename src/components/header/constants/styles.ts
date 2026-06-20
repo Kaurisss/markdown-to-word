@@ -25,8 +25,8 @@ export const STYLES = {
   dividerClass: "w-px h-6 bg-ui-border-subtle mx-1",
   groupClass: "flex flex-col items-center justify-between h-full px-3 first:pl-2 last:pr-2 border-r border-ui-border-subtle last:border-r-0 pt-1 pb-0",
   groupContentClass: "flex-1 flex items-center gap-1.5",
-  groupLabelClass: "text-[11px] text-ui-text-muted mt-auto mb-0.5 w-full text-center tracking-wide",
-  labelClass: "text-xs text-ui-text-subtle mb-0.5 block",
+  groupLabelClass: "text-[11px] text-ui-text-muted mt-auto w-full text-center tracking-wide",
+  labelClass: "text-xs text-ui-text-subtle block",
   inputClass: "h-7 px-ui-control-x text-[13px] border border-ui-border rounded-ui-control bg-ui-control text-ui-text hover:bg-ui-control-hover focus-visible:border-brand-500 focus-visible:ring-1 focus-visible:ring-brand-500 focus-visible:ring-offset-0 outline-none transition-colors",
   menuItemClass: "w-full text-left px-3 py-1.5 text-[13px] hover:bg-ui-control-hover flex items-center gap-2 text-ui-text"
 };

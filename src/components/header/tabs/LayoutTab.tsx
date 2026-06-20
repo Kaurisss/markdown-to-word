@@ -3,7 +3,7 @@ import { Select } from '../../ui/Select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../../ui/dropdown-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../ui/dialog';
 import { Button } from '../../ui/button';
-import { BoardLine, LayoutLine, DownSmallLine, DownSmallFill, DividingLineLine, MenuLine, CheckLine } from '@mingcute/react';
+import { BoardLine, LayoutLine, DownSmallLine, DownSmallFill, DividingLineLine, ListCheckLine, CheckLine } from '@mingcute/react';
 import { ElementStyle, DocumentConfig, PageMargin } from '../../../types/config';
 
 import { STYLES, FONTS_EN, FONT_LABELS } from '../constants';
@@ -143,7 +143,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({ cfg, onCfgChange, activeSt
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className={`${STYLES.btnClass} flex-col h-14 w-14 !px-1 justify-center`}>
-                <MenuLine className="w-6 h-6 mb-1" />
+                <ListCheckLine className="w-6 h-6 mb-1" />
                 <span className="text-[11px] leading-none mb-0.5">目录</span>
                 <DownSmallLine className="w-4 h-4 opacity-70" />
               </button>
