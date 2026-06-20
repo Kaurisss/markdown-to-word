@@ -108,32 +108,35 @@ export const HomeTab: React.FC<HomeTabProps> = ({
       {/* 样式选择 - 带滑块动画 */}
       <div className={STYLES.groupClass}>
         <div className={STYLES.groupContentClass}>
-          <div
-            ref={tabContainerRef}
-            className="relative flex bg-ui-surface-subtle p-0.5 rounded-ui-panel"
-          >
-            {/* 滑动指示器 */}
+          <div className="flex flex-col gap-0.5">
+            <span className={STYLES.labelClass}>样式</span>
             <div
-              className="absolute top-0.5 bottom-0.5 bg-ui-surface-raised rounded-ui-control shadow-sm transition-all duration-300 ease-out"
-              style={{
-                left: sliderStyle.left,
-                width: sliderStyle.width,
-                opacity: sliderStyle.width > 0 ? 1 : 0
-              }}
-            />
-            {(['body', 'h1', 'h2', 'h3', 'code', 'quote'] as const).map(s => (
-              <button
-                key={s}
-                ref={(el) => { if (el) tabRefs.current.set(s, el); }}
-                onClick={() => setActiveStyle(s)}
-                className={`relative z-10 px-2 py-1 text-[13px] rounded-sm transition-colors duration-200 ${activeStyle === s
-                    ? 'text-brand-600 dark:text-brand-400 font-medium'
-                    : 'text-ui-text-muted hover:text-ui-text'
-                  }`}
-              >
-                {{ body: '正文', h1: 'H1', h2: 'H2', h3: 'H3', code: '代码', quote: '引用' }[s]}
-              </button>
-            ))}
+              ref={tabContainerRef}
+              className="relative flex bg-ui-surface-subtle p-0.5 rounded-ui-panel"
+            >
+              {/* 滑动指示器 */}
+              <div
+                className="absolute top-0.5 bottom-0.5 bg-ui-surface-raised rounded-ui-control shadow-sm transition-all duration-300 ease-out"
+                style={{
+                  left: sliderStyle.left,
+                  width: sliderStyle.width,
+                  opacity: sliderStyle.width > 0 ? 1 : 0
+                }}
+              />
+              {(['body', 'h1', 'h2', 'h3', 'code', 'quote'] as const).map(s => (
+                <button
+                  key={s}
+                  ref={(el) => { if (el) tabRefs.current.set(s, el); }}
+                  onClick={() => setActiveStyle(s)}
+                  className={`relative z-10 px-2 py-1 text-[13px] rounded-sm transition-colors duration-200 ${activeStyle === s
+                      ? 'text-brand-600 dark:text-brand-400 font-medium'
+                      : 'text-ui-text-muted hover:text-ui-text'
+                    }`}
+                >
+                  {{ body: '正文', h1: 'H1', h2: 'H2', h3: 'H3', code: '代码', quote: '引用' }[s]}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
         <span className={STYLES.groupLabelClass}>样式</span>
@@ -143,30 +146,36 @@ export const HomeTab: React.FC<HomeTabProps> = ({
       <div className={STYLES.groupClass}>
         <div className={`${STYLES.groupContentClass} flex-col justify-center`}>
           <div className="flex gap-1">
-            <Select
-              className="w-32"
-              value={currentStyle.fontFamily || ''}
-              onChange={(val) => updateStyle({ fontFamily: val })}
-              placeholder="字体"
-              showSearch
-              options={[
-                { label: '默认字体', value: '' },
-                ...FONTS_CN.concat(FONTS_EN).map(f => ({
-                  label: FONT_LABELS[f] || f,
-                  value: f,
-                  fontFamily: f
-                }))
-              ]}
-            />
-            <Select
-              className="w-16"
-              value={currentStyle.fontSize}
-              onChange={(val) => updateStyle({ fontSize: Number(val) })}
-              options={[
-                ...FONT_SIZES.map(fs => ({ label: fs.label, value: fs.value })),
-                ...FONT_SIZES_PT.map(pt => ({ label: `${pt}`, value: pt }))
-              ]}
-            />
+            <div className="flex flex-col gap-0.5">
+              <span className={STYLES.labelClass}>字体</span>
+              <Select
+                className="w-32"
+                value={currentStyle.fontFamily || ''}
+                onChange={(val) => updateStyle({ fontFamily: val })}
+                placeholder="字体"
+                showSearch
+                options={[
+                  { label: '默认字体', value: '' },
+                  ...FONTS_CN.concat(FONTS_EN).map(f => ({
+                    label: FONT_LABELS[f] || f,
+                    value: f,
+                    fontFamily: f
+                  }))
+                ]}
+              />
+            </div>
+            <div className="flex flex-col gap-0.5">
+              <span className={STYLES.labelClass}>字号</span>
+              <Select
+                className="w-16"
+                value={currentStyle.fontSize}
+                onChange={(val) => updateStyle({ fontSize: Number(val) })}
+                options={[
+                  ...FONT_SIZES.map(fs => ({ label: fs.label, value: fs.value })),
+                  ...FONT_SIZES_PT.map(pt => ({ label: `${pt}`, value: pt }))
+                ]}
+              />
+            </div>
           </div>
         </div>
         <span className={STYLES.groupLabelClass}>字体</span>
@@ -175,24 +184,26 @@ export const HomeTab: React.FC<HomeTabProps> = ({
       {/* 格式设置 */}
       <div className={STYLES.groupClass}>
         <div className={STYLES.groupContentClass}>
-          <div className="flex items-center gap-0.5 bg-ui-surface-subtle p-0.5 rounded-ui-panel border border-ui-border-subtle">
+          <div className="flex flex-col gap-0.5">
+            <span className={STYLES.labelClass}>效果</span>
+            <div className="flex items-center gap-0.5 bg-ui-surface-subtle p-0.5 rounded-ui-panel border border-ui-border-subtle">
             <Toggle
               size="sm"
               pressed={currentStyle.bold || false}
               onPressedChange={(pressed) => updateStyle({ bold: pressed })}
-              className="w-7 h-7 p-0 rounded hover:bg-gray-200 dark:hover:bg-ui-control-hover data-[state=on]:bg-brand-100 dark:data-[state=on]:bg-brand-900/30 data-[state=on]:text-brand-600 dark:data-[state=on]:text-brand-400"
+              className="w-8 h-8 p-0 rounded hover:bg-gray-200 dark:hover:bg-ui-control-hover data-[state=on]:bg-brand-100 dark:data-[state=on]:bg-brand-900/30 data-[state=on]:text-brand-600 dark:data-[state=on]:text-brand-400"
               title="加粗"
             >
-              <BoldFill className="w-4 h-4" />
+              <BoldFill className="w-5 h-5" />
             </Toggle>
             <Toggle
               size="sm"
               pressed={currentStyle.italic || false}
               onPressedChange={(pressed) => updateStyle({ italic: pressed })}
-              className="w-7 h-7 p-0 rounded hover:bg-gray-200 dark:hover:bg-ui-control-hover data-[state=on]:bg-brand-100 dark:data-[state=on]:bg-brand-900/30 data-[state=on]:text-brand-600 dark:data-[state=on]:text-brand-400"
+              className="w-8 h-8 p-0 rounded hover:bg-gray-200 dark:hover:bg-ui-control-hover data-[state=on]:bg-brand-100 dark:data-[state=on]:bg-brand-900/30 data-[state=on]:text-brand-600 dark:data-[state=on]:text-brand-400"
               title="斜体"
             >
-              <ItalicLine className="w-4 h-4" />
+              <ItalicLine className="w-5 h-5" />
             </Toggle>
             <Separator orientation="vertical" className="h-4 mx-0.5" />
 
@@ -200,7 +211,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             <div className="relative" ref={colorPickerRef}>
               <button
                 onClick={() => setShowColorPicker(!showColorPicker)}
-                className="w-7 h-7 rounded flex flex-col items-center justify-center gap-0.5 hover:bg-gray-200 dark:hover:bg-ui-control-hover transition-colors"
+                className="w-8 h-8 rounded flex flex-col items-center justify-center gap-0.5 hover:bg-gray-200 dark:hover:bg-ui-control-hover transition-colors"
                 title="字体颜色"
               >
                 <FontLine className="w-3.5 h-3.5 text-gray-700 dark:text-gray-300" />
@@ -258,7 +269,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             <div className="relative" ref={bgColorPickerRef}>
               <button
                 onClick={() => setShowBgColorPicker(!showBgColorPicker)}
-                className="w-7 h-7 rounded flex items-center justify-center hover:bg-gray-200 dark:hover:bg-ui-control-hover transition-colors"
+                className="w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 dark:hover:bg-ui-control-hover transition-colors"
                 title="背景颜色"
               >
                 <div className="flex flex-col items-center justify-center gap-0.5">
@@ -309,6 +320,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               )}
             </div>
           </div>
+          </div>
         </div>
         <span className={STYLES.groupLabelClass}>格式</span>
       </div>
@@ -316,29 +328,32 @@ export const HomeTab: React.FC<HomeTabProps> = ({
       {/* 对齐方式 */}
       <div className={STYLES.groupClass}>
         <div className={STYLES.groupContentClass}>
-          <ToggleGroup
-            type="single"
-            value={currentStyle.alignment || 'left'}
-            onValueChange={(val) => {
-              if (val) updateStyle({ alignment: val as any });
-            }}
-            className="flex items-center gap-0.5 bg-ui-surface-subtle p-0.5 rounded-ui-panel border border-ui-border-subtle"
-          >
-            {(['left', 'center', 'right', 'justify'] as const).map(align => (
-              <ToggleGroupItem
-                key={align}
-                value={align}
-                size="sm"
-                className="w-7 h-7 p-0 rounded hover:bg-gray-200 dark:hover:bg-ui-control-hover data-[state=on]:bg-brand-100 dark:data-[state=on]:bg-brand-900/30 data-[state=on]:text-brand-600 dark:data-[state=on]:text-brand-400"
-                title={{ left: '左对齐', center: '居中', right: '右对齐', justify: '两端对齐' }[align]}
-              >
-                {align === 'left' && <AlignLeftLine className="w-4 h-4" />}
-                {align === 'center' && <AlignCenterLine className="w-4 h-4" />}
-                {align === 'right' && <AlignRightLine className="w-4 h-4" />}
-                {align === 'justify' && <AlignJustifyLine className="w-4 h-4" />}
-              </ToggleGroupItem>
-            ))}
-          </ToggleGroup>
+          <div className="flex flex-col gap-0.5">
+            <span className={STYLES.labelClass}>对齐</span>
+            <ToggleGroup
+              type="single"
+              value={currentStyle.alignment || 'left'}
+              onValueChange={(val) => {
+                if (val) updateStyle({ alignment: val as any });
+              }}
+              className="flex items-center gap-0.5 bg-ui-surface-subtle p-0.5 rounded-ui-panel border border-ui-border-subtle"
+            >
+              {(['left', 'center', 'right', 'justify'] as const).map(align => (
+                <ToggleGroupItem
+                  key={align}
+                  value={align}
+                  size="sm"
+                  className="w-8 h-8 p-0 rounded hover:bg-gray-200 dark:hover:bg-ui-control-hover data-[state=on]:bg-brand-100 dark:data-[state=on]:bg-brand-900/30 data-[state=on]:text-brand-600 dark:data-[state=on]:text-brand-400"
+                  title={{ left: '左对齐', center: '居中', right: '右对齐', justify: '两端对齐' }[align]}
+                >
+                  {align === 'left' && <AlignLeftLine className="w-5 h-5" />}
+                  {align === 'center' && <AlignCenterLine className="w-5 h-5" />}
+                  {align === 'right' && <AlignRightLine className="w-5 h-5" />}
+                  {align === 'justify' && <AlignJustifyLine className="w-5 h-5" />}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+          </div>
         </div>
         <span className={STYLES.groupLabelClass}>段落</span>
       </div>
