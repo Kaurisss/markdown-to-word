@@ -60,7 +60,7 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="group flex h-7 w-44 items-center justify-between gap-1.5 rounded-ui-control border border-ui-border bg-ui-control px-ui-control-x text-ui-text transition-colors hover:bg-ui-control-hover"
+          className="group flex h-8 w-44 items-center justify-between gap-1.5 rounded-md border border-ui-border bg-ui-control px-ui-control-x text-ui-text transition-colors hover:bg-ui-control-hover"
           aria-label={triggerLabel}
         >
           <span className="flex min-w-0 items-center gap-1.5">

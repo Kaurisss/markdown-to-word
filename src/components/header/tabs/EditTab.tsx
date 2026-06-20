@@ -22,7 +22,7 @@ export const EditTab: React.FC<EditTabProps> = ({
     onSearchClick,
     onReplaceClick
 }) => {
-    const iconBtnClass = "w-8 h-8 rounded flex items-center justify-center transition-colors text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-dark-element-hover active:bg-gray-300 dark:active:bg-dark-border";
+    const iconBtnClass = "w-7 h-7 rounded flex items-center justify-center transition-colors text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-dark-element-hover active:bg-gray-300 dark:active:bg-dark-border";
 
     return (
         <div className="flex items-center h-full animate-slide-in-left">
@@ -31,12 +31,12 @@ export const EditTab: React.FC<EditTabProps> = ({
                 <div className={STYLES.groupContentClass}>
                     <div className="flex flex-col gap-0.5">
                         <span className={STYLES.labelClass}>操作</span>
-                        <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-dark-element p-0.5 rounded border border-gray-100 dark:border-dark-border">
+                        <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-dark-element p-0.5 rounded border border-gray-100 dark:border-dark-border h-8">
                             <button onClick={onUndo} onMouseDown={e => e.preventDefault()} className={iconBtnClass} title="撤销 (Ctrl+Z)">
-                                <Back2Line className="w-5 h-5" />
+                                <Back2Line className="w-4 h-4" />
                             </button>
                             <button onClick={onRedo} onMouseDown={e => e.preventDefault()} className={iconBtnClass} title="重做 (Ctrl+Y)">
-                                <Forward2Line className="w-5 h-5" />
+                                <Forward2Line className="w-4 h-4" />
                             </button>
                         </div>
                     </div>
@@ -49,15 +49,15 @@ export const EditTab: React.FC<EditTabProps> = ({
                 <div className={STYLES.groupContentClass}>
                     <div className="flex flex-col gap-0.5">
                         <span className={STYLES.labelClass}>剪贴</span>
-                        <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-dark-element p-0.5 rounded border border-gray-100 dark:border-dark-border">
+                        <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-dark-element p-0.5 rounded border border-gray-100 dark:border-dark-border h-8">
                             <button onClick={onCut} onMouseDown={e => e.preventDefault()} className={iconBtnClass} title="剪切 (Ctrl+X)">
-                                <ScissorsLine className="w-5 h-5" />
+                                <ScissorsLine className="w-4 h-4" />
                             </button>
                             <button onClick={onCopy} onMouseDown={e => e.preventDefault()} className={iconBtnClass} title="复制 (Ctrl+C)">
-                                <Copy2Line className="w-5 h-5" />
+                                <Copy2Line className="w-4 h-4" />
                             </button>
                             <button onClick={onPaste} onMouseDown={e => e.preventDefault()} className={iconBtnClass} title="粘贴 (Ctrl+V)">
-                                <ClipboardLine className="w-5 h-5" />
+                                <ClipboardLine className="w-4 h-4" />
                             </button>
                         </div>
                     </div>
