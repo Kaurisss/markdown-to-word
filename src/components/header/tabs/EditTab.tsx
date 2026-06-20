@@ -27,51 +27,60 @@ export const EditTab: React.FC<EditTabProps> = ({
         <div className="flex items-center h-full animate-slide-in-left">
             {/* 撤销/重做 */}
             <div className={STYLES.groupClass}>
-                <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-dark-element p-0.5 rounded border border-gray-100 dark:border-dark-border">
-                    <button onClick={onUndo} onMouseDown={e => e.preventDefault()} className={iconBtnClass} title="撤销 (Ctrl+Z)">
-                        <Back2Line className="w-4 h-4" />
-                    </button>
-                    <button onClick={onRedo} onMouseDown={e => e.preventDefault()} className={iconBtnClass} title="重做 (Ctrl+Y)">
-                        <Forward2Line className="w-4 h-4" />
-                    </button>
+                <div className={STYLES.groupContentClass}>
+                    <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-dark-element p-0.5 rounded border border-gray-100 dark:border-dark-border">
+                        <button onClick={onUndo} onMouseDown={e => e.preventDefault()} className={iconBtnClass} title="撤销 (Ctrl+Z)">
+                            <Back2Line className="w-4 h-4" />
+                        </button>
+                        <button onClick={onRedo} onMouseDown={e => e.preventDefault()} className={iconBtnClass} title="重做 (Ctrl+Y)">
+                            <Forward2Line className="w-4 h-4" />
+                        </button>
+                    </div>
                 </div>
+                <span className={STYLES.groupLabelClass}>历史记录</span>
             </div>
 
             {/* 剪贴板 */}
             <div className={STYLES.groupClass}>
-                <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-dark-element p-0.5 rounded border border-gray-100 dark:border-dark-border">
-                    <button onClick={onCut} onMouseDown={e => e.preventDefault()} className={iconBtnClass} title="剪切 (Ctrl+X)">
-                        <ScissorsLine className="w-4 h-4" />
-                    </button>
-                    <button onClick={onCopy} onMouseDown={e => e.preventDefault()} className={iconBtnClass} title="复制 (Ctrl+C)">
-                        <Copy2Line className="w-4 h-4" />
-                    </button>
-                    <button onClick={onPaste} onMouseDown={e => e.preventDefault()} className={iconBtnClass} title="粘贴 (Ctrl+V)">
-                        <ClipboardLine className="w-4 h-4" />
-                    </button>
+                <div className={STYLES.groupContentClass}>
+                    <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-dark-element p-0.5 rounded border border-gray-100 dark:border-dark-border">
+                        <button onClick={onCut} onMouseDown={e => e.preventDefault()} className={iconBtnClass} title="剪切 (Ctrl+X)">
+                            <ScissorsLine className="w-4 h-4" />
+                        </button>
+                        <button onClick={onCopy} onMouseDown={e => e.preventDefault()} className={iconBtnClass} title="复制 (Ctrl+C)">
+                            <Copy2Line className="w-4 h-4" />
+                        </button>
+                        <button onClick={onPaste} onMouseDown={e => e.preventDefault()} className={iconBtnClass} title="粘贴 (Ctrl+V)">
+                            <ClipboardLine className="w-4 h-4" />
+                        </button>
+                    </div>
                 </div>
+                <span className={STYLES.groupLabelClass}>剪贴板</span>
             </div>
 
             {/* 查找替换 */}
             <div className={STYLES.groupClass}>
-                <button
-                    onClick={onSearchClick}
-                    onMouseDown={e => e.preventDefault()}
-                    className={`${STYLES.btnClass} flex-col gap-0.5 h-12 w-12 !px-1`}
-                    title="查找 (Ctrl+F)"
-                >
-                    <Search2Line className="w-5 h-5" />
-                    <span className="text-xs">查找</span>
-                </button>
-                <button
-                    onClick={onReplaceClick}
-                    onMouseDown={e => e.preventDefault()}
-                    className={`${STYLES.btnClass} flex-col gap-0.5 h-12 w-12 !px-1`}
-                    title="替换 (Ctrl+H)"
-                >
-                    <Transfer3Line className="w-5 h-5" />
-                    <span className="text-xs">替换</span>
-                </button>
+                <div className={STYLES.groupContentClass}>
+                    <button
+                        onClick={onSearchClick}
+                        onMouseDown={e => e.preventDefault()}
+                        className={`${STYLES.btnClass} flex-col gap-0.5 h-12 w-12 !px-1`}
+                        title="查找 (Ctrl+F)"
+                    >
+                        <Search2Line className="w-5 h-5" />
+                        <span className="text-xs">查找</span>
+                    </button>
+                    <button
+                        onClick={onReplaceClick}
+                        onMouseDown={e => e.preventDefault()}
+                        className={`${STYLES.btnClass} flex-col gap-0.5 h-12 w-12 !px-1`}
+                        title="替换 (Ctrl+H)"
+                    >
+                        <Transfer3Line className="w-5 h-5" />
+                        <span className="text-xs">替换</span>
+                    </button>
+                </div>
+                <span className={STYLES.groupLabelClass}>编辑</span>
             </div>
         </div>
     );

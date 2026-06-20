@@ -23,7 +23,9 @@ export const STYLES = {
   btnClass: "h-7 px-ui-control-x flex items-center justify-center border border-transparent rounded-ui-control hover:bg-ui-control-hover active:bg-ui-control-active transition-colors text-ui-text-muted",
   btnActiveClass: "bg-brand-100 dark:bg-brand-900/30 text-brand-700 dark:text-brand-400 border-brand-300 dark:border-brand-700",
   dividerClass: "w-px h-6 bg-ui-border-subtle mx-1",
-  groupClass: "flex items-center gap-1 h-full px-1 first:pl-0 last:pr-0 border-r border-ui-border-subtle last:border-r-0",
+  groupClass: "flex flex-col items-center justify-between h-full px-3 first:pl-2 last:pr-2 border-r border-ui-border-subtle last:border-r-0 py-1",
+  groupContentClass: "flex-1 flex items-center gap-1.5",
+  groupLabelClass: "text-[11px] text-ui-text-muted mt-1 w-full text-center tracking-wide",
   labelClass: "text-xs text-ui-text-subtle mb-0.5 block",
   inputClass: "h-7 px-ui-control-x text-[13px] border border-ui-border rounded-ui-control bg-ui-control text-ui-text hover:bg-ui-control-hover focus-visible:border-brand-500 focus-visible:ring-1 focus-visible:ring-brand-500 focus-visible:ring-offset-0 outline-none transition-colors",
   menuItemClass: "w-full text-left px-3 py-1.5 text-[13px] hover:bg-ui-control-hover flex items-center gap-2 text-ui-text"

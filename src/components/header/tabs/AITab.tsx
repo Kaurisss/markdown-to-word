@@ -52,27 +52,33 @@ export const AITab: React.FC<AITabProps> = ({
   return (
     <div className="relative flex h-full w-full items-center animate-slide-in-left">
       <div className={STYLES.groupClass}>
-        <div className="flex flex-col gap-0.5">
-          <span className={STYLES.labelClass}>模型</span>
-          <AIModelSelector
-            aiProviders={aiProviders}
-            selectedModel={selectedModel}
-            onModelChange={onModelChange}
-            onConfigClick={() => setShowAIConfig(true)}
-          />
+        <div className={STYLES.groupContentClass}>
+          <div className="flex flex-col gap-0.5">
+            <span className={STYLES.labelClass}>模型</span>
+            <AIModelSelector
+              aiProviders={aiProviders}
+              selectedModel={selectedModel}
+              onModelChange={onModelChange}
+              onConfigClick={() => setShowAIConfig(true)}
+            />
+          </div>
         </div>
+        <span className={STYLES.groupLabelClass}>AI设置</span>
       </div>
 
       <div className={`${STYLES.groupClass} min-w-[360px] flex-1 max-w-[560px]`}>
-        <div className="flex w-full flex-col gap-0.5">
-          <span className={STYLES.labelClass}>样式描述</span>
-          <AIPromptInput
-            value={prompt}
-            onChange={setPrompt}
-            onSubmit={handleGenerate}
-            disabled={isGenerating}
-          />
+        <div className={`${STYLES.groupContentClass} w-full`}>
+          <div className="flex w-full flex-col gap-0.5">
+            <span className={STYLES.labelClass}>样式描述</span>
+            <AIPromptInput
+              value={prompt}
+              onChange={setPrompt}
+              onSubmit={handleGenerate}
+              disabled={isGenerating}
+            />
+          </div>
         </div>
+        <span className={STYLES.groupLabelClass}>智能生成</span>
       </div>
     </div>
   );

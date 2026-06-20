@@ -147,8 +147,8 @@ const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Ribbon Content - Compact Layout */}
-      <div className="h-14 bg-ui-surface flex items-center px-ui-chrome-x py-ui-chrome-y gap-ui-ribbon-gap flex-nowrap transition-colors duration-200">
+      {/* Ribbon Content - Ribbon Layout */}
+      <div className="h-[90px] bg-ui-surface flex items-center px-ui-chrome-x py-0 gap-ui-ribbon-gap flex-nowrap transition-colors duration-200 overflow-x-auto overflow-y-hidden scrollbar-none">
         <TabsContent value="file" className="w-full m-0 p-0 outline-none data-[state=inactive]:hidden block">
           <FileTab
             onImport={onImport}
