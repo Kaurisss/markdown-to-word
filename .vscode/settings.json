@@ -1,2 +1,10 @@
 {
+  // 禁用不必要的后台实时检查，改用 cargo check
+  "rust-analyzer.check.command": "check",
+  
+  // 如果你用了非常复杂的 proc-macro，且频繁导致卡死，可以尝试暂时关闭它（会牺牲一部分宏的代码提示）
+  // "rust-analyzer.procMacro.enable": false,
+
+  // 限制全局扫描范围，避免它把不属于项目的巨型文件夹索引进去
+  "rust-analyzer.workspace.discoverTopology": true
 }
