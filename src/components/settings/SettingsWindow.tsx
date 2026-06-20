@@ -16,7 +16,7 @@ import { Switch } from '../ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog';
 import { useShowWindowAfterFirstRender } from '../shell/useShowWindowAfterFirstRender';
 import { WindowTitleBar } from '../shell/WindowTitleBar';
-import { Palette3Line, Edit4Line, KeyboardLine, Box3Line, InformationLine, GithubLine, Settings3Line, SunLine, MoonLine, LayoutTopLine, DownLine, Columns2Line, EditLine, Eye2Line, Save2Line, LayoutBottomLine, ScrollableListLine } from '@mingcute/react';
+import { Palette3Line, Edit4Line, KeyboardLine, Box3Line, InformationLine, GithubLine, Settings3Line, SunLine, MoonLine, Layout5Line, LayoutTopOpenLine, Columns2Line, EditLine, Eye2Line, Save2Line, LayoutBottomLine, ScrollableListLine } from '@mingcute/react';
 import appLogo from '../../logo.png';
 
 
@@ -233,8 +233,8 @@ export const SettingsWindow: React.FC = () => {
                           triggerClassName={settingsSelectTriggerClass}
                           optionClassName={settingsSelectOptionClass}
                           options={[
-                            { value: 'tabs', label: '标签页', icon: <LayoutTopLine /> },
-                            { value: 'dropdown', label: '下拉菜单', icon: <DownLine /> },
+                            { value: 'tabs', label: '标签页', icon: <Layout5Line /> },
+                            { value: 'dropdown', label: '下拉菜单', icon: <LayoutTopOpenLine /> },
                           ]}
                         />
                       </div>
