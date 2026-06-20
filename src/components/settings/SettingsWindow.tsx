@@ -16,7 +16,7 @@ import { Switch } from '../ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog';
 import { useShowWindowAfterFirstRender } from '../shell/useShowWindowAfterFirstRender';
 import { WindowTitleBar } from '../shell/WindowTitleBar';
-import { Palette3Line, Edit4Line, KeyboardLine, Box3Line, InformationLine, GithubLine, Settings3Line, SunLine, MoonLine, LayoutTopLine, ArrowsDownLine, More1Line, Columns2Line, DocumentLine, Save2Line, LayoutBottomLine, ScrollableListLine } from '@mingcute/react';
+import { Palette3Line, Edit4Line, KeyboardLine, Box3Line, InformationLine, GithubLine, Settings3Line, SunLine, MoonLine, LayoutTopLine, DownLine, Columns2Line, EditLine, Eye2Line, Save2Line, LayoutBottomLine, ScrollableListLine } from '@mingcute/react';
 import appLogo from '../../logo.png';
 
 
@@ -234,8 +234,7 @@ export const SettingsWindow: React.FC = () => {
                           optionClassName={settingsSelectOptionClass}
                           options={[
                             { value: 'tabs', label: '标签页', icon: <LayoutTopLine /> },
-                            { value: 'dropdown', label: '下拉菜单', icon: <ArrowsDownLine /> },
-                            { value: 'compact', label: '紧凑', icon: <More1Line /> },
+                            { value: 'dropdown', label: '下拉菜单', icon: <DownLine /> },
                           ]}
                         />
                       </div>
@@ -248,9 +247,9 @@ export const SettingsWindow: React.FC = () => {
                           triggerClassName={settingsSelectTriggerClass}
                           optionClassName={settingsSelectOptionClass}
                           options={[
-                            { value: 'editor', label: '编辑器', icon: <Edit4Line /> },
+                            { value: 'editor', label: '编辑器', icon: <EditLine /> },
                             { value: 'split', label: '双栏', icon: <Columns2Line /> },
-                            { value: 'preview', label: '预览', icon: <DocumentLine /> },
+                            { value: 'preview', label: '预览', icon: <Eye2Line /> },
                           ]}
                         />
                       </div>

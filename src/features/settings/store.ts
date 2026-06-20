@@ -10,7 +10,7 @@ const SETTINGS_CHANNEL = 'md2word_settings_channel';
 
 export type ViewMode = 'editor' | 'preview' | 'split';
 
-export type WindowBarDisplayMode = 'tabs' | 'dropdown' | 'compact';
+export type WindowBarDisplayMode = 'tabs' | 'dropdown';
 
 export interface AppSettings {
   theme: 'light' | 'dark';
@@ -48,6 +48,12 @@ const DEFAULT_SETTINGS: AppSettings = {
 };
 
 function normalizeSettings(settings: Partial<AppSettings>): AppSettings {
+  // 兼容旧版本：已移除的 'compact' 模式回退为 'tabs'
+  const rawMode = settings.windowBarDisplayMode as unknown;
+  if (rawMode === 'compact') {
+    settings = { ...settings, windowBarDisplayMode: 'tabs' };
+  }
+
   return {
     ...DEFAULT_SETTINGS,
     ...settings,

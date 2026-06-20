@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect, useRef } from 'react';
+import React, { useCallback } from 'react';
 import { TabsList, TabsTrigger } from '../ui/tabs';
 import { MenuLine } from '@mingcute/react';
 import {
@@ -37,9 +37,6 @@ export const WindowBar: React.FC<WindowBarProps> = ({
   fileInputRef,
   displayMode = 'tabs',
 }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
   const runWindowAction = useCallback(async () => {
     try {
       const { getCurrentWindow } = await import('@tauri-apps/api/window');
@@ -62,26 +59,9 @@ export const WindowBar: React.FC<WindowBarProps> = ({
     e.target.value = '';
   };
 
-  // compact 模式：点击外部收起
-  useEffect(() => {
-    if (displayMode !== 'compact' || !isExpanded) return;
-
-    const handleMouseDown = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setIsExpanded(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleMouseDown);
-    return () => document.removeEventListener('mousedown', handleMouseDown);
-  }, [displayMode, isExpanded]);
-
   const handleTabSelect = useCallback((tab: TabType) => {
     setActiveTab(tab);
-    if (displayMode === 'compact') {
-      setIsExpanded(false);
-    }
-  }, [setActiveTab, displayMode]);
+  }, [setActiveTab]);
 
   const renderTabsList = () => (
     <TabsList variant="line" className="h-9">
@@ -107,12 +87,7 @@ export const WindowBar: React.FC<WindowBarProps> = ({
       className="w-8 h-8 ml-1 flex items-center justify-center rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 transition-colors"
       title="菜单"
       onMouseDown={(e) => e.stopPropagation()}
-      onClick={(e) => {
-        e.stopPropagation();
-        if (displayMode === 'compact') {
-          setIsExpanded(!isExpanded);
-        }
-      }}
+      onClick={(e) => e.stopPropagation()}
     >
       <MenuLine className="w-4 h-4" />
     </button>
@@ -120,7 +95,6 @@ export const WindowBar: React.FC<WindowBarProps> = ({
 
   return (
     <div
-      ref={containerRef}
       className="flex-1 min-w-0 bg-inherit flex items-center text-ui-text-muted select-none transition-colors duration-200"
       data-tauri-drag-region
       onDoubleClick={() => void runWindowAction()}
@@ -135,7 +109,7 @@ export const WindowBar: React.FC<WindowBarProps> = ({
             <DropdownMenuTrigger asChild>
               {renderMenuButton()}
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" sideOffset={4}>
+            <DropdownMenuContent align="start" sideOffset={8}>
               {ALL_TABS.map(tab => (
                 <DropdownMenuCheckboxItem
                   key={tab}
@@ -147,13 +121,6 @@ export const WindowBar: React.FC<WindowBarProps> = ({
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-        )}
-
-        {displayMode === 'compact' && (
-          <>
-            {renderMenuButton()}
-            {isExpanded && renderTabsList()}
-          </>
         )}
       </div>
 
