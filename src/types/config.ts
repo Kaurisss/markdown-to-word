@@ -12,9 +12,16 @@ export interface ElementStyle {
   backgroundColor?: string;
 }
 
+export interface PageMargin {
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+}
+
 export interface DocumentConfig {
   global: {
-    pageMargin: number;
+    pageMargin: number | PageMargin;
     baseFontCn: string;
     baseFontEn: string;
     horizontalRule: 'default' | 'page_break' | 'hidden';

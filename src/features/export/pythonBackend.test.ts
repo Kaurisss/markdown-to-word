@@ -6,7 +6,7 @@
  */
 import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
-import { DocumentConfig, ElementStyle } from '../../types/config';
+import { DocumentConfig, ElementStyle, PageMargin } from '../../types/config';
 import { parseBackendError } from './pythonBackend';
 
 /**
@@ -52,7 +52,15 @@ const elementStyleArb: fc.Arbitrary<ElementStyle> = fc.record({
  */
 const documentConfigArb: fc.Arbitrary<DocumentConfig> = fc.record({
   global: fc.record({
-    pageMargin: fc.double({ min: 0.5, max: 3.0, noNaN: true }),
+    pageMargin: fc.oneof(
+      fc.double({ min: 0.5, max: 3.0, noNaN: true }),
+      fc.record({
+        top: fc.double({ min: 0.5, max: 3.0, noNaN: true }),
+        bottom: fc.double({ min: 0.5, max: 3.0, noNaN: true }),
+        left: fc.double({ min: 0.5, max: 3.0, noNaN: true }),
+        right: fc.double({ min: 0.5, max: 3.0, noNaN: true }),
+      })
+    ) as fc.Arbitrary<number | PageMargin>, // cast required because fast-check's fc.oneof struggles with deep mixed inference
     baseFontCn: fontFamilyArb,
     baseFontEn: fontFamilyArb,
     horizontalRule: fc.constantFrom('default', 'page_break', 'hidden'),
@@ -112,7 +120,7 @@ describe('Style Config Serialization', () => {
 
         // Additional verification: ensure all required fields are present
         expect(deserialized.global).toBeDefined();
-        expect(deserialized.global.pageMargin).toBe(config.global.pageMargin);
+        expect(deserialized.global.pageMargin).toEqual(config.global.pageMargin);
         expect(deserialized.global.baseFontCn).toBe(config.global.baseFontCn);
         expect(deserialized.global.baseFontEn).toBe(config.global.baseFontEn);
 

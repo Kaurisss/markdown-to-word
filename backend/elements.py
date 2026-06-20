@@ -248,12 +248,22 @@ def add_table(doc: Document, table_data: list[list[str]], conf: Dict[str, Any], 
                     run.bold = True
 
 
-def set_page_margins(doc: Document, margin_inch: float) -> None:
+DEFAULT_MARGIN = 1.0
+DEFAULT_LR_MARGIN = 1.25
+
+def set_page_margins(doc: Document, margin: float | Dict[str, float]) -> None:
     for section in doc.sections:
-        section.top_margin = Inches(margin_inch)
-        section.bottom_margin = Inches(margin_inch)
-        section.left_margin = Inches(margin_inch)
-        section.right_margin = Inches(margin_inch)
+        if isinstance(margin, dict):
+            section.top_margin = Inches(float(margin.get("top", DEFAULT_MARGIN)))
+            section.bottom_margin = Inches(float(margin.get("bottom", DEFAULT_MARGIN)))
+            section.left_margin = Inches(float(margin.get("left", DEFAULT_LR_MARGIN)))
+            section.right_margin = Inches(float(margin.get("right", DEFAULT_LR_MARGIN)))
+        else:
+            m_val = float(margin)
+            section.top_margin = Inches(m_val)
+            section.bottom_margin = Inches(m_val)
+            section.left_margin = Inches(m_val)
+            section.right_margin = Inches(m_val)
 
 
 def add_table_of_contents(doc: Document, conf: Dict[str, Any]) -> None:

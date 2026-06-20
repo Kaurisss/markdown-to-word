@@ -29,10 +29,22 @@ def validate_config(conf: Dict[str, Any]) -> None:
             raise ConfigError("Invalid configuration format", details=f"Style '{key}' must be an object")
 
     page_margin = global_conf.get("pageMargin", 1.0)
-    try:
-        float(page_margin)
-    except Exception as e:
-        raise ConfigError("Invalid pageMargin value", details=str(e))
+    def _check_margin(val, label=""):
+        try:
+            v = float(val)
+            if v < 0:
+                raise ValueError("margin cannot be negative")
+            return v
+        except (TypeError, ValueError) as e:
+            msg = f"Invalid pageMargin '{label}' value" if label else "Invalid pageMargin value"
+            raise ConfigError(msg, details=str(e))
+
+    if isinstance(page_margin, dict):
+        for k in ["top", "bottom", "left", "right"]:
+            if k in page_margin:
+                _check_margin(page_margin[k], k)
+    else:
+        _check_margin(page_margin)
 
 
 def load_config(args) -> Dict[str, Any]:

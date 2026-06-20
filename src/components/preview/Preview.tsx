@@ -4,6 +4,7 @@ import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import rehypeSanitize from 'rehype-sanitize';
 import rehypeSlug from 'rehype-slug';
+import { PageMargin } from '../../types/config';
 import { PreviewProps } from '../../types';
 
 function ptToPx(pt: number): string {
@@ -89,11 +90,20 @@ function elementStyleToCss(cfg: PreviewProps['cfg'], style: PreviewProps['cfg'][
 }
 
 const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref) => {
-  const pagePaddingCm = cfg.global.pageMargin * 2.54;
-  const pageStyle: CSSProperties = {
+  let pageStyle: CSSProperties = {
     fontFamily: buildFontFamily(cfg),
-    padding: `${pagePaddingCm}cm`,
   };
+  
+  if (typeof cfg.global.pageMargin === 'object' && cfg.global.pageMargin !== null) {
+    const m = cfg.global.pageMargin as PageMargin;
+    pageStyle.paddingTop = `${m.top * 2.54}cm`;
+    pageStyle.paddingBottom = `${m.bottom * 2.54}cm`;
+    pageStyle.paddingLeft = `${m.left * 2.54}cm`;
+    pageStyle.paddingRight = `${m.right * 2.54}cm`;
+  } else {
+    const margin = Number(cfg.global.pageMargin) || 1.0;
+    pageStyle.padding = `${margin * 2.54}cm`;
+  }
 
   const bodyStyle = elementStyleToCss(cfg, cfg.styles.body);
   const h1Style = elementStyleToCss(cfg, cfg.styles.h1);

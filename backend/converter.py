@@ -71,7 +71,9 @@ def convert(input_path: str, output_path: str, conf: Dict[str, Any]) -> None:
         )
 
     try:
-        margin_value = float(conf.get("global", {}).get("pageMargin", 1.0))
+        margin_value = conf.get("global", {}).get("pageMargin", 1.0)
+        if not isinstance(margin_value, (float, int, dict)):
+            margin_value = float(margin_value)
     except Exception as e:
         raise ConfigError("Invalid pageMargin value", details=str(e))
     set_page_margins(doc, margin_value)
