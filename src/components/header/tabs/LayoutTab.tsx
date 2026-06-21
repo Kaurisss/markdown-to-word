@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Select } from '../../ui/Select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../../ui/dropdown-menu';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../ui/dialog';
-import { Button } from '../../ui/button';
-import { BoardLine, LayoutLine, DownSmallLine, DownSmallFill, DividingLineLine, ListCheckLine, CheckLine } from '@mingcute/react';
+import { BoardLine, LayoutLine, DownSmallLine, DividingLineLine, ListCheckLine, CheckLine } from '@mingcute/react';
 import { ElementStyle, DocumentConfig, PageMargin } from '../../../types/config';
+import { CustomMarginDialog } from './layout/CustomMarginDialog';
+import { SpinnerInput } from '../../ui/SpinnerInput';
 
 import { STYLES, FONTS_EN, FONT_LABELS } from '../constants';
 
@@ -280,113 +280,6 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({ cfg, onCfgChange, activeSt
           </div>
         </div>
         <span className={STYLES.groupLabelClass}>段落间距</span>
-      </div>
-    </div>
-  );
-};
-
-const CustomMarginDialog = ({
-  open,
-  onOpenChange,
-  initialMargins,
-  onSave
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  initialMargins: PageMargin;
-  onSave: (margins: PageMargin) => void;
-}) => {
-  const [m, setM] = useState(initialMargins);
-
-  useEffect(() => {
-    if (open) setM(initialMargins);
-  }, [open, initialMargins]);
-
-  const handleSave = () => {
-    onSave(m);
-    onOpenChange(false);
-  };
-
-  const inputClass = "h-8 w-full px-2 text-[13px] border border-gray-300 dark:border-dark-border rounded-md bg-white dark:bg-dark-element text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-dark-element-hover focus-visible:border-brand-500 focus-visible:ring-1 focus-visible:ring-brand-500 focus-visible:ring-offset-0 outline-none transition-colors";
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm bg-white dark:bg-dark-element border-ui-border-subtle shadow-xl">
-        <DialogHeader>
-          <DialogTitle className="text-base font-semibold text-gray-900 dark:text-gray-100">自定义页边距</DialogTitle>
-        </DialogHeader>
-        <div className="grid grid-cols-2 gap-4 py-4">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-medium text-ui-text-muted">上 (英寸)</label>
-            <input type="number" min={0} step="0.1" value={m.top} onChange={e => setM({ ...m, top: Number(e.target.value) })} className={inputClass} />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-medium text-ui-text-muted">下 (英寸)</label>
-            <input type="number" min={0} step="0.1" value={m.bottom} onChange={e => setM({ ...m, bottom: Number(e.target.value) })} className={inputClass} />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-medium text-ui-text-muted">左 (英寸)</label>
-            <input type="number" min={0} step="0.1" value={m.left} onChange={e => setM({ ...m, left: Number(e.target.value) })} className={inputClass} />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-medium text-ui-text-muted">右 (英寸)</label>
-            <input type="number" min={0} step="0.1" value={m.right} onChange={e => setM({ ...m, right: Number(e.target.value) })} className={inputClass} />
-          </div>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" size="sm" onClick={() => onOpenChange(false)} className="border-ui-border-subtle hover:bg-gray-50 dark:hover:bg-dark-element-hover">取消</Button>
-          <Button size="sm" onClick={handleSave} className="bg-brand-500 hover:bg-brand-600 text-white">确定</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-};
-
-const SpinnerInput = ({ value, onChange, step = 1, min, max, suffix, className = 'w-20' }: {
-  value: number;
-  onChange: (v: number) => void;
-  step?: number;
-  min?: number;
-  max?: number;
-  suffix?: string;
-  className?: string;
-}) => {
-  const decimals = step < 1 ? Math.max(1, String(step).split('.')[1]?.length ?? 1) : 0;
-  const displayVal = decimals > 0 ? value.toFixed(decimals) : String(value);
-
-  const adjust = (delta: number) => {
-    let next = parseFloat((value + delta).toFixed(decimals));
-    if (min !== undefined) next = Math.max(min, next);
-    if (max !== undefined) next = Math.min(max, next);
-    onChange(next);
-  };
-
-  return (
-    <div className={`flex items-center border border-gray-200 dark:border-dark-border rounded-md bg-white dark:bg-dark-element overflow-hidden h-8 ${className}`}>
-      <input
-        className="flex-1 min-w-0 text-[13px] text-center border-0 bg-transparent outline-none focus-visible:ring-0 h-full dark:text-gray-100 px-1"
-        value={displayVal}
-        onChange={(e) => {
-          const raw = e.target.value.trim();
-          if (raw === '' || raw === '-') return;
-          const num = parseFloat(raw);
-          if (isNaN(num)) return;
-          let v = decimals > 0 ? parseFloat(num.toFixed(decimals)) : Math.round(num);
-          if (min !== undefined) v = Math.max(min, v);
-          if (max !== undefined) v = Math.min(max, v);
-          onChange(v);
-        }}
-      />
-      {suffix && (
-        <span className="text-[11px] text-ui-text-muted pr-0.5 flex-shrink-0 select-none">{suffix}</span>
-      )}
-      <div className="flex flex-col border-l border-gray-200 dark:border-gray-700 flex-shrink-0">
-        <button type="button" className="flex items-center justify-center w-6 h-4 text-ui-text-muted hover:text-ui-text hover:bg-gray-100 dark:hover:bg-dark-element-hover transition-colors border-b border-gray-200 dark:border-gray-700" onClick={() => adjust(step)} tabIndex={-1}>
-          <DownSmallFill className="w-4 h-4 rotate-180" />
-        </button>
-        <button type="button" className="flex items-center justify-center w-6 h-4 text-ui-text-muted hover:text-ui-text hover:bg-gray-100 dark:hover:bg-dark-element-hover transition-colors" onClick={() => adjust(-step)} tabIndex={-1}>
-          <DownSmallFill className="w-4 h-4" />
-        </button>
       </div>
     </div>
   );

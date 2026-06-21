@@ -1,14 +1,12 @@
-"""Document element builders: heading, body, quote, list, code, table, hr, toc."""
+"""Document element builders: heading, body, quote, list, code, hr, and re-exports."""
 
 import re
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 from docx import Document
 from docx.shared import Pt, Inches, RGBColor
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
-from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
-from docx.enum.table import WD_TABLE_ALIGNMENT
 
 from .converters.styles import (
     apply_paragraph_fmt, apply_run_fmt, _ensure_east_asia_font,
@@ -171,83 +169,6 @@ def add_horizontal_rule(doc: Document, conf: Dict[str, Any]) -> None:
     pPr.append(pBdr)
 
 
-def _set_cell_border(cell, border_color: str = "000000", border_size: int = 4) -> None:
-    """Set borders for a table cell."""
-    tc = cell._tc
-    tcPr = tc.get_or_add_tcPr()
-    tcBorders = OxmlElement('w:tcBorders')
-    for border_name in ['top', 'left', 'bottom', 'right']:
-        border = OxmlElement(f'w:{border_name}')
-        border.set(qn('w:val'), 'single')
-        border.set(qn('w:sz'), str(border_size))
-        border.set(qn('w:color'), border_color)
-        tcBorders.append(border)
-    tcPr.append(tcBorders)
-
-
-def _set_cell_shading(cell, fill_color: str) -> None:
-    """Set background shading for a table cell."""
-    tc = cell._tc
-    tcPr = tc.get_or_add_tcPr()
-    shading = OxmlElement('w:shd')
-    shading.set(qn('w:fill'), fill_color)
-    tcPr.append(shading)
-
-
-def _set_cell_vertical_alignment(cell, align: str = "center") -> None:
-    """Set vertical alignment for a table cell."""
-    tc = cell._tc
-    tcPr = tc.get_or_add_tcPr()
-    vAlign = OxmlElement('w:vAlign')
-    vAlign.set(qn('w:val'), align)
-    tcPr.append(vAlign)
-
-
-def add_table(doc: Document, table_data: list[list[str]], conf: Dict[str, Any], alignments: Optional[list[Optional[str]]] = None) -> None:
-    """Add a table to the document with proper borders and header styling."""
-    if not table_data or not table_data[0]:
-        return
-
-    num_rows = len(table_data)
-    num_cols = max(len(row) for row in table_data)
-
-    table = doc.add_table(rows=num_rows, cols=num_cols)
-    table.alignment = WD_TABLE_ALIGNMENT.CENTER
-
-    style = conf["styles"].get("body", {})
-    global_conf = conf.get("global", {})
-
-    for row_idx, row_data in enumerate(table_data):
-        row = table.rows[row_idx]
-        for col_idx in range(num_cols):
-            cell = row.cells[col_idx]
-            cell_text = row_data[col_idx] if col_idx < len(row_data) else ""
-
-            _set_cell_border(cell)
-            _set_cell_vertical_alignment(cell, "center")
-
-            if row_idx == 0:
-                _set_cell_shading(cell, "E5E7EB")
-
-            paragraph = cell.paragraphs[0]
-
-            table_style = style.copy()
-            table_style["firstLineIndent"] = 0
-            apply_paragraph_fmt(paragraph, table_style)
-
-            code_style = conf["styles"].get("code", {})
-            add_formatted_runs(paragraph, cell_text, table_style, global_conf, code_style)
-
-            if alignments and col_idx < len(alignments):
-                align = _get_alignment(alignments[col_idx])
-                if align is not None:
-                    paragraph.alignment = align
-
-            if row_idx == 0:
-                for run in paragraph.runs:
-                    run.bold = True
-
-
 DEFAULT_MARGIN = 1.0
 DEFAULT_LR_MARGIN = 1.25
 
@@ -266,49 +187,8 @@ def set_page_margins(doc: Document, margin: float | Dict[str, float]) -> None:
             section.right_margin = Inches(m_val)
 
 
-def add_table_of_contents(doc: Document, conf: Dict[str, Any]) -> None:
-    """
-    Add a Table of Contents field to the document.
-    The TOC will be auto-updated when the document is opened in Word.
-    """
-    toc_title = doc.add_paragraph()
-    toc_title.paragraph_format.space_before = Pt(12)
-    toc_title.paragraph_format.space_after = Pt(12)
-    toc_title.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
-    run = toc_title.add_run("目录")
-    run.bold = True
-    run.font.size = Pt(16)
-    global_conf = conf.get("global", {})
-    base_cn = global_conf.get("baseFontCn", "SimSun")
-    base_en = global_conf.get("baseFontEn", "") or base_cn
-    _ensure_east_asia_font(run, base_cn, base_en)
-
-    toc_paragraph = doc.add_paragraph()
-
-    run = toc_paragraph.add_run()
-    fld_char_begin = OxmlElement('w:fldChar')
-    fld_char_begin.set(qn('w:fldCharType'), 'begin')
-
-    instr_text = OxmlElement('w:instrText')
-    instr_text.set(qn('xml:space'), 'preserve')
-    instr_text.text = ' TOC \\o "1-3" \\h \\z \\u '
-
-    fld_char_separate = OxmlElement('w:fldChar')
-    fld_char_separate.set(qn('w:fldCharType'), 'separate')
-
-    fld_char_end = OxmlElement('w:fldChar')
-    fld_char_end.set(qn('w:fldCharType'), 'end')
-
-    run._r.append(fld_char_begin)
-    run._r.append(instr_text)
-    run._r.append(fld_char_separate)
-
-    placeholder_run = toc_paragraph.add_run('右键点击并选择"更新域"，或按 Ctrl+A 然后 F9')
-    placeholder_run.italic = True
-    placeholder_run.font.color.rgb = RGBColor(128, 128, 128)
-    placeholder_run.font.size = Pt(10)
-
-    end_run = toc_paragraph.add_run()
-    end_run._r.append(fld_char_end)
-
-    doc.add_page_break()
+# ---------------------------------------------------------------------------
+# Backward-compatible re-exports from converters
+# ---------------------------------------------------------------------------
+from .converters.table import add_table  # noqa: F401
+from .converters.toc import add_table_of_contents  # noqa: F401

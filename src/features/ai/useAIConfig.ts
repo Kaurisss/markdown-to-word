@@ -3,13 +3,15 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AIProvider, AIModel } from '../../types/ai';
 import { toast } from 'sonner';
+import { testApiConnection } from './aiApi';
+import { updateProviderInList, toggleProviderInList } from './providerActions';
+import { addModelToProvider, deleteModelFromProvider, saveEditedModelInProvider, copyModelInProvider } from './modelActions';
 import {
   EMPTY_PROVIDER_FORM,
   EMPTY_MODEL_FORM,
   ProviderFormValues,
   ModelFormValues,
   buildCustomProvider,
-  buildModel,
   patchCustomProvider,
   providerFormSchema,
   modelFormSchema,
@@ -175,13 +177,11 @@ export function useAIConfig({
   // ── Core provider helpers ───────────────────────────────────────────
 
   const handleUpdateProvider = useCallback((id: string, patch: Partial<AIProvider>) => {
-    const updated = providers.map(p => p.id === id ? { ...p, ...patch } : p);
-    updateProviders(updated);
+    updateProviders(updateProviderInList(providers, id, patch));
   }, [providers, updateProviders]);
 
   const handleToggleProvider = useCallback((id: string, checked: boolean) => {
-    const updated = providers.map(p => p.id === id ? { ...p, isEnabled: checked } : p);
-    updateProviders(updated);
+    updateProviders(toggleProviderInList(providers, id, checked));
   }, [providers, updateProviders]);
 
   // ── API testing ─────────────────────────────────────────────────────
@@ -196,43 +196,12 @@ export function useAIConfig({
     setTestingModelId(modelId);
 
     const testPromise = async () => {
-      const startTime = Date.now();
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000);
-
       try {
-        const response = await fetch(selectedProvider.baseUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${selectedProvider.apiKey}`,
-          },
-          body: JSON.stringify({
-            model: modelId,
-            messages: [{ role: 'user', content: 'Say "Test success"' }],
-            max_tokens: 10,
-            stream: false,
-          }),
-          signal: controller.signal,
+        return await testApiConnection({
+          baseUrl: selectedProvider.baseUrl,
+          apiKey: selectedProvider.apiKey,
+          modelId,
         });
-
-        clearTimeout(timeoutId);
-        const duration = Date.now() - startTime;
-
-        if (!response.ok) {
-          let errorMsg = `HTTP ${response.status}`;
-          try {
-            const errorData = await response.json();
-            if (errorData.error?.message) {
-              errorMsg = errorData.error.message;
-            }
-          } catch {
-            // ignore parse errors
-          }
-          throw new Error(errorMsg);
-        }
-
-        return `连接成功 (${duration}ms)`;
       } finally {
         setTestingModelId(null);
       }
@@ -249,42 +218,27 @@ export function useAIConfig({
 
   const handleAddModel = addModelForm.handleSubmit((values) => {
     if (!selectedProvider) return;
-    const model = buildModel(values);
-    handleUpdateProvider(selectedProvider.id, {
-      models: [...selectedProvider.models, model],
-    });
+    updateProviders(addModelToProvider(providers, selectedProvider.id, values));
     closeAddModel();
     addModelForm.reset(EMPTY_MODEL_FORM);
   });
 
   const handleDeleteModel = useCallback((modelId: string) => {
     if (!selectedProvider) return;
-    handleUpdateProvider(selectedProvider.id, {
-      models: selectedProvider.models.filter(m => m.id !== modelId),
-    });
-  }, [selectedProvider, handleUpdateProvider]);
+    updateProviders(deleteModelFromProvider(providers, selectedProvider.id, modelId));
+  }, [selectedProvider, providers, updateProviders]);
 
   const handleSaveEditModel = editModelForm.handleSubmit((values) => {
     if (!selectedProvider || !editingModel) return;
-    const normalizedModel = buildModel(values);
-    const updatedModels = selectedProvider.models.map(m =>
-      m.id === editingModel.id ? normalizedModel : m,
-    );
-    handleUpdateProvider(selectedProvider.id, { models: updatedModels });
+    updateProviders(saveEditedModelInProvider(providers, selectedProvider.id, editingModel.id, values));
     closeEditModel();
     editModelForm.reset(EMPTY_MODEL_FORM);
   });
 
   const handleCopyModel = useCallback((model: AIModel) => {
     if (!selectedProvider) return;
-    const newModel: AIModel = {
-      id: `${model.id}-copy`,
-      name: `${model.name} (副本)`,
-    };
-    handleUpdateProvider(selectedProvider.id, {
-      models: [...selectedProvider.models, newModel],
-    });
-  }, [selectedProvider, handleUpdateProvider]);
+    updateProviders(copyModelInProvider(providers, selectedProvider.id, model));
+  }, [selectedProvider, providers, updateProviders]);
 
   // ── Platform CRUD ───────────────────────────────────────────────────
 

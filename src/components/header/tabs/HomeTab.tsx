@@ -4,9 +4,9 @@ import { Select } from '../../ui/Select';
 import { Toggle } from '../../ui/toggle';
 import { ToggleGroup, ToggleGroupItem } from '../../ui/toggle-group';
 import { Separator } from '@/components/ui/separator';
-import { Popover, PopoverContent, PopoverTrigger } from '../../ui/popover';
 import { ElementStyle, DocumentConfig } from '../../../types/config';
-import { STYLES, FONTS_CN, FONTS_EN, FONT_LABELS, FONT_SIZES, FONT_SIZES_PT, THEME_COLORS, STANDARD_COLORS } from '../constants';
+import { STYLES, FONTS_CN, FONTS_EN, FONT_LABELS, FONT_SIZES, FONT_SIZES_PT } from '../constants';
+import { ColorPickerPopover } from './home/ColorPickerPopover';
 
 interface HomeTabProps {
   cfg: DocumentConfig;
@@ -172,109 +172,48 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             <Separator orientation="vertical" className="h-4 mx-0.5" />
 
             {/* Color Picker */}
-            <Popover open={showColorPicker} onOpenChange={setShowColorPicker}>
-              <PopoverTrigger asChild>
-                <button
-                  className="w-8 h-full rounded-sm flex flex-col items-center justify-center gap-[2px] hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
-                  title="字体颜色"
-                >
-                  <FontLine className="w-3.5 h-3.5 text-gray-700 dark:text-gray-300" />
-                  <div className="w-4 h-[3px] rounded-sm border border-gray-200 dark:border-dark-border" style={{ backgroundColor: currentStyle.color || '#000000' }}></div>
-                </button>
-              </PopoverTrigger>
-              <PopoverContent align="start" sideOffset={6} className="w-56 p-2 z-[10000]">
-                <div className="text-[12px] font-medium text-ui-text-subtle mb-1">主题颜色</div>
-                <div className="space-y-0.5">
-                  {THEME_COLORS.map((row, rowIndex) => (
-                    <div key={rowIndex} className="flex gap-0.5">
-                      {row.map((color) => (
-                        <button
-                          key={color}
-                          onClick={() => { updateStyle({ color }); setShowColorPicker(false); }}
-                          className="w-5 h-5 rounded-sm border border-ui-border-subtle hover:scale-110 transition-transform"
-                          style={{ backgroundColor: color }}
-                          title={color}
-                        />
-                      ))}
-                    </div>
-                  ))}
-                </div>
-                <div className="text-[12px] font-medium text-ui-text-subtle mt-2 mb-1">标准色</div>
-                <div className="flex gap-0.5">
-                  {STANDARD_COLORS.map((color) => (
-                    <button
-                      key={color}
-                      onClick={() => { updateStyle({ color }); setShowColorPicker(false); }}
-                      className="w-5 h-5 rounded-sm border border-ui-border-subtle hover:scale-110 transition-transform"
-                      style={{ backgroundColor: color }}
-                      title={color}
-                    />
-                  ))}
-                </div>
-                <div className="border-t border-gray-100 dark:border-dark-border mt-2 pt-2">
-                  <label className="flex items-center gap-2 text-[14px] text-gray-600 dark:text-gray-300 cursor-pointer hover:text-gray-900 dark:hover:text-gray-100">
-                    <input
-                      type="color"
-                      value={currentStyle.color}
-                      onChange={(e) => { updateStyle({ color: e.target.value }); }}
-                      className="w-5 h-5 rounded border-0 p-0 cursor-pointer"
-                    />
-                    <span>其他颜色...</span>
-                  </label>
-                </div>
-              </PopoverContent>
-            </Popover>
+            <ColorPickerPopover
+              open={showColorPicker}
+              onOpenChange={setShowColorPicker}
+              title="主题颜色"
+              currentValue={currentStyle.color || '#000000'}
+              onColorSelect={(color) => updateStyle({ color })}
+            >
+              <button
+                className="w-8 h-full rounded-sm flex flex-col items-center justify-center gap-[2px] hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+                title="字体颜色"
+              >
+                <FontLine className="w-3.5 h-3.5 text-gray-700 dark:text-gray-300" />
+                <div className="w-4 h-[3px] rounded-sm border border-gray-200 dark:border-dark-border" style={{ backgroundColor: currentStyle.color || '#000000' }}></div>
+              </button>
+            </ColorPickerPopover>
 
             {/* Background Color Picker */}
-            <Popover open={showBgColorPicker} onOpenChange={setShowBgColorPicker}>
-              <PopoverTrigger asChild>
-                <button
-                  className="w-8 h-full rounded-sm flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
-                  title="背景颜色"
-                >
-                  <div className="flex flex-col items-center justify-center gap-[2px]">
-                    <ColorFilterLine className="w-3.5 h-3.5 text-gray-600 dark:text-gray-300" />
-                    <div className="w-4 h-[3px] rounded-sm border border-gray-200 dark:border-dark-border" style={{ backgroundColor: currentStyle.backgroundColor || 'transparent' }}></div>
-                  </div>
-                </button>
-              </PopoverTrigger>
-              <PopoverContent align="start" sideOffset={6} className="w-56 p-2 z-[10000]">
-                <div className="text-[12px] font-medium text-ui-text-subtle mb-1">背景颜色</div>
-                {/* Theme Colors - same as text but for background */}
-                <div className="space-y-0.5">
-                  {THEME_COLORS.map((row, rowIndex) => (
-                    <div key={rowIndex} className="flex gap-0.5">
-                      {row.map((color) => (
-                        <button
-                          key={color}
-                          onClick={() => { updateStyle({ backgroundColor: color }); setShowBgColorPicker(false); }}
-                          className="w-5 h-5 rounded-sm border border-ui-border-subtle hover:scale-110 transition-transform"
-                          style={{ backgroundColor: color }}
-                          title={color}
-                        />
-                      ))}
-                    </div>
-                  ))}
+            <ColorPickerPopover
+              open={showBgColorPicker}
+              onOpenChange={setShowBgColorPicker}
+              title="背景颜色"
+              currentValue={currentStyle.backgroundColor || '#ffffff'}
+              onColorSelect={(color) => {
+                if (color === '') {
+                  updateStyle({ backgroundColor: undefined });
+                } else {
+                  updateStyle({ backgroundColor: color });
+                }
+              }}
+              showReset
+              resetLabel="无颜色"
+            >
+              <button
+                className="w-8 h-full rounded-sm flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+                title="背景颜色"
+              >
+                <div className="flex flex-col items-center justify-center gap-[2px]">
+                  <ColorFilterLine className="w-3.5 h-3.5 text-gray-600 dark:text-gray-300" />
+                  <div className="w-4 h-[3px] rounded-sm border border-gray-200 dark:border-dark-border" style={{ backgroundColor: currentStyle.backgroundColor || 'transparent' }}></div>
                 </div>
-                <div className="border-t border-gray-100 dark:border-dark-border mt-2 pt-2 flex items-center justify-between">
-                  <label className="flex items-center gap-2 text-[14px] text-gray-600 dark:text-gray-300 cursor-pointer hover:text-gray-900 dark:hover:text-gray-100">
-                    <input
-                      type="color"
-                      value={currentStyle.backgroundColor || '#ffffff'}
-                      onChange={(e) => { updateStyle({ backgroundColor: e.target.value }); }}
-                      className="w-5 h-5 rounded border-0 p-0 cursor-pointer"
-                    />
-                    <span>其它颜色...</span>
-                  </label>
-                  <button
-                    onClick={() => { updateStyle({ backgroundColor: undefined }); setShowBgColorPicker(false); }}
-                    className="text-[14px] text-red-500 hover:text-red-700 px-2 py-0.5 rounded hover:bg-red-50"
-                  >
-                    无颜色
-                  </button>
-                </div>
-              </PopoverContent>
-            </Popover>
+              </button>
+            </ColorPickerPopover>
           </div>
           </div>
         </div>

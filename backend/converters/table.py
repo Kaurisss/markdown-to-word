@@ -9,13 +9,162 @@ compatibility.
 from typing import Any, Dict, Optional
 
 from docx import Document
+from docx.oxml.ns import qn
+from docx.oxml import OxmlElement
+from docx.enum.table import WD_TABLE_ALIGNMENT
 
 from ..parser import (
     parse_gfm_table,
     is_table_line,
     is_table_separator,
 )
-from ..elements import add_table
+from ..converters.styles import (
+    apply_paragraph_fmt, _get_alignment, _ensure_east_asia_font,
+)
+from ..parser import parse_inline_formatting
+
+
+# ---------------------------------------------------------------------------
+# Cell helpers
+# ---------------------------------------------------------------------------
+
+def _set_cell_border(cell, border_color: str = "000000", border_size: int = 4) -> None:
+    """Set borders for a table cell."""
+    tc = cell._tc
+    tcPr = tc.get_or_add_tcPr()
+    tcBorders = OxmlElement('w:tcBorders')
+    for border_name in ['top', 'left', 'bottom', 'right']:
+        border = OxmlElement(f'w:{border_name}')
+        border.set(qn('w:val'), 'single')
+        border.set(qn('w:sz'), str(border_size))
+        border.set(qn('w:color'), border_color)
+        tcBorders.append(border)
+    tcPr.append(tcBorders)
+
+
+def _set_cell_shading(cell, fill_color: str) -> None:
+    """Set background shading for a table cell."""
+    tc = cell._tc
+    tcPr = tc.get_or_add_tcPr()
+    shading = OxmlElement('w:shd')
+    shading.set(qn('w:fill'), fill_color)
+    tcPr.append(shading)
+
+
+def _set_cell_vertical_alignment(cell, align: str = "center") -> None:
+    """Set vertical alignment for a table cell."""
+    tc = cell._tc
+    tcPr = tc.get_or_add_tcPr()
+    vAlign = OxmlElement('w:vAlign')
+    vAlign.set(qn('w:val'), align)
+    tcPr.append(vAlign)
+
+
+# ---------------------------------------------------------------------------
+# Inline formatting helpers (local to table rendering)
+# ---------------------------------------------------------------------------
+
+def _add_hyperlink(paragraph, url: str, text: str, style_config: Dict[str, Any], global_config: Dict[str, Any]):
+    """Add a hyperlink to a paragraph."""
+    from docx.shared import RGBColor
+    from ..converters.styles import apply_run_fmt
+
+    part = paragraph.part
+    r_id = part.relate_to(url, 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink', is_external=True)
+
+    run = paragraph.add_run(text)
+    apply_run_fmt(run, style_config, global_config)
+
+    run.font.color.rgb = RGBColor(0, 0, 255)
+    run.underline = True
+
+    hyperlink = OxmlElement('w:hyperlink')
+    hyperlink.set(qn('r:id'), r_id)
+    hyperlink.append(run._r)
+    paragraph._p.append(hyperlink)
+
+
+def _add_formatted_runs(paragraph, text: str, base_style: Dict[str, Any], global_config: Dict[str, Any], code_style: Dict[str, Any] = None) -> None:
+    """Add text with inline formatting to a paragraph (table-local copy)."""
+    from ..converters.styles import apply_run_fmt, _set_run_shading
+
+    segments = parse_inline_formatting(text)
+
+    for segment in segments:
+        if segment['link']:
+            _add_hyperlink(paragraph, segment['link'], segment['text'], base_style, global_config)
+        else:
+            run = paragraph.add_run(segment['text'])
+
+            if segment['code'] and code_style:
+                apply_run_fmt(run, code_style, global_config)
+            else:
+                apply_run_fmt(run, base_style, global_config)
+
+            if segment.get('bold'):
+                run.bold = True
+            if segment.get('italic'):
+                run.italic = True
+            if segment.get('underline'):
+                run.underline = True
+            if segment.get('strike'):
+                run.font.strike = True
+            if segment.get('code'):
+                code_font = code_style.get('fontFamily', 'Courier New') if code_style else 'Courier New'
+                run.font.name = code_font
+                _ensure_east_asia_font(run, global_config.get('baseFontCn', 'SimSun'), code_font)
+                if code_style:
+                    bg_color = code_style.get('backgroundColor', '#F5F7F9')
+                    _set_run_shading(run, bg_color)
+
+
+# ---------------------------------------------------------------------------
+# Public: add_table
+# ---------------------------------------------------------------------------
+
+def add_table(doc: Document, table_data: list[list[str]], conf: Dict[str, Any], alignments: Optional[list[Optional[str]]] = None) -> None:
+    """Add a table to the document with proper borders and header styling."""
+    if not table_data or not table_data[0]:
+        return
+
+    num_rows = len(table_data)
+    num_cols = max(len(row) for row in table_data)
+
+    table = doc.add_table(rows=num_rows, cols=num_cols)
+    table.alignment = WD_TABLE_ALIGNMENT.CENTER
+
+    style = conf["styles"].get("body", {})
+    global_conf = conf.get("global", {})
+
+    for row_idx, row_data in enumerate(table_data):
+        row = table.rows[row_idx]
+        for col_idx in range(num_cols):
+            cell = row.cells[col_idx]
+            cell_text = row_data[col_idx] if col_idx < len(row_data) else ""
+
+            _set_cell_border(cell)
+            _set_cell_vertical_alignment(cell, "center")
+
+            if row_idx == 0:
+                _set_cell_shading(cell, "E5E7EB")
+
+            paragraph = cell.paragraphs[0]
+
+            table_style = style.copy()
+            table_style["firstLineIndent"] = 0
+            apply_paragraph_fmt(paragraph, table_style)
+
+            code_style = conf["styles"].get("code", {})
+            _add_formatted_runs(paragraph, cell_text, table_style, global_conf, code_style)
+
+            if alignments and col_idx < len(alignments):
+                align = _get_alignment(alignments[col_idx])
+                if align is not None:
+                    paragraph.alignment = align
+
+            if row_idx == 0:
+                for run in paragraph.runs:
+                    run.bold = True
 
 
 # ---------------------------------------------------------------------------
