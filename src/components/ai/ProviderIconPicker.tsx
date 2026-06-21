@@ -29,7 +29,7 @@ export function ProviderIconPicker({ value, onChange, compact }: ProviderIconPic
         </div>
       )}
       <div
-        className={cn('grid gap-2', compact ? 'grid-cols-6 gap-1.5 max-h-[220px] overflow-y-auto scrollbar-none' : 'grid-cols-4')}
+        className={cn('grid gap-2', compact ? 'grid-cols-6 gap-1.5 max-h-[220px] overflow-y-auto scrollbar-none' : 'grid-cols-4 max-h-[300px] overflow-y-auto scrollbar-none')}
         onWheel={(e) => e.stopPropagation()}
       >
         {PROVIDER_ICON_KEYS.map((iconKey) => {

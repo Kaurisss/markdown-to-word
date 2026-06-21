@@ -129,39 +129,68 @@ export const PlatformDialogs: React.FC<PlatformDialogsProps> = (props) => (
 
     {/* Edit Platform Modal */}
     <Dialog open={props.showEditPlatform || props.isEditPlatformClosing} onOpenChange={(open) => { if (!open) props.closeEditPlatform(); }}>
-      <DialogContent className="w-80 p-4 gap-0 bg-white dark:bg-dark-surface border-gray-200 dark:border-dark-border" showCloseButton={false}>
-        <DialogHeader className="mb-4">
-          <DialogTitle className="text-sm font-semibold text-gray-800 dark:text-gray-100">编辑平台</DialogTitle>
+      <DialogContent className="w-[420px] p-5 gap-0 bg-white dark:bg-dark-surface border-gray-200 dark:border-dark-border" showCloseButton={false}>
+        <DialogHeader className="mb-3">
+          <DialogTitle className="text-sm font-semibold text-center text-gray-800 dark:text-gray-100">编辑平台</DialogTitle>
         </DialogHeader>
-        <div className="space-y-3">
-          <Input
-            type="text"
-            value={props.editPlatformName}
-            onChange={(e) => props.setEditPlatformName(e.target.value)}
-            placeholder="平台名称"
-          />
-          <ProviderIconPicker
-            value={props.editPlatformIconKey}
-            onChange={props.setEditPlatformIconKey}
-          />
-          <Input
-            type="text"
-            value={props.editPlatformUrl}
-            onChange={(e) => props.setEditPlatformUrl(e.target.value)}
-            placeholder="Base URL"
-          />
-          <div className="rounded-lg bg-gray-50 p-2 text-xs leading-5 text-gray-500 dark:bg-dark-element dark:text-gray-400">
-            请填写完整请求地址，例如 {AI_API_ENDPOINT_EXAMPLES[0].url}。
+        <div className="space-y-4">
+          <div className="flex flex-col items-center gap-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  className="flex h-14 w-14 items-center justify-center rounded-2xl border border-gray-200 dark:border-dark-border bg-gray-50 dark:bg-dark-element hover:bg-gray-100 dark:hover:bg-dark-element-hover transition-colors"
+                >
+                  {props.editPlatformIconKey ? (
+                    <ProviderIcon iconKey={props.editPlatformIconKey} name={props.editPlatformName} size={28} />
+                  ) : (
+                    <AddLine className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+                  )}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent align="center" side="bottom" className="w-80 p-3 z-[100000]">
+                <ProviderIconPicker
+                  value={props.editPlatformIconKey}
+                  onChange={props.setEditPlatformIconKey}
+                  compact
+                />
+              </PopoverContent>
+            </Popover>
+            <span className="text-[11px] text-gray-400 dark:text-gray-500">选择图标</span>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="ui-field-label">平台名称</Label>
+            <Input
+              type="text"
+              value={props.editPlatformName}
+              onChange={(e) => props.setEditPlatformName(e.target.value)}
+              placeholder="例如：我的 AI 平台"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="ui-field-label">Base URL <span className="text-gray-400 font-normal">(可选)</span></Label>
+            <Input
+              type="text"
+              value={props.editPlatformUrl}
+              onChange={(e) => props.setEditPlatformUrl(e.target.value)}
+              placeholder="https://api.example.com/v1/chat/completions"
+            />
           </div>
           {props.editPlatformErrors.baseUrl && (
             <p className="text-xs text-red-500">{props.editPlatformErrors.baseUrl.message}</p>
           )}
-          <Input
-            type="text"
-            value={props.editPlatformDescription}
-            onChange={(e) => props.setEditPlatformDescription(e.target.value)}
-            placeholder="平台描述 (可选)"
-          />
+          <div className="space-y-1.5">
+            <Label className="ui-field-label">平台描述 <span className="text-gray-400 font-normal">(可选)</span></Label>
+            <Input
+              type="text"
+              value={props.editPlatformDescription}
+              onChange={(e) => props.setEditPlatformDescription(e.target.value)}
+              placeholder="简要描述该平台"
+            />
+          </div>
+          <div className="rounded-lg bg-gray-50 p-2.5 text-xs leading-5 text-gray-500 dark:bg-dark-element dark:text-gray-400">
+            自定义平台需要提供 OpenAI 兼容的 Chat Completions 完整端点。留空时使用默认示例地址，之后仍可编辑。
+          </div>
           <DialogFooter className="mt-4 flex-row justify-end gap-2 sm:justify-end">
             <button
               onClick={props.closeEditPlatform}
