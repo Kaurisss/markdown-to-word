@@ -28,6 +28,7 @@ import { useSelectionToolbar } from './features/editor/useSelectionToolbar';
 import { useClipboard } from './features/editor/useClipboard';
 import { useGlobalShortcuts } from './features/editor/useGlobalShortcuts';
 import { SelectionToolbar } from './components/editor/SelectionToolbar';
+import { LinkDialog } from './components/editor/LinkDialog';
 
 const App: React.FC = () => {
   // Simple router based on URL search params
@@ -91,9 +92,12 @@ const App: React.FC = () => {
 
   const {
     toolbarState,
+    linkDialogState,
     refreshSelectionToolbar,
     hideSelectionToolbar,
     applyFormat,
+    setLinkDialogOpen,
+    confirmLink,
   } = useSelectionToolbar({
     editorRef,
     content,
@@ -344,6 +348,12 @@ const App: React.FC = () => {
         y={toolbarState.y}
         activeFormats={toolbarState.activeFormats}
         onFormat={applyFormat}
+      />
+
+      <LinkDialog
+        open={linkDialogState.open}
+        onOpenChange={setLinkDialogOpen}
+        onConfirm={confirmLink}
       />
     </>
   );
