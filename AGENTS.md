@@ -2,11 +2,11 @@
 
 ## Project Structure & Module Organization
 
-- `src/`: React + TypeScript UI (Vite): `components/`, `services/`, `hooks/`, `interfaces/`.
-- `backend/`: Python conversion engine (`backend/backend.py`) and `backend/tests/`.
+- `src/`: React + TypeScript UI (Vite): `components/`, `features/` (ai, editor, export, settings), `hooks/`, `interfaces/`, `config/`, `types/`, `utils/`.
+- `backend/`: Python conversion engine (`backend/backend.py`), `backend/converters/` (table, toc), `backend/parsers/`, and `backend/tests/`.
 - `src-tauri/`: Tauri (Rust) desktop shell; `src-tauri/binaries/` holds the packaged Python executable.
 - `scripts/`: build/packaging helpers (PyInstaller, Inno Setup).
-- `test/`: fixtures/sample docs (not automated tests).
+- `test/`: frontend test files mirroring `src/` structure (`test/components/`, `test/features/`, `test/utils/`) + fixtures (`test/config.json`, `test/sample.md`).
 - Generated/ignored: `dist/`, `build/`, `src-tauri/target/`.
 
 ## Build, Test, and Development Commands
@@ -34,7 +34,9 @@ pnpm run build:backend   # PyInstaller backend -> src-tauri/binaries/
 
 ## Testing Guidelines
 
-- Frontend: Vitest + fast-check; name tests `*.test.ts(x)` (example: `src/services/pythonBackend.test.ts`).
+- Frontend: Vitest + fast-check; test files live in `test/` mirroring `src/` structure (e.g., `test/features/ai/store.test.ts`).
+- Frontend test imports use the `@/` alias (resolving to `src/`), not relative paths — including dynamic `import()` calls.
+- Default vitest environment is `node`; tests needing DOM must opt in with `// @vitest-environment jsdom` at the top of the file.
 - Backend: pytest + hypothesis in `backend/tests/`: `python -m pytest backend/tests`
 
 ## Commit & Pull Request Guidelines

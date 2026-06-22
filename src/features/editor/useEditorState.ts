@@ -2,6 +2,8 @@ import { useState, useCallback, useRef } from 'react';
 import { loadAutoSavedContent } from '../settings/store';
 import { KeyboardShortcutMap, isShortcutMatch } from '../settings/keyboardShortcuts';
 import { DEFAULT_MARKDOWN } from '../../constants';
+// Dev-only sample document; tree-shaken in production (import.meta.env.DEV → false).
+import sampleMd from '../../../test/sample.md?raw';
 
 const MAX_HISTORY = 100;
 
@@ -11,6 +13,7 @@ export function useEditorState(autoSave: boolean, shortcuts: KeyboardShortcutMap
       const saved = loadAutoSavedContent();
       if (saved !== null) return saved;
     }
+    if (import.meta.env.DEV) return sampleMd;
     return DEFAULT_MARKDOWN;
   });
 
