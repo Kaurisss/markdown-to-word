@@ -10,6 +10,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { motion } from 'framer-motion';
+import { fadeScale, motionTransition } from '@/components/ui/motion';
 
 interface LinkDialogProps {
   open: boolean;
@@ -49,6 +51,7 @@ export const LinkDialog: React.FC<LinkDialogProps> = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md p-5 gap-0 bg-white dark:bg-dark-surface border-ui-border dark:border-dark-border">
+        <motion.div variants={fadeScale} initial="initial" animate="enter" exit="exit" transition={motionTransition}>
         <form onSubmit={handleSubmit} className="space-y-4">
           <DialogHeader>
             <DialogTitle>添加超链接</DialogTitle>
@@ -85,6 +88,7 @@ export const LinkDialog: React.FC<LinkDialogProps> = ({
             <Button type="submit" size="sm">确定</Button>
           </DialogFooter>
         </form>
+        </motion.div>
       </DialogContent>
     </Dialog>
   );

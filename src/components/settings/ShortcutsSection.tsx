@@ -10,6 +10,8 @@ import {
 } from '../../features/settings/keyboardShortcuts';
 import { Kbd } from '../ui/kbd';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog';
+import { motion } from 'framer-motion';
+import { fadeScale, motionTransition } from '@/components/ui/motion';
 
 interface ShortcutsSectionProps {
   settings: {
@@ -189,6 +191,7 @@ export const ShortcutsSection: React.FC<ShortcutsSectionProps> = ({ settings, up
       {/* Reset Shortcuts Confirmation Dialog */}
       <Dialog open={showResetConfirm} onOpenChange={setShowResetConfirm}>
         <DialogContent className="w-80 p-4 gap-0 bg-white dark:bg-dark-surface border-gray-200 dark:border-dark-border" showCloseButton={false}>
+          <motion.div variants={fadeScale} initial="initial" animate="enter" exit="exit" transition={motionTransition}>
           <DialogHeader className="mb-4">
             <DialogTitle className="text-sm font-semibold text-gray-800 dark:text-gray-100">恢复默认快捷键</DialogTitle>
           </DialogHeader>
@@ -212,6 +215,7 @@ export const ShortcutsSection: React.FC<ShortcutsSectionProps> = ({ settings, up
               确定
             </button>
           </DialogFooter>
+          </motion.div>
         </DialogContent>
       </Dialog>
     </>

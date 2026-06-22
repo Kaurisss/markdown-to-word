@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect, useLayoutEffect, useCallback } from 'react';
+import { motion } from 'framer-motion';
 import { ColorFilterLine, AlignLeftLine, AlignCenterLine, AlignRightLine, AlignJustifyLine, BoldFill, ItalicLine, FontLine } from '@mingcute/react';
 import { Select } from '../../ui/Select';
 import { Toggle } from '../../ui/toggle';
@@ -7,6 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { ElementStyle, DocumentConfig } from '../../../types/config';
 import { STYLES, FONTS_CN, FONTS_EN, FONT_LABELS, FONT_SIZES, FONT_SIZES_PT } from '../constants';
 import { ColorPickerPopover } from './home/ColorPickerPopover';
+import { fadeSlideX, motionTransition } from '../../ui/motion';
 
 interface HomeTabProps {
   cfg: DocumentConfig;
@@ -68,7 +70,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
   };
 
   return (
-    <div className="flex items-center h-full animate-slide-in-left">
+    <motion.div className="flex items-center h-full" variants={fadeSlideX} initial="initial" animate="enter" exit="exit" transition={motionTransition}>
       {/* 样式选择 - 带滑块动画 */}
       <div className={STYLES.groupClass}>
         <div className={STYLES.groupContentClass}>
@@ -253,6 +255,6 @@ export const HomeTab: React.FC<HomeTabProps> = ({
         <span className={STYLES.groupLabelClass}>段落</span>
       </div>
 
-    </div>
+    </motion.div>
   );
 };

@@ -100,3 +100,5 @@ CHANGELOG/
 
 # ======== handoff ========
 /docs/handoff/
+
+.cursor/

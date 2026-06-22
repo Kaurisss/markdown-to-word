@@ -3,6 +3,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { AI_MODEL_ID_EXAMPLES } from './apiGuide';
+import { motion } from 'framer-motion';
+import { fadeScale, motionTransition } from '@/components/ui/motion';
 
 interface ModelDialogsProps {
   // Add model
@@ -31,6 +33,7 @@ export const ModelDialogs: React.FC<ModelDialogsProps> = (props) => (
     {/* Add Model Modal */}
     <Dialog open={props.showAddModel || props.isAddModelClosing} onOpenChange={(open) => { if (!open) props.closeAddModel(); }}>
       <DialogContent className="w-80 p-4 gap-0 bg-white dark:bg-dark-surface border-gray-200 dark:border-dark-border" showCloseButton={false}>
+        <motion.div variants={fadeScale} initial="initial" animate="enter" exit="exit" transition={motionTransition}>
         <DialogHeader className="mb-4">
           <DialogTitle className="text-sm font-semibold text-gray-800 dark:text-gray-100">添加模型</DialogTitle>
         </DialogHeader>
@@ -73,12 +76,14 @@ export const ModelDialogs: React.FC<ModelDialogsProps> = (props) => (
             </button>
           </DialogFooter>
         </div>
+        </motion.div>
       </DialogContent>
     </Dialog>
 
     {/* Edit Model Modal */}
     <Dialog open={props.showEditModel || props.isEditModelClosing} onOpenChange={(open) => { if (!open) props.closeEditModel(); }}>
       <DialogContent className="w-80 p-4 gap-0 bg-white dark:bg-dark-surface border-gray-200 dark:border-dark-border" showCloseButton={false}>
+        <motion.div variants={fadeScale} initial="initial" animate="enter" exit="exit" transition={motionTransition}>
         <DialogHeader className="mb-4">
           <DialogTitle className="text-sm font-semibold text-gray-800 dark:text-gray-100">编辑模型</DialogTitle>
         </DialogHeader>
@@ -121,6 +126,7 @@ export const ModelDialogs: React.FC<ModelDialogsProps> = (props) => (
             </button>
           </DialogFooter>
         </div>
+        </motion.div>
       </DialogContent>
     </Dialog>
   </>

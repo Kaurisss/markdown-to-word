@@ -15,7 +15,9 @@ import {
   shift,
   useFloating,
 } from '@floating-ui/react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { ActiveInlineFormats, InlineFormatKind } from '../../utils/inlineFormat';
+import { fadeSlideY, motionTransition } from '@/components/ui/motion';
 
 interface SelectionToolbarProps {
   visible: boolean;
@@ -71,35 +73,46 @@ export const SelectionToolbar: React.FC<SelectionToolbarProps> = ({
     refs.setReference(virtualRef);
   }, [refs, virtualRef]);
 
-  if (!visible) return null;
-
   return (
-    <div
-      ref={refs.setFloating}
-      style={floatingStyles}
-      className="z-[80] flex items-center gap-0.5 rounded-md border border-gray-200 bg-white p-1 shadow-lg dark:border-dark-border dark:bg-dark-surface"
-      onMouseDown={(event) => event.preventDefault()}
-    >
-      {actions.map((action) => {
-        const isActive = activeFormats[action.kind];
-        const buttonClassName = isActive
-          ? 'grid size-7 place-items-center rounded bg-brand-100 text-brand-700 transition-colors hover:bg-brand-200 dark:bg-brand-900/40 dark:text-brand-200 dark:hover:bg-brand-900/60'
-          : 'grid size-7 place-items-center rounded text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-dark-element dark:hover:text-gray-100';
-
-        return (
-          <button
-            key={action.kind}
-            type="button"
-            aria-label={action.label}
-            aria-pressed={isActive}
-            title={action.label}
-            className={buttonClassName}
-            onClick={() => onFormat(action.kind)}
+    <AnimatePresence>
+      {visible && (
+        <div
+          ref={refs.setFloating}
+          style={floatingStyles}
+          className="z-[80]"
+          onMouseDown={(event) => event.preventDefault()}
+        >
+          <motion.div
+            variants={fadeSlideY}
+            initial="initial"
+            animate="enter"
+            exit="exit"
+            transition={motionTransition}
+            className="flex items-center gap-0.5 rounded-md border border-gray-200 bg-white p-1 shadow-lg dark:border-dark-border dark:bg-dark-surface"
           >
-            {action.icon}
-          </button>
-        );
-      })}
-    </div>
+            {actions.map((action) => {
+              const isActive = activeFormats[action.kind];
+              const buttonClassName = isActive
+                ? 'grid size-7 place-items-center rounded bg-brand-100 text-brand-700 transition-colors hover:bg-brand-200 dark:bg-brand-900/40 dark:text-brand-200 dark:hover:bg-brand-900/60'
+                : 'grid size-7 place-items-center rounded text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-dark-element dark:hover:text-gray-100';
+
+              return (
+                <button
+                  key={action.kind}
+                  type="button"
+                  aria-label={action.label}
+                  aria-pressed={isActive}
+                  title={action.label}
+                  className={buttonClassName}
+                  onClick={() => onFormat(action.kind)}
+                >
+                  {action.icon}
+                </button>
+              );
+            })}
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
   );
 };

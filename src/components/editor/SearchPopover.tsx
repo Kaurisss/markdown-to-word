@@ -1,8 +1,10 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { Search2Line, CloseLine, ArrowUpLine, ArrowDownLine, RightLine, DownLine, TransferHorizontalLine } from '@mingcute/react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Toggle } from '@/components/ui/toggle';
+import { fadeSlideY, motionTransition } from '@/components/ui/motion';
 
 export type SearchPopoverProps = {
   visible: boolean;
@@ -54,11 +56,12 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
   const noResults = hasQuery && matchCount === 0;
 
   return (
-    <div
-      className={`absolute top-3 right-4 z-50 transition-all duration-200 ease-out ${visible
-        ? 'opacity-100 translate-y-0'
-        : 'opacity-0 -translate-y-2 pointer-events-none'
-        }`}
+    <motion.div
+      variants={fadeSlideY}
+      initial="initial"
+      animate={visible ? 'enter' : 'initial'}
+      transition={motionTransition}
+      className={`absolute top-3 right-4 z-50 ${!visible ? 'pointer-events-none' : ''}`}
     >
       <div className="bg-ui-surface/95 dark:bg-dark-surface/95 border border-ui-border dark:border-dark-border rounded-xl shadow-xl backdrop-blur-sm p-2.5 grid grid-cols-[auto_280px_auto] gap-x-2 gap-y-2 items-center">
 
@@ -252,7 +255,7 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
           </>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 

@@ -1,6 +1,8 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { FileNewLine, FileUploadLine, DocLine } from '@mingcute/react';
 import { STYLES } from '../constants';
+import { fadeSlideX, motionTransition } from '../../ui/motion';
 
 interface FileTabProps {
   onImport: (content: string) => void;
@@ -11,7 +13,7 @@ interface FileTabProps {
 
 export const FileTab: React.FC<FileTabProps> = ({ onImport, onExport, isExporting, fileInputRef }) => {
   return (
-    <div className="flex items-center h-full animate-slide-in-left">
+    <motion.div className="flex items-center h-full" variants={fadeSlideX} initial="initial" animate="enter" exit="exit" transition={motionTransition}>
       <div className={STYLES.groupClass}>
         <div className={STYLES.groupContentClass}>
           <button
@@ -39,6 +41,6 @@ export const FileTab: React.FC<FileTabProps> = ({ onImport, onExport, isExportin
         </div>
         <span className={STYLES.groupLabelClass}>文件操作</span>
       </div>
-    </div>
+    </motion.div>
   );
 };

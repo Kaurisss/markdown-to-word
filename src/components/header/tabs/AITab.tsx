@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 import { AIProvider } from '../../../types/ai';
 import { DocumentConfig } from '../../../types/config';
 import { AIModelSelector } from './ai/AIModelSelector';
@@ -8,6 +9,7 @@ import { useAIStyleGenerator } from './ai/useAIStyleGenerator';
 import { More2Line } from '@mingcute/react';
 
 import { STYLES } from '../constants';
+import { fadeSlideX, motionTransition } from '../../ui/motion';
 
 interface AITabProps {
   aiProviders: AIProvider[];
@@ -50,7 +52,7 @@ export const AITab: React.FC<AITabProps> = ({
   };
 
   return (
-    <div className="relative flex h-full w-full items-center animate-slide-in-left">
+    <motion.div className="relative flex h-full w-full items-center" variants={fadeSlideX} initial="initial" animate="enter" exit="exit" transition={motionTransition}>
       <div className={STYLES.groupClass}>
         <div className={STYLES.groupContentClass}>
           <div className="flex flex-col gap-0.5">
@@ -80,6 +82,6 @@ export const AITab: React.FC<AITabProps> = ({
         </div>
         <span className={STYLES.groupLabelClass}>智能生成</span>
       </div>
-    </div>
+    </motion.div>
   );
 };

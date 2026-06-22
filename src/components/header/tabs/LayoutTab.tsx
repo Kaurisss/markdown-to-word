@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { motion } from 'framer-motion';
 import { Select } from '../../ui/Select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../../ui/dropdown-menu';
 import { BoardLine, LayoutLine, DownSmallLine, DividingLineLine, ListCheckLine, CheckLine } from '@mingcute/react';
@@ -7,6 +8,7 @@ import { CustomMarginDialog } from './layout/CustomMarginDialog';
 import { SpinnerInput } from '../../ui/SpinnerInput';
 
 import { STYLES, FONTS_EN, FONT_LABELS } from '../constants';
+import { fadeSlideX, motionTransition } from '../../ui/motion';
 
 const LINE_SPACING_MODES = [
   { value: '1', label: '单倍行距' },
@@ -57,7 +59,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({ cfg, onCfgChange, activeSt
   }, [cfg.global.pageMargin]);
 
   return (
-    <div className="flex items-center h-full animate-slide-in-left">
+    <motion.div className="flex items-center h-full" variants={fadeSlideX} initial="initial" animate="enter" exit="exit" transition={motionTransition}>
       {/* Page Setup */}
       <div className={STYLES.groupClass}>
         <div className={STYLES.groupContentClass}>
@@ -281,6 +283,6 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({ cfg, onCfgChange, activeSt
         </div>
         <span className={STYLES.groupLabelClass}>段落间距</span>
       </div>
-    </div>
+    </motion.div>
   );
 };

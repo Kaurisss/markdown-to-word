@@ -1,7 +1,9 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { Back2Line, Forward2Line, ScissorsLine, Copy2Line, ClipboardLine, Search2Line, Transfer3Line, DownSmallLine } from '@mingcute/react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../../ui/dropdown-menu';
 import { STYLES } from '../constants';
+import { fadeSlideX, motionTransition } from '../../ui/motion';
 
 interface EditTabProps {
     onUndo?: () => void;
@@ -25,7 +27,7 @@ export const EditTab: React.FC<EditTabProps> = ({
     const iconBtnClass = "w-7 h-7 rounded flex items-center justify-center transition-colors text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-dark-element-hover active:bg-gray-300 dark:active:bg-dark-border";
 
     return (
-        <div className="flex items-center h-full animate-slide-in-left">
+        <motion.div className="flex items-center h-full" variants={fadeSlideX} initial="initial" animate="enter" exit="exit" transition={motionTransition}>
             {/* 撤销/重做 */}
             <div className={STYLES.groupClass}>
                 <div className={STYLES.groupContentClass}>
@@ -99,6 +101,6 @@ export const EditTab: React.FC<EditTabProps> = ({
                 </div>
                 <span className={STYLES.groupLabelClass}>编辑</span>
             </div>
-        </div>
+        </motion.div>
     );
 };

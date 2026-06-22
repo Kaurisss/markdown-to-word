@@ -9,6 +9,8 @@ import { ProviderIcon } from './ProviderIcon';
 import { ProviderIconPicker } from './ProviderIconPicker';
 import { AI_API_ENDPOINT_EXAMPLES } from './apiGuide';
 import { ProviderFormValues } from '../../features/ai/validation';
+import { motion } from 'framer-motion';
+import { fadeScale, motionTransition } from '@/components/ui/motion';
 
 interface PlatformDialogsProps {
   // Add platform
@@ -47,6 +49,7 @@ export const PlatformDialogs: React.FC<PlatformDialogsProps> = (props) => (
     {/* Add Platform Modal */}
     <Dialog open={props.showAddPlatform || props.isAddPlatformClosing} onOpenChange={(open) => { if (!open) props.closeAddPlatform(); }}>
       <DialogContent className="w-[420px] p-5 gap-0 bg-white dark:bg-dark-surface border-gray-200 dark:border-dark-border" showCloseButton={false}>
+        <motion.div variants={fadeScale} initial="initial" animate="enter" exit="exit" transition={motionTransition}>
         <DialogHeader className="mb-3">
           <DialogTitle className="text-sm font-semibold text-center text-gray-800 dark:text-gray-100">添加自定义平台</DialogTitle>
         </DialogHeader>
@@ -124,12 +127,14 @@ export const PlatformDialogs: React.FC<PlatformDialogsProps> = (props) => (
             </button>
           </DialogFooter>
         </div>
+        </motion.div>
       </DialogContent>
     </Dialog>
 
     {/* Edit Platform Modal */}
     <Dialog open={props.showEditPlatform || props.isEditPlatformClosing} onOpenChange={(open) => { if (!open) props.closeEditPlatform(); }}>
       <DialogContent className="w-[420px] p-5 gap-0 bg-white dark:bg-dark-surface border-gray-200 dark:border-dark-border" showCloseButton={false}>
+        <motion.div variants={fadeScale} initial="initial" animate="enter" exit="exit" transition={motionTransition}>
         <DialogHeader className="mb-3">
           <DialogTitle className="text-sm font-semibold text-center text-gray-800 dark:text-gray-100">编辑平台</DialogTitle>
         </DialogHeader>
@@ -207,6 +212,7 @@ export const PlatformDialogs: React.FC<PlatformDialogsProps> = (props) => (
             </button>
           </DialogFooter>
         </div>
+        </motion.div>
       </DialogContent>
     </Dialog>
   </>

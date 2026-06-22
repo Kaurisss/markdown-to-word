@@ -329,15 +329,6 @@ input[type=number] {
   animation: menu-out 0.1s ease-in forwards;
 }
 
-@keyframes slide-in-left {
-  from { opacity: 0; transform: translateX(-10px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-.animate-slide-in-left {
-  animation: slide-in-left 0.2s ease-out forwards;
-}
-
 @keyframes fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -372,21 +363,6 @@ input[type=number] {
 
 .animate-scale-out {
   animation: scale-out 0.2s ease-in forwards;
-}
-
-@keyframes section-enter {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-section-enter {
-  animation: section-enter 0.25s ease-out forwards;
 }
 
 /* ContentEditable Placeholder */

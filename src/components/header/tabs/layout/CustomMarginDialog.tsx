@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../../ui/dialog';
 import { Button } from '../../../ui/button';
 import { PageMargin } from '../../../../types/config';
+import { motion } from 'framer-motion';
+import { fadeScale, motionTransition } from '@/components/ui/motion';
 
 interface CustomMarginDialogProps {
   open: boolean;
@@ -32,6 +34,7 @@ export const CustomMarginDialog = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm bg-white dark:bg-dark-element border-ui-border-subtle shadow-xl">
+        <motion.div variants={fadeScale} initial="initial" animate="enter" exit="exit" transition={motionTransition}>
         <DialogHeader>
           <DialogTitle className="text-base font-semibold text-gray-900 dark:text-gray-100">自定义页边距</DialogTitle>
         </DialogHeader>
@@ -57,6 +60,7 @@ export const CustomMarginDialog = ({
           <Button variant="outline" size="sm" onClick={() => onOpenChange(false)} className="border-ui-border-subtle hover:bg-gray-50 dark:hover:bg-dark-element-hover">取消</Button>
           <Button size="sm" onClick={handleSave} className="bg-brand-500 hover:bg-brand-600 text-white">确定</Button>
         </DialogFooter>
+        </motion.div>
       </DialogContent>
     </Dialog>
   );
