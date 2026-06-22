@@ -2,6 +2,7 @@ import React from 'react';
 import type { FieldErrors } from 'react-hook-form';
 import { AddLine } from '@mingcute/react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog';
+import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -47,10 +48,10 @@ export const PlatformDialogs: React.FC<PlatformDialogsProps> = (props) => (
   <>
     {/* Add Platform Modal */}
     <Dialog open={props.showAddPlatform || props.isAddPlatformClosing} onOpenChange={(open) => { if (!open) props.closeAddPlatform(); }}>
-      <DialogContent className="w-[420px] p-5 gap-0 bg-white dark:bg-dark-surface border-gray-200 dark:border-dark-border" showCloseButton={false}>
+      <DialogContent className="w-[420px] p-5 gap-0" showCloseButton={false}>
 
         <DialogHeader className="mb-3">
-          <DialogTitle className="text-sm font-semibold text-center text-gray-800 dark:text-gray-100">添加自定义平台</DialogTitle>
+          <DialogTitle className="text-sm font-semibold text-center">添加自定义平台</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div className="flex flex-col items-center gap-2">
@@ -111,19 +112,12 @@ export const PlatformDialogs: React.FC<PlatformDialogsProps> = (props) => (
             自定义平台需要提供 OpenAI 兼容的 Chat Completions 完整端点。留空时使用默认示例地址，之后仍可编辑。
           </div>
           <DialogFooter className="mt-4 flex-row justify-end gap-2 sm:justify-end">
-            <button
-              onClick={props.closeAddPlatform}
-              className="px-3 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-element-hover rounded transition-colors"
-            >
+            <Button variant="outline" size="sm" onClick={props.closeAddPlatform}>
               取消
-            </button>
-            <button
-              onClick={props.handleAddPlatform}
-              disabled={!props.newPlatformName.trim()}
-              className="px-3 py-1.5 text-xs bg-brand-500 text-white rounded hover:bg-brand-600 disabled:opacity-50 transition-colors"
-            >
+            </Button>
+            <Button size="sm" onClick={props.handleAddPlatform} disabled={!props.newPlatformName.trim()}>
               确定
-            </button>
+            </Button>
           </DialogFooter>
         </div>
       </DialogContent>
@@ -131,10 +125,10 @@ export const PlatformDialogs: React.FC<PlatformDialogsProps> = (props) => (
 
     {/* Edit Platform Modal */}
     <Dialog open={props.showEditPlatform || props.isEditPlatformClosing} onOpenChange={(open) => { if (!open) props.closeEditPlatform(); }}>
-      <DialogContent className="w-[420px] p-5 gap-0 bg-white dark:bg-dark-surface border-gray-200 dark:border-dark-border" showCloseButton={false}>
+      <DialogContent className="w-[420px] p-5 gap-0" showCloseButton={false}>
 
         <DialogHeader className="mb-3">
-          <DialogTitle className="text-sm font-semibold text-center text-gray-800 dark:text-gray-100">编辑平台</DialogTitle>
+          <DialogTitle className="text-sm font-semibold text-center">编辑平台</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div className="flex flex-col items-center gap-2">
@@ -195,19 +189,12 @@ export const PlatformDialogs: React.FC<PlatformDialogsProps> = (props) => (
             自定义平台需要提供 OpenAI 兼容的 Chat Completions 完整端点。留空时使用默认示例地址，之后仍可编辑。
           </div>
           <DialogFooter className="mt-4 flex-row justify-end gap-2 sm:justify-end">
-            <button
-              onClick={props.closeEditPlatform}
-              className="px-3 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-element-hover rounded transition-colors"
-            >
+            <Button variant="outline" size="sm" onClick={props.closeEditPlatform}>
               取消
-            </button>
-            <button
-              onClick={props.handleSaveEditPlatform}
-              disabled={!props.editPlatformName.trim()}
-              className="px-3 py-1.5 text-xs bg-brand-500 text-white rounded hover:bg-brand-600 disabled:opacity-50 transition-colors"
-            >
+            </Button>
+            <Button size="sm" onClick={props.handleSaveEditPlatform} disabled={!props.editPlatformName.trim()}>
               保存
-            </button>
+            </Button>
           </DialogFooter>
         </div>
       </DialogContent>

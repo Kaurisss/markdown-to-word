@@ -245,7 +245,7 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
                 variant="default"
                 size="sm"
                 disabled={!hasQuery}
-                className="flex-1 text-[12px] h-[32px] px-0 bg-brand-500 hover:bg-brand-600 text-white border-0"
+                className="flex-1 text-[12px] h-[32px] px-0 bg-brand-600 hover:bg-brand-600 text-white border-0"
                 title="全部替换 (Ctrl+Enter)"
                 onClick={onReplaceAll}
               >

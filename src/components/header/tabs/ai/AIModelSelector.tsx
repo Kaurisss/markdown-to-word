@@ -95,7 +95,7 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({
             <div>没有已启用的平台</div>
             <button
               type="button"
-              className="mt-2 h-7 rounded-ui-control bg-brand-500 px-3 text-[13px] font-medium text-white hover:bg-brand-600"
+              className="mt-2 h-7 rounded-ui-control bg-brand-600 px-3 text-[13px] font-medium text-white hover:bg-brand-600"
               onClick={() => {
                 setOpen(false);
                 setTimeout(() => onConfigClick(), 150);

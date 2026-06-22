@@ -1,5 +1,6 @@
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog';
+import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { AI_MODEL_ID_EXAMPLES } from './apiGuide';
@@ -31,10 +32,10 @@ export const ModelDialogs: React.FC<ModelDialogsProps> = (props) => (
   <>
     {/* Add Model Modal */}
     <Dialog open={props.showAddModel || props.isAddModelClosing} onOpenChange={(open) => { if (!open) props.closeAddModel(); }}>
-      <DialogContent className="w-80 p-4 gap-0 bg-white dark:bg-dark-surface border-gray-200 dark:border-dark-border" showCloseButton={false}>
+      <DialogContent className="w-80 p-4 gap-0" showCloseButton={false}>
 
         <DialogHeader className="mb-4">
-          <DialogTitle className="text-sm font-semibold text-gray-800 dark:text-gray-100">添加模型</DialogTitle>
+          <DialogTitle className="text-sm font-semibold">添加模型</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
           <div className="space-y-1">
@@ -60,19 +61,12 @@ export const ModelDialogs: React.FC<ModelDialogsProps> = (props) => (
             />
           </div>
           <DialogFooter className="mt-4 flex-row justify-end gap-2 sm:justify-end">
-            <button
-              onClick={props.closeAddModel}
-              className="px-3 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-element-hover rounded transition-colors"
-            >
+            <Button variant="outline" size="sm" onClick={props.closeAddModel}>
               取消
-            </button>
-            <button
-              onClick={props.handleAddModel}
-              disabled={!props.newModelId.trim()}
-              className="px-3 py-1.5 text-xs bg-brand-500 text-white rounded hover:bg-brand-600 disabled:opacity-50 transition-colors"
-            >
+            </Button>
+            <Button size="sm" onClick={props.handleAddModel} disabled={!props.newModelId.trim()}>
               确定
-            </button>
+            </Button>
           </DialogFooter>
         </div>
       </DialogContent>
@@ -80,10 +74,10 @@ export const ModelDialogs: React.FC<ModelDialogsProps> = (props) => (
 
     {/* Edit Model Modal */}
     <Dialog open={props.showEditModel || props.isEditModelClosing} onOpenChange={(open) => { if (!open) props.closeEditModel(); }}>
-      <DialogContent className="w-80 p-4 gap-0 bg-white dark:bg-dark-surface border-gray-200 dark:border-dark-border" showCloseButton={false}>
+      <DialogContent className="w-80 p-4 gap-0" showCloseButton={false}>
 
         <DialogHeader className="mb-4">
-          <DialogTitle className="text-sm font-semibold text-gray-800 dark:text-gray-100">编辑模型</DialogTitle>
+          <DialogTitle className="text-sm font-semibold">编辑模型</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
           <div className="space-y-1">
@@ -109,19 +103,12 @@ export const ModelDialogs: React.FC<ModelDialogsProps> = (props) => (
             />
           </div>
           <DialogFooter className="mt-4 flex-row justify-end gap-2 sm:justify-end">
-            <button
-              onClick={props.closeEditModel}
-              className="px-3 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
-            >
+            <Button variant="outline" size="sm" onClick={props.closeEditModel}>
               取消
-            </button>
-            <button
-              onClick={props.handleSaveEditModel}
-              disabled={!props.editModelId.trim()}
-              className="px-3 py-1.5 text-xs bg-brand-500 text-white rounded hover:bg-brand-600 disabled:opacity-50 transition-colors"
-            >
+            </Button>
+            <Button size="sm" onClick={props.handleSaveEditModel} disabled={!props.editModelId.trim()}>
               保存
-            </button>
+            </Button>
           </DialogFooter>
         </div>
       </DialogContent>

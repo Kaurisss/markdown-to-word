@@ -48,7 +48,7 @@ export const LinkDialog: React.FC<LinkDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md p-5 gap-0 bg-white dark:bg-dark-surface border-ui-border dark:border-dark-border">
+      <DialogContent className="sm:max-w-md p-5 gap-0">
         <form onSubmit={handleSubmit} className="space-y-4">
           <DialogHeader>
             <DialogTitle>添加超链接</DialogTitle>

@@ -9,6 +9,7 @@ import {
   getShortcutFromKeyboardEvent,
 } from '../../features/settings/keyboardShortcuts';
 import { Kbd } from '../ui/kbd';
+import { Button } from '../ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog';
 
 
@@ -189,30 +190,24 @@ export const ShortcutsSection: React.FC<ShortcutsSectionProps> = ({ settings, up
 
       {/* Reset Shortcuts Confirmation Dialog */}
       <Dialog open={showResetConfirm} onOpenChange={setShowResetConfirm}>
-        <DialogContent className="w-80 p-4 gap-0 bg-white dark:bg-dark-surface border-gray-200 dark:border-dark-border" showCloseButton={false}>
+        <DialogContent className="w-80 p-4 gap-0" showCloseButton={false}>
 
           <DialogHeader className="mb-4">
-            <DialogTitle className="text-sm font-semibold text-gray-800 dark:text-gray-100">恢复默认快捷键</DialogTitle>
+            <DialogTitle className="text-sm font-semibold">恢复默认快捷键</DialogTitle>
           </DialogHeader>
           <div className="text-sm text-gray-600 dark:text-gray-300">
             确定要将所有快捷键恢复为默认设置吗？此操作不可撤销。
           </div>
           <DialogFooter className="mt-4 flex-row justify-end gap-2 sm:justify-end">
-            <button
-              onClick={() => setShowResetConfirm(false)}
-              className="px-3 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-element-hover rounded transition-colors"
-            >
+            <Button variant="outline" size="sm" onClick={() => setShowResetConfirm(false)}>
               取消
-            </button>
-            <button
-              onClick={() => {
-                resetAllShortcuts();
-                setShowResetConfirm(false);
-              }}
-              className="px-3 py-1.5 text-xs bg-brand-500 text-white rounded hover:bg-brand-600 transition-colors"
-            >
+            </Button>
+            <Button size="sm" onClick={() => {
+              resetAllShortcuts();
+              setShowResetConfirm(false);
+            }}>
               确定
-            </button>
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

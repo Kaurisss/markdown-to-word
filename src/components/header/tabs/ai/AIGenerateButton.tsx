@@ -17,7 +17,7 @@ export const AIGenerateButton: React.FC<AIGenerateButtonProps> = ({
         <button
             onClick={onClick}
             disabled={disabled}
-            className="relative h-7 w-[92px] bg-brand-500 hover:bg-brand-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-[13px] rounded font-medium transition-all active:scale-95 disabled:active:scale-100 whitespace-nowrap overflow-hidden"
+            className="relative h-7 w-[92px] bg-brand-600 hover:bg-brand-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-[13px] rounded font-medium transition-all active:scale-95 disabled:active:scale-100 whitespace-nowrap overflow-hidden"
         >
             <div className={cn("absolute inset-0 flex items-center justify-center gap-1.5 transition-opacity duration-200", isGenerating ? "opacity-100" : "opacity-0 pointer-events-none")}>
                 <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
