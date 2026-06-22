@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import Header from './components/header/Header';
 import Editor from './components/editor/Editor';
 import Preview from './components/preview/Preview';
@@ -144,6 +144,40 @@ const App: React.FC = () => {
     isSettingsWindow,
     appSettingsTheme: appSettings.theme,
   });
+
+  useEffect(() => {
+    if (isConfigWindow || isSettingsWindow) {
+      return;
+    }
+
+    setCfg((prev) => ({
+      ...prev,
+      global: {
+        ...prev.global,
+        baseFontCn: appSettings.defaultFontCn,
+        baseFontEn: appSettings.defaultFontEn,
+      },
+      styles: {
+        ...prev.styles,
+        body: {
+          ...prev.styles.body,
+          fontSize: appSettings.defaultFontSize,
+          lineSpacing: appSettings.defaultLineSpacing,
+          spaceAfter: appSettings.defaultSpaceAfter,
+          alignment: appSettings.defaultAlignment,
+        },
+      },
+    }));
+  }, [
+    appSettings.defaultAlignment,
+    appSettings.defaultFontCn,
+    appSettings.defaultFontEn,
+    appSettings.defaultFontSize,
+    appSettings.defaultLineSpacing,
+    appSettings.defaultSpaceAfter,
+    isConfigWindow,
+    isSettingsWindow,
+  ]);
 
   const openSettingsWindow = useCallback(async () => {
     try {

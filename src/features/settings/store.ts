@@ -19,6 +19,9 @@ export interface AppSettings {
   defaultFontCn: string;
   defaultFontEn: string;
   defaultFontSize: number;
+  defaultLineSpacing: number;
+  defaultSpaceAfter: number;
+  defaultAlignment: 'left' | 'center' | 'right' | 'justify';
   editorFontSize: number;
   editorLineHeight: number;
   editorWordWrap: boolean;
@@ -39,6 +42,9 @@ const DEFAULT_SETTINGS: AppSettings = {
   defaultFontCn: 'SimSun',
   defaultFontEn: '',
   defaultFontSize: 12,
+  defaultLineSpacing: 1.5,
+  defaultSpaceAfter: 8,
+  defaultAlignment: 'left',
   editorFontSize: 15,
   editorLineHeight: 32,
   editorWordWrap: true,
