@@ -2,7 +2,7 @@ import {
   EmojiLine as CircleCheckIcon,
   InformationLine as InfoIcon,
   LoadingLine as Loader2Icon,
-  UnhappyDizzyLine as OctagonXIcon,
+  ConfusedLine as OctagonXIcon,
   AlertLine as TriangleAlertIcon,
 } from "@mingcute/react"
 import { useTheme } from "next-themes"
