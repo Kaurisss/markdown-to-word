@@ -290,14 +290,12 @@ export function useAIConfig({
   const handleAddRemoteModel = useCallback((modelId: string) => {
     if (!selectedProvider) return;
     updateProviders(addMultipleModelsToProvider(providers, selectedProvider.id, [{ id: modelId, name: modelId }]));
-    toast.success('添加成功');
   }, [selectedProvider, providers, updateProviders]);
 
   const handleAddAllRemoteModels = useCallback((filteredModels: {id: string}[]) => {
     if (!selectedProvider) return;
     const modelsToAdd = filteredModels.map(m => ({ id: m.id, name: m.id }));
     updateProviders(addMultipleModelsToProvider(providers, selectedProvider.id, modelsToAdd));
-    toast.success('批量添加成功');
   }, [selectedProvider, providers, updateProviders]);
 
   // ── Platform CRUD ───────────────────────────────────────────────────
