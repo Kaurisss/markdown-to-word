@@ -21,6 +21,7 @@ import { ApiConfigFields } from './ApiConfigFields';
 import { ModelManager } from './ModelManager';
 import { PlatformDialogs } from './PlatformDialogs';
 import { ModelDialogs } from './ModelDialogs';
+import { RemoteModelDialog } from './RemoteModelDialog';
 
 export const AIConfigWindow: React.FC = () => {
   const { providers, updateProviders } = useAIConfigStore();
@@ -57,6 +58,19 @@ export const AIConfigWindow: React.FC = () => {
     handleDeleteModelClick,
     handlePlatformEdit,
     handlePlatformDelete,
+    
+    showRemoteModels,
+    isRemoteModelsClosing,
+    closeRemoteModels,
+    remoteModels,
+    remoteModelsLoading,
+    remoteModelsError,
+    remoteModelsSearch,
+    setRemoteModelsSearch,
+    handleOpenRemoteModels,
+    handleFetchRemoteModels,
+    handleAddRemoteModel,
+    handleAddAllRemoteModels,
   } = config;
 
   return (
@@ -150,6 +164,7 @@ export const AIConfigWindow: React.FC = () => {
               <ModelManager
                 provider={selectedProvider}
                 onAddModel={() => setShowAddModel(true)}
+                onFetchRemoteModels={handleOpenRemoteModels}
                 onTestModel={handleTestModelClick}
                 onEditModel={handleEditModel}
                 onCopyModel={config.handleCopyModel}
@@ -211,6 +226,25 @@ export const AIConfigWindow: React.FC = () => {
         editModelName={editModelName}
         setEditModelName={setEditModelName}
       />
+
+      {selectedProvider && (
+        <RemoteModelDialog
+          show={showRemoteModels}
+          isClosing={isRemoteModelsClosing}
+          onClose={closeRemoteModels}
+          providerName={selectedProvider.name}
+          loading={remoteModelsLoading}
+          error={remoteModelsError}
+          remoteModels={remoteModels}
+          existingModelIds={selectedProvider.models.map(m => m.id)}
+          search={remoteModelsSearch}
+          onSearchChange={setRemoteModelsSearch}
+          onRefresh={handleFetchRemoteModels}
+          onAddOne={handleAddRemoteModel}
+          onRemoveOne={config.handleDeleteModel}
+          onAddAll={handleAddAllRemoteModels}
+        />
+      )}
 
       <Toaster richColors position="top-center" closeButton />
     </div>

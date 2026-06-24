@@ -18,6 +18,25 @@ export function addModelToProvider(
   );
 }
 
+export function addMultipleModelsToProvider(
+  providers: AIProvider[],
+  providerId: string,
+  models: { id: string; name: string }[],
+): AIProvider[] {
+  return providers.map(p => {
+    if (p.id !== providerId) return p;
+    
+    // 跳过已有 id
+    const existingIds = new Set(p.models.map(m => m.id));
+    const newModels = models.filter(m => !existingIds.has(m.id));
+    
+    return {
+      ...p,
+      models: [...p.models, ...newModels],
+    };
+  });
+}
+
 export function deleteModelFromProvider(
   providers: AIProvider[],
   providerId: string,

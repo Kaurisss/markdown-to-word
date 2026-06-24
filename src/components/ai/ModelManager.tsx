@@ -1,5 +1,5 @@
 import React from 'react';
-import { AddLine, Copy2Line, PlayLine, Delete2Line, Edit2Line } from '@mingcute/react';
+import { AddLine, Copy2Line, PlayLine, Delete2Line, Edit2Line, DownloadLine } from '@mingcute/react';
 import { AIModel, AIProvider } from '../../types/ai';
 import {
   ContextMenu,
@@ -12,6 +12,7 @@ import {
 interface ModelManagerProps {
   provider: AIProvider;
   onAddModel: () => void;
+  onFetchRemoteModels: () => void;
   onTestModel: (model: AIModel) => void;
   onEditModel: (model: AIModel) => void;
   onCopyModel: (model: AIModel) => void;
@@ -21,6 +22,7 @@ interface ModelManagerProps {
 export const ModelManager: React.FC<ModelManagerProps> = ({
   provider,
   onAddModel,
+  onFetchRemoteModels,
   onTestModel,
   onEditModel,
   onCopyModel,
@@ -33,13 +35,22 @@ export const ModelManager: React.FC<ModelManagerProps> = ({
       </div>
     </div>
 
-    <button
-      onClick={onAddModel}
-      className="flex items-center gap-2 px-4 h-9 text-sm font-medium text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/20 hover:bg-brand-100 dark:hover:bg-brand-900/30 border border-brand-200 dark:border-brand-800 rounded-lg transition-colors w-fit"
-    >
-      <AddLine className="w-4 h-4" />
-      添加模型
-    </button>
+    <div className="flex items-center gap-2">
+      <button
+        onClick={onAddModel}
+        className="flex items-center gap-2 px-4 h-9 text-sm font-medium text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/20 hover:bg-brand-100 dark:hover:bg-brand-900/30 border border-brand-200 dark:border-brand-800 rounded-lg transition-colors w-fit"
+      >
+        <AddLine className="w-4 h-4" />
+        添加模型
+      </button>
+      <button
+        onClick={onFetchRemoteModels}
+        className="flex items-center gap-2 px-4 h-9 text-sm font-medium text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/20 hover:bg-gray-100 dark:hover:bg-gray-900/30 border border-gray-200 dark:border-gray-800 rounded-lg transition-colors w-fit"
+      >
+        <DownloadLine className="w-4 h-4" />
+        获取模型列表
+      </button>
+    </div>
 
     <div className="space-y-2">
       {provider.models.map(model => (

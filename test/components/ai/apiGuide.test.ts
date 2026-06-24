@@ -11,7 +11,7 @@ describe('apiGuide', () => {
     expect(AI_API_GUIDE.supportedProtocol).toContain('Chat Completions');
     expect(AI_API_GUIDE.requestShape).toContain('POST');
     expect(AI_API_GUIDE.requestShape).toContain('messages');
-    expect(AI_API_GUIDE.requestShape).toContain('Authorization: Bearer');
+    expect(AI_API_GUIDE.authRule).toContain('Authorization: Bearer');
   });
 
   it('uses full chat completions endpoint examples', () => {

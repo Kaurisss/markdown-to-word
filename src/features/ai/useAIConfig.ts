@@ -3,9 +3,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AIProvider, AIModel } from '../../types/ai';
 import { toast } from 'sonner';
-import { testApiConnection } from './aiApi';
+import { testApiConnection, fetchRemoteModels, RemoteModel } from './aiApi';
 import { updateProviderInList, toggleProviderInList } from './providerActions';
-import { addModelToProvider, deleteModelFromProvider, saveEditedModelInProvider, copyModelInProvider } from './modelActions';
+import { addModelToProvider, deleteModelFromProvider, saveEditedModelInProvider, copyModelInProvider, addMultipleModelsToProvider } from './modelActions';
 import {
   EMPTY_PROVIDER_FORM,
   EMPTY_MODEL_FORM,
@@ -127,7 +127,13 @@ export function useAIConfig({
   // ── API testing ─────────────────────────────────────────────────────
   const [testingModelId, setTestingModelId] = useState<string | null>(null);
 
-  // (Removed Context Menus here)
+  // ── Remote models dialog ─────────────────────────────────────────────
+  const [showRemoteModels, setShowRemoteModels] = useState(false);
+  const [isRemoteModelsClosing, setIsRemoteModelsClosing] = useState(false);
+  const [remoteModels, setRemoteModels] = useState<RemoteModel[]>([]);
+  const [remoteModelsLoading, setRemoteModelsLoading] = useState(false);
+  const [remoteModelsError, setRemoteModelsError] = useState<string | null>(null);
+  const [remoteModelsSearch, setRemoteModelsSearch] = useState('');
 
   // ── Derived values ──────────────────────────────────────────────────
   const selectedProvider = providers.find(p => p.id === selectedProviderId) ?? providers[0];
@@ -172,7 +178,16 @@ export function useAIConfig({
     }, 200);
   }, [editModelForm]);
 
-  // (Removed close context menu functions)
+  const closeRemoteModels = useCallback(() => {
+    setIsRemoteModelsClosing(true);
+    setTimeout(() => {
+      setShowRemoteModels(false);
+      setIsRemoteModelsClosing(false);
+      setRemoteModels([]);
+      setRemoteModelsSearch('');
+      setRemoteModelsError(null);
+    }, 200);
+  }, []);
 
   // ── Core provider helpers ───────────────────────────────────────────
 
@@ -238,6 +253,51 @@ export function useAIConfig({
   const handleCopyModel = useCallback((model: AIModel) => {
     if (!selectedProvider) return;
     updateProviders(copyModelInProvider(providers, selectedProvider.id, model));
+  }, [selectedProvider, providers, updateProviders]);
+
+  const handleFetchRemoteModels = useCallback(async () => {
+    if (!selectedProvider) return;
+    if (!selectedProvider.apiKey) {
+      toast.error('配置错误', { description: '请先配置 API Key' });
+      return;
+    }
+    setRemoteModelsLoading(true);
+    setRemoteModelsError(null);
+    try {
+      const models = await fetchRemoteModels({
+        baseUrl: selectedProvider.baseUrl,
+        apiKey: selectedProvider.apiKey,
+      });
+      setRemoteModels(models);
+    } catch (err) {
+      setRemoteModelsError(err instanceof Error ? err.message : '获取失败');
+    } finally {
+      setRemoteModelsLoading(false);
+    }
+  }, [selectedProvider]);
+
+  const handleOpenRemoteModels = useCallback(() => {
+    if (!selectedProvider) return;
+    if (!selectedProvider.apiKey) {
+      toast.error('配置错误', { description: '请先配置 API Key 才能获取模型列表' });
+      return;
+    }
+    setShowRemoteModels(true);
+    setRemoteModelsSearch('');
+    handleFetchRemoteModels();
+  }, [selectedProvider, handleFetchRemoteModels]);
+
+  const handleAddRemoteModel = useCallback((modelId: string) => {
+    if (!selectedProvider) return;
+    updateProviders(addMultipleModelsToProvider(providers, selectedProvider.id, [{ id: modelId, name: modelId }]));
+    toast.success('添加成功');
+  }, [selectedProvider, providers, updateProviders]);
+
+  const handleAddAllRemoteModels = useCallback((filteredModels: {id: string}[]) => {
+    if (!selectedProvider) return;
+    const modelsToAdd = filteredModels.map(m => ({ id: m.id, name: m.id }));
+    updateProviders(addMultipleModelsToProvider(providers, selectedProvider.id, modelsToAdd));
+    toast.success('批量添加成功');
   }, [selectedProvider, providers, updateProviders]);
 
   // ── Platform CRUD ───────────────────────────────────────────────────
@@ -383,6 +443,20 @@ export function useAIConfig({
     // Model management
     handleDeleteModel,
     handleCopyModel,
+
+    // Remote models dialog
+    showRemoteModels,
+    isRemoteModelsClosing,
+    closeRemoteModels,
+    remoteModels,
+    remoteModelsLoading,
+    remoteModelsError,
+    remoteModelsSearch,
+    setRemoteModelsSearch,
+    handleOpenRemoteModels,
+    handleFetchRemoteModels,
+    handleAddRemoteModel,
+    handleAddAllRemoteModels,
 
     // Refactored handlers for Context Menu
     handleTestModelClick,
