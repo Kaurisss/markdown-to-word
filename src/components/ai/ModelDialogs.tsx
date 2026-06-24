@@ -44,7 +44,7 @@ export const ModelDialogs: React.FC<ModelDialogsProps> = (props) => (
               type="text"
               value={props.newModelId}
               onChange={(e) => props.setNewModelId(e.target.value)}
-              placeholder="例如: gpt-4o, qwen-plus"
+              placeholder="例如: gpt-4.1-nano"
               autoFocus
             />
           </div>
@@ -86,7 +86,7 @@ export const ModelDialogs: React.FC<ModelDialogsProps> = (props) => (
               type="text"
               value={props.editModelId}
               onChange={(e) => props.setEditModelId(e.target.value)}
-              placeholder="例如: gpt-4o, qwen-plus"
+              placeholder="例如: gpt-4.1-nano"
               autoFocus
             />
           </div>

@@ -36,10 +36,10 @@ export const AI_API_ENDPOINT_EXAMPLES: ApiEndpointExample[] = [
 ];
 
 export const AI_MODEL_ID_EXAMPLES = [
-  'gpt-4o',
+  'gpt-4.1-nano',
   'qwen-plus',
-  'deepseek-chat',
-  'gemini-1.5-flash',
+  'deepseek-v4-flash',
+  'gemini-3.1-flash-lite',
 ];
 
 export const PROVIDER_CONSOLE_URLS: Record<string, string> = {

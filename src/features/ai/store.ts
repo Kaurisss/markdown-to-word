@@ -15,9 +15,9 @@ const DEFAULT_PROVIDERS: AIProvider[] = [
     apiKey: '',
     baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',
     models: [
-      { id: 'qwen-plus', name: 'Qwen-Plus' },
-      { id: 'qwen-flash', name: 'Qwen-Flash' },
-      { id: 'qwen-max', name: 'Qwen-Max' },
+      { id: 'qwen-plus', name: 'Qwen Plus' },
+      { id: 'qwen-flash', name: 'Qwen Flash' },
+      { id: 'qwen-max', name: 'Qwen Max' },
     ]
   },
   {
@@ -29,10 +29,10 @@ const DEFAULT_PROVIDERS: AIProvider[] = [
     apiKey: '',
     baseUrl: 'https://api.siliconflow.cn/v1/chat/completions',
     models: [
-      { id: 'Qwen/Qwen2.5-7B-Instruct', name: 'Qwen2.5-7B-Instruct' },
-      { id: 'Qwen/Qwen3-8B', name: 'Qwen3-8B' },
-      { id: 'deepseek-ai/DeepSeek-R1', name: 'DeepSeek-R1' },
-      { id: 'deepseek-ai/DeepSeek-V3', name: 'DeepSeek-V3' },
+      { id: 'Qwen/Qwen2.5-7B-Instruct', name: 'Qwen 2.5 7B Instruct' },
+      { id: 'Qwen/Qwen3-8B', name: 'Qwen 3 8B' },
+      { id: 'deepseek-ai/DeepSeek-R1', name: 'DeepSeek R1' },
+      { id: 'deepseek-ai/DeepSeek-V3', name: 'DeepSeek V3' },
     ]
   },
   {
@@ -44,9 +44,9 @@ const DEFAULT_PROVIDERS: AIProvider[] = [
     apiKey: '',
     baseUrl: 'https://open.bigmodel.cn/api/paas/v4/chat/completions',
     models: [
-      { id: 'glm-4.6-flash', name: 'GLM-4.6-Flash' },
-      { id: 'glm-4.5-flash', name: 'GLM-4.5-Flash' },
-      { id: 'glm-4.5-air', name: 'GLM-4.5-Air' },
+      { id: 'glm-4.6-flash', name: 'GLM 4.6 Flash' },
+      { id: 'glm-4.5-flash', name: 'GLM 4.5 Flash' },
+      { id: 'glm-4.5-air', name: 'GLM 4.5 Air' },
     ]
   },
   {
@@ -58,8 +58,8 @@ const DEFAULT_PROVIDERS: AIProvider[] = [
     apiKey: '',
     baseUrl: 'https://api.deepseek.com/chat/completions',
     models: [
-      { id: 'deepseek-chat', name: 'Deepseek-Chat' },
-      { id: 'deepseek-reasoner', name: 'Deepseek-Reasoner' },
+      { id: 'deepseek-v4-flash', name: 'Deepseek V4 Flash' },
+      { id: 'deepseek-v4-pro', name: 'Deepseek V4 Pro' },
     ]
   },
   {
@@ -71,8 +71,8 @@ const DEFAULT_PROVIDERS: AIProvider[] = [
     apiKey: '',
     baseUrl: 'https://api.moonshot.cn/v1/chat/completions',
     models: [
-      { id: 'kimi-k2-0711-preview', name: 'Kimi-K2-0711-Preview' },
-      { id: 'moonshot-v1-auto', name: 'Moonshot-V1-Auto' },
+      { id: 'kimi-k2-thinking', name: 'Kimi K2 Thinking' },
+      { id: 'moonshot-v1-auto', name: 'Moonshot V1 Auto' },
     ]
   },
   {
@@ -84,9 +84,9 @@ const DEFAULT_PROVIDERS: AIProvider[] = [
     apiKey: '',
     baseUrl: 'https://api.openai.com/v1/chat/completions',
     models: [
-      { id: 'gpt-4o', name: 'GPT-4o' },
-      { id: 'gpt-4o-mini', name: 'GPT-4o-mini' },
-      { id: 'o4-mini', name: 'o4-mini' },
+      { id: 'gpt-4.1-nano', name: 'GPT 4.1 Nano' },
+      { id: 'gpt-4.1-mini', name: 'GPT 4.1 Mini' },
+      { id: 'o4-mini', name: 'O4 Mini' },
     ]
   },
   {
@@ -98,8 +98,8 @@ const DEFAULT_PROVIDERS: AIProvider[] = [
     apiKey: '',
     baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
     models: [
-      { id: 'gemini-1.5-pro', name: 'Gemini-1.5-Pro' },
-      { id: 'gemini-1.5-flash', name: 'Gemini-1.5-Flash' },
+      { id: 'gemini-3.1-flash-lite', name: 'Gemini 3.1 Flash Lite' },
+      { id: 'gemini-3.5-flash', name: 'Gemini 3.5 Flash' },
     ]
   }
 ];

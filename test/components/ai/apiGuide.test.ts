@@ -34,10 +34,10 @@ describe('apiGuide', () => {
 
   it('contains model id examples that match configured provider style', () => {
     expect(AI_MODEL_ID_EXAMPLES).toEqual(expect.arrayContaining([
-      'gpt-4o',
+      'gpt-4.1-nano',
       'qwen-plus',
-      'deepseek-chat',
-      'gemini-1.5-flash',
+      'deepseek-v4-flash',
+      'gemini-3.1-flash-lite',
     ]));
   });
 });

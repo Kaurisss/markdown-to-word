@@ -7,6 +7,11 @@ import {
   InlineFormatKind,
 } from '../../utils/inlineFormat';
 
+interface SelectionToolbarAnchor {
+  x: number;
+  y: number;
+}
+
 interface SelectionToolbarState {
   visible: boolean;
   x: number;
@@ -49,6 +54,72 @@ const HIDDEN_STATE: SelectionToolbarState = {
   activeFormats: EMPTY_ACTIVE_FORMATS,
 };
 
+function getSelectionLineSegments(
+  content: string,
+  selectionStart: number,
+  selectionEnd: number,
+): SelectionRange[] {
+  const segments: SelectionRange[] = [];
+  let segmentStart = selectionStart;
+
+  for (let index = selectionStart; index < selectionEnd; index += 1) {
+    if (content[index] !== '\n') {
+      continue;
+    }
+
+    if (segmentStart < index) {
+      segments.push({ selectionStart: segmentStart, selectionEnd: index });
+    }
+
+    segmentStart = index + 1;
+  }
+
+  if (segmentStart < selectionEnd) {
+    segments.push({ selectionStart: segmentStart, selectionEnd });
+  }
+
+  return segments;
+}
+
+export function getSelectionToolbarAnchor(
+  editor: HTMLTextAreaElement,
+  content: string,
+  selectionStart: number,
+  selectionEnd: number,
+): SelectionToolbarAnchor {
+  const rect = editor.getBoundingClientRect();
+  const startCoords = getCaretCoordinates(editor, selectionStart);
+  const endCoords = getCaretCoordinates(editor, selectionEnd);
+  const lineSegments = getSelectionLineSegments(content, selectionStart, selectionEnd);
+
+  let anchorLeft = startCoords.left;
+  let anchorTop = startCoords.top;
+
+  if (lineSegments.length === 1) {
+    anchorLeft = (startCoords.left + endCoords.left) / 2;
+  } else if (lineSegments.length > 1) {
+    let minLeft = Number.POSITIVE_INFINITY;
+    let maxRight = Number.NEGATIVE_INFINITY;
+    let minTop = Number.POSITIVE_INFINITY;
+
+    for (const segment of lineSegments) {
+      const segmentStartCoords = getCaretCoordinates(editor, segment.selectionStart);
+      const segmentEndCoords = getCaretCoordinates(editor, segment.selectionEnd);
+      minLeft = Math.min(minLeft, segmentStartCoords.left);
+      maxRight = Math.max(maxRight, segmentEndCoords.left);
+      minTop = Math.min(minTop, segmentStartCoords.top);
+    }
+
+    anchorLeft = (minLeft + maxRight) / 2;
+    anchorTop = minTop;
+  }
+
+  return {
+    x: rect.left + anchorLeft - editor.scrollLeft,
+    y: rect.top + anchorTop - editor.scrollTop,
+  };
+}
+
 export function useSelectionToolbar({
   editorRef,
   content,
@@ -72,13 +143,12 @@ export function useSelectionToolbar({
       return;
     }
 
-    const coords = getCaretCoordinates(editor, selectionStart);
-    const rect = editor.getBoundingClientRect();
+    const anchor = getSelectionToolbarAnchor(editor, nextContent, selectionStart, selectionEnd);
 
     setState({
       visible: true,
-      x: rect.left + coords.left - editor.scrollLeft,
-      y: rect.top + coords.top - editor.scrollTop,
+      x: anchor.x,
+      y: anchor.y,
       selectionStart,
       selectionEnd,
       activeFormats: getActiveInlineFormats(nextContent, selectionStart, selectionEnd),
