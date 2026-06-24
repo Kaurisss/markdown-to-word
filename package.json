@@ -7,7 +7,7 @@
     "dev": "pnpm run generate:tokens && vite --port 3000 --strictPort",
     "dev:tauri": "tauri dev",
     "build": "pnpm run generate:tokens && vite build",
-    "build:tauri": "pnpm run build && tauri build",
+    "build:tauri": "pnpm run build:backend && pnpm run build && tauri build",
     "build:installer": "iscc scripts/inno-setup.iss",
     "build:backend": "node scripts/build-python.js",
     "lint": "eslint . --ext .ts,.tsx",

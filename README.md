@@ -99,7 +99,6 @@ pnpm test
 ## Windows 打包流程
 
 ```bash
-pnpm run build:backend
 pnpm run build:tauri
 pnpm run build:installer
 ```
@@ -110,7 +109,7 @@ pnpm run build:installer
 src-tauri/target/release/bundle/inno/
 ```
 
-如果改了 `backend/` 里的转换逻辑，记得重新执行 `pnpm run build:backend`，把新的 sidecar 放进 `src-tauri/binaries/`。
+`pnpm run build:tauri` 会先执行 `pnpm run build:backend`，确保 Python sidecar 存在于 Tauri 构建目录。安装使用 `pnpm run build:installer` 生成的安装器。
 
 ## 项目结构
 
