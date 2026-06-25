@@ -48,9 +48,6 @@ export const ModelDialogs: React.FC<ModelDialogsProps> = (props) => (
               autoFocus
             />
           </div>
-          <div className="text-xs leading-5 text-gray-400 dark:text-gray-500">
-            填供应商要求的模型 ID，例如 {AI_MODEL_ID_EXAMPLES.slice(0, 3).join('、')}；显示名称可以自定义。
-          </div>
           <div className="space-y-1">
             <Label className="ui-field-label">显示名称</Label>
             <Input
