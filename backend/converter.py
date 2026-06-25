@@ -13,8 +13,9 @@ from .errors import (
 from .converters.code_block import flush_code_buffer, is_fence, process_code_buffer
 from .converters.table import flush_table_buffer, process_table_buffer
 from .converters.toc import add_toc
+from .document_layout import apply_document_layout
 from .elements import (
-    add_heading, add_body, add_quote, add_list_item,
+    add_heading, add_body, add_caption, add_quote, add_list_item,
     add_horizontal_rule,
     set_page_margins,
 )
@@ -99,6 +100,8 @@ def convert(input_path: str, output_path: str, conf: Dict[str, Any]) -> None:
     code_buf: list[str] = []
     in_table = False
     table_buf: list[str] = []
+    seen_heading = False
+    caption_counts = {"图": 0, "表": 0, "公式": 0}
 
     i = 0
     while i < len(lines):
@@ -131,7 +134,31 @@ def convert(input_path: str, output_path: str, conf: Dict[str, Any]) -> None:
         if m:
             level = len(m.group(1))
             text = m.group(2)
-            add_heading(doc, text, level, conf)
+            body_start = conf.get("global", {}).get("bodyStart", {})
+            is_document_title = (
+                bool(body_start.get("firstHeadingAsTitle", False))
+                and not seen_heading
+                and level == 1
+            )
+            if is_document_title:
+                add_heading(doc, text, level, conf, is_document_title=True)
+            else:
+                add_heading(doc, text, level, conf)
+            seen_heading = True
+            i += 1
+            continue
+        numbered_caption_match = re.match(r"^\s*(图|表|公式)\s*(\d+)[\s　].+", line)
+        if numbered_caption_match:
+            kind = numbered_caption_match.group(1)
+            caption_counts[kind] = max(caption_counts[kind], int(numbered_caption_match.group(2)))
+            add_caption(doc, line.strip(), conf)
+            i += 1
+            continue
+        auto_caption_match = re.match(r"^\s*(图|表|公式)[\s　]+(.+)$", line)
+        if auto_caption_match:
+            kind = auto_caption_match.group(1)
+            caption_counts[kind] += 1
+            add_caption(doc, f"{kind}{caption_counts[kind]} {auto_caption_match.group(2).strip()}", conf)
             i += 1
             continue
         if re.match(r"^\s*>\s+(.*)$", line):
@@ -170,6 +197,8 @@ def convert(input_path: str, output_path: str, conf: Dict[str, Any]) -> None:
     # Flush any remaining buffers
     flush_code_buffer(doc, code_buf, conf)
     flush_table_buffer(doc, table_buf, conf)
+
+    apply_document_layout(doc, conf)
 
     try:
         doc.save(output_path)

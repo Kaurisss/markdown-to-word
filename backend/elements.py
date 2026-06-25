@@ -13,6 +13,7 @@ from .converters.styles import (
     _set_run_shading, _get_alignment,
 )
 from .parser import parse_inline_formatting
+from .text_normalization import normalize_fullwidth_punctuation
 
 
 def add_hyperlink(paragraph, url: str, text: str, style_config: Dict[str, Any], global_config: Dict[str, Any]):
@@ -40,7 +41,11 @@ def add_formatted_runs(paragraph, text: str, base_style: Dict[str, Any], global_
         if segment['link']:
             add_hyperlink(paragraph, segment['link'], segment['text'], base_style, global_config)
         else:
-            run = paragraph.add_run(segment['text'])
+            segment_text = segment['text']
+            if global_config.get("normalizePunctuation") and not segment.get("code"):
+                segment_text = normalize_fullwidth_punctuation(segment_text)
+
+            run = paragraph.add_run(segment_text)
 
             if segment['code'] and code_style:
                 apply_run_fmt(run, code_style, global_config)
@@ -64,8 +69,11 @@ def add_formatted_runs(paragraph, text: str, base_style: Dict[str, Any], global_
                     _set_run_shading(run, bg_color)
 
 
-def add_heading(doc: Document, text: str, level: int, conf: Dict[str, Any]) -> None:
-    style = conf["styles"].get(f"h{level}", conf["styles"]["h1"])
+def add_heading(doc: Document, text: str, level: int, conf: Dict[str, Any], is_document_title: bool = False) -> None:
+    if is_document_title:
+        style = conf["styles"].get("documentTitle", conf["styles"].get("h1", {}))
+    else:
+        style = conf["styles"].get(f"h{level}", conf["styles"]["h1"])
 
     heading_style_map = {
         1: "Heading 1",
@@ -76,12 +84,22 @@ def add_heading(doc: Document, text: str, level: int, conf: Dict[str, Any]) -> N
         6: "Heading 6",
     }
 
-    builtin_style = heading_style_map.get(level, "Heading 1")
+    builtin_style = "Title" if is_document_title else heading_style_map.get(level, "Heading 1")
     try:
         p = doc.add_paragraph(style=builtin_style)
     except KeyError:
         p = doc.add_paragraph()
 
+    apply_paragraph_fmt(p, style)
+    code_style = conf["styles"].get("code", {})
+    add_formatted_runs(p, text.strip(), style, conf["global"], code_style)
+
+
+def add_caption(doc: Document, text: str, conf: Dict[str, Any]) -> None:
+    style = conf["styles"].get("caption", conf["styles"].get("body", {})).copy()
+    style["firstLineIndent"] = 0
+
+    p = doc.add_paragraph()
     apply_paragraph_fmt(p, style)
     code_style = conf["styles"].get("code", {})
     add_formatted_runs(p, text.strip(), style, conf["global"], code_style)

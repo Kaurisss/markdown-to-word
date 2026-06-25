@@ -22,6 +22,7 @@ from ..converters.styles import (
     apply_paragraph_fmt, _get_alignment, _ensure_east_asia_font,
 )
 from ..parser import parse_inline_formatting
+from ..text_normalization import normalize_fullwidth_punctuation
 
 
 # ---------------------------------------------------------------------------
@@ -94,7 +95,11 @@ def _add_formatted_runs(paragraph, text: str, base_style: Dict[str, Any], global
         if segment['link']:
             _add_hyperlink(paragraph, segment['link'], segment['text'], base_style, global_config)
         else:
-            run = paragraph.add_run(segment['text'])
+            segment_text = segment['text']
+            if global_config.get("normalizePunctuation") and not segment.get("code"):
+                segment_text = normalize_fullwidth_punctuation(segment_text)
+
+            run = paragraph.add_run(segment_text)
 
             if segment['code'] and code_style:
                 apply_run_fmt(run, code_style, global_config)
@@ -133,8 +138,9 @@ def add_table(doc: Document, table_data: list[list[str]], conf: Dict[str, Any], 
     table = doc.add_table(rows=num_rows, cols=num_cols)
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
 
-    style = conf["styles"].get("body", {})
+    style = conf["styles"].get("table", conf["styles"].get("body", {}))
     global_conf = conf.get("global", {})
+    table_header_bold = bool(global_conf.get("tableHeaderBold", True))
 
     for row_idx, row_data in enumerate(table_data):
         row = table.rows[row_idx]
@@ -162,7 +168,7 @@ def add_table(doc: Document, table_data: list[list[str]], conf: Dict[str, Any], 
                 if align is not None:
                     paragraph.alignment = align
 
-            if row_idx == 0:
+            if row_idx == 0 and table_header_bold:
                 for run in paragraph.runs:
                     run.bold = True
 

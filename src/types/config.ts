@@ -1,5 +1,6 @@
 export interface ElementStyle {
   fontFamily?: string;
+  fontFamilyEn?: string;
   fontSize: number;
   color: string;
   bold: boolean;
@@ -19,20 +20,72 @@ export interface PageMargin {
   right: number;
 }
 
+export interface PageSize {
+  width: number;
+  height: number;
+  unit?: 'in' | 'cm';
+}
+
+export interface HeaderConfig {
+  enabled: boolean;
+  text: string;
+  distance: number;
+  fontFamily?: string;
+  fontFamilyEn?: string;
+  fontSize: number;
+  bold?: boolean;
+  alignment: 'left' | 'center' | 'right';
+}
+
+export interface FooterConfig {
+  enabled: boolean;
+  pageNumber: boolean;
+  format: string;
+  distance: number;
+  fontFamily?: string;
+  fontFamilyEn?: string;
+  fontSize: number;
+  bold?: boolean;
+  alignment: 'left' | 'center' | 'right';
+  startAtBody?: boolean;
+}
+
+export interface TableOfContentsConfig {
+  maxLevel?: number;
+  titleStyle?: Partial<ElementStyle>;
+  levelStyles?: Record<string, Partial<ElementStyle>>;
+}
+
+export interface BodyStartConfig {
+  firstHeadingAsTitle?: boolean;
+  restartPageNumberAfterToc?: boolean;
+  pageNumberStart?: number;
+}
+
 export interface DocumentConfig {
   global: {
     pageMargin: number | PageMargin;
+    pageSize?: PageSize;
     baseFontCn: string;
     baseFontEn: string;
     horizontalRule: 'default' | 'page_break' | 'hidden';
     includeTableOfContents: boolean;
+    header?: HeaderConfig;
+    footer?: FooterConfig;
+    tableOfContents?: TableOfContentsConfig;
+    bodyStart?: BodyStartConfig;
+    tableHeaderBold?: boolean;
+    normalizePunctuation?: boolean;
   };
   styles: {
+    documentTitle?: ElementStyle;
     h1: ElementStyle;
     h2: ElementStyle;
     h3: ElementStyle;
     body: ElementStyle;
     code: ElementStyle;
     quote: ElementStyle;
+    table?: ElementStyle;
+    caption?: ElementStyle;
   };
 }

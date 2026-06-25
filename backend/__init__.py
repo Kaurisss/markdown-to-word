@@ -14,7 +14,7 @@ from .parser import (  # noqa: F401
     parse_inline_formatting, parse_gfm_table, is_table_line, is_table_separator,
 )
 from .elements import (  # noqa: F401
-    add_heading, add_body, add_quote, add_list_item, add_code_block,
+    add_heading, add_body, add_quote, add_list_item, add_code_block, add_caption,
     add_horizontal_rule, add_table, add_hyperlink, add_formatted_runs,
     set_page_margins, add_table_of_contents,
 )

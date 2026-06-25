@@ -43,7 +43,7 @@ try:
     from .parser import parse_inline_formatting, parse_gfm_table, is_table_line, is_table_separator
     from .elements import (
         add_heading, add_body, add_quote, add_list_item, add_code_block,
-        add_horizontal_rule, add_table, add_hyperlink, add_formatted_runs,
+        add_horizontal_rule, add_caption, add_table, add_hyperlink, add_formatted_runs,
         set_page_margins, add_table_of_contents,
     )
     from .converter import convert
@@ -62,7 +62,7 @@ except (ImportError, AttributeError):
     from backend.parser import parse_inline_formatting, parse_gfm_table, is_table_line, is_table_separator
     from backend.elements import (
         add_heading, add_body, add_quote, add_list_item, add_code_block,
-        add_horizontal_rule, add_table, add_hyperlink, add_formatted_runs,
+        add_horizontal_rule, add_caption, add_table, add_hyperlink, add_formatted_runs,
         set_page_margins, add_table_of_contents,
     )
     from backend.converter import convert

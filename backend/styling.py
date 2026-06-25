@@ -155,7 +155,8 @@ def apply_run_fmt(run, style_config: Dict[str, Any], global_config: Dict[str, An
     base_en = (global_config.get("baseFontEn") or base_cn)
 
     ff = style_config.get("fontFamily")
+    ff_en = style_config.get("fontFamilyEn")
     if ff:
-        _ensure_east_asia_font(run, ff, ff)
+        _ensure_east_asia_font(run, ff, ff_en or base_en or ff)
     else:
-        _ensure_east_asia_font(run, base_cn, base_en if base_en else base_cn)
+        _ensure_east_asia_font(run, base_cn, ff_en or base_en or base_cn)
