@@ -24,7 +24,7 @@ def _course_design_conf():
             "includeTableOfContents": True,
             "header": {
                 "enabled": True,
-                "text": "综合课程设计网络",
+                "text": "",
                 "distance": 2.8 / 2.54,
                 "fontFamily": "SimSun",
                 "fontFamilyEn": "Times New Roman",
@@ -109,7 +109,7 @@ def test_course_design_page_layout_header_footer_and_page_restart(tmp_path):
     assert abs(body_section.left_margin.cm - 3.0) < 0.05
     assert abs(body_section.right_margin.cm - 2.5) < 0.05
 
-    assert first_section.header.paragraphs[0].text == "网络综合课程设计"
+    assert first_section.header.paragraphs[0].text == ""
     assert abs(first_section.header_distance.cm - 2.8) < 0.05
     assert abs(body_section.footer_distance.cm - 2.2) < 0.05
 

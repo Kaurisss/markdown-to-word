@@ -19,7 +19,7 @@ export const DEFAULT_CONFIG: DocumentConfig = {
     includeTableOfContents: true,
     header: {
       enabled: true,
-      text: '网络综合课程设计',
+      text: '',
       distance: 2.8 / 2.54,
       fontFamily: 'SimSun',
       fontFamilyEn: 'Times New Roman',

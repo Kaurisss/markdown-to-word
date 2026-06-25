@@ -12,6 +12,7 @@ import { UndoRedoDock } from './UndoRedoDock';
 import { useAIConfigStore } from '../../features/ai/store';
 import { useSettingsStore } from '../../features/settings/store';
 import { Tabs, TabsContent } from '../ui/tabs';
+import { ConfigStyleKey } from '../../types/config';
 
 const Header: React.FC<HeaderProps> = ({
   isExporting,
@@ -36,7 +37,7 @@ const Header: React.FC<HeaderProps> = ({
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeTab, setActiveTab] = useState<TabType>('home');
-  const [activeStyle, setActiveStyle] = useState<'body' | 'h1' | 'h2' | 'h3' | 'code' | 'quote'>('body');
+  const [activeStyle, setActiveStyle] = useState<ConfigStyleKey>('body');
   const [aiPrompt, setAiPrompt] = useState('');
 
   const { providers: aiProviders, selectedModel, updateSelectedModel } = useAIConfigStore();

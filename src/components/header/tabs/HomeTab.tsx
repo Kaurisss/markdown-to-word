@@ -5,7 +5,8 @@ import { Select } from '../../ui/Select';
 import { Toggle } from '../../ui/toggle';
 import { ToggleGroup, ToggleGroupItem } from '../../ui/toggle-group';
 import { Separator } from '@/components/ui/separator';
-import { ElementStyle, DocumentConfig } from '../../../types/config';
+import { ConfigStyleKey, ElementStyle, DocumentConfig } from '../../../types/config';
+import { DEFAULT_CONFIG } from '../../../config/defaultConfig';
 import { STYLES, FONTS_CN, FONTS_EN, FONT_LABELS, FONT_SIZES, FONT_SIZES_PT } from '../constants';
 import { ColorPickerPopover } from './home/ColorPickerPopover';
 import { fadeSlideX, motionTransition } from '../../ui/motion';
@@ -13,10 +14,22 @@ import { fadeSlideX, motionTransition } from '../../ui/motion';
 interface HomeTabProps {
   cfg: DocumentConfig;
   onCfgChange: (cfg: DocumentConfig) => void;
-  activeStyle: 'body' | 'h1' | 'h2' | 'h3' | 'code' | 'quote';
-  setActiveStyle: (style: 'body' | 'h1' | 'h2' | 'h3' | 'code' | 'quote') => void;
+  activeStyle: ConfigStyleKey;
+  setActiveStyle: (style: ConfigStyleKey) => void;
   onSearchClick?: () => void;
 }
+
+const STYLE_OPTIONS: Array<{ key: ConfigStyleKey; label: string }> = [
+  { key: 'body', label: '正文' },
+  { key: 'documentTitle', label: '题名' },
+  { key: 'h1', label: 'H1' },
+  { key: 'h2', label: 'H2' },
+  { key: 'h3', label: 'H3' },
+  { key: 'table', label: '表格' },
+  { key: 'caption', label: '题注' },
+  { key: 'code', label: '代码' },
+  { key: 'quote', label: '引用' },
+];
 
 export const HomeTab: React.FC<HomeTabProps> = ({
   cfg,
@@ -57,7 +70,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
     return () => window.removeEventListener('resize', updateSliderPosition);
   }, [updateSliderPosition]);
 
-  const currentStyle = cfg.styles[activeStyle];
+  const currentStyle = cfg.styles[activeStyle] ?? DEFAULT_CONFIG.styles[activeStyle] ?? DEFAULT_CONFIG.styles.body;
 
   const updateStyle = (patch: Partial<ElementStyle>) => {
     onCfgChange({
@@ -89,17 +102,17 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                   opacity: sliderStyle.width > 0 ? 1 : 0
                 }}
               />
-              {(['body', 'h1', 'h2', 'h3', 'code', 'quote'] as const).map(s => (
+              {STYLE_OPTIONS.map(({ key, label }) => (
                 <button
-                  key={s}
-                  ref={(el) => { if (el) tabRefs.current.set(s, el); }}
-                  onClick={() => setActiveStyle(s)}
-                  className={`relative z-10 px-2 py-1 text-[13px] rounded-sm transition-colors duration-200 ${activeStyle === s
+                  key={key}
+                  ref={(el) => { if (el) tabRefs.current.set(key, el); }}
+                  onClick={() => setActiveStyle(key)}
+                  className={`relative z-10 px-2 py-1 text-[13px] rounded-sm transition-colors duration-200 ${activeStyle === key
                       ? 'text-brand-600 dark:text-brand-400 font-medium'
                       : 'text-ui-text-muted hover:text-ui-text'
                     }`}
                 >
-                  {{ body: '正文', h1: 'H1', h2: 'H2', h3: 'H3', code: '代码', quote: '引用' }[s]}
+                  {label}
                 </button>
               ))}
             </div>

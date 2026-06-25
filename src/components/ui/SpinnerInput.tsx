@@ -41,11 +41,11 @@ export const SpinnerInput = ({ value, onChange, step = 1, min, max, suffix, clas
       {suffix && (
         <span className="text-[11px] text-ui-text-muted pr-0.5 flex-shrink-0 select-none">{suffix}</span>
       )}
-      <div className="flex flex-col border-l border-gray-200 dark:border-gray-700 flex-shrink-0">
-        <button type="button" className="flex items-center justify-center w-6 h-4 text-ui-text-muted hover:text-ui-text hover:bg-gray-100 dark:hover:bg-dark-element-hover transition-colors border-b border-gray-200 dark:border-gray-700" onClick={() => adjust(step)} tabIndex={-1}>
+      <div className="flex flex-col border-l border-gray-200 dark:border-gray-700 flex-shrink-0 h-full">
+        <button type="button" className="flex items-center justify-center w-6 flex-1 text-ui-text-muted hover:text-ui-text hover:bg-gray-100 dark:hover:bg-dark-element-hover transition-colors border-b border-gray-200 dark:border-gray-700" onClick={() => adjust(step)} tabIndex={-1}>
           <DownSmallFill className="w-4 h-4 rotate-180" />
         </button>
-        <button type="button" className="flex items-center justify-center w-6 h-4 text-ui-text-muted hover:text-ui-text hover:bg-gray-100 dark:hover:bg-dark-element-hover transition-colors" onClick={() => adjust(-step)} tabIndex={-1}>
+        <button type="button" className="flex items-center justify-center w-6 flex-1 text-ui-text-muted hover:text-ui-text hover:bg-gray-100 dark:hover:bg-dark-element-hover transition-colors" onClick={() => adjust(-step)} tabIndex={-1}>
           <DownSmallFill className="w-4 h-4" />
         </button>
       </div>

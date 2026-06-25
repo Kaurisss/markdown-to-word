@@ -3,8 +3,10 @@ import { motion } from 'framer-motion';
 import { Select } from '../../ui/Select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../../ui/dropdown-menu';
 import { BoardLine, LayoutLine, DownSmallLine, DividingLineLine, ListCheckLine, CheckLine } from '@mingcute/react';
-import { ElementStyle, DocumentConfig, PageMargin } from '../../../types/config';
+import { ConfigStyleKey, ElementStyle, DocumentConfig, PageMargin } from '../../../types/config';
+import { DEFAULT_CONFIG } from '../../../config/defaultConfig';
 import { CustomMarginDialog } from './layout/CustomMarginDialog';
+import { AdvancedPageSettingsDialog } from './layout/AdvancedPageSettingsDialog';
 import { SpinnerInput } from '../../ui/SpinnerInput';
 
 import { STYLES, FONTS_EN, FONT_LABELS } from '../constants';
@@ -21,13 +23,14 @@ const LINE_SPACING_MODES = [
 interface LayoutTabProps {
   cfg: DocumentConfig;
   onCfgChange: (cfg: DocumentConfig) => void;
-  activeStyle: 'body' | 'h1' | 'h2' | 'h3' | 'code' | 'quote';
+  activeStyle: ConfigStyleKey;
   onSearchClick?: () => void;
 }
 
 export const LayoutTab: React.FC<LayoutTabProps> = ({ cfg, onCfgChange, activeStyle, onSearchClick }) => {
   const [isMarginDialogOpen, setIsMarginDialogOpen] = useState(false);
-  const currentStyle = cfg.styles[activeStyle];
+  const [isAdvancedDialogOpen, setIsAdvancedDialogOpen] = useState(false);
+  const currentStyle = cfg.styles[activeStyle] ?? DEFAULT_CONFIG.styles[activeStyle] ?? DEFAULT_CONFIG.styles.body;
 
   const updateStyle = (patch: Partial<ElementStyle>) => {
     onCfgChange({
@@ -166,6 +169,23 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({ cfg, onCfgChange, activeSt
               })}
             </DropdownMenuContent>
           </DropdownMenu>
+
+          <button
+            className={`${STYLES.btnClass} flex-col h-14 w-14 !px-1 justify-center`}
+            onClick={() => setIsAdvancedDialogOpen(true)}
+            title="高级页面设置"
+          >
+            <LayoutLine className="w-6 h-6 mb-1" />
+            <span className="text-[11px] leading-none mb-0.5">高级</span>
+            <div className="w-4 h-4" />
+          </button>
+
+          <AdvancedPageSettingsDialog
+            open={isAdvancedDialogOpen}
+            onOpenChange={setIsAdvancedDialogOpen}
+            cfg={cfg}
+            onCfgChange={onCfgChange}
+          />
         </div>
         <span className={STYLES.groupLabelClass}>页面设置</span>
       </div>

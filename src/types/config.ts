@@ -62,6 +62,8 @@ export interface BodyStartConfig {
   pageNumberStart?: number;
 }
 
+export type ConfigStyleKey = 'body' | 'h1' | 'h2' | 'h3' | 'code' | 'quote' | 'documentTitle' | 'table' | 'caption';
+
 export interface DocumentConfig {
   global: {
     pageMargin: number | PageMargin;
