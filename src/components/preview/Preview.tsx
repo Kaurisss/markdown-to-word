@@ -29,6 +29,9 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
   const h1Style = elementStyleToCss(cfg, cfg.styles.h1);
   const h2Style = elementStyleToCss(cfg, cfg.styles.h2);
   const h3Style = elementStyleToCss(cfg, cfg.styles.h3);
+  const documentTitleStyle = elementStyleToCss(cfg, cfg.styles.documentTitle ?? cfg.styles.h1 ?? cfg.styles.body);
+  const tableStyle = elementStyleToCss(cfg, cfg.styles.table ?? cfg.styles.body);
+  const captionStyle = elementStyleToCss(cfg, cfg.styles.caption ?? cfg.styles.body);
   const quoteStyle = elementStyleToCss(cfg, cfg.styles.quote);
   const codeTextColor = cfg.styles.code.color || '#374151';
   const bodyTextColor = cfg.styles.body.color || '#374151';
@@ -59,17 +62,50 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
   // 与 Word 后端一致的表头背景色
   const tableHeadBg = '#e5e7eb';
 
-  // Memoize the entire components map so ReactMarkdown receives stable references.
-  // Without this, React unmounts and remounts every heading/paragraph/code block
-  // on each re-render, causing DOM thrash and losing text selection in long documents.
+  const firstHeadingSeenRef = React.useRef(false);
+  firstHeadingSeenRef.current = false; // reset on every render of Preview
+
+  const checkIsDocumentTitle = (level: number) => {
+    if (firstHeadingSeenRef.current) return false;
+    firstHeadingSeenRef.current = true;
+    return level === 1 && cfg.global.bodyStart?.firstHeadingAsTitle;
+  };
+
+  const getHastText = (node: any): string => {
+    if (!node) return '';
+    if (node.type === 'text') return node.value || '';
+    if (Array.isArray(node.children)) {
+      return node.children.map(getHastText).join('');
+    }
+    return '';
+  };
+
   const markdownComponents = useMemo(() => ({
-    h1: ({ children, ...props }: any) => <h1 {...props} style={{ ...h1Style, textIndent: undefined }}>{children}</h1>,
-    h2: ({ children, ...props }: any) => <h2 {...props} style={{ ...h2Style, textIndent: undefined }}>{children}</h2>,
-    h3: ({ children, ...props }: any) => <h3 {...props} style={{ ...h3Style, textIndent: undefined }}>{children}</h3>,
+    h1: ({ children, node, ...props }: any) => {
+      const isTitle = checkIsDocumentTitle(1);
+      return <h1 {...props} style={{ ...(isTitle ? documentTitleStyle : h1Style), textIndent: undefined }}>{children}</h1>;
+    },
+    h2: ({ children, ...props }: any) => {
+      checkIsDocumentTitle(2);
+      return <h2 {...props} style={{ ...h2Style, textIndent: undefined }}>{children}</h2>;
+    },
+    h3: ({ children, ...props }: any) => {
+      checkIsDocumentTitle(3);
+      return <h3 {...props} style={{ ...h3Style, textIndent: undefined }}>{children}</h3>;
+    },
     // Config only defines h1/h2/h3 styles; backend falls back to h1 for h4-h6
-    h4: ({ children, ...props }: any) => <h4 {...props} style={{ ...h1Style, textIndent: undefined }}>{children}</h4>,
-    h5: ({ children, ...props }: any) => <h5 {...props} style={{ ...h1Style, textIndent: undefined }}>{children}</h5>,
-    h6: ({ children, ...props }: any) => <h6 {...props} style={{ ...h1Style, textIndent: undefined }}>{children}</h6>,
+    h4: ({ children, ...props }: any) => {
+      checkIsDocumentTitle(4);
+      return <h4 {...props} style={{ ...h1Style, textIndent: undefined }}>{children}</h4>;
+    },
+    h5: ({ children, ...props }: any) => {
+      checkIsDocumentTitle(5);
+      return <h5 {...props} style={{ ...h1Style, textIndent: undefined }}>{children}</h5>;
+    },
+    h6: ({ children, ...props }: any) => {
+      checkIsDocumentTitle(6);
+      return <h6 {...props} style={{ ...h1Style, textIndent: undefined }}>{children}</h6>;
+    },
     a: ({ href, onClick, ...props }: any) => {
       const safeHref = typeof href === 'string' ? href : '';
       const isInternal = safeHref.startsWith('#');
@@ -127,9 +163,18 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
         />
       );
     },
-    p: ({ children, ...props }: any) => {
+    p: ({ children, node, ...props }: any) => {
       const firstChild = Array.isArray(children) ? children[0] : children;
       const isTextStart = typeof firstChild === 'string';
+
+      const text = getHastText(node);
+      
+      const isCaptionMatch = /^\s*(?:图|表|公式)\s*(?:\d+)?[\s　]+.+/.test(text);
+
+      if (isCaptionMatch) {
+        return <p {...props} style={{ ...captionStyle, textIndent: undefined, marginBottom: '0.5em' }}>{children}</p>;
+      }
+
       // If paragraph starts with a non-string (Element), it likely starts with MD tag (Bold, etc).
       // In this case, disable the first-line indent.
       const style = isTextStart
@@ -213,7 +258,8 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
       }
       return <hr {...props} className="my-6 border-t border-gray-300" />;
     },
-    table: (props: any) => <table {...props} style={{ width: '100%', borderCollapse: 'collapse' }} />,
+    table: (props: any) => <table {...props} style={{ width: '100%', borderCollapse: 'collapse', ...tableStyle, textIndent: undefined }} />,
+    caption: (props: any) => <caption {...props} style={{ ...captionStyle, textIndent: undefined, marginBottom: '0.5em' }} />,
     thead: (props: any) => <thead {...props} />,
     tbody: (props: any) => <tbody {...props} />,
     tr: (props: any) => <tr {...props} />,
@@ -221,14 +267,13 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
       <th
         {...props}
         style={{
-          ...bodyStyle,
+          ...tableStyle,
           border: tableBorder,
           padding: '0.5rem 0.75rem',
           backgroundColor: tableHeadBg,
-          fontWeight: 600,
+          fontWeight: cfg.global.tableHeaderBold ? 'bold' : (tableStyle.fontWeight || 600),
           textIndent: undefined,
-          // 与 Word 一致：默认左对齐，垂直居中
-          textAlign: 'left',
+          textAlign: tableStyle.textAlign || 'left',
           verticalAlign: 'middle'
         }}
       />
@@ -237,12 +282,11 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
       <td
         {...props}
         style={{
-          ...bodyStyle,
+          ...tableStyle,
           border: tableBorder,
           padding: '0.5rem 0.75rem',
           textIndent: undefined,
-          // 与 Word 一致：默认左对齐，垂直居中
-          textAlign: 'left',
+          textAlign: tableStyle.textAlign || 'left',
           verticalAlign: 'middle'
         }}
       />
@@ -258,7 +302,7 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref
         {children}
       </u>
     ),
-  }), [h1Style, h2Style, h3Style, bodyStyle, quoteStyle, inlineCodeStyle, codeBlockStyle, tableBorder, tableHeadBg, cfg]);
+  }), [h1Style, h2Style, h3Style, documentTitleStyle, tableStyle, captionStyle, bodyStyle, quoteStyle, inlineCodeStyle, codeBlockStyle, tableBorder, tableHeadBg, cfg]);
 
   return (
     <div className="flex flex-col h-full bg-ui-preview-canvas overflow-hidden relative transition-colors duration-200">

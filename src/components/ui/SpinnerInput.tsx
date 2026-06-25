@@ -1,7 +1,7 @@
 import React from 'react';
 import { DownSmallFill } from '@mingcute/react';
 
-interface SpinnerInputProps {
+interface SpinnerInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange' | 'min' | 'max' | 'step'> {
   value: number;
   onChange: (v: number) => void;
   step?: number;
@@ -11,7 +11,7 @@ interface SpinnerInputProps {
   className?: string;
 }
 
-export const SpinnerInput = ({ value, onChange, step = 1, min, max, suffix, className = 'w-20' }: SpinnerInputProps) => {
+export const SpinnerInput = ({ value, onChange, step = 1, min, max, suffix, className = 'w-20', id, ...props }: SpinnerInputProps) => {
   const decimals = step < 1 ? Math.max(1, String(step).split('.')[1]?.length ?? 1) : 0;
   const displayVal = decimals > 0 ? value.toFixed(decimals) : String(value);
 
@@ -25,6 +25,8 @@ export const SpinnerInput = ({ value, onChange, step = 1, min, max, suffix, clas
   return (
     <div className={`flex items-center border border-gray-200 dark:border-dark-border rounded-md bg-white dark:bg-dark-element overflow-hidden h-8 ${className}`}>
       <input
+        id={id}
+        {...props}
         className="flex-1 min-w-0 text-[13px] text-center border-0 bg-transparent outline-none focus-visible:ring-0 h-full dark:text-gray-100 px-1"
         value={displayVal}
         onChange={(e) => {

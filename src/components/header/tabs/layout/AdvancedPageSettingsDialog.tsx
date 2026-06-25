@@ -146,8 +146,9 @@ export const AdvancedPageSettingsDialog: React.FC<AdvancedPageSettingsDialogProp
                   <div className="text-[15px] font-medium text-gray-800 dark:text-gray-200 border-b border-gray-100 dark:border-dark-border pb-2">自定义纸张尺寸</div>
                   <div className="space-y-5">
                     <div>
-                      <label className={labelClass}>宽度（英寸）</label>
+                      <label htmlFor="input-width" className={labelClass}>宽度（英寸）</label>
                       <SpinnerInput
+                        id="input-width"
                         value={toInches(pageSize, 'width')}
                         step={0.1}
                         min={1}
@@ -157,8 +158,9 @@ export const AdvancedPageSettingsDialog: React.FC<AdvancedPageSettingsDialogProp
                       />
                     </div>
                     <div>
-                      <label className={labelClass}>高度（英寸）</label>
+                      <label htmlFor="input-height" className={labelClass}>高度（英寸）</label>
                       <SpinnerInput
+                        id="input-height"
                         value={toInches(pageSize, 'height')}
                         step={0.1}
                         min={1}
@@ -185,8 +187,9 @@ export const AdvancedPageSettingsDialog: React.FC<AdvancedPageSettingsDialogProp
                   <div className="text-[15px] font-medium text-gray-800 dark:text-gray-200 border-b border-gray-100 dark:border-dark-border pb-2">页眉内容</div>
                   <div className="space-y-5">
                     <div>
-                      <label className={labelClass}>页眉文本</label>
+                      <label htmlFor="input-header-text" className={labelClass}>页眉文本</label>
                       <Input
+                        id="input-header-text"
                         value={header.text}
                         onChange={(event) => updateHeader({ text: event.target.value })}
                         placeholder="留空则不显示文字"
@@ -195,8 +198,9 @@ export const AdvancedPageSettingsDialog: React.FC<AdvancedPageSettingsDialogProp
                       />
                     </div>
                     <div>
-                      <label className={labelClass}>距边界（英寸）</label>
+                      <label htmlFor="input-header-distance" className={labelClass}>距边界（英寸）</label>
                       <SpinnerInput
+                        id="input-header-distance"
                         value={header.distance}
                         step={0.1}
                         min={0}
@@ -225,8 +229,9 @@ export const AdvancedPageSettingsDialog: React.FC<AdvancedPageSettingsDialogProp
                   <div className="text-[15px] font-medium text-gray-800 dark:text-gray-200 border-b border-gray-100 dark:border-dark-border pb-2">内容与格式</div>
                   <div className="space-y-5">
                     <div>
-                      <label className={labelClass}>页码格式</label>
+                      <label htmlFor="input-footer-format" className={labelClass}>页码格式</label>
                       <Input
+                        id="input-footer-format"
                         value={footer.format}
                         onChange={(event) => updateFooter({ format: event.target.value })}
                         placeholder="第{page}页（共{pages}页）"
@@ -236,8 +241,9 @@ export const AdvancedPageSettingsDialog: React.FC<AdvancedPageSettingsDialogProp
                       <div className={helpTextClass}>可用占位符：{'{page}'} 当前页，{'{pages}'} 总页数。</div>
                     </div>
                     <div>
-                      <label className={labelClass}>距边界（英寸）</label>
+                      <label htmlFor="input-footer-distance" className={labelClass}>距边界（英寸）</label>
                       <SpinnerInput
+                        id="input-footer-distance"
                         value={footer.distance}
                         step={0.1}
                         min={0}
@@ -277,8 +283,9 @@ export const AdvancedPageSettingsDialog: React.FC<AdvancedPageSettingsDialogProp
                       />
                     </div>
                     <div>
-                      <label className={labelClass}>正文起始页码</label>
+                      <label htmlFor="input-body-start" className={labelClass}>正文起始页码</label>
                       <SpinnerInput
+                        id="input-body-start"
                         value={bodyStart.pageNumberStart ?? 1}
                         step={1}
                         min={1}

@@ -25,7 +25,10 @@ describe('AdvancedPageSettingsDialog', () => {
       />
     );
 
-    fireEvent.change(screen.getByPlaceholderText('留空则不显示页眉文字'), {
+    // Switch to Header tab
+    fireEvent.click(screen.getByText('页眉设置'));
+
+    fireEvent.change(screen.getByPlaceholderText('留空则不显示文字'), {
       target: { value: '课程设计' },
     });
 
@@ -39,6 +42,9 @@ describe('AdvancedPageSettingsDialog', () => {
         },
       },
     });
+
+    // Switch to Other tab
+    fireEvent.click(screen.getByText('表格与规范'));
 
     fireEvent.click(screen.getByRole('switch', { name: '表头加粗' }));
 
@@ -64,6 +70,7 @@ describe('AdvancedPageSettingsDialog', () => {
       />
     );
 
+    // Click Paper Size tab (default)
     fireEvent.change(screen.getByDisplayValue('8.3'), {
       target: { value: '8.5' },
     });
@@ -79,6 +86,9 @@ describe('AdvancedPageSettingsDialog', () => {
         },
       },
     });
+
+    // Switch to Body Start tab
+    fireEvent.click(screen.getByText('目录与正文'));
 
     fireEvent.click(screen.getByRole('switch', { name: '目录后正文重新编号' }));
 
