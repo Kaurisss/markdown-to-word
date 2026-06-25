@@ -5,7 +5,7 @@ import Preview from './components/preview/Preview';
 import SearchPopover from './components/editor/SearchPopover';
 import { showAppToast, ToastType } from './components/shell/Toast';
 import { StatusBar } from './components/shell/StatusBar';
-import { DEFAULT_CONFIG } from './config/defaultConfig';
+import { loadDocumentConfig, saveDocumentConfig } from './config/documentConfigStorage';
 import { DocumentConfig } from './types/config';
 import { ViewMode } from './types';
 
@@ -134,7 +134,7 @@ const App: React.FC = () => {
     onImport: handleImport,
   });
 
-  const [cfg, setCfg] = useState<DocumentConfig>(DEFAULT_CONFIG);
+  const [cfg, setCfg] = useState<DocumentConfig>(() => loadDocumentConfig());
   const [viewMode, setViewMode] = useState<ViewMode>(() => appSettings.defaultViewMode || 'split');
 
   const { isExporting, handleExport } = useExport({ content, cfg, showToast });
@@ -178,6 +178,14 @@ const App: React.FC = () => {
     isConfigWindow,
     isSettingsWindow,
   ]);
+
+  useEffect(() => {
+    if (isConfigWindow || isSettingsWindow) {
+      return;
+    }
+
+    saveDocumentConfig(cfg);
+  }, [cfg, isConfigWindow, isSettingsWindow]);
 
   const openSettingsWindow = useCallback(async () => {
     try {
