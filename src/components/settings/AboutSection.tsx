@@ -17,7 +17,9 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ settings }) => (
   <div className="space-y-5">
     {/* App Logo & Name */}
     <section className="flex flex-col items-center gap-3 pt-4 pb-2">
-      <img src={appLogo} alt="简阅转档" className="w-16 h-16 rounded-2xl border border-gray-200 dark:border-gray-600 object-contain" />
+      <div className="w-16 h-16 rounded-[16px] border border-gray-200 dark:border-gray-600 overflow-hidden bg-white dark:bg-dark-element flex items-center justify-center">
+        <img src={appLogo} alt="简阅转档" className="w-full h-full object-contain" />
+      </div>
       <div className="text-center">
         <div className="text-lg font-semibold text-gray-800 dark:text-gray-100">简阅转档</div>
         <div className="text-xs text-gray-500 dark:text-gray-400">v{__APP_VERSION__}</div>
