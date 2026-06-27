@@ -81,7 +81,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({ cfg, onCfgChange, activeSt
                   className="flex items-start gap-4 py-2.5 px-3 cursor-pointer"
                   onClick={() => onCfgChange({ ...cfg, global: { ...cfg.global, pageMargin: opt.val } })}
                 >
-                  <div className="w-10 h-12 border border-gray-300 dark:border-gray-600 bg-white dark:bg-dark-element relative flex-shrink-0 shadow-sm">
+                  <div className="w-10 h-12 border border-gray-300 dark:border-gray-600 bg-white dark:bg-dark-element relative flex-shrink-0">
                     <div 
                       className="absolute border border-brand-500/70 dark:border-brand-400/70 border-dashed" 
                       style={{

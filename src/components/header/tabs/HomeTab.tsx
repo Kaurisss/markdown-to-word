@@ -95,7 +95,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             >
               {/* 滑动指示器 */}
               <div
-                className="absolute top-0.5 bottom-0.5 bg-ui-surface-raised rounded-[6px] shadow-sm transition-all duration-300 ease-out"
+                className="absolute top-0.5 bottom-0.5 bg-ui-surface-raised rounded-[6px] transition-all duration-300 ease-out"
                 style={{
                   left: sliderStyle.left,
                   width: sliderStyle.width,
@@ -170,7 +170,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               size="sm"
               pressed={currentStyle.bold || false}
               onPressedChange={(pressed) => updateStyle({ bold: pressed })}
-              className="h-full w-8 p-0 rounded-[6px] hover:bg-black/5 dark:hover:bg-white/10 data-[state=on]:bg-ui-surface-raised data-[state=on]:shadow-sm data-[state=on]:text-brand-600 dark:data-[state=on]:text-brand-400 transition-all"
+              className="h-full w-8 p-0 rounded-[6px] hover:bg-black/5 dark:hover:bg-white/10 data-[state=on]:bg-ui-surface-raised data-[state=on]:text-brand-600 dark:data-[state=on]:text-brand-400 transition-all"
               title="加粗"
             >
               <BoldFill className="w-4 h-4" />
@@ -179,7 +179,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               size="sm"
               pressed={currentStyle.italic || false}
               onPressedChange={(pressed) => updateStyle({ italic: pressed })}
-              className="h-full w-8 p-0 rounded-[6px] hover:bg-black/5 dark:hover:bg-white/10 data-[state=on]:bg-ui-surface-raised data-[state=on]:shadow-sm data-[state=on]:text-brand-600 dark:data-[state=on]:text-brand-400 transition-all"
+              className="h-full w-8 p-0 rounded-[6px] hover:bg-black/5 dark:hover:bg-white/10 data-[state=on]:bg-ui-surface-raised data-[state=on]:text-brand-600 dark:data-[state=on]:text-brand-400 transition-all"
               title="斜体"
             >
               <ItalicLine className="w-4 h-4" />
@@ -253,7 +253,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                   key={align}
                   value={align}
                   size="sm"
-                  className="h-full w-8 p-0 rounded-[6px] hover:bg-black/5 dark:hover:bg-white/10 data-[state=on]:bg-ui-surface-raised data-[state=on]:shadow-sm data-[state=on]:text-brand-600 dark:data-[state=on]:text-brand-400 transition-all"
+                  className="h-full w-8 p-0 rounded-[6px] hover:bg-black/5 dark:hover:bg-white/10 data-[state=on]:bg-ui-surface-raised data-[state=on]:text-brand-600 dark:data-[state=on]:text-brand-400 transition-all"
                   title={{ left: '左对齐', center: '居中', right: '右对齐', justify: '两端对齐' }[align]}
                 >
                   {align === 'left' && <AlignLeftLine className="w-4 h-4" />}

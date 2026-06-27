@@ -41,12 +41,26 @@ function toInches(pageSize: PageSize, key: 'width' | 'height') {
 
 function switchRow(label: string, checked: boolean, onCheckedChange: (checked: boolean) => void, description?: string) {
   return (
-    <div className="flex items-center justify-between gap-6 py-1">
+    <div className="flex items-center justify-between gap-6 py-1.5">
       <div className="min-w-0 flex-1">
         <div className="text-[14px] text-gray-900 dark:text-gray-100">{label}</div>
         {description && <div className={helpTextClass}>{description}</div>}
       </div>
       <Switch aria-label={label} checked={checked} onCheckedChange={onCheckedChange} />
+    </div>
+  );
+}
+
+function fieldRow(label: string, control: React.ReactNode, description?: string) {
+  return (
+    <div className="flex items-center justify-between gap-6 py-1.5">
+      <div className="min-w-0 flex-1">
+        <div className="text-[14px] text-gray-900 dark:text-gray-100">{label}</div>
+        {description && <div className={helpTextClass}>{description}</div>}
+      </div>
+      <div className="shrink-0 flex items-center justify-end">
+        {control}
+      </div>
     </div>
   );
 }
@@ -142,34 +156,30 @@ export const AdvancedPageSettingsDialog: React.FC<AdvancedPageSettingsDialogProp
           <div className="flex-1 overflow-y-auto px-8 pb-8 pt-2">
             {activeSection === 'size' && (
               <div className="space-y-8 animate-in fade-in slide-in-from-right-2 duration-300">
-                <section className="space-y-4">
-                  <div className="text-[15px] font-medium text-gray-800 dark:text-gray-200 border-b border-gray-100 dark:border-dark-border pb-2">自定义纸张尺寸</div>
-                  <div className="space-y-5">
-                    <div>
-                      <label htmlFor="input-width" className={labelClass}>宽度（英寸）</label>
-                      <SpinnerInput
-                        id="input-width"
-                        value={toInches(pageSize, 'width')}
-                        step={0.1}
-                        min={1}
-                        suffix="in"
-                        className="w-full h-10"
-                        onChange={(width) => updatePageSize({ width })}
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="input-height" className={labelClass}>高度（英寸）</label>
-                      <SpinnerInput
-                        id="input-height"
-                        value={toInches(pageSize, 'height')}
-                        step={0.1}
-                        min={1}
-                        suffix="in"
-                        className="w-full h-10"
-                        onChange={(height) => updatePageSize({ height })}
-                      />
-                    </div>
-                  </div>
+                <section className="space-y-2">
+                  <div className="text-[15px] font-medium text-gray-800 dark:text-gray-200 border-b border-gray-100 dark:border-dark-border pb-2 mb-3">自定义纸张尺寸</div>
+                  {fieldRow('宽度（英寸）', (
+                    <SpinnerInput
+                      id="input-width"
+                      value={toInches(pageSize, 'width')}
+                      step={0.1}
+                      min={1}
+                      suffix="in"
+                      className="w-32 h-8"
+                      onChange={(width) => updatePageSize({ width })}
+                    />
+                  ))}
+                  {fieldRow('高度（英寸）', (
+                    <SpinnerInput
+                      id="input-height"
+                      value={toInches(pageSize, 'height')}
+                      step={0.1}
+                      min={1}
+                      suffix="in"
+                      className="w-32 h-8"
+                      onChange={(height) => updatePageSize({ height })}
+                    />
+                  ))}
                 </section>
               </div>
             )}
@@ -183,33 +193,29 @@ export const AdvancedPageSettingsDialog: React.FC<AdvancedPageSettingsDialogProp
                   </div>
                 </section>
 
-                <section className="space-y-4">
-                  <div className="text-[15px] font-medium text-gray-800 dark:text-gray-200 border-b border-gray-100 dark:border-dark-border pb-2">页眉内容</div>
-                  <div className="space-y-5">
-                    <div>
-                      <label htmlFor="input-header-text" className={labelClass}>页眉文本</label>
-                      <Input
-                        id="input-header-text"
-                        value={header.text}
-                        onChange={(event) => updateHeader({ text: event.target.value })}
-                        placeholder="留空则不显示文字"
-                        disabled={!header.enabled}
-                        className="h-10 text-[14px]"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="input-header-distance" className={labelClass}>距边界（英寸）</label>
-                      <SpinnerInput
-                        id="input-header-distance"
-                        value={header.distance}
-                        step={0.1}
-                        min={0}
-                        suffix="in"
-                        className="w-full h-10"
-                        onChange={(distance) => updateHeader({ distance })}
-                      />
-                    </div>
-                  </div>
+                <section className="space-y-2">
+                  <div className="text-[15px] font-medium text-gray-800 dark:text-gray-200 border-b border-gray-100 dark:border-dark-border pb-2 mb-3">页眉内容</div>
+                  {fieldRow('页眉文本', (
+                    <Input
+                      id="input-header-text"
+                      value={header.text}
+                      onChange={(event) => updateHeader({ text: event.target.value })}
+                      placeholder="留空则不显示"
+                      disabled={!header.enabled}
+                      className="w-48 h-8 text-[13px]"
+                    />
+                  ))}
+                  {fieldRow('距边界（英寸）', (
+                    <SpinnerInput
+                      id="input-header-distance"
+                      value={header.distance}
+                      step={0.1}
+                      min={0}
+                      suffix="in"
+                      className="w-32 h-8"
+                      onChange={(distance) => updateHeader({ distance })}
+                    />
+                  ))}
                 </section>
               </div>
             )}
@@ -225,34 +231,29 @@ export const AdvancedPageSettingsDialog: React.FC<AdvancedPageSettingsDialogProp
                   </div>
                 </section>
 
-                <section className="space-y-4">
-                  <div className="text-[15px] font-medium text-gray-800 dark:text-gray-200 border-b border-gray-100 dark:border-dark-border pb-2">内容与格式</div>
-                  <div className="space-y-5">
-                    <div>
-                      <label htmlFor="input-footer-format" className={labelClass}>页码格式</label>
-                      <Input
-                        id="input-footer-format"
-                        value={footer.format}
-                        onChange={(event) => updateFooter({ format: event.target.value })}
-                        placeholder="第{page}页（共{pages}页）"
-                        disabled={!footer.enabled || !footer.pageNumber}
-                        className="h-10 text-[14px]"
-                      />
-                      <div className={helpTextClass}>可用占位符：{'{page}'} 当前页，{'{pages}'} 总页数。</div>
-                    </div>
-                    <div>
-                      <label htmlFor="input-footer-distance" className={labelClass}>距边界（英寸）</label>
-                      <SpinnerInput
-                        id="input-footer-distance"
-                        value={footer.distance}
-                        step={0.1}
-                        min={0}
-                        suffix="in"
-                        className="w-full h-10"
-                        onChange={(distance) => updateFooter({ distance })}
-                      />
-                    </div>
-                  </div>
+                <section className="space-y-2">
+                  <div className="text-[15px] font-medium text-gray-800 dark:text-gray-200 border-b border-gray-100 dark:border-dark-border pb-2 mb-3">内容与格式</div>
+                  {fieldRow('页码格式', (
+                    <Input
+                      id="input-footer-format"
+                      value={footer.format}
+                      onChange={(event) => updateFooter({ format: event.target.value })}
+                      placeholder="第{page}页"
+                      disabled={!footer.enabled || !footer.pageNumber}
+                      className="w-48 h-8 text-[13px]"
+                    />
+                  ), '可用占位符：{page} 当前页，{pages} 总页数。')}
+                  {fieldRow('距边界（英寸）', (
+                    <SpinnerInput
+                      id="input-footer-distance"
+                      value={footer.distance}
+                      step={0.1}
+                      min={0}
+                      suffix="in"
+                      className="w-32 h-8"
+                      onChange={(distance) => updateFooter({ distance })}
+                    />
+                  ))}
                 </section>
               </div>
             )}
@@ -268,32 +269,28 @@ export const AdvancedPageSettingsDialog: React.FC<AdvancedPageSettingsDialogProp
                   </div>
                 </section>
 
-                <section className="space-y-4">
-                  <div className="text-[15px] font-medium text-gray-800 dark:text-gray-200 border-b border-gray-100 dark:border-dark-border pb-2">层级与页码</div>
-                  <div className="space-y-5">
-                    <div>
-                      <label className={labelClass}>目录最大层级</label>
-                      <Select
-                        className="w-full h-10 text-[14px]"
-                        triggerClassName="h-10 px-3 text-[14px] rounded-lg"
-                        optionClassName="text-[14px]"
-                        value={tableOfContents.maxLevel ?? 2}
-                        onChange={(value) => updateGlobal({ tableOfContents: { ...tableOfContents, maxLevel: Number(value) } })}
-                        options={[1, 2, 3, 4, 5, 6].map((level) => ({ label: `${level} 级标题`, value: level }))}
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="input-body-start" className={labelClass}>正文起始页码</label>
-                      <SpinnerInput
-                        id="input-body-start"
-                        value={bodyStart.pageNumberStart ?? 1}
-                        step={1}
-                        min={1}
-                        className="w-full h-10"
-                        onChange={(pageNumberStart) => updateGlobal({ bodyStart: { ...bodyStart, pageNumberStart } })}
-                      />
-                    </div>
-                  </div>
+                <section className="space-y-2">
+                  <div className="text-[15px] font-medium text-gray-800 dark:text-gray-200 border-b border-gray-100 dark:border-dark-border pb-2 mb-3">层级与页码</div>
+                  {fieldRow('目录最大层级', (
+                    <Select
+                      className="w-48"
+                      triggerClassName="h-8 text-[13px] rounded-md"
+                      optionClassName="text-[13px]"
+                      value={tableOfContents.maxLevel ?? 2}
+                      onChange={(value) => updateGlobal({ tableOfContents: { ...tableOfContents, maxLevel: Number(value) } })}
+                      options={[1, 2, 3, 4, 5, 6].map((level) => ({ label: `${level} 级标题`, value: level }))}
+                    />
+                  ))}
+                  {fieldRow('正文起始页码', (
+                    <SpinnerInput
+                      id="input-body-start"
+                      value={bodyStart.pageNumberStart ?? 1}
+                      step={1}
+                      min={1}
+                      className="w-32 h-8"
+                      onChange={(pageNumberStart) => updateGlobal({ bodyStart: { ...bodyStart, pageNumberStart } })}
+                    />
+                  ))}
                 </section>
               </div>
             )}

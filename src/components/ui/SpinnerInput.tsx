@@ -23,11 +23,11 @@ export const SpinnerInput = ({ value, onChange, step = 1, min, max, suffix, clas
   };
 
   return (
-    <div className={`flex items-center border border-gray-200 dark:border-dark-border rounded-md bg-white dark:bg-dark-element overflow-hidden h-8 ${className}`}>
+    <div className={`flex items-center border border-gray-200 dark:border-dark-border rounded-md bg-white dark:bg-dark-element overflow-hidden h-8 transition-shadow focus-within:border-brand-500 focus-within:ring-1 focus-within:ring-brand-500 ${className}`}>
       <input
         id={id}
         {...props}
-        className="flex-1 min-w-0 text-[13px] text-center border-0 bg-transparent outline-none focus-visible:ring-0 h-full dark:text-gray-100 px-1"
+        className="flex-1 min-w-0 text-[13px] text-left border-0 bg-transparent outline-none focus-visible:ring-0 h-full dark:text-gray-100 pl-2 pr-1"
         value={displayVal}
         onChange={(e) => {
           const raw = e.target.value.trim();
@@ -41,14 +41,14 @@ export const SpinnerInput = ({ value, onChange, step = 1, min, max, suffix, clas
         }}
       />
       {suffix && (
-        <span className="text-[11px] text-ui-text-muted pr-0.5 flex-shrink-0 select-none">{suffix}</span>
+        <span className="text-[11px] text-ui-text-muted pr-2 flex-shrink-0 select-none">{suffix}</span>
       )}
       <div className="flex flex-col border-l border-gray-200 dark:border-gray-700 flex-shrink-0 h-full">
-        <button type="button" className="flex items-center justify-center w-6 flex-1 text-ui-text-muted hover:text-ui-text hover:bg-gray-100 dark:hover:bg-dark-element-hover transition-colors border-b border-gray-200 dark:border-gray-700" onClick={() => adjust(step)} tabIndex={-1}>
-          <DownSmallFill className="w-4 h-4 rotate-180" />
+        <button type="button" className="flex items-center justify-center w-4 flex-1 text-ui-text-muted hover:text-ui-text hover:bg-gray-100 dark:hover:bg-dark-element-hover transition-colors border-b border-gray-200 dark:border-gray-700" onClick={() => adjust(step)} tabIndex={-1}>
+          <DownSmallFill className="w-3.5 h-3.5 rotate-180" />
         </button>
-        <button type="button" className="flex items-center justify-center w-6 flex-1 text-ui-text-muted hover:text-ui-text hover:bg-gray-100 dark:hover:bg-dark-element-hover transition-colors" onClick={() => adjust(-step)} tabIndex={-1}>
-          <DownSmallFill className="w-4 h-4" />
+        <button type="button" className="flex items-center justify-center w-4 flex-1 text-ui-text-muted hover:text-ui-text hover:bg-gray-100 dark:hover:bg-dark-element-hover transition-colors" onClick={() => adjust(-step)} tabIndex={-1}>
+          <DownSmallFill className="w-3.5 h-3.5" />
         </button>
       </div>
     </div>
