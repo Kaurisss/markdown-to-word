@@ -77,8 +77,7 @@ export const EditTab: React.FC<EditTabProps> = ({
                                 className={`${STYLES.btnClass} flex-col h-14 w-14 !px-1 justify-center`}
                             >
                                 <Search2Line className="w-6 h-6 mb-1" />
-                                <span className="text-[11px] leading-none mb-0.5">编辑</span>
-                                <DownSmallLine className="w-4 h-4 opacity-70" />
+                                <span className="text-[11px] leading-none">编辑</span>
                             </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="start" className="w-[140px]">

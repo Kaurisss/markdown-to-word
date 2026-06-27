@@ -70,8 +70,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({ cfg, onCfgChange, activeSt
             <DropdownMenuTrigger asChild>
               <button className={`${STYLES.btnClass} flex-col h-14 w-14 !px-1 justify-center`}>
                 <BoardLine className="w-6 h-6 mb-1" />
-                <span className="text-[11px] leading-none mb-0.5">页边距</span>
-                <DownSmallLine className="w-4 h-4 opacity-70" />
+                <span className="text-[11px] leading-none">页边距</span>
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-[260px]">
@@ -124,8 +123,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({ cfg, onCfgChange, activeSt
             <DropdownMenuTrigger asChild>
               <button className={`${STYLES.btnClass} flex-col h-14 w-14 !px-1 justify-center`}>
                 <DividingLineLine className="w-6 h-6 mb-1" />
-                <span className="text-[11px] leading-none mb-0.5">分割线</span>
-                <DownSmallLine className="w-4 h-4 opacity-70" />
+                <span className="text-[11px] leading-none">分割线</span>
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-[140px]">
@@ -149,8 +147,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({ cfg, onCfgChange, activeSt
             <DropdownMenuTrigger asChild>
               <button className={`${STYLES.btnClass} flex-col h-14 w-14 !px-1 justify-center`}>
                 <ListCheckLine className="w-6 h-6 mb-1" />
-                <span className="text-[11px] leading-none mb-0.5">目录</span>
-                <DownSmallLine className="w-4 h-4 opacity-70" />
+                <span className="text-[11px] leading-none">目录</span>
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-[140px]">
@@ -176,8 +173,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({ cfg, onCfgChange, activeSt
             title="高级页面设置"
           >
             <LayoutLine className="w-6 h-6 mb-1" />
-            <span className="text-[11px] leading-none mb-0.5">高级</span>
-            <div className="w-4 h-4" />
+            <span className="text-[11px] leading-none">高级</span>
           </button>
 
           <AdvancedPageSettingsDialog

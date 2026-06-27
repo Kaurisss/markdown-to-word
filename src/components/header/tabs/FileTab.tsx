@@ -18,25 +18,25 @@ export const FileTab: React.FC<FileTabProps> = ({ onImport, onExport, isExportin
         <div className={STYLES.groupContentClass}>
           <button
             onClick={() => onImport('')}
-            className={`${STYLES.btnClass} flex-col gap-0.5 h-12 w-12 !px-1`}
+            className={`${STYLES.btnClass} flex-col h-14 w-14 !px-1 justify-center`}
           >
-            <FileNewLine className="w-5 h-5" />
-            <span className="text-xs">新建</span>
+            <FileNewLine className="w-6 h-6 mb-1" />
+            <span className="text-[11px] leading-none">新建</span>
           </button>
           <button
             onClick={() => fileInputRef.current?.click()}
-            className={`${STYLES.btnClass} flex-col gap-0.5 h-12 w-12 !px-1`}
+            className={`${STYLES.btnClass} flex-col h-14 w-14 !px-1 justify-center`}
           >
-            <FileUploadLine className="w-5 h-5" />
-            <span className="text-xs">导入</span>
+            <FileUploadLine className="w-6 h-6 mb-1" />
+            <span className="text-[11px] leading-none">导入</span>
           </button>
           <button
             onClick={onExport}
             disabled={isExporting}
-            className={`${STYLES.btnClass} flex-col gap-0.5 h-12 w-12 !px-1 ${isExporting ? 'opacity-50' : ''}`}
+            className={`${STYLES.btnClass} flex-col h-14 w-14 !px-1 justify-center ${isExporting ? 'opacity-50' : ''}`}
           >
-            <DocLine className="w-5 h-5" />
-            <span className="text-xs">{isExporting ? '导出中' : '导出'}</span>
+            <DocLine className="w-6 h-6 mb-1" />
+            <span className="text-[11px] leading-none">{isExporting ? '导出中' : '导出'}</span>
           </button>
         </div>
         <span className={STYLES.groupLabelClass}>文件操作</span>
