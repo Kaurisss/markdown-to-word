@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { AIConfigWindow } from '@/components/ai/AIConfigWindow';
 
@@ -14,33 +14,64 @@ vi.mock('@tauri-apps/api/window', () => ({
 vi.mock('@lobehub/icons', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports -- vi.mock is hoisted
   const React = require('react');
-  const MockSvg = ({ size }: { size?: number }) =>
-    React.createElement('svg', { width: size, height: size, 'data-testid': 'mock-icon' });
-  function makeIcon() {
+  function makeIcon(name: string) {
+    const MockSvg = ({ size }: { size?: number }) =>
+      React.createElement('svg', { width: size, height: size, 'data-testid': `${name.toLowerCase()}-icon` });
     return Object.assign(MockSvg, { Color: MockSvg });
   }
-  return {
-    Alibaba: makeIcon(),
-    Anthropic: MockSvg,
-    DeepSeek: makeIcon(),
-    Gemini: makeIcon(),
-    Github: MockSvg,
-    Google: makeIcon(),
-    Grok: MockSvg,
-    Moonshot: MockSvg,
-    Ollama: MockSvg,
-    OpenAI: MockSvg,
-    Qwen: makeIcon(),
-    SiliconCloud: makeIcon(),
-    Zhipu: MockSvg,
-  };
+  return Object.fromEntries([
+    'Anthropic',
+    'Baichuan',
+    'Bailian',
+    'ChatGLM',
+    'Claude',
+    'DeepSeek',
+    'Doubao',
+    'Gemini',
+    'Grok',
+    'Groq',
+    'Hailuo',
+    'Hunyuan',
+    'InternLM',
+    'Kling',
+    'Meta',
+    'Minimax',
+    'Mistral',
+    'Moonshot',
+    'Nvidia',
+    'Ollama',
+    'OpenAI',
+    'OpenRouter',
+    'Perplexity',
+    'Qwen',
+    'SiliconCloud',
+    'Spark',
+    'Wenxin',
+    'XAI',
+    'Yi',
+    'Zhipu',
+  ].map((name) => [name, makeIcon(name)]));
 });
 
 describe('AIConfigWindow', () => {
   it('shows supported API setup guidance', () => {
     localStorage.clear();
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      value: vi.fn().mockImplementation((query) => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      })),
+    });
 
     render(<AIConfigWindow />);
+    fireEvent.click(screen.getByTitle('API 配置指南'));
 
     expect(screen.getByText('支持的 API 类型')).toBeDefined();
     expect(screen.getByText(/OpenAI-compatible Chat Completions/)).toBeDefined();

@@ -8,26 +8,43 @@ import { describe, expect, it, vi } from 'vitest';
 vi.mock('@lobehub/icons', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports -- vi.mock is hoisted; cannot use ESM imports
   const React = require('react');
-  const MockSvg = ({ size }: { size?: number }) =>
-    React.createElement('svg', { width: size, height: size, 'data-testid': 'mock-icon' });
-  function makeIcon() {
+  function makeIcon(name: string) {
+    const MockSvg = ({ size }: { size?: number }) =>
+      React.createElement('svg', { width: size, height: size, 'data-testid': `${name.toLowerCase()}-icon` });
     return Object.assign(MockSvg, { Color: MockSvg });
   }
-  return {
-    Alibaba: makeIcon(),
-    Anthropic: MockSvg,
-    DeepSeek: makeIcon(),
-    Gemini: makeIcon(),
-    Github: MockSvg,
-    Google: makeIcon(),
-    Grok: MockSvg,
-    Moonshot: MockSvg,
-    Ollama: MockSvg,
-    OpenAI: MockSvg,
-    Qwen: makeIcon(),
-    SiliconCloud: makeIcon(),
-    Zhipu: MockSvg,
-  };
+  return Object.fromEntries([
+    'Anthropic',
+    'Baichuan',
+    'Bailian',
+    'ChatGLM',
+    'Claude',
+    'DeepSeek',
+    'Doubao',
+    'Gemini',
+    'Grok',
+    'Groq',
+    'Hailuo',
+    'Hunyuan',
+    'InternLM',
+    'Kling',
+    'Meta',
+    'Minimax',
+    'Mistral',
+    'Moonshot',
+    'Nvidia',
+    'Ollama',
+    'OpenAI',
+    'OpenRouter',
+    'Perplexity',
+    'Qwen',
+    'SiliconCloud',
+    'Spark',
+    'Wenxin',
+    'XAI',
+    'Yi',
+    'Zhipu',
+  ].map((name) => [name, makeIcon(name)]));
 });
 
 import { ProviderIconPicker } from '@/components/ai/ProviderIconPicker';

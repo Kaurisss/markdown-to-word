@@ -21,6 +21,8 @@ describe('aiConfigStore', () => {
 
     expect(result.current.providers.length).toBeGreaterThan(0);
     expect(result.current.providers.some((provider) => provider.id === 'openai')).toBe(true);
+    expect(result.current.providers.find((provider) => provider.id === 'dashscope')?.iconKey).toBe('bailian');
+    expect(result.current.providers.find((provider) => provider.id === 'siliconflow')?.iconKey).toBe('siliconcloud');
     expect(result.current.selectedModel).toBeNull();
   });
 
@@ -136,5 +138,22 @@ describe('aiConfigStore', () => {
 
     const builtinConfig = JSON.parse(localStorage.getItem('md2word_builtin_config') || '{}');
     expect(builtinConfig.openai.iconKey).toBe('anthropic');
+  });
+
+  it('migrates legacy builtin provider icon keys', async () => {
+    localStorage.setItem('md2word_builtin_config', JSON.stringify({
+      dashscope: {
+        iconKey: 'alibaba',
+      },
+      siliconflow: {
+        iconKey: 'siliconflow',
+      },
+    }));
+
+    const { useAIConfigStore } = await loadModule();
+    const { result } = renderHook(() => useAIConfigStore());
+
+    expect(result.current.providers.find((provider) => provider.id === 'dashscope')?.iconKey).toBe('bailian');
+    expect(result.current.providers.find((provider) => provider.id === 'siliconflow')?.iconKey).toBe('siliconcloud');
   });
 });

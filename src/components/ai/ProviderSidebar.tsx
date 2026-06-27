@@ -1,5 +1,5 @@
 import React from 'react';
-import { AddLine, Edit2Line, Delete2Line, AiLine } from '@mingcute/react';
+import { AddLine, Edit2Line, Delete2Line, BrainLine } from '@mingcute/react';
 import { AIProvider } from '../../types/ai';
 import { Switch } from '../ui/switch';
 import { ProviderIcon } from './ProviderIcon';
@@ -34,7 +34,7 @@ export const ProviderSidebar: React.FC<ProviderSidebarProps> = ({
     <div className="h-12 px-5 flex items-center justify-between shrink-0 relative">
       <div className="absolute inset-0 z-0" data-tauri-drag-region />
       <h2 className="ui-sidebar-kicker relative z-10 pointer-events-none flex items-center gap-1.5">
-        <AiLine className="w-4 h-4" />
+        <BrainLine className="w-4 h-4" />
         AI 平台管理
       </h2>
       <button

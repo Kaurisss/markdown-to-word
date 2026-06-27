@@ -5,12 +5,17 @@ const CUSTOM_PROVIDERS_KEY = 'md2word_custom_providers';
 const BUILTIN_CONFIG_KEY = 'md2word_builtin_config';
 const MODEL_STORAGE_KEY = 'md2word_selected_model';
 
+const BUILTIN_ICON_KEY_MIGRATIONS: Record<string, string> = {
+  alibaba: 'bailian',
+  siliconflow: 'siliconcloud',
+};
+
 const DEFAULT_PROVIDERS: AIProvider[] = [
   {
     id: 'dashscope',
     name: '阿里云百炼',
     description: '阿里云大模型服务平台，提供 Qwen 系列模型',
-    iconKey: 'alibaba',
+    iconKey: 'bailian',
     isEnabled: false,
     apiKey: '',
     baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',
@@ -24,7 +29,7 @@ const DEFAULT_PROVIDERS: AIProvider[] = [
     id: 'siliconflow',
     name: '硅基流动',
     description: '硅基流动平台，提供 Qwen 系列模型 与 DeepSeek 模型',
-    iconKey: 'siliconflow',
+    iconKey: 'siliconcloud',
     isEnabled: false,
     apiKey: '',
     baseUrl: 'https://api.siliconflow.cn/v1/chat/completions',
@@ -128,10 +133,16 @@ function loadProvidersFromStorage(): AIProvider[] {
       ? JSON.parse(storedBuiltin)
       : {};
 
-    const mergedBuiltins = DEFAULT_PROVIDERS.map(p => ({
-      ...p,
-      ...(builtinConfig[p.id] || {}),
-    }));
+    const mergedBuiltins = DEFAULT_PROVIDERS.map(p => {
+      const storedConfig = builtinConfig[p.id] || {};
+      return {
+        ...p,
+        ...storedConfig,
+        iconKey: storedConfig.iconKey
+          ? BUILTIN_ICON_KEY_MIGRATIONS[storedConfig.iconKey] ?? storedConfig.iconKey
+          : p.iconKey,
+      };
+    });
 
     const storedCustom = localStorage.getItem(CUSTOM_PROVIDERS_KEY);
     const custom: AIProvider[] = storedCustom ? JSON.parse(storedCustom) : [];
