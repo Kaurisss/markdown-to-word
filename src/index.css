@@ -72,7 +72,7 @@
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
-  height: 8px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -91,6 +91,7 @@
 /* Custom scrollbar class */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
