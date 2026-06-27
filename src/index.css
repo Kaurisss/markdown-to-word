@@ -30,10 +30,11 @@
   --ui-space-control-y: 4px;
   --ui-space-editor-padding: 32px;
   --ui-space-preview-padding: 32px;
-  --ui-radius-control: 4px;
-  --ui-radius-panel: 6px;
-  --ui-radius-popover: 8px;
-  --ui-radius-swatch: 2px;
+  --ui-radius: 8px;
+  --ui-radius-control: var(--ui-radius);
+  --ui-radius-panel: var(--ui-radius);
+  --ui-radius-popover: var(--ui-radius);
+  --ui-radius-swatch: 4px;
   --ui-shadow-popover: 0 8px 24px rgba(15, 23, 42, 0.14);
   --ui-shadow-page: 0 8px 30px rgba(0, 0, 0, 0.06);
   --ui-shadow-focus: 0 0 0 3px rgba(14, 165, 233, 0.22);
@@ -243,15 +244,11 @@ select {
   --color-brand-800: #075985;
   --color-brand-900: #0c4a6e;
 
-  /* Flatten Tailwind radius scale to 8px */
+  /* Flatten Tailwind radius scale to 8px, keeping sm at 4px for inner concentricity */
   --radius: 8px;
-  --radius-xs: 8px;
-  --radius-sm: 8px;
+  --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 8px;
-  --radius-xl: 8px;
-  --radius-2xl: 8px;
-  --radius-3xl: 8px;
 
   /* Custom Dark Background */
   --color-dark-bg: #1e1e1e;
