@@ -54,3 +54,53 @@ def test_set_config_value_rejects_unknown_root():
     project = create_project("Report")
     with pytest.raises(ValueError, match="Config path must start with"):
         set_config_value(project, "bad.path", 1)
+
+
+from cli_anything.markdown_to_word.core.preview import inspect_docx, inspect_markdown
+from cli_anything.markdown_to_word.core.session import Session, load_project_file
+
+
+def test_session_save_and_load_round_trip(tmp_path):
+    path = tmp_path / "project.json"
+    session = Session(path)
+    session.new_project("Round Trip")
+    session.set_content("# Saved")
+    session.save_session()
+
+    loaded = load_project_file(path)
+    assert loaded["name"] == "Round Trip"
+    assert loaded["content"] == "# Saved"
+
+
+def test_session_undo_and_redo_content_change(tmp_path):
+    session = Session(tmp_path / "project.json")
+    session.new_project("Undo")
+    session.set_content("one")
+    session.set_content("two")
+    assert session.project["content"] == "two"
+    session.undo()
+    assert session.project["content"] == "one"
+    session.redo()
+    assert session.project["content"] == "two"
+
+
+def test_session_dry_run_does_not_write(tmp_path):
+    path = tmp_path / "project.json"
+    session = Session(path)
+    session.new_project("Dry")
+    session.set_content("unsaved")
+    assert path.exists() is False
+
+
+def test_inspect_markdown_returns_stats():
+    result = inspect_markdown("# Title\n\nBody")
+    assert result["kind"] == "markdown"
+    assert result["stats"]["headings"] == 1
+
+
+def test_inspect_docx_reports_invalid_file(tmp_path):
+    path = tmp_path / "bad.docx"
+    path.write_text("not a zip", encoding="utf-8")
+    result = inspect_docx(path)
+    assert result["kind"] == "docx"
+    assert result["valid"] is False
