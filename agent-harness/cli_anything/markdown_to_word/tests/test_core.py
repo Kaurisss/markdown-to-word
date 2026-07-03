@@ -104,3 +104,11 @@ def test_inspect_docx_reports_invalid_file(tmp_path):
     result = inspect_docx(path)
     assert result["kind"] == "docx"
     assert result["valid"] is False
+
+
+from cli_anything.markdown_to_word.utils.markdown_to_word_backend import resolve_repo_root
+
+
+def test_resolve_repo_root_finds_backend():
+    root = resolve_repo_root()
+    assert (root / "backend" / "backend.py").exists()
