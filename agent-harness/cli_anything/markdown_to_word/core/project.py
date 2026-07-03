@@ -3,8 +3,15 @@ from __future__ import annotations
 import copy
 import json
 import re
+import sys
 from pathlib import Path
 from typing import Any
+
+for _candidate in Path(__file__).resolve().parents:
+    if (_candidate / "backend" / "backend.py").exists():
+        if str(_candidate) not in sys.path:
+            sys.path.insert(0, str(_candidate))
+        break
 
 from backend.config import validate_config
 
