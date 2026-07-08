@@ -65,7 +65,7 @@ When changing a config field, inspect and update all relevant files:
 - Type shape: `src/types/config.ts`
 - Front-end defaults: `src/config/defaultConfig.ts`
 - Storage migration/default merge: `src/config/documentConfigStorage.ts`
-- Preview mapping: `src/components/preview/Preview.tsx`, `src/components/preview/previewStyle.ts`
+- Preview rendering path: `src/components/preview/Preview.tsx`, `src/components/preview/DocxRenderPreview.tsx`, and `src/features/preview/useExportPreview.ts`
 - Editing UI: `src/components/header/tabs/HomeTab.tsx`, `LayoutTab.tsx`, `layout/AdvancedPageSettingsDialog.tsx`
 - Export serialization: `src/features/export/pythonBackend.ts`
 - Backend validation/defaults: `backend/config.py`

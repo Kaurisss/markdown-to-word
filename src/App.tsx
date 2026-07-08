@@ -2,6 +2,7 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import Header from './components/header/Header';
 import Editor from './components/editor/Editor';
 import Preview from './components/preview/Preview';
+import { PreviewStatusInfo } from './components/preview/Preview';
 import SearchPopover from './components/editor/SearchPopover';
 import { showAppToast, ToastType } from './components/shell/Toast';
 import { StatusBar } from './components/shell/StatusBar';
@@ -50,6 +51,14 @@ const App: React.FC = () => {
 
   const { providers, updateProviders, selectedModel, updateSelectedModel } = useAIConfigStore();
   const { settings: appSettings } = useSettingsStore();
+
+  const [previewStatusInfo, setPreviewStatusInfo] = useState<PreviewStatusInfo>({
+    status: 'idle',
+    pageCount: null,
+  });
+  const handlePreviewStatusChange = useCallback((info: PreviewStatusInfo) => {
+    setPreviewStatusInfo(info);
+  }, []);
 
   // --- Custom hooks ---
   const {
@@ -187,42 +196,6 @@ const App: React.FC = () => {
     saveDocumentConfig(cfg);
   }, [cfg, isConfigWindow, isSettingsWindow]);
 
-  const openSettingsWindow = useCallback(async () => {
-    try {
-      const label = 'settings';
-      const { WebviewWindow } = await import('@tauri-apps/api/webviewWindow');
-      const isDark = theme === 'dark';
-      const windowBg = isDark ? '#1e1e1e' : '#f9fafb';
-
-      const url = `/?window=settings&theme=${encodeURIComponent(theme)}`;
-      const webview = new WebviewWindow(label, {
-        url,
-        title: '设置',
-        width: 580,
-        height: 720,
-        decorations: false,
-        resizable: false,
-        center: true,
-        visible: false,
-        theme,
-        backgroundColor: windowBg,
-      });
-
-      webview.once('tauri://created', function () {
-        void webview.setBackgroundColor(windowBg);
-      });
-
-      webview.once('tauri://error', function () {
-        import('@tauri-apps/api/window').then(({ Window }) => {
-          const win = new Window(label);
-          win.setFocus();
-        });
-      });
-    } catch (e) {
-      console.error('Failed to open settings window:', e);
-    }
-  }, [theme]);
-
   useScrollSync({ viewMode, editorRef, previewRef });
   useAutoSave({ content, autoSave: appSettings.autoSave });
 
@@ -341,23 +314,28 @@ const App: React.FC = () => {
               className={`h-full bg-ui-preview-canvas relative z-0 overflow-hidden flex-shrink-0 transition-opacity duration-300 ease-out ${previewPaneClass}`}
               aria-hidden={viewMode === 'editor'}
             >
-              <Preview ref={previewRef} markdown={content} cfg={cfg} />
+              <Preview
+                ref={previewRef}
+                markdown={content}
+                cfg={cfg}
+                showStatusBar={appSettings.showStatusBar}
+                onPreviewStatusChange={handlePreviewStatusChange}
+              />
             </div>
           </main>
 
           {appSettings.showStatusBar && (
             <StatusBar
               content={content}
-              viewMode={viewMode}
               onSearchClick={() => setShowSearch(true)}
               onReplaceClick={() => {
                 setShowSearch(true);
                 setShowReplace(true);
               }}
-              onViewModeChange={setViewMode}
               onExport={handleExport}
               isExporting={isExporting}
-              onSettingsClick={openSettingsWindow}
+              previewStatus={previewStatusInfo.status}
+              previewPageCount={previewStatusInfo.pageCount}
             />
           )}
 

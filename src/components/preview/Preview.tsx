@@ -1,362 +1,123 @@
-import React, { CSSProperties, forwardRef, useMemo } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import rehypeRaw from 'rehype-raw';
-import rehypeSanitize from 'rehype-sanitize';
-import rehypeSlug from 'rehype-slug';
-import { PageMargin } from '../../types/config';
+import React, { forwardRef, useCallback, useEffect } from 'react';
 import { PreviewProps } from '../../types';
-import { ptToPx, hexToRgba, buildFontFamily, elementStyleToCss } from './previewStyle';
-import { previewSanitizeSchema } from './sanitizeSchema';
+import { useExportPreview, ExportPreviewStatus } from '@/features/preview/useExportPreview';
+import { DocxRenderPreview } from './DocxRenderPreview';
 
-const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, cfg }, ref) => {
-  let pageStyle: CSSProperties = {
-    fontFamily: buildFontFamily(cfg),
-  };
-  
-  if (typeof cfg.global.pageMargin === 'object' && cfg.global.pageMargin !== null) {
-    const m = cfg.global.pageMargin as PageMargin;
-    pageStyle.paddingTop = `${m.top * 2.54}cm`;
-    pageStyle.paddingBottom = `${m.bottom * 2.54}cm`;
-    pageStyle.paddingLeft = `${m.left * 2.54}cm`;
-    pageStyle.paddingRight = `${m.right * 2.54}cm`;
-  } else {
-    const margin = Number(cfg.global.pageMargin) || 1.0;
-    pageStyle.padding = `${margin * 2.54}cm`;
-  }
+export interface PreviewStatusInfo {
+  status: ExportPreviewStatus;
+  pageCount: number | null;
+  error?: string;
+  details?: string;
+}
 
-  const bodyStyle = elementStyleToCss(cfg, cfg.styles.body);
-  const h1Style = elementStyleToCss(cfg, cfg.styles.h1);
-  const h2Style = elementStyleToCss(cfg, cfg.styles.h2);
-  const h3Style = elementStyleToCss(cfg, cfg.styles.h3);
-  const documentTitleStyle = elementStyleToCss(cfg, cfg.styles.documentTitle ?? cfg.styles.h1 ?? cfg.styles.body);
-  const tableStyle = elementStyleToCss(cfg, cfg.styles.table ?? cfg.styles.body);
-  const captionStyle = elementStyleToCss(cfg, cfg.styles.caption ?? cfg.styles.body);
-  const quoteStyle = elementStyleToCss(cfg, cfg.styles.quote);
-  const codeTextColor = cfg.styles.code.color || '#374151';
-  const bodyTextColor = cfg.styles.body.color || '#374151';
-  const quoteTextColor = cfg.styles.quote.color || '#6b7280';
-  // 直接使用配置中的背景色，以与Word输出保持一致
-  const codeBg = cfg.styles.code.backgroundColor || hexToRgba(codeTextColor, 0.08);
-  const quoteBg = cfg.styles.quote.backgroundColor || hexToRgba(quoteTextColor, 0.06);
+interface ExtendedPreviewProps extends PreviewProps {
+  showStatusBar?: boolean;
+  onPreviewStatusChange?: (info: PreviewStatusInfo) => void;
+}
 
-  const inlineCodeStyle: CSSProperties = {
-    ...elementStyleToCss(cfg, cfg.styles.code),
-    backgroundColor: codeBg,
-    // 与 Word 一致：无圆角（Word 不支持圆角）
-    padding: '0.1em 0.2em',
-    borderRadius: 0,
-    whiteSpace: 'pre-wrap',
-    wordBreak: 'break-word',
-    overflowWrap: 'break-word'
-  };
-  const codeBlockStyle: CSSProperties = {
-    ...elementStyleToCss(cfg, cfg.styles.code),
-    backgroundColor: codeBg,
-    // 与 Word 输出一致：无圆角，较小内边距
-    borderRadius: 0,
-    padding: '0.5em',
-    overflowX: 'auto'
-  };
-  const tableBorder = `1px solid ${hexToRgba(bodyTextColor, 0.25)}`;
-  // 与 Word 后端一致的表头背景色
-  const tableHeadBg = '#e5e7eb';
+const Preview = forwardRef<HTMLDivElement, ExtendedPreviewProps>(
+  ({ markdown, cfg, showStatusBar = false, onPreviewStatusChange }, ref) => {
+    const exportPreview = useExportPreview({ markdown, cfg });
+    const [docxRenderError, setDocxRenderError] = React.useState<string | null>(null);
+    const [pageCount, setPageCount] = React.useState<number | null>(null);
+    const [hasRenderedDocxPreview, setHasRenderedDocxPreview] = React.useState(false);
 
-  const firstHeadingSeenRef = React.useRef(false);
-  firstHeadingSeenRef.current = false; // reset on every render of Preview
+    React.useEffect(() => {
+      setDocxRenderError(null);
+    }, [exportPreview.docxBytes]);
 
-  const checkIsDocumentTitle = (level: number) => {
-    if (firstHeadingSeenRef.current) return false;
-    firstHeadingSeenRef.current = true;
-    return level === 1 && cfg.global.bodyStart?.firstHeadingAsTitle;
-  };
+    const handleDocxRenderError = useCallback((message: string) => {
+      setDocxRenderError(message);
+    }, []);
 
-  const getHastText = (node: any): string => {
-    if (!node) return '';
-    if (node.type === 'text') return node.value || '';
-    if (Array.isArray(node.children)) {
-      return node.children.map(getHastText).join('');
-    }
-    return '';
-  };
-
-  const markdownComponents = useMemo(() => ({
-    h1: ({ children, node, ...props }: any) => {
-      const isTitle = checkIsDocumentTitle(1);
-      return <h1 {...props} style={{ ...(isTitle ? documentTitleStyle : h1Style), textIndent: undefined }}>{children}</h1>;
-    },
-    h2: ({ children, ...props }: any) => {
-      checkIsDocumentTitle(2);
-      return <h2 {...props} style={{ ...h2Style, textIndent: undefined }}>{children}</h2>;
-    },
-    h3: ({ children, ...props }: any) => {
-      checkIsDocumentTitle(3);
-      return <h3 {...props} style={{ ...h3Style, textIndent: undefined }}>{children}</h3>;
-    },
-    // Config only defines h1/h2/h3 styles; backend falls back to h1 for h4-h6
-    h4: ({ children, ...props }: any) => {
-      checkIsDocumentTitle(4);
-      return <h4 {...props} style={{ ...h1Style, textIndent: undefined }}>{children}</h4>;
-    },
-    h5: ({ children, ...props }: any) => {
-      checkIsDocumentTitle(5);
-      return <h5 {...props} style={{ ...h1Style, textIndent: undefined }}>{children}</h5>;
-    },
-    h6: ({ children, ...props }: any) => {
-      checkIsDocumentTitle(6);
-      return <h6 {...props} style={{ ...h1Style, textIndent: undefined }}>{children}</h6>;
-    },
-    a: ({ href, onClick, ...props }: any) => {
-      const safeHref = typeof href === 'string' ? href : '';
-      const isInternal = safeHref.startsWith('#');
-      const handleClick: React.MouseEventHandler<HTMLAnchorElement> = async (e) => {
-        onClick?.(e);
-
-        // For in-page anchors, keep default behavior.
-        if (!safeHref || isInternal) return;
-
-        // Prevent navigating inside the preview webview (otherwise user can't go back).
-        e.preventDefault();
-        e.stopPropagation();
-
-        // Ask for confirmation before opening external link
-        let confirmed = false;
-        try {
-          const dialog = await import('@tauri-apps/plugin-dialog');
-          if (typeof dialog.ask === 'function') {
-            confirmed = await dialog.ask(`是否在浏览器中打开此链接？\n\n${safeHref}`, {
-              title: '打开外部链接',
-              kind: 'info',
-              okLabel: '打开',
-              cancelLabel: '取消'
-            });
-          } else {
-            confirmed = window.confirm(`是否在浏览器中打开此链接？\n\n${safeHref}`);
-          }
-        } catch {
-          confirmed = window.confirm(`是否在浏览器中打开此链接？\n\n${safeHref}`);
-        }
-
-        if (!confirmed) return;
-
-        // Open in system default browser (Tauri) or new tab (browser)
-        try {
-          const shell = await import('@tauri-apps/plugin-shell');
-          if (typeof shell.open === 'function') {
-            await shell.open(safeHref);
-            return;
-          }
-        } catch {
-          // Not running in Tauri / plugin unavailable.
-        }
-
-        window.open(safeHref, '_blank', 'noopener,noreferrer');
-      };
-
-      return (
-        <a
-          {...props}
-          href={safeHref}
-          onClick={handleClick}
-          target={isInternal ? undefined : "_blank"}
-          rel={isInternal ? undefined : "noopener noreferrer"}
-        />
-      );
-    },
-    p: ({ children, node, ...props }: any) => {
-      const firstChild = Array.isArray(children) ? children[0] : children;
-      const isTextStart = typeof firstChild === 'string';
-
-      const text = getHastText(node);
-      
-      const isCaptionMatch = /^\s*(?:图|表|公式)\s*(?:\d+)?[\s　]+.+/.test(text);
-
-      if (isCaptionMatch) {
-        return <p {...props} style={{ ...captionStyle, textIndent: undefined, marginBottom: '0.5em' }}>{children}</p>;
+    const handlePageCountChange = useCallback((count: number | null) => {
+      setPageCount(count);
+      if (count !== null && count > 0) {
+        setHasRenderedDocxPreview(true);
       }
+    }, []);
 
-      // If paragraph starts with a non-string (Element), it likely starts with MD tag (Bold, etc).
-      // In this case, disable the first-line indent.
-      const style = isTextStart
-        ? bodyStyle
-        : { ...bodyStyle, textIndent: 0 };
+    const showDocxPreview = Boolean(exportPreview.docxBytes);
+    const errorDetails = docxRenderError ?? exportPreview.details;
+    const hasError = exportPreview.status === 'error' || exportPreview.status === 'unavailable' || docxRenderError;
+    const previewStatus = docxRenderError ? 'error' : exportPreview.status;
 
-      return <p {...props} style={style}>{children}</p>;
-    },
-    li: (props: any) => <li {...props} style={{ ...bodyStyle, marginTop: 0, marginBottom: 0, textIndent: 0 }} />,
-    ul: (props: any) => <ul {...props} style={{ ...bodyStyle, paddingLeft: '1.5em', listStyleType: 'disc', marginTop: 0, marginBottom: ptToPx(cfg.styles.body.spaceAfter) }} />,
-    ol: (props: any) => <ol {...props} style={{ ...bodyStyle, paddingLeft: '1.5em', listStyleType: 'decimal', marginTop: 0, marginBottom: ptToPx(cfg.styles.body.spaceAfter) }} />,
-    blockquote: (props: any) => (
-      <blockquote
-        {...props}
-        style={{
-          ...quoteStyle,
-          // 与 Word 输出一致：只使用左缩进，不使用边框
-          marginLeft: '0.25in',
-          paddingLeft: 0,
-          textIndent: undefined
-        }}
-      />
-    ),
-    code: ({ className, children, node, ...props }: any) => {
-      // Detect if this is a fenced code block by checking:
-      // 1. node.position spans multiple lines (fenced blocks have opening/closing ```)
-      // 2. has language class
-      // 3. contains newlines in text
-      const startLine = node?.position?.start?.line ?? 0;
-      const endLine = node?.position?.end?.line ?? 0;
-      const spansMultipleLines = endLine > startLine;
+    // Report preview status to parent
+    useEffect(() => {
+      onPreviewStatusChange?.({
+        status: previewStatus,
+        pageCount,
+        error: docxRenderError ? '预览渲染失败' : exportPreview.error,
+        details: errorDetails ?? undefined,
+      });
+    }, [previewStatus, pageCount, docxRenderError, exportPreview.error, errorDetails, onPreviewStatusChange]);
 
-      const text =
-        typeof children === 'string'
-          ? children
-          : Array.isArray(children)
-            ? children.map((c: any) => (typeof c === 'string' ? c : '')).join('')
-            : '';
-
-      const hasNewline = text.includes('\n');
-      const hasLanguageClass = Boolean(className && /language-/.test(className));
-
-      // Fenced code blocks (``` ... ```) always span at least 3 lines in source,
-      // or have a language class, or contain newlines
-      const isFencedBlock = spansMultipleLines || hasLanguageClass || hasNewline;
-
-      return (
-        <code
-          {...props}
-          className={className}
-          style={
-            isFencedBlock
-              ? {
-                ...elementStyleToCss(cfg, cfg.styles.code),
-                fontFamily: buildFontFamily(cfg, cfg.styles.code.fontFamily),
-                backgroundColor: 'transparent',
-                padding: 0,
-                borderRadius: 0
-              }
-              : inlineCodeStyle
+    return (
+      <div className="flex h-full flex-col overflow-hidden bg-ui-preview-canvas relative transition-colors duration-200">
+        <style>{`
+          .docx-render-preview .docx-wrapper {
+            background: transparent !important;
+            padding: 0 !important;
+            padding-bottom: 0 !important;
+            gap: 16px;
+            margin: 0 auto;
+            max-width: none;
+            transform-origin: top center;
+            width: fit-content;
           }
-        >
-          {children}
-        </code>
-      );
-    },
-    pre: (props: any) => <pre {...props} style={codeBlockStyle} />,
-    hr: (props: any) => {
-      const mode = cfg.global.horizontalRule || 'default';
-      if (mode === 'hidden') return null;
-      if (mode === 'page_break') {
-        return (
-          <div
-            {...props}
-            className="my-8 border-t border-dashed border-brand-300 relative h-0 select-none print:break-before-page"
-            title="此处将插入分页符"
-          >
-            <span className="absolute left-1/2 -top-2.5 -translate-x-1/2 bg-white dark:bg-dark-bg px-2 text-[10px] text-brand-400 font-mono tracking-widest uppercase">换页符</span>
+          .docx-render-preview .docx-wrapper > section.docx {
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06) !important;
+            border: 1px solid rgb(226 232 240) !important;
+            margin-bottom: 16px !important;
+          }
+        `}</style>
+
+        {/* Loading indicator — only show as floating badge when status bar is hidden */}
+        {!showStatusBar && exportPreview.status === 'loading' && (
+          <div className="absolute top-3 right-4 z-20 rounded-ui-popover border border-ui-border bg-ui-surface-raised/95 px-3 py-1.5 text-xs text-ui-text-muted shadow-ui-popover">
+            正在生成导出级预览...
           </div>
-        );
-      }
-      return <hr {...props} className="my-6 border-t border-gray-300" />;
-    },
-    table: (props: any) => <table {...props} style={{ width: '100%', borderCollapse: 'collapse', ...tableStyle, textIndent: undefined }} />,
-    caption: (props: any) => <caption {...props} style={{ ...captionStyle, textIndent: undefined, marginBottom: '0.5em' }} />,
-    thead: (props: any) => <thead {...props} />,
-    tbody: (props: any) => <tbody {...props} />,
-    tr: (props: any) => <tr {...props} />,
-    th: (props: any) => (
-      <th
-        {...props}
-        style={{
-          ...tableStyle,
-          border: tableBorder,
-          padding: '0.5rem 0.75rem',
-          backgroundColor: tableHeadBg,
-          fontWeight: cfg.global.tableHeaderBold ? 'bold' : (tableStyle.fontWeight || 600),
-          textIndent: undefined,
-          textAlign: tableStyle.textAlign || 'left',
-          verticalAlign: 'middle'
-        }}
-      />
-    ),
-    td: (props: any) => (
-      <td
-        {...props}
-        style={{
-          ...tableStyle,
-          border: tableBorder,
-          padding: '0.5rem 0.75rem',
-          textIndent: undefined,
-          textAlign: tableStyle.textAlign || 'left',
-          verticalAlign: 'middle'
-        }}
-      />
-    ),
-    u: ({ children, ...props }: any) => (
-      <u
-        {...props}
-        style={{
-          textDecorationLine: 'underline',
-          textUnderlineOffset: '0.12em',
-        }}
-      >
-        {children}
-      </u>
-    ),
-  }), [h1Style, h2Style, h3Style, documentTitleStyle, tableStyle, captionStyle, bodyStyle, quoteStyle, inlineCodeStyle, codeBlockStyle, tableBorder, tableHeadBg, cfg]);
+        )}
 
-  return (
-    <div className="flex flex-col h-full bg-ui-preview-canvas overflow-hidden relative transition-colors duration-200">
-      {/* Background pattern or subtle gradient could go here */}
-      <style>{`
-        .prose code::before { content: none !important; }
-        .prose code::after { content: none !important; }
-        .prose p:empty { display: none !important; }
-        .prose > *:first-child { margin-top: 0 !important; }
-        .prose > *:last-child { margin-bottom: 0 !important; }
-      `}</style>
-
-      {/* 
-        Container: 滚动容器，通过 ref 暴露给父组件进行同步滚动
-      */}
-      <div
-        ref={ref}
-        className="flex-1 overflow-auto p-4 md:p-ui-preview-padding custom-scrollbar"
-      >
-        {/* 
-          A4 Paper Simulation: 
-          使用 max-w-[21cm] 在宽屏保持 A4 宽度，窄屏时自适应
-          min-h-full 确保至少填满容器高度，h-fit 让高度随内容增长
-        */}
-        <div
-          className="bg-ui-preview-page shadow-ui-page border border-ui-border-subtle w-full max-w-[21cm] min-h-[29.7cm] h-fit p-6 md:p-[2.54cm] text-gray-900 mx-auto transition-transform duration-200"
-          style={pageStyle}
-        >
-
-          <div className="prose max-w-none">
-            {markdown ? (
-              <ReactMarkdown
-                remarkPlugins={[remarkGfm]}
-                rehypePlugins={[
-                  rehypeRaw,
-                  [rehypeSanitize, previewSanitizeSchema],
-                  [rehypeSlug, { prefix: 'user-content-' }],
-                ]}
-                components={markdownComponents}
-              >
-                {markdown}
-              </ReactMarkdown>
-            ) : (
-              <div className="flex items-center justify-center h-48 text-ui-text-subtle italic select-none">
-                预览内容将显示在此处
-              </div>
-            )}
+        {hasError && (
+          <div className="absolute top-3 left-4 right-4 z-20 rounded-ui-popover border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 shadow-ui-popover">
+            {exportPreview.error || '预览渲染失败'}
+            {hasRenderedDocxPreview ? '，继续显示上一版导出级预览' : '，无法显示导出级预览'}
+            {errorDetails ? `：${errorDetails}` : ''}
           </div>
+        )}
 
-        </div>
+        {showDocxPreview && exportPreview.docxBytes ? (
+          <DocxRenderPreview
+            ref={ref}
+            docxBytes={exportPreview.docxBytes}
+            onRenderError={handleDocxRenderError}
+            onPageCountChange={handlePageCountChange}
+          />
+        ) : (
+          <div ref={ref} className="flex-1 overflow-auto p-4 md:p-ui-preview-padding custom-scrollbar">
+            <div className="flex min-h-full items-center justify-center text-sm text-ui-text-subtle">
+              {markdown.trim() ? '导出级预览将在生成完成后显示' : '输入内容后将生成导出级预览'}
+            </div>
+          </div>
+        )}
+
+        {docxRenderError && !hasRenderedDocxPreview && (
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-4 text-sm text-ui-text-subtle">
+            导出级预览无法显示
+          </div>
+        )}
+
+        {/* Page count — only show as floating badge when status bar is hidden */}
+        {!showStatusBar && showDocxPreview && pageCount !== null && (
+          <div className="pointer-events-none absolute bottom-4 right-5 z-20 rounded-ui-popover border border-ui-border bg-ui-surface-raised/95 px-3 py-1.5 text-xs text-ui-text-muted shadow-ui-popover">
+            {pageCount} 页
+          </div>
+        )}
       </div>
-    </div>
-  );
-});
+    );
+  }
+);
 
 Preview.displayName = 'Preview';
 

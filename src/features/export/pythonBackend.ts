@@ -11,7 +11,7 @@
  */
 
 import { Command } from '@tauri-apps/plugin-shell';
-import { writeTextFile, remove, BaseDirectory } from '@tauri-apps/plugin-fs';
+import { writeTextFile, readFile, remove, BaseDirectory } from '@tauri-apps/plugin-fs';
 import { appCacheDir, join } from '@tauri-apps/api/path';
 import { DocumentConfig } from '../../types/config';
 
@@ -36,6 +36,30 @@ export interface ExportResult {
   /** Path to the generated file (on success) */
   filePath?: string;
   /** Error message (on failure) */
+  error?: string;
+  /** Detailed error information for debugging */
+  details?: string;
+}
+
+/**
+ * Options for generating an export-grade paged preview DOCX
+ */
+export interface ExportPreviewOptions {
+  /** Markdown content to convert */
+  markdown: string;
+  /** Document style configuration */
+  config: DocumentConfig;
+}
+
+/**
+ * Result of an export-grade preview operation
+ */
+export interface ExportPreviewResult {
+  /** Whether preview DOCX generation was successful */
+  success: boolean;
+  /** Generated DOCX bytes on success */
+  docxBytes?: Uint8Array;
+  /** Error message on failure */
   error?: string;
   /** Detailed error information for debugging */
   details?: string;
@@ -118,10 +142,77 @@ export function parseBackendError(stderr: string, exitCode: number): { message: 
 /**
  * Generate a unique temporary filename
  */
-function generateTempFilename(): string {
+function generateTempFilename(prefix = 'md2word-input', extension = 'md'): string {
   const timestamp = Date.now();
   const random = Math.random().toString(36).substring(2, 8);
-  return `md2word-input-${timestamp}-${random}.md`;
+  return `${prefix}-${timestamp}-${random}.${extension}`;
+}
+
+interface BackendInputFiles {
+  tempFilename: string;
+  tempFilePath: string;
+  configFilename: string;
+  configFilePath: string;
+}
+
+async function writeBackendInputFiles(markdown: string, config: DocumentConfig): Promise<BackendInputFiles> {
+  const tempFilename = generateTempFilename('md2word-input', 'md');
+  const configFilename = generateTempFilename('md2word-config', 'json');
+
+  await writeTextFile(tempFilename, markdown, { baseDir: BaseDirectory.AppCache });
+
+  const cacheDir = await appCacheDir();
+  const tempFilePath = await join(cacheDir, tempFilename);
+
+  const configJson = JSON.stringify(config);
+  await writeTextFile(configFilename, configJson, { baseDir: BaseDirectory.AppCache });
+  const configFilePath = await join(cacheDir, configFilename);
+
+  return {
+    tempFilename,
+    tempFilePath,
+    configFilename,
+    configFilePath,
+  };
+}
+
+async function removeAppCacheFile(filename: string | null): Promise<void> {
+  if (!filename) return;
+  try {
+    await remove(filename, { baseDir: BaseDirectory.AppCache });
+  } catch {
+    console.warn(`Failed to clean up temp file: ${filename}`);
+  }
+}
+
+const GENERATED_FILE_READ_RETRY_DELAYS_MS = [0, 100, 250, 500];
+
+function wait(ms: number): Promise<void> {
+  return new Promise((resolve) => globalThis.setTimeout(resolve, ms));
+}
+
+async function readGeneratedAppCacheFile(absolutePath: string, filename: string): Promise<Uint8Array> {
+  let lastError: unknown = null;
+
+  for (const delayMs of GENERATED_FILE_READ_RETRY_DELAYS_MS) {
+    if (delayMs > 0) {
+      await wait(delayMs);
+    }
+
+    try {
+      return await readFile(absolutePath);
+    } catch (error) {
+      lastError = error;
+    }
+
+    try {
+      return await readFile(filename, { baseDir: BaseDirectory.AppCache });
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError instanceof Error ? lastError : new Error(String(lastError));
 }
 
 /**
@@ -157,32 +248,21 @@ export async function exportWithPython(options: ExportOptions): Promise<ExportRe
   }
 
   // Generate unique temp filename to avoid conflicts
-  const tempFilename = generateTempFilename();
-  const configFilename = `md2word-config-${Date.now()}-${Math.random().toString(36).substring(2, 8)}.json`;
-  let tempFilePath: string | null = null;
-  let configFilePath: string | null = null;
+  let inputFiles: BackendInputFiles | null = null;
 
   try {
     // Create temporary input file in app cache directory
     // Requirements: 5.1 - Create output in designated temporary directory
-    await writeTextFile(tempFilename, markdown, { baseDir: BaseDirectory.AppCache });
-
-    // Get the full path to the temp file
-    const cacheDir = await appCacheDir();
-    tempFilePath = await join(cacheDir, tempFilename);
-
-    // Write config to a temporary JSON file instead of passing via command line
-    // This avoids UTF-8 encoding issues with Chinese characters in shell arguments
-    const configJson = JSON.stringify(config);
-    await writeTextFile(configFilename, configJson, { baseDir: BaseDirectory.AppCache });
-    configFilePath = await join(cacheDir, configFilename);
+    // Config is written to JSON instead of passing via command line to avoid
+    // UTF-8 argument issues with Chinese text.
+    inputFiles = await writeBackendInputFiles(markdown, config);
 
     // Invoke the Python backend sidecar
     // Requirements: 1.1 - Invoke Python_Backend with Markdown_Content and Style_Config
     const cmd = Command.sidecar('binaries/md2word', [
-      '--input', tempFilePath,
+      '--input', inputFiles.tempFilePath,
       '--output', outputPath,
-      '--config-file', configFilePath
+      '--config-file', inputFiles.configFilePath
     ]);
 
     const result = await cmd.execute();
@@ -228,22 +308,74 @@ export async function exportWithPython(options: ExportOptions): Promise<ExportRe
 
   } finally {
     // Requirements: 5.3 - Clean up temporary files
-    if (tempFilePath) {
-      try {
-        await remove(tempFilename, { baseDir: BaseDirectory.AppCache });
-      } catch {
-        // Ignore cleanup errors - file may not exist or already be deleted
-        console.warn(`Failed to clean up temp file: ${tempFilename}`);
-      }
+    await removeAppCacheFile(inputFiles?.tempFilename ?? null);
+    await removeAppCacheFile(inputFiles?.configFilename ?? null);
+  }
+}
+
+export async function generateExportPreviewDocx(options: ExportPreviewOptions): Promise<ExportPreviewResult> {
+  const { markdown, config } = options;
+
+  if (!markdown || !markdown.trim()) {
+    return {
+      success: false,
+      error: '内容为空',
+      details: '请输入要预览的 Markdown 内容'
+    };
+  }
+
+  let inputFiles: BackendInputFiles | null = null;
+  const docxFilename = generateTempFilename('md2word-preview', 'docx');
+
+  try {
+    inputFiles = await writeBackendInputFiles(markdown, config);
+
+    const cacheDir = await appCacheDir();
+    const docxPath = await join(cacheDir, docxFilename);
+
+    const cmd = Command.sidecar('binaries/md2word', [
+      '--input', inputFiles.tempFilePath,
+      '--output', docxPath,
+      '--config-file', inputFiles.configFilePath,
+    ]);
+
+    const result = await cmd.execute();
+
+    if (result.code !== 0) {
+      const { message, details } = parseBackendError(result.stderr, result.code ?? 1);
+      return {
+        success: false,
+        error: message,
+        details,
+      };
     }
-    if (configFilePath) {
-      try {
-        await remove(configFilename, { baseDir: BaseDirectory.AppCache });
-      } catch {
-        // Ignore cleanup errors
-        console.warn(`Failed to clean up config file: ${configFilename}`);
-      }
+
+    const docxBytes = await readGeneratedAppCacheFile(docxPath, docxFilename);
+
+    return {
+      success: true,
+      docxBytes,
+    };
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+
+    if (/invalid utf-8/i.test(errorMessage)) {
+      return {
+        success: false,
+        error: '预览生成失败',
+        details: '后端错误信息无法正常解码。请稍后重试。',
+      };
     }
+
+    return {
+      success: false,
+      error: '预览生成不可用',
+      details: errorMessage,
+    };
+  } finally {
+    await removeAppCacheFile(inputFiles?.tempFilename ?? null);
+    await removeAppCacheFile(inputFiles?.configFilename ?? null);
+    await removeAppCacheFile(docxFilename);
   }
 }
 

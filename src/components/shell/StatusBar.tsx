@@ -1,24 +1,19 @@
 import React, { useMemo } from 'react';
 import {
-  Columns2Line,
   Download2Line,
-  EditLine,
-  Eye2Line,
   Search2Line,
-  Settings3Line,
   TransferHorizontalLine,
 } from '@mingcute/react';
-import { ViewMode } from '../../types';
+import type { ExportPreviewStatus } from '@/features/preview/useExportPreview';
 
 interface StatusBarProps {
   content: string;
-  viewMode: ViewMode;
   onSearchClick?: () => void;
   onReplaceClick?: () => void;
-  onViewModeChange?: (mode: ViewMode) => void;
   onExport?: () => void;
   isExporting?: boolean;
-  onSettingsClick?: () => void;
+  previewStatus?: ExportPreviewStatus;
+  previewPageCount?: number | null;
 }
 
 interface StatusBarButtonProps {
@@ -57,13 +52,12 @@ const StatusBarButton: React.FC<StatusBarButtonProps> = ({
 
 export const StatusBar: React.FC<StatusBarProps> = ({
   content,
-  viewMode,
   onSearchClick,
   onReplaceClick,
-  onViewModeChange,
   onExport,
   isExporting = false,
-  onSettingsClick,
+  previewStatus,
+  previewPageCount,
 }) => {
   const stats = useMemo(() => {
     const chars = content.length;
@@ -92,28 +86,12 @@ export const StatusBar: React.FC<StatusBarProps> = ({
       </div>
 
       <div className="flex shrink-0 items-center gap-1">
-        <StatusBarButton
-          label="编辑器视图"
-          active={viewMode === 'editor'}
-          onClick={() => onViewModeChange?.('editor')}
-        >
-          <EditLine className="h-3.5 w-3.5" />
-        </StatusBarButton>
-        <StatusBarButton
-          label="双栏视图"
-          active={viewMode === 'split'}
-          onClick={() => onViewModeChange?.('split')}
-        >
-          <Columns2Line className="h-3.5 w-3.5" />
-        </StatusBarButton>
-        <StatusBarButton
-          label="预览视图"
-          active={viewMode === 'preview'}
-          onClick={() => onViewModeChange?.('preview')}
-        >
-          <Eye2Line className="h-3.5 w-3.5" />
-        </StatusBarButton>
-        <div className="mx-1 h-3.5 w-px bg-gray-300 dark:bg-gray-700" />
+        {previewStatus === 'loading' && (
+          <span className="mr-1 whitespace-nowrap text-ui-text-muted animate-pulse">正在生成预览…</span>
+        )}
+        {previewPageCount != null && previewPageCount > 0 && previewStatus !== 'loading' && (
+          <span className="mr-1 whitespace-nowrap">{previewPageCount} 页</span>
+        )}
         <StatusBarButton
           label={isExporting ? '正在导出' : '导出 Word'}
           title={isExporting ? '正在导出' : '导出 Word'}
@@ -121,9 +99,6 @@ export const StatusBar: React.FC<StatusBarProps> = ({
           onClick={onExport}
         >
           <Download2Line className="h-3.5 w-3.5" />
-        </StatusBarButton>
-        <StatusBarButton label="设置" onClick={onSettingsClick}>
-          <Settings3Line className="h-3.5 w-3.5" />
         </StatusBarButton>
       </div>
     </div>

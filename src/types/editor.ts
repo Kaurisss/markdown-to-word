@@ -1,18 +1,6 @@
 import type React from 'react';
 import type { DocumentConfig } from './config';
 
-// Simplified AST Node types based on unist/mdast
-export interface MdNode {
-  type: string;
-  children?: MdNode[];
-  value?: string;
-  depth?: number; // For headings
-  ordered?: boolean; // For lists
-  lang?: string; // For code blocks
-  url?: string; // For links
-  [key: string]: any;
-}
-
 export interface EditorProps {
   value: string;
   onChange: (value: string) => void;
