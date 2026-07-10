@@ -59,7 +59,7 @@ export const PlatformDialogs: React.FC<PlatformDialogsProps> = (props) => (
               <PopoverTrigger asChild>
                 <button
                   type="button"
-                  className="flex h-14 w-14 items-center justify-center rounded-2xl border border-gray-200 dark:border-dark-border bg-gray-50 dark:bg-dark-element hover:bg-gray-100 dark:hover:bg-dark-element-hover transition-colors"
+                  className="flex h-14 w-14 items-center justify-center rounded-md border border-gray-200 dark:border-dark-border bg-gray-50 dark:bg-dark-element hover:bg-gray-100 dark:hover:bg-dark-element-hover transition-colors"
                 >
                   {props.newPlatformIconKey ? (
                     <ProviderIcon iconKey={props.newPlatformIconKey} name={props.newPlatformName} size={28} />
@@ -108,7 +108,7 @@ export const PlatformDialogs: React.FC<PlatformDialogsProps> = (props) => (
               placeholder="简要描述该平台"
             />
           </div>
-          <div className="rounded-lg bg-gray-50 p-2.5 text-xs leading-5 text-gray-500 dark:bg-dark-element dark:text-gray-400">
+          <div className="rounded-md bg-gray-50 p-2.5 text-xs leading-5 text-gray-500 dark:bg-dark-element dark:text-gray-400">
             自定义平台需要提供 OpenAI 兼容的 Chat Completions 完整端点。留空时使用默认示例地址，之后仍可编辑。
           </div>
           <DialogFooter className="mt-4 flex-row justify-end gap-2 sm:justify-end">
@@ -136,7 +136,7 @@ export const PlatformDialogs: React.FC<PlatformDialogsProps> = (props) => (
               <PopoverTrigger asChild>
                 <button
                   type="button"
-                  className="flex h-14 w-14 items-center justify-center rounded-2xl border border-gray-200 dark:border-dark-border bg-gray-50 dark:bg-dark-element hover:bg-gray-100 dark:hover:bg-dark-element-hover transition-colors"
+                  className="flex h-14 w-14 items-center justify-center rounded-md border border-gray-200 dark:border-dark-border bg-gray-50 dark:bg-dark-element hover:bg-gray-100 dark:hover:bg-dark-element-hover transition-colors"
                 >
                   {props.editPlatformIconKey ? (
                     <ProviderIcon iconKey={props.editPlatformIconKey} name={props.editPlatformName} size={28} />
@@ -185,7 +185,7 @@ export const PlatformDialogs: React.FC<PlatformDialogsProps> = (props) => (
               placeholder="简要描述该平台"
             />
           </div>
-          <div className="rounded-lg bg-gray-50 p-2.5 text-xs leading-5 text-gray-500 dark:bg-dark-element dark:text-gray-400">
+          <div className="rounded-md bg-gray-50 p-2.5 text-xs leading-5 text-gray-500 dark:bg-dark-element dark:text-gray-400">
             自定义平台需要提供 OpenAI 兼容的 Chat Completions 完整端点。留空时使用默认示例地址，之后仍可编辑。
           </div>
           <DialogFooter className="mt-4 flex-row justify-end gap-2 sm:justify-end">

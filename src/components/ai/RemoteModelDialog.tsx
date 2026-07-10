@@ -89,7 +89,14 @@ export const RemoteModelDialog: React.FC<RemoteModelDialogProps> = ({
 
         <div className="flex-1 overflow-y-auto min-h-[300px] border border-gray-200 dark:border-dark-border rounded-md divide-y divide-gray-100 dark:divide-gray-800">
           {loading ? (
-            <div className="flex items-center justify-center h-full text-sm text-gray-400 min-h-[300px]">加载中...</div>
+            <div className="flex flex-col w-full">
+              {['60%', '45%', '70%', '50%', '80%', '40%', '65%', '55%'].map((w, i) => (
+                <div key={i} className="flex items-center justify-between p-3">
+                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded animate-pulse" style={{ width: w }} />
+                  <div className="w-7 h-7 bg-gray-200 dark:bg-gray-800 rounded-sm animate-pulse shrink-0" />
+                </div>
+              ))}
+            </div>
           ) : error ? (
             <div className="flex items-center justify-center h-full text-sm text-red-500 min-h-[300px] px-4 text-center">{error}</div>
           ) : remoteModels.length === 0 ? (

@@ -82,7 +82,7 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({
                 setOpen(false);
                 setTimeout(() => onConfigClick(), 150);
               }}
-              className="inline-flex h-6 items-center justify-center gap-1 rounded-ui-control px-1.5 text-[12px] font-medium text-ui-text-muted hover:bg-ui-control-hover hover:text-ui-text"
+              className="inline-flex h-6 items-center justify-center gap-1 rounded-sm px-1.5 text-[12px] font-medium text-ui-text-muted hover:bg-ui-control-hover hover:text-ui-text"
             >
               <Settings1Line className="size-3.5 shrink-0" />
               <span className="leading-none mt-px">AI 配置</span>
@@ -91,11 +91,11 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({
         </PopoverHeader>
 
         {enabledProviders.length === 0 ? (
-          <div className="rounded-ui-panel border border-ui-border-subtle bg-ui-surface-subtle px-3 py-4 text-center text-[13px] text-ui-text-muted">
+          <div className="rounded-md border border-ui-border-subtle bg-ui-surface-subtle px-3 py-4 text-center text-[13px] text-ui-text-muted">
             <div>没有已启用的平台</div>
             <button
               type="button"
-              className="mt-2 h-7 rounded-ui-control bg-brand-600 px-3 text-[13px] font-medium text-white hover:bg-brand-600"
+              className="mt-2 h-7 rounded-sm bg-brand-600 px-3 text-[13px] font-medium text-white hover:bg-brand-600"
               onClick={() => {
                 setOpen(false);
                 setTimeout(() => onConfigClick(), 150);
@@ -128,7 +128,7 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({
                         key={model.id}
                         type="button"
                         className={cn(
-                          'flex h-8 w-full items-center justify-between rounded-ui-control px-2 text-left text-[13px] transition-colors hover:bg-ui-control-hover',
+                          'flex h-8 w-full items-center justify-between rounded-sm px-2 text-left text-[13px] transition-colors hover:bg-ui-control-hover',
                           isSelected && 'bg-brand-50 text-brand-700 dark:bg-brand-900/30 dark:text-brand-400'
                         )}
                         aria-label={model.name}

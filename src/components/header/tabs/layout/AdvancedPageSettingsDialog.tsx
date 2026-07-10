@@ -128,9 +128,9 @@ export const AdvancedPageSettingsDialog: React.FC<AdvancedPageSettingsDialogProp
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="h-[520px] w-[780px] overflow-hidden p-0 sm:max-w-[780px] flex flex-row gap-0 border-0 shadow-2xl rounded-xl bg-transparent">
+      <DialogContent className="h-[520px] w-[780px] overflow-hidden p-0 sm:max-w-[780px] flex flex-row gap-0 border-0 shadow-2xl rounded-lg bg-transparent">
         <DialogTitle className="sr-only">高级页面设置</DialogTitle>
-        <aside className="w-48 shrink-0 bg-gray-50 dark:bg-dark-bg border-r border-gray-200 dark:border-dark-border flex flex-col relative z-40 rounded-l-xl">
+        <aside className="w-48 shrink-0 bg-gray-50 dark:bg-dark-bg border-r border-gray-200 dark:border-dark-border flex flex-col relative z-40 rounded-l-lg">
           <div className="h-12 px-5 flex items-center shrink-0 relative mt-2">
             <div className="ui-sidebar-kicker text-[14px] font-semibold text-gray-700 dark:text-gray-200 pointer-events-none flex items-center gap-2">
               <Settings3Line className="w-[18px] h-[18px]" />
@@ -149,7 +149,7 @@ export const AdvancedPageSettingsDialog: React.FC<AdvancedPageSettingsDialogProp
           </nav>
         </aside>
 
-        <main className="flex-1 min-w-0 flex flex-col bg-white dark:bg-dark-surface h-full rounded-r-xl">
+        <main className="flex-1 min-w-0 flex flex-col bg-white dark:bg-dark-surface h-full rounded-r-lg">
           <div className="px-8 pb-4 pt-8 shrink-0">
             <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">{activeSectionLabel}</h2>
           </div>
@@ -157,7 +157,7 @@ export const AdvancedPageSettingsDialog: React.FC<AdvancedPageSettingsDialogProp
             {activeSection === 'size' && (
               <div className="space-y-8 animate-in fade-in slide-in-from-right-2 duration-300">
                 <section className="space-y-2">
-                  <div className="text-[15px] font-medium text-gray-800 dark:text-gray-200 border-b border-gray-100 dark:border-dark-border pb-2 mb-3">自定义纸张尺寸</div>
+                  <div className="text-[15px] font-medium text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-dark-border pb-2 mb-3">自定义纸张尺寸</div>
                   {fieldRow('宽度（英寸）', (
                     <SpinnerInput
                       id="input-width"
@@ -187,14 +187,14 @@ export const AdvancedPageSettingsDialog: React.FC<AdvancedPageSettingsDialogProp
             {activeSection === 'header' && (
               <div className="space-y-8 animate-in fade-in slide-in-from-right-2 duration-300">
                 <section className="space-y-4">
-                  <div className="text-[15px] font-medium text-gray-800 dark:text-gray-200 border-b border-gray-100 dark:border-dark-border pb-2">基本设置</div>
+                  <div className="text-[15px] font-medium text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-dark-border pb-2">基本设置</div>
                   <div className="space-y-2">
                     {switchRow('启用页眉', header.enabled, (enabled) => updateHeader({ enabled }))}
                   </div>
                 </section>
 
                 <section className="space-y-2">
-                  <div className="text-[15px] font-medium text-gray-800 dark:text-gray-200 border-b border-gray-100 dark:border-dark-border pb-2 mb-3">页眉内容</div>
+                  <div className="text-[15px] font-medium text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-dark-border pb-2 mb-3">页眉内容</div>
                   {fieldRow('页眉文本', (
                     <Input
                       id="input-header-text"
@@ -223,7 +223,7 @@ export const AdvancedPageSettingsDialog: React.FC<AdvancedPageSettingsDialogProp
             {activeSection === 'footer' && (
               <div className="space-y-8 animate-in fade-in slide-in-from-right-2 duration-300">
                 <section className="space-y-4">
-                  <div className="text-[15px] font-medium text-gray-800 dark:text-gray-200 border-b border-gray-100 dark:border-dark-border pb-2">基本设置</div>
+                  <div className="text-[15px] font-medium text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-dark-border pb-2">基本设置</div>
                   <div className="space-y-2">
                     {switchRow('启用页脚', footer.enabled, (enabled) => updateFooter({ enabled }))}
                     {switchRow('显示页码', footer.pageNumber, (pageNumber) => updateFooter({ pageNumber }))}
@@ -232,7 +232,7 @@ export const AdvancedPageSettingsDialog: React.FC<AdvancedPageSettingsDialogProp
                 </section>
 
                 <section className="space-y-2">
-                  <div className="text-[15px] font-medium text-gray-800 dark:text-gray-200 border-b border-gray-100 dark:border-dark-border pb-2 mb-3">内容与格式</div>
+                  <div className="text-[15px] font-medium text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-dark-border pb-2 mb-3">内容与格式</div>
                   {fieldRow('页码格式', (
                     <Input
                       id="input-footer-format"
@@ -261,7 +261,7 @@ export const AdvancedPageSettingsDialog: React.FC<AdvancedPageSettingsDialogProp
             {activeSection === 'toc' && (
               <div className="space-y-8 animate-in fade-in slide-in-from-right-2 duration-300">
                 <section className="space-y-4">
-                  <div className="text-[15px] font-medium text-gray-800 dark:text-gray-200 border-b border-gray-100 dark:border-dark-border pb-2">大纲生成</div>
+                  <div className="text-[15px] font-medium text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-dark-border pb-2">大纲生成</div>
                   <div className="space-y-2">
                     {switchRow('生成目录', cfg.global.includeTableOfContents, (includeTableOfContents) => updateGlobal({ includeTableOfContents }))}
                     {switchRow('第一个一级标题作为题名', Boolean(bodyStart.firstHeadingAsTitle), (firstHeadingAsTitle) => updateGlobal({ bodyStart: { ...bodyStart, firstHeadingAsTitle } }))}
@@ -270,7 +270,7 @@ export const AdvancedPageSettingsDialog: React.FC<AdvancedPageSettingsDialogProp
                 </section>
 
                 <section className="space-y-2">
-                  <div className="text-[15px] font-medium text-gray-800 dark:text-gray-200 border-b border-gray-100 dark:border-dark-border pb-2 mb-3">层级与页码</div>
+                  <div className="text-[15px] font-medium text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-dark-border pb-2 mb-3">层级与页码</div>
                   {fieldRow('目录最大层级', (
                     <Select
                       className="w-48"
@@ -298,14 +298,14 @@ export const AdvancedPageSettingsDialog: React.FC<AdvancedPageSettingsDialogProp
             {activeSection === 'other' && (
               <div className="space-y-8 animate-in fade-in slide-in-from-right-2 duration-300">
                 <section className="space-y-4">
-                  <div className="text-[15px] font-medium text-gray-800 dark:text-gray-200 border-b border-gray-100 dark:border-dark-border pb-2">表格处理</div>
+                  <div className="text-[15px] font-medium text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-dark-border pb-2">表格处理</div>
                   <div className="space-y-2">
                     {switchRow('表头加粗', Boolean(cfg.global.tableHeaderBold), (tableHeaderBold) => updateGlobal({ tableHeaderBold }), '导出的 Word 中表格的表头将自动应用加粗样式。')}
                   </div>
                 </section>
 
                 <section className="space-y-4">
-                  <div className="text-[15px] font-medium text-gray-800 dark:text-gray-200 border-b border-gray-100 dark:border-dark-border pb-2">文本规范化</div>
+                  <div className="text-[15px] font-medium text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-dark-border pb-2">文本规范化</div>
                   <div className="space-y-2">
                     {switchRow('中文标点规范化', Boolean(cfg.global.normalizePunctuation), (normalizePunctuation) => updateGlobal({ normalizePunctuation }), '导出时将中文上下文里的半角标点自动转换为全角，代码块和链接中的内容将被跳过保护。')}
                   </div>

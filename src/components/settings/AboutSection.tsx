@@ -26,7 +26,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ settings }) => (
       </div>
     </section>
 
-    <section className="rounded-lg border border-gray-200 p-4 dark:border-dark-border">
+    <section className="rounded-md border border-gray-200 p-4 dark:border-dark-border">
       <div className="text-sm font-medium text-gray-700 dark:text-gray-200">关于应用</div>
       <div className="mt-1 text-xs leading-5 text-gray-500 dark:text-gray-400">
         Markdown 写作、样式预览和 Word 导出工具。
@@ -51,7 +51,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ settings }) => (
       </div>
     </section>
 
-    <section className="rounded-lg border border-gray-200 p-4 dark:border-dark-border">
+    <section className="rounded-md border border-gray-200 p-4 dark:border-dark-border">
       <div className="text-sm font-medium text-gray-700 dark:text-gray-200">当前偏好</div>
       <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-xs text-gray-500 dark:text-gray-400">
         <div>主题：{settings.theme === 'dark' ? '深色' : '浅色'}</div>
@@ -68,7 +68,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ settings }) => (
       href="https://github.com/Kaurisss/markdown-to-word"
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-3 transition-colors hover:bg-gray-50 dark:border-dark-border dark:hover:bg-dark-element"
+      className="flex items-center gap-2 rounded-md border border-gray-200 px-4 py-3 transition-colors hover:bg-gray-50 dark:border-dark-border dark:hover:bg-dark-element"
     >
       <GithubLine className="w-5 h-5 text-gray-600 dark:text-gray-300" />
       <div className="flex-1 min-w-0">

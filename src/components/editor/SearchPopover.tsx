@@ -63,13 +63,13 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
       transition={motionTransition}
       className={`absolute top-3 right-4 z-50 ${!visible ? 'pointer-events-none' : ''}`}
     >
-      <div className="bg-ui-surface/95 dark:bg-dark-surface/95 border border-ui-border dark:border-dark-border rounded-xl shadow-xl backdrop-blur-sm p-2.5 grid grid-cols-[auto_280px_auto] gap-x-2 gap-y-2 items-center">
+      <div className="bg-ui-surface/95 dark:bg-dark-surface/95 border border-ui-border dark:border-dark-border rounded-lg shadow-xl backdrop-blur-sm p-2.5 grid grid-cols-[auto_280px_auto] gap-x-2 gap-y-2 items-center">
 
         {/* ── Row 1 ── */}
         {/* Expand / collapse replace */}
         <button
           onClick={() => setShowReplace(!showReplace)}
-          className="w-6 h-6 flex items-center justify-center rounded text-ui-text-muted hover:text-ui-text hover:bg-ui-control-hover transition-colors shrink-0"
+          className="w-6 h-6 flex items-center justify-center rounded-sm text-ui-text-muted hover:text-ui-text hover:bg-ui-control-hover transition-colors shrink-0"
           title={showReplace ? '折叠替换' : '展开替换'}
         >
           {showReplace
@@ -105,7 +105,7 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="w-5 h-5 flex items-center justify-center rounded text-ui-text-muted hover:text-ui-text hover:bg-ui-control-hover transition-colors"
+                className="w-5 h-5 flex items-center justify-center rounded-sm text-ui-text-muted hover:text-ui-text hover:bg-ui-control-hover transition-colors"
                 title="清除"
               >
                 <CloseLine className="w-3.5 h-3.5" />
@@ -164,7 +164,7 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
             <button
               onClick={() => setCurrentMatchIndex((prev) => Math.max(0, prev - 1))}
               disabled={!hasQuery}
-              className="w-7 h-7 flex items-center justify-center rounded text-ui-text-muted hover:text-ui-text hover:bg-ui-control-hover disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+              className="w-7 h-7 flex items-center justify-center rounded-sm text-ui-text-muted hover:text-ui-text hover:bg-ui-control-hover disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
               title="上一个 (Shift+Enter)"
             >
               <ArrowUpLine className="w-4 h-4" />
@@ -172,7 +172,7 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
             <button
               onClick={() => setCurrentMatchIndex((prev) => prev + 1)}
               disabled={!hasQuery}
-              className="w-7 h-7 flex items-center justify-center rounded text-ui-text-muted hover:text-ui-text hover:bg-ui-control-hover disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+              className="w-7 h-7 flex items-center justify-center rounded-sm text-ui-text-muted hover:text-ui-text hover:bg-ui-control-hover disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
               title="下一个 (Enter)"
             >
               <ArrowDownLine className="w-4 h-4" />
@@ -183,7 +183,7 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
           <div className="pl-1 border-l border-gray-200 dark:border-gray-700 ml-0.5">
             <button
               onClick={onClose}
-              className="w-7 h-7 flex items-center justify-center rounded text-ui-text-muted hover:text-ui-text hover:bg-ui-control-hover transition-colors shrink-0"
+              className="w-7 h-7 flex items-center justify-center rounded-sm text-ui-text-muted hover:text-ui-text hover:bg-ui-control-hover transition-colors shrink-0"
               title="关闭 (Escape)"
             >
               <CloseLine className="w-4 h-4" />
@@ -221,7 +221,7 @@ const SearchPopover: React.FC<SearchPopoverProps> = ({
               {replaceText && (
                 <button
                   onClick={() => setReplaceText('')}
-                  className="absolute right-1.5 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center rounded text-ui-text-muted hover:text-ui-text hover:bg-ui-control-hover transition-colors"
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center rounded-sm text-ui-text-muted hover:text-ui-text hover:bg-ui-control-hover transition-colors"
                   title="清除"
                 >
                   <CloseLine className="w-3.5 h-3.5" />

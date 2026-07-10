@@ -13,8 +13,8 @@ export const ViewModeDock: React.FC<ViewModeDockProps> = ({
   onViewModeChange,
   onOpenSettings
 }) => {
-  const btnClass = 'w-8 h-8 flex items-center justify-center rounded text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors';
-  const activeClass = 'bg-gray-200 dark:bg-gray-700';
+  const btnClass = 'w-8 h-8 flex items-center justify-center rounded-md text-ui-text-muted hover:bg-ui-control-hover transition-colors';
+  const activeClass = 'bg-ui-control-active text-ui-text';
 
   return (
     <div

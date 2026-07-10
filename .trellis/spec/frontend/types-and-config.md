@@ -20,7 +20,7 @@ Front-end sources that must stay aligned:
 - `src/types/config.ts`: TypeScript shape.
 - `src/config/defaultConfig.ts`: default values.
 - `src/config/documentConfigStorage.ts`: storage migration and default merging.
-- `src/components/preview/Preview.tsx` and `previewStyle.ts`: CSS mapping.
+- `src/components/preview/Preview.tsx`, `src/components/preview/DocxRenderPreview.tsx`, and `src/features/preview/useExportPreview.ts`: DOCX preview generation/rendering.
 - `src/components/header/tabs/HomeTab.tsx`, `LayoutTab.tsx`, and `layout/AdvancedPageSettingsDialog.tsx`: editing UI.
 - `test/config/defaultConfig.test.ts` and `test/config/documentConfigStorage.test.ts`: migration and default coverage.
 
@@ -52,5 +52,5 @@ Keyboard shortcut types and helpers are in `keyboardShortcuts.ts`; update `Short
 
 - Prefer concrete TypeScript interfaces for public feature boundaries.
 - Runtime validation is used where users can input arbitrary AI provider/model forms (`zod` in `validation.ts`).
-- Avoid adding new `[key: string]: any` patterns. `MdNode` in `editor.ts` keeps a broad index signature because markdown AST shapes vary; do not copy that pattern into normal app data.
+- Avoid adding new `[key: string]: any` patterns. Keep editor/preview prop contracts concrete unless an external package type forces a wider boundary.
 - Dynamic imports should be typed through the package exports rather than hand-written `any` wrappers when practical.

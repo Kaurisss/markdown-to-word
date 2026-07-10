@@ -91,7 +91,7 @@ export const AIConfigWindow: React.FC = () => {
           <PopoverTrigger asChild>
             <button
               type="button"
-              className="w-7 h-7 flex items-center justify-center rounded text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-dark-surface hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+              className="w-7 h-7 flex items-center justify-center rounded-sm text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-dark-surface hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
               title="API 配置指南"
             >
               <InformationLine className="w-4 h-4" />

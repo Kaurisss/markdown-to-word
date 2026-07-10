@@ -23,7 +23,7 @@ export const STYLES = {
   btnClass: "h-7 px-ui-control-x flex items-center justify-center border border-transparent rounded-ui-control hover:bg-ui-control-hover active:bg-ui-control-active transition-colors text-ui-text-muted",
   btnActiveClass: "bg-brand-100 dark:bg-brand-900/30 text-brand-700 dark:text-brand-400 border-brand-300 dark:border-brand-700",
   dividerClass: "w-px h-6 bg-ui-border-subtle mx-1",
-  groupClass: "flex flex-col items-center justify-between h-full px-3 first:pl-2 last:pr-2 border-r border-ui-border-subtle last:border-r-0 pt-1 pb-0",
+  groupClass: "flex flex-col items-center justify-between h-full px-1.5 border-r border-ui-border-subtle last:border-r-0 pt-1 pb-0",
   groupContentClass: "flex-1 flex items-center gap-1.5",
   groupLabelClass: "text-[11px] text-ui-text-muted mt-auto w-full text-center tracking-wide",
   labelClass: "text-xs text-ui-text-subtle block",

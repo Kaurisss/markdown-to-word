@@ -4,10 +4,60 @@
  * **Feature: python-backend-upgrade, Property 2: Style Config Serialization Round Trip**
  * **Validates: Requirements 2.1**
  */
-import { describe, it, expect } from 'vitest';
+import { beforeEach, describe, it, expect, vi } from 'vitest';
 import * as fc from 'fast-check';
+import { DEFAULT_CONFIG } from '@/config/defaultConfig';
 import { DocumentConfig, ElementStyle, PageMargin } from '@/types/config';
-import { parseBackendError } from '@/features/export/pythonBackend';
+import { generateExportPreviewDocx, parseBackendError } from '@/features/export/pythonBackend';
+
+const tauriMocks = vi.hoisted(() => ({
+  sidecar: vi.fn(),
+  execute: vi.fn(),
+  writeTextFile: vi.fn(),
+  readFile: vi.fn(),
+  remove: vi.fn(),
+  appCacheDir: vi.fn(),
+  join: vi.fn(),
+}));
+
+vi.mock('@tauri-apps/plugin-shell', () => ({
+  Command: {
+    sidecar: tauriMocks.sidecar,
+  },
+}));
+
+vi.mock('@tauri-apps/plugin-fs', () => ({
+  BaseDirectory: {
+    AppCache: 'AppCache',
+  },
+  writeTextFile: tauriMocks.writeTextFile,
+  readFile: tauriMocks.readFile,
+  remove: tauriMocks.remove,
+}));
+
+vi.mock('@tauri-apps/api/path', () => ({
+  appCacheDir: tauriMocks.appCacheDir,
+  join: tauriMocks.join,
+}));
+
+const appCachePath = 'C:\\Users\\Logic\\AppData\\Local\\com.kauriss.markdown-to-word';
+
+beforeEach(() => {
+  tauriMocks.sidecar.mockReset();
+  tauriMocks.execute.mockReset();
+  tauriMocks.writeTextFile.mockReset();
+  tauriMocks.readFile.mockReset();
+  tauriMocks.remove.mockReset();
+  tauriMocks.appCacheDir.mockReset();
+  tauriMocks.join.mockReset();
+
+  tauriMocks.sidecar.mockReturnValue({ execute: tauriMocks.execute });
+  tauriMocks.execute.mockResolvedValue({ code: 0, stdout: '', stderr: '' });
+  tauriMocks.writeTextFile.mockResolvedValue(undefined);
+  tauriMocks.remove.mockResolvedValue(undefined);
+  tauriMocks.appCacheDir.mockResolvedValue(appCachePath);
+  tauriMocks.join.mockImplementation(async (...parts: string[]) => parts.join('\\'));
+});
 
 /**
  * Arbitrary for generating valid alignment values
@@ -95,6 +145,36 @@ describe('parseBackendError', () => {
       message: '权限错误',
       details: 'Permission denied reading input file',
     });
+  });
+
+});
+
+describe('generateExportPreviewDocx', () => {
+  it('generates a temporary DOCX with the normal sidecar arguments and reads it back', async () => {
+    tauriMocks.readFile.mockImplementation(async (path: string) => {
+      if (path.startsWith(appCachePath) && path.endsWith('.docx')) {
+        return new Uint8Array([0x50, 0x4b, 0x03, 0x04]);
+      }
+
+      throw new Error(`failed to open file at path: ${appCachePath}\\${path}`);
+    });
+
+    const result = await generateExportPreviewDocx({
+      markdown: '# Title',
+      config: DEFAULT_CONFIG,
+    });
+
+    expect(result).toEqual({
+      success: true,
+      docxBytes: new Uint8Array([0x50, 0x4b, 0x03, 0x04]),
+    });
+
+    const sidecarArgs = tauriMocks.sidecar.mock.calls[0]?.[1] as string[];
+    const outputPath = sidecarArgs.at(sidecarArgs.indexOf('--output') + 1);
+
+    expect(sidecarArgs).not.toContain('--preview-pdf');
+    expect(outputPath).toMatch(/md2word-preview-.+\.docx$/);
+    expect(tauriMocks.readFile).toHaveBeenCalledWith(outputPath);
   });
 });
 

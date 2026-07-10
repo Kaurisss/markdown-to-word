@@ -9,7 +9,7 @@ interface UndoRedoDockProps {
 }
 
 export const UndoRedoDock: React.FC<UndoRedoDockProps> = ({ onUndo, onRedo, canUndo = false, canRedo = false }) => {
-  const btnBaseClass = 'w-8 h-8 grid place-items-center rounded-md transition-colors';
+  const btnBaseClass = 'w-8 h-8 grid place-items-center rounded-sm transition-colors';
 
   return (
     <div className="flex items-center gap-0.5 px-1.5 shrink-0" onMouseDown={(e) => e.stopPropagation()}>

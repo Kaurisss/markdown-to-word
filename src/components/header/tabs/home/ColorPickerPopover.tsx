@@ -60,7 +60,7 @@ export const ColorPickerPopover: React.FC<ColorPickerPopoverProps> = ({
           </div>
         </>
       )}
-      <div className="border-t border-gray-100 dark:border-dark-border mt-2 pt-2 flex items-center justify-between">
+      <div className="border-t border-gray-200 dark:border-dark-border mt-2 pt-2 flex items-center justify-between">
         <label className="flex items-center gap-2 text-[14px] text-gray-600 dark:text-gray-300 cursor-pointer hover:text-gray-900 dark:hover:text-gray-100">
           <input
             type="color"

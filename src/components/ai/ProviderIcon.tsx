@@ -97,7 +97,7 @@ export function ProviderIcon({
     const Icon = ICON_COMPONENTS[resolvedKey];
     return (
       <span
-        className={cn('inline-flex shrink-0 items-center justify-center overflow-hidden rounded-ui-control', className)}
+        className={cn('inline-flex shrink-0 items-center justify-center overflow-hidden rounded-md', className)}
         style={{ width: size, height: size }}
         aria-hidden
       >
@@ -108,7 +108,7 @@ export function ProviderIcon({
 
   return (
     <span
-      className={cn('inline-flex shrink-0 items-center justify-center rounded-ui-control bg-ui-surface-subtle text-[10px] font-semibold text-ui-text-muted', className)}
+      className={cn('inline-flex shrink-0 items-center justify-center rounded-md bg-ui-surface-subtle text-[10px] font-semibold text-ui-text-muted', className)}
       style={{ width: size, height: size }}
       aria-hidden
     >

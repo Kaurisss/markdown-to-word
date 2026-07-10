@@ -39,7 +39,7 @@ export const ProviderSidebar: React.FC<ProviderSidebarProps> = ({
       </h2>
       <button
         onClick={onAddPlatform}
-        className="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-200 dark:hover:bg-dark-surface text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors relative z-10"
+        className="w-6 h-6 flex items-center justify-center rounded-sm hover:bg-gray-200 dark:hover:bg-dark-surface text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors relative z-10"
         title="添加自定义平台"
       >
         <AddLine className="w-4 h-4" />

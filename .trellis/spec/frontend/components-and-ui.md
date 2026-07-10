@@ -23,12 +23,12 @@ When adding controls, use the existing icon-button and grouped-ribbon style. Use
 
 ## Preview Rendering
 
-`src/components/preview/Preview.tsx` is not a generic HTML renderer. It renders Markdown as an A4-like Word preview:
+`src/components/preview/Preview.tsx` is not a Markdown HTML renderer. It is a state shell for the export-grade DOCX preview:
 
-- Markdown parsing uses `react-markdown`, `remark-gfm`, `rehype-raw`, `rehype-sanitize`, and `rehype-slug`.
-- Allowed raw HTML is restricted by `src/components/preview/sanitizeSchema.ts`; currently underline `<u>` is intentionally allowed, while arbitrary tags like `script`, `img`, and `input` are stripped.
-- CSS conversion helpers live in `src/components/preview/previewStyle.ts`.
-- Heading IDs get the `user-content-` prefix; tests in `test/components/preview/Preview.test.tsx` protect this.
+- `Preview.tsx` calls `useExportPreview({ markdown, cfg })` and renders `DocxRenderPreview` when DOCX bytes are ready.
+- `DocxRenderPreview.tsx` dynamically imports `docx-renderer@0.2.0` and calls `render(docxBytes, body, style, { breakPages: true })` against staged containers before swapping the successful render into view.
+- Generation/render failures show export-preview status UI. If a newer render fails after a successful DOCX preview, keep the previous DOCX DOM visible. Do not reintroduce the old Markdown DOM fallback without a new product decision.
+- External links rendered inside the DOCX preview must ask for confirmation and open through Tauri shell when available; this belongs in `DocxRenderPreview.tsx`.
 
 If a Markdown feature should also export to Word, update both preview rendering and the Python backend, then read `.trellis/spec/cross-layer/export-and-preview-consistency.md`.
 
@@ -56,5 +56,4 @@ Settings and AI config windows are dense utility surfaces, not marketing pages. 
 ## Accessibility And Safety
 
 - Use `aria-label` for icon-only switches and status bar buttons. Tests use role/name queries, for example `getByRole('switch', { name: '表头加粗' })`.
-- External preview links must ask for confirmation and open through Tauri shell when available; see `Preview.tsx`.
-- Do not broaden the sanitize schema without tests that prove unsafe tags remain stripped.
+- External preview links must ask for confirmation and open through Tauri shell when available; see `DocxRenderPreview.tsx`.
