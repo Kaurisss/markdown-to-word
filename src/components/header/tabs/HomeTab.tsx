@@ -91,11 +91,11 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             <span className={STYLES.labelClass}>样式</span>
             <div
               ref={tabContainerRef}
-              className="relative flex bg-ui-surface-subtle p-0.5 rounded-ui-panel"
+              className="relative flex bg-ui-surface-subtle p-0.5 rounded-md"
             >
               {/* 滑动指示器 */}
               <div
-                className="absolute top-0.5 bottom-0.5 bg-ui-surface-raised rounded-[6px] transition-all duration-300 ease-out"
+                className="absolute top-0.5 bottom-0.5 bg-ui-surface-raised rounded-sm transition-all duration-300 ease-out"
                 style={{
                   left: sliderStyle.left,
                   width: sliderStyle.width,
@@ -107,7 +107,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                   key={key}
                   ref={(el) => { if (el) tabRefs.current.set(key, el); }}
                   onClick={() => setActiveStyle(key)}
-                  className={`relative z-10 px-2 py-1 text-[13px] rounded-[6px] transition-colors duration-200 ${activeStyle === key
+                  className={`relative z-10 px-2 py-1 text-[13px] rounded-sm transition-colors duration-200 ${activeStyle === key
                       ? 'text-brand-600 dark:text-brand-400 font-medium'
                       : 'text-ui-text-muted hover:text-ui-text'
                     }`}
@@ -165,12 +165,12 @@ export const HomeTab: React.FC<HomeTabProps> = ({
         <div className={STYLES.groupContentClass}>
           <div className="flex flex-col gap-0.5">
             <span className={STYLES.labelClass}>效果</span>
-            <div className="flex items-center gap-0.5 bg-ui-surface-subtle p-0.5 h-8 rounded-ui-panel border border-ui-border-subtle">
+            <div className="flex items-center gap-0.5 bg-ui-surface-subtle p-0.5 rounded-md border border-ui-border-subtle">
             <Toggle
               size="sm"
               pressed={currentStyle.bold || false}
               onPressedChange={(pressed) => updateStyle({ bold: pressed })}
-              className="h-full w-8 p-0 rounded-[6px] hover:bg-black/5 dark:hover:bg-white/10 data-[state=on]:bg-ui-surface-raised data-[state=on]:text-brand-600 dark:data-[state=on]:text-brand-400 transition-all"
+              className="h-7 w-7 min-w-0 p-0 rounded-sm hover:bg-black/5 dark:hover:bg-white/10 data-[state=on]:bg-ui-surface-raised data-[state=on]:text-brand-600 dark:data-[state=on]:text-brand-400 transition-all"
               title="加粗"
             >
               <BoldFill className="w-4 h-4" />
@@ -179,7 +179,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               size="sm"
               pressed={currentStyle.italic || false}
               onPressedChange={(pressed) => updateStyle({ italic: pressed })}
-              className="h-full w-8 p-0 rounded-[6px] hover:bg-black/5 dark:hover:bg-white/10 data-[state=on]:bg-ui-surface-raised data-[state=on]:text-brand-600 dark:data-[state=on]:text-brand-400 transition-all"
+              className="h-7 w-7 min-w-0 p-0 rounded-sm hover:bg-black/5 dark:hover:bg-white/10 data-[state=on]:bg-ui-surface-raised data-[state=on]:text-brand-600 dark:data-[state=on]:text-brand-400 transition-all"
               title="斜体"
             >
               <ItalicLine className="w-4 h-4" />
@@ -195,7 +195,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               onColorSelect={(color) => updateStyle({ color })}
             >
               <button
-                className="w-8 h-full rounded-[6px] flex flex-col items-center justify-center gap-[2px] hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+                className="h-7 w-7 min-w-0 rounded-sm flex flex-col items-center justify-center gap-[2px] hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
                 title="字体颜色"
               >
                 <FontLine className="w-3.5 h-3.5 text-gray-700 dark:text-gray-300" />
@@ -220,7 +220,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               resetLabel="无颜色"
             >
               <button
-                className="w-8 h-full rounded-[6px] flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+                className="h-7 w-7 min-w-0 rounded-sm flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
                 title="背景颜色"
               >
                 <div className="flex flex-col items-center justify-center gap-[2px]">
@@ -246,14 +246,14 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               onValueChange={(val) => {
                 if (val) updateStyle({ alignment: val as any });
               }}
-              className="flex items-center gap-0.5 bg-ui-surface-subtle p-0.5 h-8 rounded-ui-panel border border-ui-border-subtle"
+              className="flex items-center gap-0.5 bg-ui-surface-subtle p-0.5 rounded-md border border-ui-border-subtle"
             >
               {(['left', 'center', 'right', 'justify'] as const).map(align => (
                 <ToggleGroupItem
                   key={align}
                   value={align}
                   size="sm"
-                  className="h-full w-8 p-0 rounded-[6px] hover:bg-black/5 dark:hover:bg-white/10 data-[state=on]:bg-ui-surface-raised data-[state=on]:text-brand-600 dark:data-[state=on]:text-brand-400 transition-all"
+                  className="h-7 w-7 min-w-0 p-0 rounded-sm hover:bg-black/5 dark:hover:bg-white/10 data-[state=on]:bg-ui-surface-raised data-[state=on]:text-brand-600 dark:data-[state=on]:text-brand-400 transition-all"
                   title={{ left: '左对齐', center: '居中', right: '右对齐', justify: '两端对齐' }[align]}
                 >
                   {align === 'left' && <AlignLeftLine className="w-4 h-4" />}

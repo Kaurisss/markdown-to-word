@@ -74,13 +74,13 @@ const Preview = forwardRef<HTMLDivElement, ExtendedPreviewProps>(
 
         {/* Loading indicator — only show as floating badge when status bar is hidden */}
         {!showStatusBar && exportPreview.status === 'loading' && (
-          <div className="absolute top-3 right-4 z-20 rounded-ui-popover border border-ui-border bg-ui-surface-raised/95 px-3 py-1.5 text-xs text-ui-text-muted shadow-ui-popover">
+          <div className="absolute top-3 right-4 z-20 rounded-lg border border-ui-border bg-ui-surface-raised/95 px-3 py-1.5 text-xs text-ui-text-muted shadow-ui-popover">
             正在生成导出级预览...
           </div>
         )}
 
         {hasError && (
-          <div className="absolute top-3 left-4 right-4 z-20 rounded-ui-popover border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 shadow-ui-popover">
+          <div className="absolute top-3 left-4 right-4 z-20 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 shadow-ui-popover">
             {exportPreview.error || '预览渲染失败'}
             {hasRenderedDocxPreview ? '，继续显示上一版导出级预览' : '，无法显示导出级预览'}
             {errorDetails ? `：${errorDetails}` : ''}
@@ -110,7 +110,7 @@ const Preview = forwardRef<HTMLDivElement, ExtendedPreviewProps>(
 
         {/* Page count — only show as floating badge when status bar is hidden */}
         {!showStatusBar && showDocxPreview && pageCount !== null && (
-          <div className="pointer-events-none absolute bottom-4 right-5 z-20 rounded-ui-popover border border-ui-border bg-ui-surface-raised/95 px-3 py-1.5 text-xs text-ui-text-muted shadow-ui-popover">
+          <div className="pointer-events-none absolute bottom-4 right-5 z-20 rounded-lg border border-ui-border bg-ui-surface-raised/95 px-3 py-1.5 text-xs text-ui-text-muted shadow-ui-popover">
             {pageCount} 页
           </div>
         )}

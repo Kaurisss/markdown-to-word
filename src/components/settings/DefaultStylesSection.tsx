@@ -3,7 +3,7 @@ import { Select } from '../ui/Select';
 import { FONTS_CN, FONTS_EN, FONT_LABELS, FONT_SIZES, FONT_SIZES_PT, LINE_SPACINGS } from '../header/constants';
 
 const labelClass = 'ui-field-label';
-const triggerClass = 'h-10 px-3 text-[14px] rounded-lg';
+const triggerClass = 'h-10 px-3 text-[14px] rounded-md';
 const optionClass = 'text-[14px]';
 const paragraphSpacingOptions = [0, 4, 6, 8, 12, 18, 24].map((value) => ({
   label: `${value}pt`,

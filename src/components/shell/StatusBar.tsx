@@ -75,7 +75,7 @@ export const StatusBar: React.FC<StatusBarProps> = ({
         <span className="hidden whitespace-nowrap sm:inline">字符(不含空格): {stats.charsNoSpace}</span>
         <span className="whitespace-nowrap">行数: {stats.lines}</span>
         <span className="hidden whitespace-nowrap sm:inline">段落: {stats.paragraphs}</span>
-        <div className="ml-1 flex items-center gap-1 border-l border-gray-300 pl-2 dark:border-gray-700">
+        <div className="ml-1 flex items-center gap-1 border-l border-gray-200 pl-2 dark:border-gray-700">
           <StatusBarButton label="搜索" onClick={onSearchClick}>
             <Search2Line className="h-3.5 w-3.5" />
           </StatusBarButton>

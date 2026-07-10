@@ -84,7 +84,7 @@ export const WindowBar: React.FC<WindowBarProps> = ({
   const renderMenuButton = () => (
     <button
       type="button"
-      className="w-8 h-8 ml-1 flex items-center justify-center rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 transition-colors"
+      className="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 transition-colors"
       title="菜单"
       onMouseDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
@@ -99,7 +99,7 @@ export const WindowBar: React.FC<WindowBarProps> = ({
       data-tauri-drag-region
       onDoubleClick={() => void runWindowAction()}
     >
-      <div className="flex items-center" onMouseDown={(e) => e.stopPropagation()}>
+      <div className="flex items-center pl-1.5" onMouseDown={(e) => e.stopPropagation()}>
         <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".md,.txt,.markdown" className="hidden" />
 
         {displayMode === 'tabs' && renderTabsList()}

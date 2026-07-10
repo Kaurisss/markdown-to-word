@@ -11,8 +11,8 @@
   --ui-color-control: #ffffff;
   --ui-color-control-hover: #f3f4f6;
   --ui-color-control-active: #e5e7eb;
-  --ui-color-border: #d1d5db;
-  --ui-color-border-subtle: #e5e7eb;
+  --ui-color-border: var(--color-gray-200);
+  --ui-color-border-subtle: var(--color-gray-200);
   --ui-color-text: #111827;
   --ui-color-text-muted: #4b5563;
   --ui-color-text-subtle: #9ca3af;
@@ -23,18 +23,17 @@
   --ui-color-selection: #bae6fd;
   --ui-color-search: #fde047;
   --ui-color-search-current: #fb923c;
-  --ui-space-chrome-x: 8px;
+  --ui-space-chrome-x: 0px;
   --ui-space-chrome-y: 4px;
   --ui-space-ribbon-gap: 8px;
   --ui-space-control-x: 8px;
   --ui-space-control-y: 4px;
-  --ui-space-editor-padding: 32px;
-  --ui-space-preview-padding: 32px;
-  --ui-radius: 8px;
+  --ui-space-editor-padding: 24px;
+  --ui-space-preview-padding: 24px;
+  --ui-radius: 6px;
   --ui-radius-control: var(--ui-radius);
   --ui-radius-panel: var(--ui-radius);
-  --ui-radius-popover: var(--ui-radius);
-  --ui-radius-swatch: 4px;
+  --ui-radius-popover: 8px;
   --ui-shadow-popover: 0 8px 24px rgba(15, 23, 42, 0.14);
   --ui-shadow-page: 0 8px 30px rgba(0, 0, 0, 0.06);
   --ui-shadow-focus: 0 0 0 3px rgba(14, 165, 233, 0.22);
@@ -179,9 +178,9 @@ select {
   --color-brand-900: #0c4a6e;
 
   /* Flatten Tailwind radius scale to 8px, keeping sm at 4px for inner concentricity */
-  --radius: 8px;
+  --radius: 6px;
   --radius-sm: 4px;
-  --radius-md: 8px;
+  --radius-md: 6px;
   --radius-lg: 8px;
 
   /* Custom Dark Background */
@@ -221,7 +220,6 @@ select {
   --radius-ui-control: var(--ui-radius-control);
   --radius-ui-panel: var(--ui-radius-panel);
   --radius-ui-popover: var(--ui-radius-popover);
-  --radius-ui-swatch: var(--ui-radius-swatch);
   --shadow-ui-popover: var(--ui-shadow-popover);
   --shadow-ui-page: var(--ui-shadow-page);
   --font-ui-sans: var(--ui-font-sans);

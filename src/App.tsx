@@ -342,9 +342,9 @@ const App: React.FC = () => {
           {isFileDragActive && (
             <div className="fixed inset-0 z-[999] pointer-events-none">
               <div className="absolute inset-0 bg-black/20" />
-              <div className="absolute inset-4 border-2 border-dashed border-brand-400 rounded-ui-popover" />
+              <div className="absolute inset-4 border-2 border-dashed border-brand-400 rounded-lg" />
               <div className="absolute inset-0 grid place-items-center">
-                <div className="px-4 py-3 rounded-ui-popover bg-ui-surface-raised/95 border border-ui-border shadow-ui-popover text-sm text-ui-text">
+                <div className="px-4 py-3 rounded-lg bg-ui-surface-raised/95 border border-ui-border shadow-ui-popover text-sm text-ui-text">
                   拖入 .md / .markdown / .txt 文件以导入
                 </div>
               </div>

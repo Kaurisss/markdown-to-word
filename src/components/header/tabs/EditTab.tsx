@@ -33,7 +33,7 @@ export const EditTab: React.FC<EditTabProps> = ({
                 <div className={STYLES.groupContentClass}>
                     <div className="flex flex-col gap-0.5">
                         <span className={STYLES.labelClass}>操作</span>
-                        <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-dark-element p-0.5 rounded border border-gray-100 dark:border-dark-border h-8">
+                        <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-dark-element p-0.5 rounded border border-gray-200 dark:border-dark-border h-8">
                             <button onClick={onUndo} onMouseDown={e => e.preventDefault()} className={iconBtnClass} title="撤销 (Ctrl+Z)">
                                 <Back2Line className="w-4 h-4" />
                             </button>
@@ -51,7 +51,7 @@ export const EditTab: React.FC<EditTabProps> = ({
                 <div className={STYLES.groupContentClass}>
                     <div className="flex flex-col gap-0.5">
                         <span className={STYLES.labelClass}>剪贴</span>
-                        <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-dark-element p-0.5 rounded border border-gray-100 dark:border-dark-border h-8">
+                        <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-dark-element p-0.5 rounded border border-gray-200 dark:border-dark-border h-8">
                             <button onClick={onCut} onMouseDown={e => e.preventDefault()} className={iconBtnClass} title="剪切 (Ctrl+X)">
                                 <ScissorsLine className="w-4 h-4" />
                             </button>

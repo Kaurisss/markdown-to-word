@@ -4,7 +4,7 @@ import { Select } from '../ui/Select';
 import { SunLine, MoonLine, Layout5Line, LayoutTopOpenLine, EditLine, Columns2Line, Eye2Line } from '@mingcute/react';
 
 const labelClass = 'ui-field-label';
-const triggerClass = 'h-10 px-3 text-[14px] rounded-lg';
+const triggerClass = 'h-10 px-3 text-[14px] rounded-md';
 const optionClass = 'text-[14px]';
 
 interface AppearanceSectionProps {

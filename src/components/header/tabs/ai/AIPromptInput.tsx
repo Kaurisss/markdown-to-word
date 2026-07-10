@@ -95,7 +95,7 @@ export const AIPromptInput: React.FC<AIPromptInputProps> = ({
               type="button"
               onClick={() => onChange('')}
               className={cn(
-                'inline-flex h-6 items-center gap-1 rounded-ui-control px-1.5 text-[12px] text-ui-text-muted hover:bg-ui-control-hover hover:text-ui-text',
+                'inline-flex h-6 items-center gap-1 rounded-sm px-1.5 text-[12px] text-ui-text-muted hover:bg-ui-control-hover hover:text-ui-text',
                 !value.trim() && 'invisible'
               )}
             >
@@ -127,7 +127,7 @@ export const AIPromptInput: React.FC<AIPromptInputProps> = ({
               <button
                 key={example.label}
                 type="button"
-                className="h-7 rounded-ui-control border border-ui-border bg-ui-control px-2 text-[12px] text-ui-text-muted hover:bg-ui-control-hover hover:text-ui-text"
+                className="h-7 rounded-sm border border-ui-border bg-ui-control px-2 text-[12px] text-ui-text-muted hover:bg-ui-control-hover hover:text-ui-text"
                 onClick={() => onChange(example.value)}
               >
                 {example.label}

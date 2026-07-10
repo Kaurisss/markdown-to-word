@@ -20,7 +20,7 @@ export function ProviderIconPicker({ value, onChange, compact }: ProviderIconPic
             <button
               type="button"
               onClick={() => onChange('')}
-              className="inline-flex h-6 items-center gap-1 rounded-ui-control px-1.5 text-[12px] text-ui-text-muted hover:bg-ui-control-hover hover:text-ui-text"
+              className="inline-flex h-6 items-center gap-1 rounded-sm px-1.5 text-[12px] text-ui-text-muted hover:bg-ui-control-hover hover:text-ui-text"
             >
               <CloseLine className="size-3.5" />
               清除
@@ -29,7 +29,7 @@ export function ProviderIconPicker({ value, onChange, compact }: ProviderIconPic
         </div>
       )}
       <div
-        className={cn('grid gap-2', compact ? 'grid-cols-6 gap-1.5 max-h-[220px] overflow-y-auto scrollbar-none' : 'grid-cols-4 max-h-[300px] overflow-y-auto scrollbar-none')}
+        className={cn('grid', compact ? 'grid-cols-6 gap-1.5' : 'grid-cols-4 gap-2')}
         onWheel={(e) => e.stopPropagation()}
       >
         {PROVIDER_ICON_KEYS.map((iconKey) => {
@@ -40,7 +40,7 @@ export function ProviderIconPicker({ value, onChange, compact }: ProviderIconPic
               type="button"
               onClick={() => onChange(iconKey)}
               className={cn(
-                'flex items-center justify-center rounded-ui-panel border transition-colors',
+                'flex items-center justify-center rounded-md border transition-colors',
                 compact
                   ? 'size-11'
                   : 'h-16 flex-col gap-1 text-[11px]',

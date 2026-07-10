@@ -92,7 +92,7 @@ export const ShortcutsSection: React.FC<ShortcutsSectionProps> = ({ settings, up
   return (
     <>
       <div className="space-y-5">
-        <div className="flex items-start justify-between gap-4 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-dark-border dark:bg-dark-element">
+        <div className="flex items-start justify-between gap-4 rounded-md border border-gray-200 bg-gray-50 p-3 dark:border-dark-border dark:bg-dark-element">
           <div>
             <div className="text-sm font-medium text-gray-700 dark:text-gray-200">自定义快捷键</div>
             <div className="mt-1 text-xs leading-5 text-gray-500 dark:text-gray-400">
@@ -102,7 +102,7 @@ export const ShortcutsSection: React.FC<ShortcutsSectionProps> = ({ settings, up
           <button
             type="button"
             onClick={() => setShowResetConfirm(true)}
-            className="h-8 shrink-0 rounded-lg border border-gray-200 bg-white px-3 text-xs text-gray-600 hover:bg-gray-50 dark:border-dark-border dark:bg-dark-surface dark:text-gray-300 dark:hover:bg-dark-element-hover"
+            className="h-8 shrink-0 rounded-md border border-gray-200 bg-white px-3 text-xs text-gray-600 hover:bg-gray-50 dark:border-dark-border dark:bg-dark-surface dark:text-gray-300 dark:hover:bg-dark-element-hover"
           >
             恢复默认
           </button>
@@ -119,7 +119,7 @@ export const ShortcutsSection: React.FC<ShortcutsSectionProps> = ({ settings, up
           ].map(([label, shortcut]) => (
             <div
               key={label}
-              className="flex items-center justify-between rounded-lg border border-gray-200 px-3 py-2 dark:border-dark-border"
+              className="flex items-center justify-between rounded-md border border-gray-200 px-3 py-2 dark:border-dark-border"
             >
               <span className="text-gray-500 dark:text-gray-400">{label}</span>
               <Kbd>{shortcut}</Kbd>
@@ -128,7 +128,7 @@ export const ShortcutsSection: React.FC<ShortcutsSectionProps> = ({ settings, up
         </div>
 
         {shortcutConflicts.length > 0 && (
-          <div className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-200">
+          <div className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-200">
             存在重复快捷键：{shortcutConflicts.map(conflict => conflict.signature).join('、')}。重复时靠前的动作会先响应。
           </div>
         )}
@@ -136,7 +136,7 @@ export const ShortcutsSection: React.FC<ShortcutsSectionProps> = ({ settings, up
         {shortcutGroups.map(({ group, actions }) => (
           <section key={group} className="space-y-2">
             <div className="text-xs font-medium text-gray-500 dark:text-gray-400">{group}</div>
-            <div className="overflow-hidden rounded-lg border border-gray-200 dark:border-dark-border">
+            <div className="overflow-hidden rounded-md border border-gray-200 dark:border-dark-border">
               {actions.map(action => {
                 const shortcut = settings.keyboardShortcuts[action.id];
                 const isRecording = recordingActionId === action.id;
@@ -145,7 +145,7 @@ export const ShortcutsSection: React.FC<ShortcutsSectionProps> = ({ settings, up
                 return (
                   <div
                     key={action.id}
-                    className="flex items-center justify-between gap-4 border-b border-gray-100 px-3 py-2 last:border-b-0 dark:border-dark-border"
+                    className="flex items-center justify-between gap-4 border-b border-gray-200 px-3 py-2 last:border-b-0 dark:border-dark-border"
                   >
                     <div className="min-w-0">
                       <div className="text-sm text-gray-700 dark:text-gray-200">{action.label}</div>
@@ -158,7 +158,7 @@ export const ShortcutsSection: React.FC<ShortcutsSectionProps> = ({ settings, up
                       <button
                         type="button"
                         onClick={() => setRecordingActionId(action.id)}
-                        className={`h-8 rounded-lg border px-2 text-xs transition-colors ${
+                        className={`h-8 rounded-md border px-2 text-xs transition-colors ${
                           isRecording
                             ? 'border-brand-400 bg-brand-50 text-brand-700 dark:border-brand-700 dark:bg-brand-900/20 dark:text-brand-300'
                             : hasConflict
@@ -175,7 +175,7 @@ export const ShortcutsSection: React.FC<ShortcutsSectionProps> = ({ settings, up
                       <button
                         type="button"
                         onClick={() => resetShortcut(action.id)}
-                        className="h-8 rounded-lg px-2 text-xs text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:text-gray-500 dark:hover:bg-dark-element-hover dark:hover:text-gray-300"
+                        className="h-8 rounded-md px-2 text-xs text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:text-gray-500 dark:hover:bg-dark-element-hover dark:hover:text-gray-300"
                       >
                         重置
                       </button>

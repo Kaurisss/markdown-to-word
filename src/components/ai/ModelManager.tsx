@@ -38,14 +38,14 @@ export const ModelManager: React.FC<ModelManagerProps> = ({
     <div className="flex items-center gap-2">
       <button
         onClick={onAddModel}
-        className="flex items-center gap-2 px-4 h-9 text-sm font-medium text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/20 hover:bg-brand-100 dark:hover:bg-brand-900/30 border border-brand-200 dark:border-brand-800 rounded-lg transition-colors w-fit"
+        className="flex items-center gap-2 px-4 h-9 text-sm font-medium text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/20 hover:bg-brand-100 dark:hover:bg-brand-900/30 border border-brand-200 dark:border-brand-800 rounded-md transition-colors w-fit"
       >
         <AddLine className="w-4 h-4" />
         添加模型
       </button>
       <button
         onClick={onFetchRemoteModels}
-        className="flex items-center gap-2 px-4 h-9 text-sm font-medium text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/20 hover:bg-gray-100 dark:hover:bg-gray-900/30 border border-gray-200 dark:border-gray-800 rounded-lg transition-colors w-fit"
+        className="flex items-center gap-2 px-4 h-9 text-sm font-medium text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/20 hover:bg-gray-100 dark:hover:bg-gray-900/30 border border-gray-200 dark:border-gray-800 rounded-md transition-colors w-fit"
       >
         <DownloadLine className="w-4 h-4" />
         获取模型列表
@@ -58,7 +58,7 @@ export const ModelManager: React.FC<ModelManagerProps> = ({
           <ContextMenuTrigger asChild>
             <div
               data-model-card
-              className="flex items-center justify-between p-3 rounded-lg border group transition-all bg-white dark:bg-dark-element border-gray-200 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-dark-element-hover"
+              className="flex items-center justify-between p-3 rounded-md border group transition-all bg-white dark:bg-dark-element border-gray-200 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-dark-element-hover"
             >
               <div className="flex flex-col">
                 <div className="flex items-center gap-2">
