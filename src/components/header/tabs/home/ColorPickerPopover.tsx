@@ -13,6 +13,8 @@ interface ColorPickerPopoverProps {
   children: React.ReactNode;
 }
 
+import { CustomColorPicker } from '../../../ui/color-picker';
+
 export const ColorPickerPopover: React.FC<ColorPickerPopoverProps> = ({
   open,
   onOpenChange,
@@ -22,8 +24,14 @@ export const ColorPickerPopover: React.FC<ColorPickerPopoverProps> = ({
   showReset = false,
   resetLabel = '无颜色',
   children,
-}) => (
-  <Popover open={open} onOpenChange={onOpenChange}>
+}) => {
+  const [showCustom, setShowCustom] = React.useState(false);
+
+  return (
+  <Popover open={open} onOpenChange={(val) => {
+    onOpenChange(val);
+    if (!val) setShowCustom(false);
+  }}>
     <PopoverTrigger asChild>
       {children}
     </PopoverTrigger>
@@ -63,22 +71,29 @@ export const ColorPickerPopover: React.FC<ColorPickerPopoverProps> = ({
       <div className="border-t border-gray-200 dark:border-dark-border mt-2 pt-2 flex items-center justify-between">
         <label className="flex items-center gap-2 text-[14px] text-gray-600 dark:text-gray-300 cursor-pointer hover:text-gray-900 dark:hover:text-gray-100">
           <input
-            type="color"
-            value={currentValue}
-            onChange={(e) => { onColorSelect(e.target.value); }}
-            className="w-5 h-5 rounded border-0 p-0 cursor-pointer"
+            type="checkbox"
+            checked={showCustom}
+            onChange={(e) => setShowCustom(e.target.checked)}
+            className="w-4 h-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500 cursor-pointer"
           />
           <span>{showReset ? '其它颜色...' : '其他颜色...'}</span>
         </label>
         {showReset && (
           <button
             onClick={() => { onColorSelect(''); onOpenChange(false); }}
-            className="text-[14px] text-red-500 hover:text-red-700 px-2 py-0.5 rounded hover:bg-red-50"
+            className="text-[14px] text-red-500 hover:text-red-700 px-2 py-0.5 rounded hover:bg-red-50 dark:hover:bg-red-900/20"
           >
             {resetLabel}
           </button>
         )}
       </div>
+      
+      {showCustom && (
+        <div className="mt-2 border-t border-gray-200 dark:border-dark-border pt-1">
+          <CustomColorPicker color={currentValue} onChange={onColorSelect} />
+        </div>
+      )}
     </PopoverContent>
   </Popover>
-);
+  );
+};
