@@ -1,8 +1,14 @@
 import { create } from 'zustand';
+import { persist, type PersistStorage, type StorageValue } from 'zustand/middleware';
 import { AIProvider } from '../../types/ai';
+import { persistedAIConfigSchema, type PersistedAIConfig } from './schemas';
 
-const CUSTOM_PROVIDERS_KEY = 'md2word_custom_providers';
+const AI_CONFIG_KEY = 'md2word_ai_config';
+const AI_CHANNEL = 'md2word_ai_channel';
+
+// Legacy storage keys (read for migration, written for backward compat)
 const BUILTIN_CONFIG_KEY = 'md2word_builtin_config';
+const CUSTOM_PROVIDERS_KEY = 'md2word_custom_providers';
 const MODEL_STORAGE_KEY = 'md2word_selected_model';
 
 const BUILTIN_ICON_KEY_MIGRATIONS: Record<string, string> = {
@@ -126,42 +132,25 @@ interface AIConfigStoreState {
   updateSelectedModel: (model: SelectedModel) => void;
 }
 
-function loadProvidersFromStorage(): AIProvider[] {
-  try {
-    const storedBuiltin = localStorage.getItem(BUILTIN_CONFIG_KEY);
-    const builtinConfig: Record<string, BuiltinProviderConfig> = storedBuiltin
-      ? JSON.parse(storedBuiltin)
-      : {};
-
-    const mergedBuiltins = DEFAULT_PROVIDERS.map(p => {
-      const storedConfig = builtinConfig[p.id] || {};
-      return {
-        ...p,
-        ...storedConfig,
-        iconKey: storedConfig.iconKey
-          ? BUILTIN_ICON_KEY_MIGRATIONS[storedConfig.iconKey] ?? storedConfig.iconKey
-          : p.iconKey,
-      };
-    });
-
-    const storedCustom = localStorage.getItem(CUSTOM_PROVIDERS_KEY);
-    const custom: AIProvider[] = storedCustom ? JSON.parse(storedCustom) : [];
-
-    return [...mergedBuiltins, ...custom];
-  } catch {
-    return DEFAULT_PROVIDERS;
-  }
+/** Merge builtin overrides with defaults, applying icon-key migration. */
+function mergeProviders(
+  builtinConfig: Record<string, BuiltinProviderConfig>,
+  customProviders: AIProvider[],
+): AIProvider[] {
+  const mergedBuiltins = DEFAULT_PROVIDERS.map(p => {
+    const storedConfig = builtinConfig[p.id] || {};
+    return {
+      ...p,
+      ...storedConfig,
+      iconKey: storedConfig.iconKey
+        ? BUILTIN_ICON_KEY_MIGRATIONS[storedConfig.iconKey] ?? storedConfig.iconKey
+        : p.iconKey,
+    };
+  });
+  return [...mergedBuiltins, ...customProviders];
 }
 
-function loadSelectedModelFromStorage(): SelectedModel {
-  try {
-    const stored = localStorage.getItem(MODEL_STORAGE_KEY);
-    return stored ? JSON.parse(stored) : null;
-  } catch {
-    return null;
-  }
-}
-
+/** Split providers into builtin overrides (compact) + custom providers. */
 function splitProviders(newProviders: AIProvider[]) {
   const builtinIds = new Set(DEFAULT_PROVIDERS.map(p => p.id));
   const customProviders = newProviders.filter(p => p.isCustom || !builtinIds.has(p.id));
@@ -181,59 +170,155 @@ function splitProviders(newProviders: AIProvider[]) {
   return { builtinConfig, customProviders };
 }
 
-function persistProviders(newProviders: AIProvider[]) {
-  const { builtinConfig, customProviders } = splitProviders(newProviders);
+/**
+ * Custom persist storage that handles v0 (3-key) format migration.
+ * Reads from old 3 keys when the new consolidated key is missing.
+ * Writes to new key AND old keys (for backward compat / rollback).
+ */
+// Tracks the last value written to each AI storage key (feedback loop prevention)
+const lastWrittenAI = new Map<string, string | null>();
 
-  localStorage.setItem(BUILTIN_CONFIG_KEY, JSON.stringify(builtinConfig));
-  localStorage.setItem(CUSTOM_PROVIDERS_KEY, JSON.stringify(customProviders));
+const aiStorage: PersistStorage<PersistedAIConfig> = {
+  getItem: (name: string): StorageValue<PersistedAIConfig> | null => {
+    // Try new consolidated key first
+    const raw = localStorage.getItem(name);
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object' && 'state' in parsed) {
+          return parsed as StorageValue<PersistedAIConfig>;
+        }
+      } catch {
+        return null;
+      }
+    }
 
-  window.dispatchEvent(new StorageEvent('storage', {
-    key: BUILTIN_CONFIG_KEY,
-    newValue: JSON.stringify(builtinConfig),
-  }));
-  window.dispatchEvent(new StorageEvent('storage', {
-    key: CUSTOM_PROVIDERS_KEY,
-    newValue: JSON.stringify(customProviders),
-  }));
-}
+    // Fall back to old 3 keys (v0 format)
+    const storedBuiltin = localStorage.getItem(BUILTIN_CONFIG_KEY);
+    const storedCustom = localStorage.getItem(CUSTOM_PROVIDERS_KEY);
+    const storedModel = localStorage.getItem(MODEL_STORAGE_KEY);
 
-function persistSelectedModel(model: SelectedModel) {
-  if (model) {
-    localStorage.setItem(MODEL_STORAGE_KEY, JSON.stringify(model));
-    window.dispatchEvent(new StorageEvent('storage', {
-      key: MODEL_STORAGE_KEY,
-      newValue: JSON.stringify(model),
-    }));
-    return;
-  }
+    if (!storedBuiltin && !storedCustom && !storedModel) {
+      return null;
+    }
 
-  localStorage.removeItem(MODEL_STORAGE_KEY);
-  window.dispatchEvent(new StorageEvent('storage', {
-    key: MODEL_STORAGE_KEY,
-    newValue: null,
-  }));
-}
+    try {
+      const builtinConfig: Record<string, BuiltinProviderConfig> = storedBuiltin ? JSON.parse(storedBuiltin) : {};
+      const customProviders: AIProvider[] = storedCustom ? JSON.parse(storedCustom) : [];
+      const selectedModel: SelectedModel = storedModel ? JSON.parse(storedModel) : null;
 
-export const useAIConfigStore = create<AIConfigStoreState>((set) => ({
-  providers: loadProvidersFromStorage(),
-  updateProviders: (providers) => {
-    persistProviders(providers);
-    set({ providers });
+      return {
+        state: { builtinConfig, customProviders, selectedModel },
+        version: 0,
+      };
+    } catch {
+      return null;
+    }
   },
-  selectedModel: loadSelectedModelFromStorage(),
-  updateSelectedModel: (selectedModel) => {
-    persistSelectedModel(selectedModel);
-    set({ selectedModel });
-  },
-}));
+  setItem: (name: string, value: StorageValue<PersistedAIConfig>): void => {
+    const mainStr = JSON.stringify(value);
+    lastWrittenAI.set(name, mainStr);
+    localStorage.setItem(name, mainStr);
 
-function handleStorageChange(e: StorageEvent) {
-  if (e.key === BUILTIN_CONFIG_KEY || e.key === CUSTOM_PROVIDERS_KEY) {
-    useAIConfigStore.setState({ providers: loadProvidersFromStorage() });
-  }
-  if (e.key === MODEL_STORAGE_KEY) {
-    useAIConfigStore.setState({ selectedModel: loadSelectedModelFromStorage() });
-  }
+    // Write back to old keys for backward compat / rollback
+    const { builtinConfig, customProviders, selectedModel } = value.state;
+    const builtinStr = JSON.stringify(builtinConfig);
+    const customStr = JSON.stringify(customProviders);
+    lastWrittenAI.set(BUILTIN_CONFIG_KEY, builtinStr);
+    lastWrittenAI.set(CUSTOM_PROVIDERS_KEY, customStr);
+    localStorage.setItem(BUILTIN_CONFIG_KEY, builtinStr);
+    localStorage.setItem(CUSTOM_PROVIDERS_KEY, customStr);
+    if (selectedModel) {
+      const modelStr = JSON.stringify(selectedModel);
+      lastWrittenAI.set(MODEL_STORAGE_KEY, modelStr);
+      localStorage.setItem(MODEL_STORAGE_KEY, modelStr);
+    } else {
+      lastWrittenAI.set(MODEL_STORAGE_KEY, null);
+      localStorage.removeItem(MODEL_STORAGE_KEY);
+    }
+  },
+  removeItem: (name: string): void => {
+    localStorage.removeItem(name);
+    localStorage.removeItem(BUILTIN_CONFIG_KEY);
+    localStorage.removeItem(CUSTOM_PROVIDERS_KEY);
+    localStorage.removeItem(MODEL_STORAGE_KEY);
+  },
+};
+
+export const useAIConfigStore = create<AIConfigStoreState>()(
+  persist(
+    (set) => ({
+      providers: DEFAULT_PROVIDERS,
+      updateProviders: (providers) => {
+        set({ providers });
+        aiChannel?.postMessage({});
+      },
+      selectedModel: null,
+      updateSelectedModel: (selectedModel) => {
+        set({ selectedModel });
+        aiChannel?.postMessage({});
+      },
+    }),
+    {
+      name: AI_CONFIG_KEY,
+      version: 2,
+      storage: aiStorage,
+      partialize: (state) => {
+        const { builtinConfig, customProviders } = splitProviders(state.providers);
+        return {
+          builtinConfig,
+          customProviders,
+          selectedModel: state.selectedModel,
+        };
+      },
+      merge: (persisted, current) => {
+        const parsed = persistedAIConfigSchema.safeParse(persisted);
+        if (parsed.success) {
+          return {
+            ...current,
+            providers: mergeProviders(
+              parsed.data.builtinConfig,
+              parsed.data.customProviders,
+            ),
+            selectedModel: parsed.data.selectedModel,
+          };
+        }
+        // Fall back to defaults on validation failure
+        return {
+          ...current,
+          providers: DEFAULT_PROVIDERS,
+          selectedModel: null,
+        };
+      },
+      migrate: (persistedState: unknown) => {
+        // V0 (3-key format) → V2: validate through Zod schema
+        const parsed = persistedAIConfigSchema.safeParse(persistedState);
+        if (parsed.success) {
+          return parsed.data;
+        }
+        // Fall back to empty state
+        return { builtinConfig: {}, customProviders: [], selectedModel: null };
+      },
+    }
+  )
+);
+
+// Cross-window adapter: BroadcastChannel (primary) + storage event (fallback)
+// Feedback loop prevention: skip storage events whose newValue matches our last write
+const AI_STORAGE_KEYS = [AI_CONFIG_KEY, BUILTIN_CONFIG_KEY, CUSTOM_PROVIDERS_KEY, MODEL_STORAGE_KEY];
+let aiChannel: BroadcastChannel | null = null;
+try {
+  aiChannel = new BroadcastChannel(AI_CHANNEL);
+  aiChannel.onmessage = () => {
+    useAIConfigStore.persist.rehydrate();
+  };
+} catch {
+  // BroadcastChannel unavailable — fall back to storage events
 }
 
-window.addEventListener('storage', handleStorageChange);
+window.addEventListener('storage', (e: StorageEvent) => {
+  if (!e.key || !AI_STORAGE_KEYS.includes(e.key)) return;
+  // Skip if this is our own write echoing back (prevents feedback loop)
+  if (e.newValue === lastWrittenAI.get(e.key)) return;
+  useAIConfigStore.persist.rehydrate();
+});

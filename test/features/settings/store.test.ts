@@ -1,7 +1,23 @@
 // @vitest-environment jsdom
 
-import { act, renderHook } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+class MockBroadcastChannel {
+  static instances: MockBroadcastChannel[] = [];
+
+  onmessage: ((event: MessageEvent<unknown>) => void) | null = null;
+  postMessage = vi.fn();
+  close = vi.fn();
+
+  constructor(readonly name: string) {
+    MockBroadcastChannel.instances.push(this);
+  }
+
+  emit(data: unknown) {
+    this.onmessage?.(new MessageEvent('message', { data }));
+  }
+}
 
 async function loadModule() {
   vi.resetModules();
@@ -11,6 +27,12 @@ async function loadModule() {
 describe('settingsStore', () => {
   beforeEach(() => {
     localStorage.clear();
+    MockBroadcastChannel.instances = [];
+    vi.stubGlobal('BroadcastChannel', MockBroadcastChannel);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   it('loads default settings', async () => {
@@ -89,7 +111,9 @@ describe('settingsStore', () => {
       });
     });
 
-    expect(JSON.parse(localStorage.getItem('md2word_settings') || '{}')).toMatchObject({
+    // V2 persist format: { state: { ...settings }, version: 2 }
+    const stored = JSON.parse(localStorage.getItem('md2word_settings') || '{}');
+    expect(stored.state).toMatchObject({
       theme: 'dark',
       autoSave: true,
       editorFontSize: 16,
@@ -97,22 +121,72 @@ describe('settingsStore', () => {
       editorWordWrap: false,
       showStatusBar: false,
     });
+    expect(stored.version).toBe(2);
     expect(localStorage.getItem('app_theme')).toBe('dark');
   });
 
-  it('updates from storage events', async () => {
+  it('rehydrates when a storage event is received', async () => {
     const { useSettingsStore } = await loadModule();
     const { result } = renderHook(() => useSettingsStore());
+
+    const newValue = JSON.stringify({
+      state: {
+        theme: 'dark',
+        defaultViewMode: 'preview',
+        autoSave: false,
+        defaultFontCn: 'SimSun',
+        defaultFontEn: '',
+        defaultFontSize: 12,
+        defaultLineSpacing: 1.5,
+        defaultSpaceAfter: 8,
+        defaultAlignment: 'left',
+        editorFontSize: 15,
+        editorLineHeight: 32,
+        editorWordWrap: true,
+        showStatusBar: true,
+        windowBarDisplayMode: 'tabs',
+        keyboardShortcuts: {},
+      },
+      version: 2,
+    });
+    localStorage.setItem('md2word_settings', newValue);
 
     act(() => {
       window.dispatchEvent(new StorageEvent('storage', {
         key: 'md2word_settings',
-        newValue: JSON.stringify({ theme: 'dark', defaultViewMode: 'preview' }),
+        newValue,
       }));
     });
 
-    expect(result.current.settings.theme).toBe('dark');
-    expect(result.current.settings.defaultViewMode).toBe('preview');
+    await waitFor(() => {
+      expect(result.current.settings.theme).toBe('dark');
+      expect(result.current.settings.defaultViewMode).toBe('preview');
+    });
+  });
+
+  it('rehydrates when a broadcast message is received', async () => {
+    const { useSettingsStore } = await loadModule();
+    const { result } = renderHook(() => useSettingsStore());
+    const channel = MockBroadcastChannel.instances.find(
+      (instance) => instance.name === 'md2word_settings_channel',
+    );
+
+    const newValue = JSON.stringify({
+      state: {
+        ...result.current.settings,
+        theme: 'dark',
+      },
+      version: 2,
+    });
+    localStorage.setItem('md2word_settings', newValue);
+
+    act(() => {
+      channel?.emit({});
+    });
+
+    await waitFor(() => {
+      expect(result.current.settings.theme).toBe('dark');
+    });
   });
 
   it('keeps auto-save helpers outside the zustand store', async () => {
@@ -127,5 +201,28 @@ describe('settingsStore', () => {
 
     clearAutoSaveContent();
     expect(loadAutoSavedContent()).toBeNull();
+  });
+
+  it('falls back to defaults when storage is corrupted', async () => {
+    localStorage.setItem('md2word_settings', '{bad json');
+    const { useSettingsStore } = await loadModule();
+
+    const { result } = renderHook(() => useSettingsStore());
+
+    expect(result.current.settings.theme).toBe('light');
+    expect(result.current.settings.defaultViewMode).toBe('split');
+  });
+
+  it('migrates legacy compact windowBarDisplayMode to tabs', async () => {
+    localStorage.setItem('md2word_settings', JSON.stringify({
+      theme: 'dark',
+      windowBarDisplayMode: 'compact',
+    }));
+
+    const { useSettingsStore } = await loadModule();
+    const { result } = renderHook(() => useSettingsStore());
+
+    expect(result.current.settings.windowBarDisplayMode).toBe('tabs');
+    expect(result.current.settings.theme).toBe('dark');
   });
 });

@@ -32,6 +32,7 @@ Pure utility tests such as `test/utils/inlineFormat.test.ts` can stay in the def
 - For components, prefer user-observable roles, labels, text, and DOM effects. `AdvancedPageSettingsDialog.test.tsx` uses switch role/name queries for settings toggles.
 - For hooks, use `renderHook` and wrap state updates in `act`, as in `test/features/ai/useAIConfig.test.tsx`.
 - For persisted stores, reset `localStorage` and reload modules with `vi.resetModules()` when import-time store initialization matters.
+- Cross-window store tests must exercise the adapter entry point: dispatch a `StorageEvent` and mock/emit `BroadcastChannel.onmessage`. Calling `persist.rehydrate()` directly only tests Zustand, not the application synchronization wiring.
 - For pure helpers, test edge cases and round trips. `pythonBackend.test.ts` uses fast-check for config serialization and explicit error mapping tests.
 - For preview safety, keep tests that assert unsafe raw HTML is stripped and generated heading IDs are prefixed.
 

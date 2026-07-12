@@ -14,6 +14,7 @@ interface ColorPickerPopoverProps {
 }
 
 import { CustomColorPicker } from '../../../ui/color-picker';
+import { SquareLine, CheckboxLine, BackgroundLine } from '@mingcute/react';
 
 export const ColorPickerPopover: React.FC<ColorPickerPopoverProps> = ({
   open,
@@ -74,16 +75,22 @@ export const ColorPickerPopover: React.FC<ColorPickerPopoverProps> = ({
             type="checkbox"
             checked={showCustom}
             onChange={(e) => setShowCustom(e.target.checked)}
-            className="w-4 h-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500 cursor-pointer"
+            className="hidden"
           />
+          {showCustom ? (
+            <CheckboxLine className="w-4 h-4 text-brand-500" />
+          ) : (
+            <SquareLine className="w-4 h-4" />
+          )}
           <span>{showReset ? '其它颜色...' : '其他颜色...'}</span>
         </label>
         {showReset && (
           <button
             onClick={() => { onColorSelect(''); onOpenChange(false); }}
-            className="text-[14px] text-red-500 hover:text-red-700 px-2 py-0.5 rounded hover:bg-red-50 dark:hover:bg-red-900/20"
+            className="flex items-center gap-1 text-[14px] text-red-500 hover:text-red-700 px-2 py-0.5 rounded hover:bg-red-50 dark:hover:bg-red-900/20"
           >
-            {resetLabel}
+            <BackgroundLine className="w-4 h-4" />
+            <span>{resetLabel}</span>
           </button>
         )}
       </div>

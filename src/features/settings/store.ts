@@ -1,8 +1,10 @@
 import { create } from 'zustand';
+import { persist, type PersistStorage, type StorageValue } from 'zustand/middleware';
 import {
   DEFAULT_KEYBOARD_SHORTCUTS,
   KeyboardShortcutMap,
 } from './keyboardShortcuts';
+import { parseSettings } from './schemas';
 
 const SETTINGS_KEY = 'md2word_settings';
 const AUTO_SAVE_CONTENT_KEY = 'md2word_auto_save_content';
@@ -53,103 +55,100 @@ const DEFAULT_SETTINGS: AppSettings = {
   keyboardShortcuts: DEFAULT_KEYBOARD_SHORTCUTS,
 };
 
-function normalizeSettings(settings: Partial<AppSettings>): AppSettings {
-  // 兼容旧版本：已移除的 'compact' 模式回退为 'tabs'
-  const rawMode = settings.windowBarDisplayMode as unknown;
-  if (rawMode === 'compact') {
-    settings = { ...settings, windowBarDisplayMode: 'tabs' };
-  }
+/**
+ * Custom persist storage that handles v1 (pre-persist) format migration.
+ * V1 stored raw settings JSON; v2 wraps in { state, version }.
+ * Also checks legacy 'app_theme' key when 'md2word_settings' is missing.
+ */
+let lastWrittenSettings: string | null = null;
 
-  return {
-    ...DEFAULT_SETTINGS,
-    ...settings,
-    keyboardShortcuts: {
-      ...DEFAULT_KEYBOARD_SHORTCUTS,
-      ...(settings.keyboardShortcuts ?? {}),
-    },
-  };
-}
-
-function loadFromStorage(): AppSettings {
-  try {
-    const oldTheme = localStorage.getItem('app_theme');
-    const stored = localStorage.getItem(SETTINGS_KEY);
-    const settings = stored ? JSON.parse(stored) : { ...DEFAULT_SETTINGS };
-    if (oldTheme && !stored) {
-      settings.theme = oldTheme === 'dark' ? 'dark' : 'light';
+const settingsStorage: PersistStorage<AppSettings> = {
+  getItem: (name: string): StorageValue<AppSettings> | null => {
+    const raw = localStorage.getItem(name);
+    if (!raw) {
+      // Legacy: check app_theme when md2word_settings is missing
+      const oldTheme = localStorage.getItem('app_theme');
+      if (oldTheme) {
+        return {
+          state: { ...DEFAULT_SETTINGS, theme: oldTheme === 'dark' ? 'dark' : 'light' },
+          version: 0,
+        };
+      }
+      return null;
     }
-    return normalizeSettings(settings);
-  } catch {
-    return { ...DEFAULT_SETTINGS };
-  }
-}
-
-function saveToStorage(settings: AppSettings) {
-  localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-  localStorage.setItem('app_theme', settings.theme);
-}
-
-function emitSettingsChange(settings: AppSettings) {
-  window.dispatchEvent(new StorageEvent('storage', {
-    key: SETTINGS_KEY,
-    newValue: JSON.stringify(settings),
-  }));
-
-  try {
-    const channel = new BroadcastChannel(SETTINGS_CHANNEL);
-    channel.postMessage(settings);
-    channel.close();
-  } catch {
-    // Ignore when BroadcastChannel is unavailable.
-  }
-}
-
-export const useSettingsStore = create<SettingsStoreState>((set) => ({
-  settings: loadFromStorage(),
-  updateSettings: (patch) => {
-    set((state) => {
-      const settings = { ...state.settings, ...patch };
-      saveToStorage(settings);
-      emitSettingsChange(settings);
-      return { settings };
-    });
-  },
-}));
-
-function applyExternalSettings(settings: Partial<AppSettings>) {
-  useSettingsStore.setState({
-    settings: normalizeSettings(settings),
-  });
-}
-
-function handleStorageChange(e: StorageEvent) {
-  if (e.key === SETTINGS_KEY && e.newValue) {
     try {
-      applyExternalSettings(JSON.parse(e.newValue));
+      const parsed = JSON.parse(raw);
+      // V2+ format: { state, version }
+      if (parsed && typeof parsed === 'object' && 'state' in parsed) {
+        return parsed as StorageValue<AppSettings>;
+      }
+      // V1: raw settings JSON — wrap with version 0
+      return { state: parsed as AppSettings, version: 0 };
     } catch {
-      // ignore
+      return null;
     }
-  }
-}
+  },
+  setItem: (name: string, value: StorageValue<AppSettings>): void => {
+    const str = JSON.stringify(value);
+    lastWrittenSettings = str;
+    localStorage.setItem(name, str);
+    // Write app_theme for backward compat with older code that reads it directly
+    if (value.state?.theme) {
+      localStorage.setItem('app_theme', value.state.theme);
+    }
+  },
+  removeItem: (name: string): void => {
+    localStorage.removeItem(name);
+  },
+};
 
-function handleBroadcastMessage(event: MessageEvent<AppSettings>) {
-  if (!event.data) return;
-  try {
-    applyExternalSettings(event.data);
-  } catch {
-    // ignore
-  }
-}
+export const useSettingsStore = create<SettingsStoreState>()(
+  persist(
+    (set) => ({
+      settings: DEFAULT_SETTINGS,
+      updateSettings: (patch) => {
+        set((state) => {
+          const settings = { ...state.settings, ...patch };
+          return { settings };
+        });
+        settingsChannel?.postMessage({});
+      },
+    }),
+    {
+      name: SETTINGS_KEY,
+      version: 2,
+      storage: settingsStorage,
+      partialize: (state) => state.settings,
+      merge: (persisted, current) => ({
+        ...current,
+        settings: parseSettings(persisted) as AppSettings,
+      }),
+      migrate: (persistedState: unknown) => {
+        // V0/V1 → V2: normalize through Zod schema (fills defaults, migrates compact mode)
+        return parseSettings(persistedState) as AppSettings;
+      },
+    }
+  )
+);
 
-window.addEventListener('storage', handleStorageChange);
-
-let broadcastChannel: BroadcastChannel | null = null;
+// Cross-window adapter: BroadcastChannel (primary) + storage event (fallback)
+// Feedback loop prevention: skip storage events whose newValue matches our last write
+let settingsChannel: BroadcastChannel | null = null;
 try {
-  broadcastChannel = new BroadcastChannel(SETTINGS_CHANNEL);
-  broadcastChannel.onmessage = handleBroadcastMessage;
+  settingsChannel = new BroadcastChannel(SETTINGS_CHANNEL);
+  settingsChannel.onmessage = () => {
+    useSettingsStore.persist.rehydrate();
+  };
 } catch {
-  // Ignore when BroadcastChannel is unavailable.
+  // BroadcastChannel unavailable — fall back to storage events
 }
+
+window.addEventListener('storage', (e: StorageEvent) => {
+  if (e.key !== SETTINGS_KEY || !e.newValue) return;
+  // Skip if this is our own write echoing back (prevents feedback loop)
+  if (e.newValue === lastWrittenSettings) return;
+  useSettingsStore.persist.rehydrate();
+});
 
 export function loadAutoSavedContent(): string | null {
   try {

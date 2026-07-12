@@ -11,6 +11,7 @@ import {
 import { Kbd } from '../ui/kbd';
 import { Button } from '../ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog';
+import { Delete2Line } from '@mingcute/react';
 
 
 interface ShortcutsSectionProps {
@@ -174,10 +175,11 @@ export const ShortcutsSection: React.FC<ShortcutsSectionProps> = ({ settings, up
                       </button>
                       <button
                         type="button"
+                        title="重置"
                         onClick={() => resetShortcut(action.id)}
-                        className="h-8 rounded-md px-2 text-xs text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:text-gray-500 dark:hover:bg-dark-element-hover dark:hover:text-gray-300"
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:text-gray-500 dark:hover:bg-dark-element-hover dark:hover:text-gray-300"
                       >
-                        重置
+                        <Delete2Line className="h-4 w-4" />
                       </button>
                     </div>
                   </div>

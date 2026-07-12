@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { AIProvider } from '../../../../types/ai';
 import { DocumentConfig } from '../../../../types/config';
+import { documentConfigSchema, documentConfigPatchSchema } from '../../../../config/documentConfigSchema';
 
 interface UseAIStyleGeneratorProps {
     aiProviders: AIProvider[];
@@ -58,19 +59,74 @@ export const useAIStyleGenerator = ({
 }: UseAIStyleGeneratorProps) => {
     const [isGenerating, setIsGenerating] = useState(false);
 
-    const deepMerge = <T extends Record<string, any>>(target: T, source: Partial<T> | undefined): T => {
-        if (!source) return target;
-        const result = { ...target };
-        for (const key of Object.keys(source) as (keyof T)[]) {
-            const sourceValue = source[key];
-            if (sourceValue === undefined) continue;
-            if (sourceValue !== null && typeof sourceValue === 'object' && !Array.isArray(sourceValue) && target[key] && typeof target[key] === 'object') {
-                result[key] = deepMerge(target[key], sourceValue);
-            } else {
-                result[key] = sourceValue as T[keyof T];
+    /**
+     * Extract the first balanced JSON object from text. Safer than greedy regex
+     * because it handles strings containing braces and markdown code fences.
+     */
+    const extractJSON = (text: string): unknown | null => {
+        const trimmed = text.trim();
+        // Fast path: pure JSON response
+        try {
+            return JSON.parse(trimmed);
+        } catch {
+            // Not pure JSON — extract embedded object
+        }
+
+        // Strip markdown code fences if present
+        const fenceMatch = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/);
+        const content = fenceMatch ? fenceMatch[1] : trimmed;
+
+        const start = content.indexOf('{');
+        if (start === -1) return null;
+
+        let depth = 0;
+        let inString = false;
+        let escaped = false;
+
+        for (let i = start; i < content.length; i++) {
+            const ch = content[i];
+            if (escaped) {
+                escaped = false;
+                continue;
+            }
+            if (ch === '\\') {
+                escaped = true;
+                continue;
+            }
+            if (ch === '"') {
+                inString = !inString;
+                continue;
+            }
+            if (inString) continue;
+            if (ch === '{') depth++;
+            else if (ch === '}') {
+                depth--;
+                if (depth === 0) {
+                    try {
+                        return JSON.parse(content.substring(start, i + 1));
+                    } catch {
+                        return null;
+                    }
+                }
             }
         }
-        return result;
+        return null;
+    };
+
+    /**
+     * Deep merge a validated patch into a base config. Patch values override
+     * base values; plain objects are merged recursively.
+     */
+    const deepMerge = <T>(base: T, patch: unknown): T => {
+        if (patch === undefined || patch === null) return base;
+        if (typeof base !== 'object' || base === null || typeof patch !== 'object' || patch === null) {
+            return patch as T;
+        }
+        const result = { ...base } as Record<string, unknown>;
+        for (const [key, value] of Object.entries(patch as Record<string, unknown>)) {
+            result[key] = key in result ? deepMerge(result[key], value) : value;
+        }
+        return result as T;
     };
 
     const generate = async (prompt: string) => {
@@ -142,32 +198,28 @@ export const useAIStyleGenerator = ({
                 throw new Error('AI 返回内容为空');
             }
 
-            // 解析 JSON
-            let configData;
-            try {
-                const jsonMatch = content.match(/\{[\s\S]*\}/);
-                if (!jsonMatch) {
-                    throw new Error('AI 返回内容不包含有效的 JSON');
-                }
-                configData = JSON.parse(jsonMatch[0]);
-            } catch (e) {
-                throw new Error('解析 AI 返回的配置失败');
+            // Step 1: Extract JSON from AI response (handles markdown fences, surrounding text)
+            const rawData = extractJSON(content);
+            if (rawData === null) {
+                throw new Error('AI 返回内容不包含有效的 JSON');
             }
 
-            // 合并配置
-            const newConfig: DocumentConfig = {
-                global: deepMerge(cfg.global, configData.global),
-                styles: {
-                    body: deepMerge(cfg.styles.body, configData.styles?.body),
-                    h1: deepMerge(cfg.styles.h1, configData.styles?.h1),
-                    h2: deepMerge(cfg.styles.h2, configData.styles?.h2),
-                    h3: deepMerge(cfg.styles.h3, configData.styles?.h3),
-                    code: deepMerge(cfg.styles.code, configData.styles?.code),
-                    quote: deepMerge(cfg.styles.quote, configData.styles?.quote)
-                }
-            };
+            // Step 2: Validate patch structure with Zod (ensures global/styles are objects)
+            const patchResult = documentConfigPatchSchema.safeParse(rawData);
+            if (!patchResult.success) {
+                throw new Error('AI 返回的配置格式无效');
+            }
 
-            onCfgChange(newConfig);
+            // Step 3: Deep merge validated patch into current config
+            const merged = deepMerge(cfg, patchResult.data);
+
+            // Step 4: Validate the merged result with the full schema
+            const configResult = documentConfigSchema.safeParse(merged);
+            if (!configResult.success) {
+                throw new Error('AI 返回的配置值无效，可能与现有设置冲突');
+            }
+
+            onCfgChange(configResult.data as DocumentConfig);
             if (onShowToast) {
                 onShowToast('AI 样式生成成功！', 'success');
             }

@@ -11,17 +11,19 @@ The app stores three main kinds of front-end state:
 Storage code should tolerate malformed or older data:
 
 - `documentConfigStorage.ts` catches JSON/storage errors and falls back to `DEFAULT_CONFIG`.
-- `normalizeDocumentConfig` deep-merges saved config with defaults.
+- `normalizeDocumentConfig` delegates to the Zod-backed `parseDocumentConfig`, which fills nested defaults and preserves numeric `pageMargin` compatibility.
 - `settings/store.ts` fills missing settings and keyboard shortcuts.
 - AI store falls back to built-in providers when parsing fails.
+
+Persisted booleans must not use `z.coerce.boolean()`: `"false"` is truthy in JavaScript and would become `true`. Live/AI schemas reject string booleans; storage migration may explicitly map only `"true"` and `"false"`.
 
 When adding persisted fields, include migration/default behavior and tests.
 
 ## Multi-Window Sync
 
-Settings and AI config windows are separate Tauri webviews. State sync uses browser storage events and, for settings, `BroadcastChannel`.
+Settings and AI config windows are separate Tauri webviews. Both stores use `BroadcastChannel` as the primary notification mechanism and browser `storage` events as a fallback; each notification calls the store's `persist.rehydrate()`.
 
-Do not assume React state in one window automatically updates another window. Emit storage events when writing shared state and test the handler path where practical.
+Do not assume React state in one window automatically updates another window. Persist before posting the channel notification, retain the storage-event adapter, and test both handler paths.
 
 ## Error Mapping
 

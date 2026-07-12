@@ -19,12 +19,19 @@ Front-end sources that must stay aligned:
 
 - `src/types/config.ts`: TypeScript shape.
 - `src/config/defaultConfig.ts`: default values.
-- `src/config/documentConfigStorage.ts`: storage migration and default merging.
+- `src/config/documentConfigSchema.ts` and `documentConfigStorage.ts`: runtime validation, storage migration, and default filling.
 - `src/components/preview/Preview.tsx`, `src/components/preview/DocxRenderPreview.tsx`, and `src/features/preview/useExportPreview.ts`: DOCX preview generation/rendering.
 - `src/components/header/tabs/HomeTab.tsx`, `LayoutTab.tsx`, and `layout/AdvancedPageSettingsDialog.tsx`: editing UI.
 - `test/config/defaultConfig.test.ts` and `test/config/documentConfigStorage.test.ts`: migration and default coverage.
 
 Storage normalization intentionally deep-merges old saved config with `DEFAULT_CONFIG`. Preserve numeric `pageMargin` compatibility; `documentConfigStorage.test.ts` covers that behavior.
+
+Runtime validation has two distinct boundaries:
+
+- `documentConfigSchema` and `documentConfigPatchSchema` are strict schemas for live config and AI output. They reject unknown fields and string booleans.
+- `parseDocumentConfig` is the storage migration boundary. Its Zod storage schema fills nested defaults, accepts legacy numeric strings, and converts only the explicit strings `"true"` / `"false"`.
+
+Do not use `z.coerce.boolean()` for persisted or AI-generated config. JavaScript truthiness converts `"false"` to `true`; use strict `z.boolean()` or an explicit string preprocessor.
 
 ## AI Config Types
 
@@ -42,7 +49,7 @@ When adding a provider field, update the storage split/merge logic in `store.ts`
 
 - Type field in `AppSettings`.
 - Default value in `DEFAULT_SETTINGS`.
-- Migration behavior through `normalizeSettings`.
+- Migration behavior through the Zod-backed `parseSettings` function.
 - UI control in `src/components/settings/*Section.tsx` when user-facing.
 - Test coverage in `test/features/settings/store.test.ts`.
 

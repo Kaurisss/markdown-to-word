@@ -27,10 +27,11 @@ Keep transient UI state local. Examples: `Header.tsx` keeps the active ribbon ta
 Settings must sync between the main window and secondary windows:
 
 - `settings/store.ts` writes `md2word_settings` and legacy `app_theme`.
-- It emits both a synthetic `StorageEvent` and a `BroadcastChannel` message.
+- Settings and AI stores use Zustand `persist`, then notify peers through `BroadcastChannel`.
+- Both stores retain a `storage` event fallback that calls `persist.rehydrate()`.
 - `useTheme.ts` reads settings changes in the main window and applies the theme to DOM and Tauri window APIs.
 
-When adding persisted settings, update `AppSettings`, `DEFAULT_SETTINGS`, `normalizeSettings`, tests in `test/features/settings/store.test.ts`, and relevant settings UI.
+When adding persisted settings, update `AppSettings`, defaults, the relevant Zod schema/migration, tests in `test/features/settings/store.test.ts`, and relevant settings UI.
 
 ## Tauri Dynamic Imports
 

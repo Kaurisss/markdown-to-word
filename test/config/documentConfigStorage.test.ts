@@ -72,6 +72,28 @@ describe('documentConfigStorage', () => {
     expect(numericMargin.global.pageMargin).toBe(1);
   });
 
+  it('normalizes explicit string booleans without reversing false', () => {
+    const normalized = normalizeDocumentConfig({
+      global: {
+        includeTableOfContents: 'false',
+        header: {
+          enabled: 'false',
+        },
+      },
+      styles: {
+        body: {
+          bold: 'false',
+          italic: 'true',
+        },
+      },
+    });
+
+    expect(normalized.global.includeTableOfContents).toBe(false);
+    expect(normalized.global.header?.enabled).toBe(false);
+    expect(normalized.styles.body.bold).toBe(false);
+    expect(normalized.styles.body.italic).toBe(true);
+  });
+
   it('loads defaults when stored JSON is invalid', () => {
     const storage = new MemoryStorage();
     storage.setItem(DOCUMENT_CONFIG_STORAGE_KEY, '{bad json');
