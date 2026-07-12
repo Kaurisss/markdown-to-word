@@ -65,6 +65,10 @@ const Preview = forwardRef<HTMLDivElement, ExtendedPreviewProps>(
             transform-origin: top center;
             width: fit-content;
           }
+          @keyframes docx-page-appear {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
           .docx-render-preview .docx-wrapper > section.docx {
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06) !important;
             border: 1px solid rgb(226 232 240) !important;

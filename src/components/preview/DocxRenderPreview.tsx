@@ -159,6 +159,10 @@ export const DocxRenderPreview = forwardRef<HTMLDivElement, DocxRenderPreviewPro
           staged.root.style.removeProperty('pointer-events');
           staged.root.style.removeProperty('width');
 
+          if (!previousRender) {
+            staged.root.style.animation = 'docx-page-appear 0.5s ease-out forwards';
+          }
+
           activeRenderRef.current = {
             root: staged.root,
             result: stagedResult,
