@@ -27,7 +27,7 @@ python -m pytest backend/tests/test_document_layout.py
 
 Several backend tests define a course-design-like config inline. If changing `DocumentConfig`, update those fixtures and the front-end default config together.
 
-Avoid adding a separate backend-only default that drifts from the front-end or CLI harness defaults. If a default is needed for tests, use `backend.config.load_config` with empty args or copy the real default shape intentionally.
+Avoid adding a separate backend-only default that drifts from the front-end defaults. If a default is needed for tests, use `backend.config.load_config` with empty args or copy the real default shape intentionally.
 
 ## Regression Tests
 

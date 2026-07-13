@@ -46,7 +46,6 @@ This applies when changing Markdown syntax support, preview rendering, DOCX rend
 - Preview status/render behavior: `test/components/preview/Preview.test.tsx` and `test/components/preview/DocxRenderPreview.test.tsx`
 - Export error mapping: `test/features/export/pythonBackend.test.ts`
 - Backend DOCX output: targeted tests under `backend/tests/`
-- CLI harness real export when project defaults or backend conversion are affected: `agent-harness/cli_anything/markdown_to_word/tests/test_full_e2e.py`
 
 ### 7. Wrong vs Correct
 

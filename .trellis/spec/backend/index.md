@@ -14,8 +14,8 @@ Python Markdown-to-DOCX conversion engine. Read this layer before changing `back
 
 - Run `python -m pytest backend/tests` after backend changes.
 - Use focused tests first when changing a converter, for example `python -m pytest backend/tests/test_table_converter.py`.
-- Preserve public imports from `backend/backend.py`; tests and CLI harness import conversion helpers through this package boundary.
-- Keep the backend dependency set small and reflected in `backend/requirements.txt` and `agent-harness/setup.py` when shared.
+- Preserve public imports from `backend/backend.py`; tests import conversion helpers through this package boundary.
+- Keep the backend dependency set small and reflected in `backend/requirements.txt`.
 
 ## Local Architecture Summary
 

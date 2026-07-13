@@ -1,6 +1,6 @@
 # Document Config Contract
 
-`DocumentConfig` is the most important shared contract in this repository. It appears in front-end TypeScript, persisted local storage, preview rendering, Python validation/rendering, backend tests, and CLI harness defaults.
+`DocumentConfig` is the most important shared contract in this repository. It appears in front-end TypeScript, persisted local storage, preview rendering, Python validation/rendering, and backend tests.
 
 ## Scenario: Changing DocumentConfig
 
@@ -14,7 +14,6 @@ This applies whenever a task adds, removes, renames, changes units for, or chang
 - Front-end default object: `DEFAULT_CONFIG` in `src/config/defaultConfig.ts`
 - Backend validation entry: `validate_config(conf: Dict[str, Any])` in `backend/config.py`
 - Backend conversion entry: `convert(input_path: str, output_path: str, conf: Dict[str, Any])` in `backend/converter.py`
-- CLI project default: `DEFAULT_CONFIG` in `agent-harness/cli_anything/markdown_to_word/core/project.py`
 
 ### 3. Contracts
 
@@ -40,7 +39,7 @@ This applies whenever a task adds, removes, renames, changes units for, or chang
 
 ### 5. Good / Base / Bad Cases
 
-- Good: Add `styles.caption.backgroundColor`, update TypeScript type/default, preview style mapping if visible, backend caption rendering, CLI default, and tests.
+- Good: Add `styles.caption.backgroundColor`, update TypeScript type/default, preview style mapping if visible, backend caption rendering, and tests.
 - Base: Add an optional backend-only fallback for a style key while preserving older saved configs.
 - Bad: Add a field only to `DEFAULT_CONFIG` and UI controls while backend silently ignores it during export.
 
@@ -50,7 +49,6 @@ This applies whenever a task adds, removes, renames, changes units for, or chang
 - Front-end default shape: `test/config/defaultConfig.test.ts`
 - Export serialization or error mapping when relevant: `test/features/export/pythonBackend.test.ts`
 - Backend layout/rendering: targeted tests under `backend/tests/`
-- CLI export defaults: `agent-harness/cli_anything/markdown_to_word/tests/test_full_e2e.py`
 
 ### 7. Wrong vs Correct
 
@@ -70,8 +68,7 @@ When changing a config field, inspect and update all relevant files:
 - Export serialization: `src/features/export/pythonBackend.ts`
 - Backend validation/defaults: `backend/config.py`
 - Backend rendering: `backend/converter.py`, `backend/elements.py`, `backend/document_layout.py`, `backend/converters/*.py`
-- CLI harness defaults: `agent-harness/cli_anything/markdown_to_word/core/project.py`
-- Tests: `test/config/*`, `test/features/export/pythonBackend.test.ts`, `backend/tests/*`, `agent-harness/**/tests/*`
+- Tests: `test/config/*`, `test/features/export/pythonBackend.test.ts`, and `backend/tests/*`
 
 ## Required Style Keys
 
@@ -98,12 +95,11 @@ Do not silently change units. If unit semantics change, update labels, storage m
 
 ## Safe Change Process
 
-1. Search the field name across `src`, `backend`, `agent-harness`, and tests.
+1. Search the field name across `src`, `backend`, and tests.
 2. Update TypeScript types and defaults.
 3. Update storage normalization so older saved configs still load.
 4. Update preview rendering.
 5. Update backend validation and DOCX rendering.
-6. Update CLI harness default config if exports should match app defaults.
-7. Add or update tests in every affected layer.
+6. Add or update tests in every affected layer.
 
 Avoid adding UI-only config fields to `DocumentConfig` if they do not affect preview/export. Put app preferences in `AppSettings` instead.

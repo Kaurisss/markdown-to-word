@@ -13,12 +13,11 @@ Required style keys are:
 - `code`
 - `quote`
 
-Optional newer style keys such as `documentTitle`, `table`, and `caption` must be handled with fallbacks in the renderer. Do not make them required unless the front-end storage migration and CLI harness defaults are updated at the same time.
+Optional newer style keys such as `documentTitle`, `table`, and `caption` must be handled with fallbacks in the renderer. Do not make them required unless the front-end storage migration is updated at the same time.
 
 Reference files:
 - `backend/config.py`
 - `src/config/defaultConfig.ts`
-- `agent-harness/cli_anything/markdown_to_word/core/project.py`
 
 ## Page Margin Compatibility
 

@@ -1,6 +1,6 @@
 # Cross-Layer Guidelines
 
-Read this layer before changing behavior shared across React, Python backend, Tauri, CLI harness, config defaults, export, or preview.
+Read this layer before changing behavior shared across React, Python backend, Tauri, config defaults, export, or preview.
 
 ## Pre-Development Checklist
 
@@ -11,8 +11,8 @@ Read this layer before changing behavior shared across React, Python backend, Ta
 ## Quality Check
 
 - Search all layers for the field or behavior you are changing before editing.
-- For config changes, update front-end types/defaults/storage, preview mapping, backend validation/rendering, CLI harness defaults, and tests together.
-- Run cross-layer validation appropriate to the change: front-end typecheck/tests, backend pytest, CLI harness pytest, and export-specific tests.
+- For config changes, update front-end types/defaults/storage, preview mapping, backend validation/rendering, and tests together.
+- Run cross-layer validation appropriate to the change: front-end typecheck/tests, backend pytest, and export-specific tests.
 
 ## Core Cross-Layer Flow
 
