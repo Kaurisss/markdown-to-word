@@ -40,13 +40,13 @@ export function ProviderIconPicker({ value, onChange, compact }: ProviderIconPic
               type="button"
               onClick={() => onChange(iconKey)}
               className={cn(
-                'flex items-center justify-center rounded-md border transition-colors',
+                'flex items-center justify-center rounded-xl border transition-all cursor-pointer',
                 compact
                   ? 'size-11'
                   : 'h-16 flex-col gap-1 text-[11px]',
                 selected
-                  ? 'border-brand-400 bg-brand-50 text-brand-700 dark:border-brand-700 dark:bg-brand-900/30 dark:text-brand-400'
-                  : 'border-ui-border bg-ui-control text-ui-text-muted hover:bg-ui-control-hover hover:text-ui-text'
+                  ? 'border-brand-500 bg-brand-50/80 text-brand-700 dark:border-brand-600 dark:bg-brand-900/30 dark:text-brand-400 shadow-sm ring-1 ring-brand-500/20'
+                  : 'border-gray-200 dark:border-dark-border bg-gray-50/50 dark:bg-dark-element text-ui-text-muted hover:bg-gray-100 dark:hover:bg-dark-element-hover hover:text-ui-text'
               )}
               aria-pressed={selected}
               title={PROVIDER_ICON_LABELS[iconKey]}

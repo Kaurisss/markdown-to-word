@@ -1,70 +1,59 @@
 import React from 'react';
-import { ViewMode, WindowBarDisplayMode } from '../../features/settings/store';
+import { ViewMode } from '../../features/settings/store';
 import { Select } from '../ui/Select';
-import { SunLine, MoonLine, Layout5Line, LayoutTopOpenLine, EditLine, Columns2Line, Eye2Line } from '@mingcute/react';
-
-const labelClass = 'ui-field-label';
-const triggerClass = 'h-10 px-3 text-[14px] rounded-md';
-const optionClass = 'text-[14px]';
+import { SunLine, MoonLine, EditLine, Columns2Line, Eye2Line } from '@mingcute/react';
+import { SettingCard, SettingItem } from './SettingsLayout';
 
 interface AppearanceSectionProps {
   settings: {
     theme: 'light' | 'dark';
-    windowBarDisplayMode?: WindowBarDisplayMode;
     defaultViewMode: ViewMode;
   };
   updateSettings: (patch: Record<string, unknown>) => void;
 }
 
 export const AppearanceSection: React.FC<AppearanceSectionProps> = ({ settings, updateSettings }) => (
-  <div className="space-y-5">
-    <section className="space-y-3">
-      <div className="text-sm font-medium text-gray-700 dark:text-gray-200">显示与视图</div>
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <label className={labelClass}>主题模式</label>
+  <div className="space-y-6">
+    <div>
+      <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">
+        外观与布局
+      </div>
+      <SettingCard>
+        <SettingItem
+          title="主题模式"
+          description="切换应用程序的主题，可选择浅色模式或深色模式。"
+        >
           <Select
-            className="w-full"
+            className="w-36"
             value={settings.theme}
             onChange={(value) => updateSettings({ theme: value as 'light' | 'dark' })}
-            triggerClassName={triggerClass}
-            optionClassName={optionClass}
+            triggerClassName="h-9 px-2.5 text-[13px] rounded-lg"
+            optionClassName="text-[13px]"
             options={[
-              { value: 'light', label: '浅色', icon: <SunLine /> },
-              { value: 'dark', label: '深色', icon: <MoonLine /> },
+              { value: 'light', label: '浅色模式', icon: <SunLine /> },
+              { value: 'dark', label: '深色模式', icon: <MoonLine /> },
             ]}
           />
-        </div>
-        <div className="space-y-2">
-          <label className={labelClass}>窗口栏模式</label>
+        </SettingItem>
+
+        <SettingItem
+          title="默认视图模式"
+          description="新打开应用或文档时的默认工作区布局（单编辑器、双栏对比或纯预览）。"
+        >
           <Select
-            className="w-full"
-            value={settings.windowBarDisplayMode || 'tabs'}
-            onChange={(value) => updateSettings({ windowBarDisplayMode: value as WindowBarDisplayMode })}
-            triggerClassName={triggerClass}
-            optionClassName={optionClass}
-            options={[
-              { value: 'tabs', label: '标签页', icon: <Layout5Line /> },
-              { value: 'dropdown', label: '下拉菜单', icon: <LayoutTopOpenLine /> },
-            ]}
-          />
-        </div>
-        <div className="space-y-2">
-          <label className={labelClass}>默认视图模式</label>
-          <Select
-            className="w-full"
+            className="w-36"
             value={settings.defaultViewMode}
             onChange={(value) => updateSettings({ defaultViewMode: value as ViewMode })}
-            triggerClassName={triggerClass}
-            optionClassName={optionClass}
+            triggerClassName="h-9 px-2.5 text-[13px] rounded-lg"
+            optionClassName="text-[13px]"
             options={[
               { value: 'editor', label: '编辑器', icon: <EditLine /> },
-              { value: 'split', label: '双栏', icon: <Columns2Line /> },
-              { value: 'preview', label: '预览', icon: <Eye2Line /> },
+              { value: 'split', label: '双栏模式', icon: <Columns2Line /> },
+              { value: 'preview', label: '导出预览', icon: <Eye2Line /> },
             ]}
           />
-        </div>
-      </div>
-    </section>
+        </SettingItem>
+      </SettingCard>
+    </div>
   </div>
 );

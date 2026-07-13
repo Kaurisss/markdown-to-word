@@ -13,8 +13,8 @@
     "windows": [
       {
         "title": "简阅转档 | Markdown to Word",
-        "width": 1280,
-        "height": 720,
+        "width": 1400,
+        "height": 800,
         "minWidth": 800,
         "minHeight": 500,
         "resizable": true,

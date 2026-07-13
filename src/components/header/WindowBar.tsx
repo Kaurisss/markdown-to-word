@@ -1,14 +1,5 @@
 import React, { useCallback } from 'react';
 import { TabsList, TabsTrigger } from '../ui/tabs';
-import { MenuLine } from '@mingcute/react';
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuCheckboxItem,
-} from '../ui/dropdown-menu';
-import { WindowBarDisplayMode } from '../../features/settings/store';
 
 export type TabType = 'file' | 'edit' | 'home' | 'layout' | 'ai';
 
@@ -27,7 +18,6 @@ interface WindowBarProps {
   setActiveTab: (tab: TabType) => void;
   onImport: (content: string) => void;
   fileInputRef: React.RefObject<HTMLInputElement>;
-  displayMode?: WindowBarDisplayMode;
 }
 
 export const WindowBar: React.FC<WindowBarProps> = ({
@@ -35,7 +25,6 @@ export const WindowBar: React.FC<WindowBarProps> = ({
   setActiveTab,
   onImport,
   fileInputRef,
-  displayMode = 'tabs',
 }) => {
   const runWindowAction = useCallback(async () => {
     try {
@@ -81,18 +70,6 @@ export const WindowBar: React.FC<WindowBarProps> = ({
     </TabsList>
   );
 
-  const renderMenuButton = () => (
-    <button
-      type="button"
-      className="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 transition-colors"
-      title="菜单"
-      onMouseDown={(e) => e.stopPropagation()}
-      onClick={(e) => e.stopPropagation()}
-    >
-      <MenuLine className="w-4 h-4" />
-    </button>
-  );
-
   return (
     <div
       className="flex-1 min-w-0 bg-inherit flex items-center text-ui-text-muted select-none transition-colors duration-200"
@@ -102,26 +79,7 @@ export const WindowBar: React.FC<WindowBarProps> = ({
       <div className="flex items-center pl-1.5" onMouseDown={(e) => e.stopPropagation()}>
         <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".md,.txt,.markdown" className="hidden" />
 
-        {displayMode === 'tabs' && renderTabsList()}
-
-        {displayMode === 'dropdown' && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              {renderMenuButton()}
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" sideOffset={8}>
-              {ALL_TABS.map(tab => (
-                <DropdownMenuCheckboxItem
-                  key={tab}
-                  checked={activeTab === tab}
-                  onCheckedChange={() => handleTabSelect(tab)}
-                >
-                  {TAB_LABELS[tab]}
-                </DropdownMenuCheckboxItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
+        {renderTabsList()}
       </div>
 
       <div className="flex-1" data-tauri-drag-region />

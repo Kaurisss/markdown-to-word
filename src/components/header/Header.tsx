@@ -10,7 +10,6 @@ import { ViewModeDock } from './ViewModeDock';
 import { WindowControls } from './WindowControls';
 import { UndoRedoDock } from './UndoRedoDock';
 import { useAIConfigStore } from '../../features/ai/store';
-import { useSettingsStore } from '../../features/settings/store';
 import { Tabs, TabsContent } from '../ui/tabs';
 import { ConfigStyleKey } from '../../types/config';
 
@@ -41,7 +40,6 @@ const Header: React.FC<HeaderProps> = ({
   const [aiPrompt, setAiPrompt] = useState('');
 
   const { providers: aiProviders, selectedModel, updateSelectedModel } = useAIConfigStore();
-  const { settings: appSettings } = useSettingsStore();
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab as any} className="app-chrome relative z-50 flex-shrink-0 bg-ui-surface border-b border-ui-border transition-colors duration-200 gap-0">
@@ -51,7 +49,6 @@ const Header: React.FC<HeaderProps> = ({
           setActiveTab={setActiveTab}
           onImport={onImport}
           fileInputRef={fileInputRef}
-          displayMode={appSettings.windowBarDisplayMode}
         />
         <UndoRedoDock
           onUndo={onUndo}

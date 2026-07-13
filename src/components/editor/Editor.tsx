@@ -30,9 +30,10 @@ const MarkdownModeIcon = () => (
 const underlineCommand: ICommand = {
   name: 'underline',
   keyCommand: 'underline',
+  shortcuts: 'ctrlcmd+u',
   buttonProps: {
     'aria-label': '添加下划线',
-    title: '添加下划线',
+    title: '添加下划线 (Ctrl+U)',
   },
   icon: <UnderlineIcon />,
   execute: (state, api) => {
@@ -55,17 +56,17 @@ const underlineCommand: ICommand = {
 };
 
 const editorCommands: ICommand[] = [
-  commands.bold,
-  commands.italic,
+  { ...commands.bold, buttonProps: { 'aria-label': '加粗', title: '加粗 (Ctrl+B)' } },
+  { ...commands.italic, buttonProps: { 'aria-label': '斜体', title: '斜体 (Ctrl+I)' } },
   underlineCommand,
-  commands.strikethrough,
-  commands.code,
-  commands.link,
+  { ...commands.strikethrough, buttonProps: { 'aria-label': '删除线', title: '删除线 (Ctrl+Shift+X)' } },
+  { ...commands.code, buttonProps: { 'aria-label': '代码', title: '代码 (Ctrl+J)' } },
+  { ...commands.link, buttonProps: { 'aria-label': '链接', title: '链接 (Ctrl+L)' } },
   commands.divider,
-  commands.quote,
-  commands.unorderedListCommand,
-  commands.orderedListCommand,
-  commands.table,
+  { ...commands.quote, buttonProps: { 'aria-label': '引用', title: '引用 (Ctrl+Q)' } },
+  { ...commands.unorderedListCommand, buttonProps: { 'aria-label': '无序列表', title: '无序列表 (Ctrl+Shift+U)' } },
+  { ...commands.orderedListCommand, buttonProps: { 'aria-label': '有序列表', title: '有序列表 (Ctrl+Shift+O)' } },
+  { ...commands.table, buttonProps: { 'aria-label': '表格', title: '表格' } },
 ];
 
 const Editor = React.memo(forwardRef<RefMDEditor, EditorProps>(

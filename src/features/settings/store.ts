@@ -11,8 +11,6 @@ const AUTO_SAVE_CONTENT_KEY = 'md2word_auto_save_content';
 
 export type ViewMode = 'editor' | 'preview' | 'split';
 
-export type WindowBarDisplayMode = 'tabs' | 'dropdown';
-
 export interface AppSettings {
   theme: 'light' | 'dark';
   defaultViewMode: ViewMode;
@@ -28,7 +26,6 @@ export interface AppSettings {
   editorWordWrap: boolean;
   scrollSyncEnabled: boolean;
   showStatusBar: boolean;
-  windowBarDisplayMode: WindowBarDisplayMode;
   keyboardShortcuts: KeyboardShortcutMap;
 }
 
@@ -52,7 +49,6 @@ const DEFAULT_SETTINGS: AppSettings = {
   editorWordWrap: true,
   scrollSyncEnabled: true,
   showStatusBar: true,
-  windowBarDisplayMode: 'tabs',
   keyboardShortcuts: DEFAULT_KEYBOARD_SHORTCUTS,
 };
 

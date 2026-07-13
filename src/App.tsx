@@ -204,10 +204,10 @@ const App: React.FC = () => {
       : 'w-0 opacity-0 pointer-events-none';
 
   const pageLayerClass = (page: AppPage) => (
-    `absolute inset-0 transition-opacity duration-200 ${
+    `absolute inset-0 ${
       activePage === page
-        ? 'visible opacity-100 z-10'
-        : 'invisible opacity-0 z-0 pointer-events-none'
+        ? 'visible z-10'
+        : 'hidden z-0 pointer-events-none'
     }`
   );
 

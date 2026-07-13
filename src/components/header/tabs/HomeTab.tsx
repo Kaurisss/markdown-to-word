@@ -118,7 +118,6 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             </div>
           </div>
         </div>
-        <span className={STYLES.groupLabelClass}>样式</span>
       </div>
 
       {/* 字体设置 */}
@@ -157,7 +156,6 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             </div>
           </div>
         </div>
-        <span className={STYLES.groupLabelClass}>字体</span>
       </div>
 
       {/* 格式设置 */}
@@ -232,7 +230,6 @@ export const HomeTab: React.FC<HomeTabProps> = ({
           </div>
           </div>
         </div>
-        <span className={STYLES.groupLabelClass}>格式</span>
       </div>
 
       {/* 对齐方式 */}
@@ -265,7 +262,6 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             </ToggleGroup>
           </div>
         </div>
-        <span className={STYLES.groupLabelClass}>段落</span>
       </div>
 
     </motion.div>

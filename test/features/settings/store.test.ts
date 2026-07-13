@@ -130,17 +130,4 @@ describe('settingsStore', () => {
     expect(result.current.settings.theme).toBe('light');
     expect(result.current.settings.defaultViewMode).toBe('split');
   });
-
-  it('migrates legacy compact windowBarDisplayMode to tabs', async () => {
-    localStorage.setItem('md2word_settings', JSON.stringify({
-      theme: 'dark',
-      windowBarDisplayMode: 'compact',
-    }));
-
-    const { useSettingsStore } = await loadModule();
-    const { result } = renderHook(() => useSettingsStore());
-
-    expect(result.current.settings.windowBarDisplayMode).toBe('tabs');
-    expect(result.current.settings.theme).toBe('dark');
-  });
 });

@@ -39,7 +39,6 @@ export const FileTab: React.FC<FileTabProps> = ({ onImport, onExport, isExportin
             <span className="text-[11px] leading-none">{isExporting ? '导出中' : '导出'}</span>
           </button>
         </div>
-        <span className={STYLES.groupLabelClass}>文件操作</span>
       </div>
     </motion.div>
   );

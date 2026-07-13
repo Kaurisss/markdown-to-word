@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { InformationLine } from '@mingcute/react';
+import { InformationLine, ArrowLeftLine } from '@mingcute/react';
 import { useAIConfigStore } from '../../features/ai/store';
 import { useAIConfig } from '../../features/ai/useAIConfig';
 import { AppPageHeader } from '../shell/AppPageHeader';
@@ -60,7 +60,7 @@ export const AIConfigPage: React.FC<AIConfigPageProps> = ({ isActive, onBack }) 
     handleDeleteModelClick,
     handlePlatformEdit,
     handlePlatformDelete,
-    
+
     showRemoteModels,
     isRemoteModelsClosing,
     closeRemoteModels,
@@ -125,6 +125,16 @@ export const AIConfigPage: React.FC<AIConfigPageProps> = ({ isActive, onBack }) 
     </Popover>
   );
 
+  const backButton = (
+    <button
+      onClick={handleBack}
+      className="flex items-center gap-1.5 px-3 py-1.5 mt-3 rounded-md text-[13px] font-medium text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 hover:bg-gray-200/50 dark:hover:bg-dark-element/30 transition-all cursor-pointer"
+    >
+      <ArrowLeftLine className="w-3.5 h-3.5" />
+      返回应用
+    </button>
+  );
+
   return (
     <div
       className="flex h-full w-full flex-col overflow-hidden text-gray-800 dark:text-gray-100 select-none relative bg-ui-app"
@@ -138,13 +148,16 @@ export const AIConfigPage: React.FC<AIConfigPageProps> = ({ isActive, onBack }) 
       }}
     >
       <AppPageHeader
-        title="AI 配置"
+        title=""
         onBack={handleBack}
         isActive={isActive}
+        transparent={true}
+        showBack={false}
         actions={apiGuideAction}
+        leftContent={backButton}
       />
 
-      <div className="flex flex-1 min-h-0 overflow-hidden">
+      <div className="flex flex-1 min-h-0 overflow-hidden relative z-10">
         <ProviderSidebar
           providers={providers}
           selectedProviderId={selectedProviderId}
@@ -153,45 +166,48 @@ export const AIConfigPage: React.FC<AIConfigPageProps> = ({ isActive, onBack }) 
           onAddPlatform={() => setShowAddPlatform(true)}
           onPlatformEdit={handlePlatformEdit}
           onPlatformDelete={handlePlatformDelete}
+          onBack={handleBack}
         />
 
-        <div className="relative flex-1 flex flex-col bg-white dark:bg-dark-surface">
+        <div className="relative flex-1 flex flex-col bg-white dark:bg-dark-surface pt-10">
           {selectedProvider ? (
             <>
-              <div className="px-6 pb-2 pt-4 shrink-0">
-                <div className="flex items-center gap-2">
-                  <ProviderIcon
-                    providerId={selectedProvider.id}
-                    name={selectedProvider.name}
-                    iconKey={selectedProvider.iconKey}
-                    size={24}
-                  />
-                  <h3 className="ui-page-title">{selectedProvider.name}</h3>
+              {/* 大标题与副标题 */}
+              <div className="px-8 pb-3 pt-6 shrink-0 border-b border-gray-100/50 dark:border-dark-border/40 flex items-center gap-3">
+                <ProviderIcon
+                  providerId={selectedProvider.id}
+                  name={selectedProvider.name}
+                  iconKey={selectedProvider.iconKey}
+                  size={24}
+                />
+                <div>
+                  <h1 className="text-xl font-bold text-gray-900 dark:text-gray-50">
+                    {selectedProvider.name}
+                  </h1>
+                  <p className="text-[12px] text-gray-400 dark:text-gray-500 mt-1 leading-relaxed">
+                    {selectedProvider.description || '配置该 AI 平台的 API 接入参数以使用智能分析及写作辅助功能。'}
+                  </p>
                 </div>
               </div>
-              <div className="flex-1 overflow-y-auto px-6 pb-4 pt-2 space-y-6">
-                {selectedProvider.description && (
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
-                    {selectedProvider.description}
-                  </div>
-                )}
+              <div className="flex-1 overflow-y-auto px-8 pb-8 pt-6">
+                <div className="max-w-2xl space-y-6">
+                  <ApiConfigFields
+                    provider={selectedProvider}
+                    onUpdate={handleUpdateProvider}
+                    showApiKey={showApiKey}
+                    onToggleShowApiKey={() => setShowApiKey(!showApiKey)}
+                  />
 
-                <ApiConfigFields
-                  provider={selectedProvider}
-                  onUpdate={handleUpdateProvider}
-                  showApiKey={showApiKey}
-                  onToggleShowApiKey={() => setShowApiKey(!showApiKey)}
-                />
-
-                <ModelManager
-                  provider={selectedProvider}
-                  onAddModel={() => setShowAddModel(true)}
-                  onFetchRemoteModels={handleOpenRemoteModels}
-                  onTestModel={handleTestModelClick}
-                  onEditModel={handleEditModel}
-                  onCopyModel={config.handleCopyModel}
-                  onDeleteModel={handleDeleteModelClick}
-                />
+                  <ModelManager
+                    provider={selectedProvider}
+                    onAddModel={() => setShowAddModel(true)}
+                    onFetchRemoteModels={handleOpenRemoteModels}
+                    onTestModel={handleTestModelClick}
+                    onEditModel={handleEditModel}
+                    onCopyModel={config.handleCopyModel}
+                    onDeleteModel={handleDeleteModelClick}
+                  />
+                </div>
               </div>
             </>
           ) : (

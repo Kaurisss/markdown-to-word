@@ -43,7 +43,6 @@ export const EditTab: React.FC<EditTabProps> = ({
                         </div>
                     </div>
                 </div>
-                <span className={STYLES.groupLabelClass}>历史记录</span>
             </div>
 
             {/* 剪贴板 */}
@@ -64,7 +63,6 @@ export const EditTab: React.FC<EditTabProps> = ({
                         </div>
                     </div>
                 </div>
-                <span className={STYLES.groupLabelClass}>剪贴板</span>
             </div>
 
             {/* 查找替换 */}
@@ -98,7 +96,6 @@ export const EditTab: React.FC<EditTabProps> = ({
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
-                <span className={STYLES.groupLabelClass}>编辑</span>
             </div>
         </motion.div>
     );

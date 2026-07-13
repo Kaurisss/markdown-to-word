@@ -125,7 +125,6 @@ vi.mock('@/features/settings/store', () => ({
       editorWordWrap: true,
       scrollSyncEnabled: true,
       showStatusBar: false,
-      windowBarDisplayMode: 'tabs',
       keyboardShortcuts: {},
     },
   }),

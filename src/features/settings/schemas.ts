@@ -32,7 +32,6 @@ export const appSettingsSchema = z.object({
   editorWordWrap: z.boolean(),
   scrollSyncEnabled: z.boolean(),
   showStatusBar: z.boolean(),
-  windowBarDisplayMode: z.enum(['tabs', 'dropdown']),
   keyboardShortcuts: keyboardShortcutMapSchema,
 });
 
@@ -41,14 +40,6 @@ export const appSettingsSchema = z.object({
  * Fills missing fields with defaults and migrates legacy values.
  */
 export function parseSettings(raw: unknown) {
-  // Legacy: 'compact' mode was removed, fall back to 'tabs'
-  if (typeof raw === 'object' && raw !== null && !Array.isArray(raw)) {
-    const obj = raw as Record<string, unknown>;
-    if (obj.windowBarDisplayMode === 'compact') {
-      obj.windowBarDisplayMode = 'tabs';
-    }
-  }
-
   const parsed = appSettingsSchema.safeParse({
     ...DEFAULT_SETTINGS_FOR_SCHEMA,
     ...raw as object,
@@ -81,7 +72,6 @@ const DEFAULT_SETTINGS_FOR_SCHEMA = {
   editorWordWrap: true,
   scrollSyncEnabled: true,
   showStatusBar: true,
-  windowBarDisplayMode: 'tabs' as const,
   keyboardShortcuts: DEFAULT_KEYBOARD_SHORTCUTS,
 };
 

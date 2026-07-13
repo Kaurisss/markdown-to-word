@@ -65,7 +65,6 @@ export const AITab: React.FC<AITabProps> = ({
             />
           </div>
         </div>
-        <span className={STYLES.groupLabelClass}>AI设置</span>
       </div>
 
       <div className={`${STYLES.groupClass} min-w-[360px] flex-1 max-w-[560px]`}>
@@ -80,7 +79,6 @@ export const AITab: React.FC<AITabProps> = ({
             />
           </div>
         </div>
-        <span className={STYLES.groupLabelClass}>智能生成</span>
       </div>
     </motion.div>
   );

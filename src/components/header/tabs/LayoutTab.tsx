@@ -183,7 +183,6 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({ cfg, onCfgChange, activeSt
             onCfgChange={onCfgChange}
           />
         </div>
-        <span className={STYLES.groupLabelClass}>页面设置</span>
       </div>
 
       {/* Font Setup */}
@@ -207,7 +206,6 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({ cfg, onCfgChange, activeSt
             />
           </div>
         </div>
-        <span className={STYLES.groupLabelClass}>排版字体</span>
       </div>
 
       {/* Paragraph Setup */}
@@ -297,7 +295,6 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({ cfg, onCfgChange, activeSt
             </div>
           </div>
         </div>
-        <span className={STYLES.groupLabelClass}>段落间距</span>
       </div>
     </motion.div>
   );
