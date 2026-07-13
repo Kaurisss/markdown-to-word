@@ -8,7 +8,6 @@ import { parseSettings } from './schemas';
 
 const SETTINGS_KEY = 'md2word_settings';
 const AUTO_SAVE_CONTENT_KEY = 'md2word_auto_save_content';
-const SETTINGS_CHANNEL = 'md2word_settings_channel';
 
 export type ViewMode = 'editor' | 'preview' | 'split';
 
@@ -62,8 +61,6 @@ const DEFAULT_SETTINGS: AppSettings = {
  * V1 stored raw settings JSON; v2 wraps in { state, version }.
  * Also checks legacy 'app_theme' key when 'md2word_settings' is missing.
  */
-let lastWrittenSettings: string | null = null;
-
 const settingsStorage: PersistStorage<AppSettings> = {
   getItem: (name: string): StorageValue<AppSettings> | null => {
     const raw = localStorage.getItem(name);
@@ -92,7 +89,6 @@ const settingsStorage: PersistStorage<AppSettings> = {
   },
   setItem: (name: string, value: StorageValue<AppSettings>): void => {
     const str = JSON.stringify(value);
-    lastWrittenSettings = str;
     localStorage.setItem(name, str);
     // Write app_theme for backward compat with older code that reads it directly
     if (value.state?.theme) {
@@ -113,7 +109,6 @@ export const useSettingsStore = create<SettingsStoreState>()(
           const settings = { ...state.settings, ...patch };
           return { settings };
         });
-        settingsChannel?.postMessage({});
       },
     }),
     {
@@ -132,25 +127,6 @@ export const useSettingsStore = create<SettingsStoreState>()(
     }
   )
 );
-
-// Cross-window adapter: BroadcastChannel (primary) + storage event (fallback)
-// Feedback loop prevention: skip storage events whose newValue matches our last write
-let settingsChannel: BroadcastChannel | null = null;
-try {
-  settingsChannel = new BroadcastChannel(SETTINGS_CHANNEL);
-  settingsChannel.onmessage = () => {
-    useSettingsStore.persist.rehydrate();
-  };
-} catch {
-  // BroadcastChannel unavailable — fall back to storage events
-}
-
-window.addEventListener('storage', (e: StorageEvent) => {
-  if (e.key !== SETTINGS_KEY || !e.newValue) return;
-  // Skip if this is our own write echoing back (prevents feedback loop)
-  if (e.newValue === lastWrittenSettings) return;
-  useSettingsStore.persist.rehydrate();
-});
 
 export function loadAutoSavedContent(): string | null {
   try {

@@ -3,11 +3,15 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import { AIConfigWindow } from '@/components/ai/AIConfigWindow';
+import { AIConfigPage } from '@/components/ai/AIConfigPage';
 
 vi.mock('@tauri-apps/api/window', () => ({
   getCurrentWindow: () => ({
-    show: vi.fn(),
+    isMaximized: vi.fn().mockResolvedValue(false),
+    listen: vi.fn().mockResolvedValue(vi.fn()),
+    toggleMaximize: vi.fn(),
+    minimize: vi.fn(),
+    close: vi.fn(),
   }),
 }));
 
@@ -53,7 +57,7 @@ vi.mock('@lobehub/icons', () => {
   ].map((name) => [name, makeIcon(name)]));
 });
 
-describe('AIConfigWindow', () => {
+describe('AIConfigPage', () => {
   it('shows supported API setup guidance', () => {
     localStorage.clear();
     Object.defineProperty(window, 'matchMedia', {
@@ -70,7 +74,7 @@ describe('AIConfigWindow', () => {
       })),
     });
 
-    render(<AIConfigWindow />);
+    render(<AIConfigPage isActive onBack={vi.fn()} />);
     fireEvent.click(screen.getByTitle('API 配置指南'));
 
     expect(screen.getByText('支持的 API 类型')).toBeDefined();

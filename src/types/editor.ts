@@ -36,8 +36,6 @@ export interface HeaderProps {
   onImport: (content: string) => void;
   viewMode: ViewMode;
   onViewModeChange: (mode: ViewMode) => void;
-  theme: 'light' | 'dark';
-  onThemeChange: (theme: 'light' | 'dark') => void;
   cfg: DocumentConfig;
   onCfgChange: (next: DocumentConfig) => void;
   onSearchClick?: () => void;
@@ -50,4 +48,6 @@ export interface HeaderProps {
   onCopy?: () => void;
   onPaste?: () => void;
   onShowToast?: (message: string, type?: 'success' | 'error' | 'info') => void;
+  onOpenAIConfig: () => void;
+  onOpenSettings: () => void;
 }

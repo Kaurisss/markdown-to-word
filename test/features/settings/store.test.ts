@@ -1,23 +1,7 @@
 // @vitest-environment jsdom
 
-import { act, renderHook, waitFor } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-
-class MockBroadcastChannel {
-  static instances: MockBroadcastChannel[] = [];
-
-  onmessage: ((event: MessageEvent<unknown>) => void) | null = null;
-  postMessage = vi.fn();
-  close = vi.fn();
-
-  constructor(readonly name: string) {
-    MockBroadcastChannel.instances.push(this);
-  }
-
-  emit(data: unknown) {
-    this.onmessage?.(new MessageEvent('message', { data }));
-  }
-}
+import { act, renderHook } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 async function loadModule() {
   vi.resetModules();
@@ -27,12 +11,6 @@ async function loadModule() {
 describe('settingsStore', () => {
   beforeEach(() => {
     localStorage.clear();
-    MockBroadcastChannel.instances = [];
-    vi.stubGlobal('BroadcastChannel', MockBroadcastChannel);
-  });
-
-  afterEach(() => {
-    vi.unstubAllGlobals();
   });
 
   it('loads default settings', async () => {
@@ -127,71 +105,6 @@ describe('settingsStore', () => {
     });
     expect(stored.version).toBe(2);
     expect(localStorage.getItem('app_theme')).toBe('dark');
-  });
-
-  it('rehydrates when a storage event is received', async () => {
-    const { useSettingsStore } = await loadModule();
-    const { result } = renderHook(() => useSettingsStore());
-
-    const newValue = JSON.stringify({
-      state: {
-        theme: 'dark',
-        defaultViewMode: 'preview',
-        autoSave: false,
-        defaultFontCn: 'SimSun',
-        defaultFontEn: '',
-        defaultFontSize: 12,
-        defaultLineSpacing: 1.5,
-        defaultSpaceAfter: 8,
-        defaultAlignment: 'left',
-        editorFontSize: 15,
-        editorLineHeight: 32,
-        editorWordWrap: true,
-        scrollSyncEnabled: false,
-        showStatusBar: true,
-        windowBarDisplayMode: 'tabs',
-        keyboardShortcuts: {},
-      },
-      version: 2,
-    });
-    localStorage.setItem('md2word_settings', newValue);
-
-    act(() => {
-      window.dispatchEvent(new StorageEvent('storage', {
-        key: 'md2word_settings',
-        newValue,
-      }));
-    });
-
-    await waitFor(() => {
-      expect(result.current.settings.theme).toBe('dark');
-      expect(result.current.settings.defaultViewMode).toBe('preview');
-    });
-  });
-
-  it('rehydrates when a broadcast message is received', async () => {
-    const { useSettingsStore } = await loadModule();
-    const { result } = renderHook(() => useSettingsStore());
-    const channel = MockBroadcastChannel.instances.find(
-      (instance) => instance.name === 'md2word_settings_channel',
-    );
-
-    const newValue = JSON.stringify({
-      state: {
-        ...result.current.settings,
-        theme: 'dark',
-      },
-      version: 2,
-    });
-    localStorage.setItem('md2word_settings', newValue);
-
-    act(() => {
-      channel?.emit({});
-    });
-
-    await waitFor(() => {
-      expect(result.current.settings.theme).toBe('dark');
-    });
   });
 
   it('keeps auto-save helpers outside the zustand store', async () => {

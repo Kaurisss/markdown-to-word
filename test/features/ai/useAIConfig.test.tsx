@@ -227,4 +227,28 @@ describe('useAIConfig forms', () => {
       baseProviders[1],
     ]);
   });
+
+  it('clears transient forms without changing the selected provider', () => {
+    const { result } = renderConfig();
+
+    act(() => {
+      result.current.setSelectedProviderId('custom-existing');
+      result.current.setShowAddPlatform(true);
+      result.current.setNewPlatformName('Unsaved provider');
+      result.current.setShowAddModel(true);
+      result.current.setNewModelId('unsaved-model');
+      result.current.setShowApiKey(true);
+    });
+
+    act(() => {
+      result.current.resetTransientState();
+    });
+
+    expect(result.current.selectedProviderId).toBe('custom-existing');
+    expect(result.current.showAddPlatform).toBe(false);
+    expect(result.current.newPlatformName).toBe('');
+    expect(result.current.showAddModel).toBe(false);
+    expect(result.current.newModelId).toBe('');
+    expect(result.current.showApiKey).toBe(false);
+  });
 });

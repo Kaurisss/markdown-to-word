@@ -15,8 +15,7 @@ function isBareKey(shortcut: KeyboardShortcutBinding) {
 interface UseGlobalShortcutsParams {
   editorRef: RefObject<EditorHandle | null>;
   editorMode: EditorMode;
-  isConfigWindow: boolean;
-  isSettingsWindow: boolean;
+  enabled: boolean;
   showSearch: boolean;
   shortcuts: KeyboardShortcutMap;
   setShowSearch: (v: boolean) => void;
@@ -31,8 +30,7 @@ interface UseGlobalShortcutsParams {
 export function useGlobalShortcuts({
   editorRef,
   editorMode,
-  isConfigWindow,
-  isSettingsWindow,
+  enabled,
   showSearch,
   shortcuts,
   setShowSearch,
@@ -45,7 +43,7 @@ export function useGlobalShortcuts({
 }: UseGlobalShortcutsParams) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (isConfigWindow || isSettingsWindow) return;
+      if (!enabled) return;
 
       // Guard: skip bare-key non-format shortcuts when typing in editable fields
       const inEditable = isEditableShortcutTarget(e.target);
@@ -125,8 +123,7 @@ export function useGlobalShortcuts({
   }, [
     closeSearch,
     showSearch,
-    isConfigWindow,
-    isSettingsWindow,
+    enabled,
     editorRef,
     editorMode,
     shortcuts,

@@ -189,6 +189,33 @@ export function useAIConfig({
     }, 200);
   }, []);
 
+  const resetTransientState = useCallback(() => {
+    setShowAddPlatform(false);
+    setIsAddPlatformClosing(false);
+    addPlatformForm.reset(EMPTY_PROVIDER_FORM);
+
+    setShowEditPlatform(false);
+    setIsEditPlatformClosing(false);
+    setEditingPlatformId('');
+    editPlatformForm.reset(EMPTY_PROVIDER_FORM);
+
+    setShowAddModel(false);
+    setIsAddModelClosing(false);
+    addModelForm.reset(EMPTY_MODEL_FORM);
+
+    setShowEditModel(false);
+    setIsEditModelClosing(false);
+    setEditingModel(null);
+    editModelForm.reset(EMPTY_MODEL_FORM);
+
+    setShowApiKey(false);
+    setShowRemoteModels(false);
+    setIsRemoteModelsClosing(false);
+    setRemoteModels([]);
+    setRemoteModelsSearch('');
+    setRemoteModelsError(null);
+  }, [addModelForm, addPlatformForm, editModelForm, editPlatformForm]);
+
   // ── Core provider helpers ───────────────────────────────────────────
 
   const handleUpdateProvider = useCallback((id: string, patch: Partial<AIProvider>) => {
@@ -455,6 +482,7 @@ export function useAIConfig({
     handleFetchRemoteModels,
     handleAddRemoteModel,
     handleAddAllRemoteModels,
+    resetTransientState,
 
     // Refactored handlers for Context Menu
     handleTestModelClick,

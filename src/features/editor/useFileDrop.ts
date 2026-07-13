@@ -2,12 +2,12 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { ToastType } from '../../components/shell/Toast';
 
 interface UseFileDropOptions {
-  isConfigWindow: boolean;
+  enabled: boolean;
   showToast: (message: string, type?: ToastType) => void;
   onImport: (content: string) => void;
 }
 
-export function useFileDrop({ isConfigWindow, showToast, onImport }: UseFileDropOptions) {
+export function useFileDrop({ enabled, showToast, onImport }: UseFileDropOptions) {
   const [isFileDragActive, setIsFileDragActive] = useState(false);
   const fileDragCounterRef = useRef(0);
 
@@ -22,7 +22,7 @@ export function useFileDrop({ isConfigWindow, showToast, onImport }: UseFileDrop
   }, []);
 
   useEffect(() => {
-    if (isConfigWindow) {
+    if (!enabled) {
       return;
     }
 
@@ -42,7 +42,7 @@ export function useFileDrop({ isConfigWindow, showToast, onImport }: UseFileDrop
     const handleDragEnter = (e: DragEvent) => {
       if (!isFileDrag(e)) return;
       e.preventDefault();
-      if (isConfigWindow) return;
+      if (!enabled) return;
       fileDragCounterRef.current += 1;
       setIsFileDragActive(true);
     };
@@ -67,7 +67,7 @@ export function useFileDrop({ isConfigWindow, showToast, onImport }: UseFileDrop
 
       fileDragCounterRef.current = 0;
       setIsFileDragActive(false);
-      if (isConfigWindow) return;
+      if (!enabled) return;
 
       const files = e.dataTransfer?.files;
       const file = files && files.length > 0 ? files[0] : null;
@@ -94,6 +94,7 @@ export function useFileDrop({ isConfigWindow, showToast, onImport }: UseFileDrop
     document.addEventListener('drop', handleDrop, true);
 
     let unlistenTauriDrop: (() => void) | undefined;
+    let disposed = false;
 
     const setupTauriFileDrop = async () => {
       try {
@@ -101,7 +102,7 @@ export function useFileDrop({ isConfigWindow, showToast, onImport }: UseFileDrop
         const { readTextFile } = await import('@tauri-apps/plugin-fs');
         const webview = getCurrentWebview();
 
-        unlistenTauriDrop = await webview.onDragDropEvent(async ({ payload }) => {
+        const unlisten = await webview.onDragDropEvent(async ({ payload }) => {
           if (payload.type === 'enter' || payload.type === 'over') {
             setIsFileDragActive(true);
             return;
@@ -133,6 +134,11 @@ export function useFileDrop({ isConfigWindow, showToast, onImport }: UseFileDrop
             showToast('导入失败：无法读取文件内容', 'error');
           }
         });
+        if (disposed) {
+          unlisten();
+        } else {
+          unlistenTauriDrop = unlisten;
+        }
       } catch (err) {
         console.debug('Tauri file drop not available', err);
       }
@@ -141,13 +147,14 @@ export function useFileDrop({ isConfigWindow, showToast, onImport }: UseFileDrop
     setupTauriFileDrop();
 
     return () => {
+      disposed = true;
       document.removeEventListener('dragenter', handleDragEnter, true);
       document.removeEventListener('dragover', handleDragOver, true);
       document.removeEventListener('dragleave', handleDragLeave, true);
       document.removeEventListener('drop', handleDrop, true);
       if (unlistenTauriDrop) unlistenTauriDrop();
     };
-  }, [isConfigWindow, showToast, onImport, isSupportedImportFile, isSupportedImportPath]);
+  }, [enabled, showToast, onImport, isSupportedImportFile, isSupportedImportPath]);
 
   return {
     isFileDragActive,

@@ -22,7 +22,7 @@ interface UseContextMenuOptions {
   editorRef: React.RefObject<EditorHandle | null>;
   editorMode: EditorMode;
   showToast: (message: string, type?: ToastType) => void;
-  isConfigWindow: boolean;
+  enabled: boolean;
 }
 
 export function useContextMenu({
@@ -35,7 +35,7 @@ export function useContextMenu({
   editorRef,
   editorMode,
   showToast,
-  isConfigWindow,
+  enabled,
 }: UseContextMenuOptions) {
   const [contextMenu, setContextMenu] = useState<ContextMenuState>({
     visible: false,
@@ -52,7 +52,7 @@ export function useContextMenu({
   const lastSelectionRootRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    if (isConfigWindow) {
+    if (!enabled) {
       return;
     }
     const handleSelectionChange = () => {
@@ -70,9 +70,10 @@ export function useContextMenu({
     return () => {
       document.removeEventListener('selectionchange', handleSelectionChange);
     };
-  }, [isConfigWindow]);
+  }, [enabled]);
 
   const handleContextMenu = useCallback((e: React.MouseEvent) => {
+    if (!enabled) return;
     e.preventDefault();
     const selection = window.getSelection();
     const target = e.target as HTMLElement;
@@ -200,7 +201,7 @@ export function useContextMenu({
         textField.setSelectionRange(selectionStart, selectionEnd);
       });
     }
-  }, [content, showToast, updateContent, undo, redo, editorMode, editorRef, undoStackRef, redoStackRef]);
+  }, [content, enabled, showToast, updateContent, undo, redo, editorMode, editorRef, undoStackRef, redoStackRef]);
 
   return {
     contextMenu,

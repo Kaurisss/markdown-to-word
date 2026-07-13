@@ -1,24 +1,8 @@
 // @vitest-environment jsdom
 
-import { act, renderHook, waitFor } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { act, renderHook } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AIProvider } from '@/types/ai';
-
-class MockBroadcastChannel {
-  static instances: MockBroadcastChannel[] = [];
-
-  onmessage: ((event: MessageEvent<unknown>) => void) | null = null;
-  postMessage = vi.fn();
-  close = vi.fn();
-
-  constructor(readonly name: string) {
-    MockBroadcastChannel.instances.push(this);
-  }
-
-  emit(data: unknown) {
-    this.onmessage?.(new MessageEvent('message', { data }));
-  }
-}
 
 async function loadModule() {
   vi.resetModules();
@@ -28,12 +12,6 @@ async function loadModule() {
 describe('aiConfigStore', () => {
   beforeEach(() => {
     localStorage.clear();
-    MockBroadcastChannel.instances = [];
-    vi.stubGlobal('BroadcastChannel', MockBroadcastChannel);
-  });
-
-  afterEach(() => {
-    vi.unstubAllGlobals();
   });
 
   it('loads default providers', async () => {
@@ -138,63 +116,6 @@ describe('aiConfigStore', () => {
     expect(updatedStored.state.selectedModel).toBeNull();
     expect(localStorage.getItem('md2word_selected_model')).toBeNull();
     expect(result.current.selectedModel).toBeNull();
-  });
-
-  it('rehydrates when a storage event is received', async () => {
-    const { useAIConfigStore } = await loadModule();
-    const { result } = renderHook(() => useAIConfigStore());
-
-    const newValue = JSON.stringify({
-      state: {
-        builtinConfig: {},
-        customProviders: [],
-        selectedModel: { providerId: 'dashscope', modelId: 'qwen-plus' },
-      },
-      version: 2,
-    });
-    localStorage.setItem('md2word_ai_config', newValue);
-
-    act(() => {
-      window.dispatchEvent(new StorageEvent('storage', {
-        key: 'md2word_ai_config',
-        newValue,
-      }));
-    });
-
-    await waitFor(() => {
-      expect(result.current.selectedModel).toEqual({
-        providerId: 'dashscope',
-        modelId: 'qwen-plus',
-      });
-    });
-  });
-
-  it('rehydrates when a broadcast message is received', async () => {
-    const { useAIConfigStore } = await loadModule();
-    const { result } = renderHook(() => useAIConfigStore());
-    const channel = MockBroadcastChannel.instances.find(
-      (instance) => instance.name === 'md2word_ai_channel',
-    );
-
-    localStorage.setItem('md2word_ai_config', JSON.stringify({
-      state: {
-        builtinConfig: {},
-        customProviders: [],
-        selectedModel: { providerId: 'openai', modelId: 'gpt-4.1-mini' },
-      },
-      version: 2,
-    }));
-
-    act(() => {
-      channel?.emit({});
-    });
-
-    await waitFor(() => {
-      expect(result.current.selectedModel).toEqual({
-        providerId: 'openai',
-        modelId: 'gpt-4.1-mini',
-      });
-    });
   });
 
   it('persists builtin provider icon overrides', async () => {

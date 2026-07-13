@@ -3,9 +3,7 @@
   "identifier": "default",
   "description": "enables the default permissions",
   "windows": [
-    "main",
-    "ai-config",
-    "settings"
+    "main"
   ],
   "permissions": [
     "core:default",
@@ -20,7 +18,6 @@
     "core:window:allow-close",
     "core:window:allow-show",
     "core:window:allow-set-focus",
-    "core:webview:allow-create-webview-window",
     "dialog:default",
     "shell:allow-open",
     "fs:default",

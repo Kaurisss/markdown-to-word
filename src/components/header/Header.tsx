@@ -20,8 +20,6 @@ const Header: React.FC<HeaderProps> = ({
   onImport,
   viewMode,
   onViewModeChange,
-  theme,
-  onThemeChange,
   cfg,
   onCfgChange,
   onSearchClick,
@@ -33,7 +31,9 @@ const Header: React.FC<HeaderProps> = ({
   onCut,
   onCopy,
   onPaste,
-  onShowToast
+  onShowToast,
+  onOpenAIConfig,
+  onOpenSettings,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeTab, setActiveTab] = useState<TabType>('home');
@@ -42,85 +42,6 @@ const Header: React.FC<HeaderProps> = ({
 
   const { providers: aiProviders, selectedModel, updateSelectedModel } = useAIConfigStore();
   const { settings: appSettings } = useSettingsStore();
-
-  const openAIConfigWindow = async () => {
-    try {
-      // Check if window exists
-      const label = 'ai-config';
-      // Use dynamic import for Tauri API to avoid SSR/build issues if not in Tauri env
-      const { WebviewWindow } = await import('@tauri-apps/api/webviewWindow');
-      const isDark = theme === 'dark';
-      const windowBg = isDark ? '#1e1e1e' : '#f9fafb';
-
-      const url = `/?window=config&theme=${encodeURIComponent(theme)}`;
-      const webview = new WebviewWindow(label, {
-        url,
-        title: 'AI 配置',
-        width: 640,
-        height: 800,
-        decorations: false,
-        resizable: false,
-        center: true,
-        visible: false,
-        theme,
-        backgroundColor: windowBg
-      });
-
-      webview.once('tauri://created', function () {
-        // Ensure the window keeps the correct background before app paint.
-        void webview.setBackgroundColor(windowBg);
-      });
-
-      webview.once('tauri://error', function (e) {
-        // an error occurred during webview window creation
-        console.error('Failed to create AI config window:', e);
-        // If window already exists, focus it
-        import('@tauri-apps/api/window').then(({ Window }) => {
-          const win = new Window(label);
-          win.setFocus();
-        });
-      });
-
-    } catch (e) {
-      console.error('Failed to open AI config window:', e);
-    }
-  };
-
-  const openSettingsWindow = async () => {
-    try {
-      const label = 'settings';
-      const { WebviewWindow } = await import('@tauri-apps/api/webviewWindow');
-      const isDark = theme === 'dark';
-      const windowBg = isDark ? '#1e1e1e' : '#f9fafb';
-
-      const url = `/?window=settings&theme=${encodeURIComponent(theme)}`;
-      const webview = new WebviewWindow(label, {
-        url,
-        title: '设置',
-        width: 580,
-        height: 720,
-        decorations: false,
-        resizable: false,
-        center: true,
-        visible: false,
-        theme,
-        backgroundColor: windowBg
-      });
-
-      webview.once('tauri://created', function () {
-        void webview.setBackgroundColor(windowBg);
-      });
-
-      webview.once('tauri://error', function () {
-        import('@tauri-apps/api/window').then(({ Window }) => {
-          const win = new Window(label);
-          win.setFocus();
-        });
-      });
-    } catch (e) {
-      console.error('Failed to open settings window:', e);
-    }
-  };
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab as any} className="app-chrome relative z-50 flex-shrink-0 bg-ui-surface border-b border-ui-border transition-colors duration-200 gap-0">
@@ -142,7 +63,7 @@ const Header: React.FC<HeaderProps> = ({
           <ViewModeDock
             viewMode={viewMode}
             onViewModeChange={onViewModeChange}
-            onOpenSettings={openSettingsWindow}
+            onOpenSettings={onOpenSettings}
           />
           <WindowControls />
         </div>
@@ -195,7 +116,7 @@ const Header: React.FC<HeaderProps> = ({
             aiProviders={aiProviders}
             selectedModel={selectedModel}
             onModelChange={updateSelectedModel}
-            setShowAIConfig={() => openAIConfigWindow()}
+            onOpenAIConfig={onOpenAIConfig}
             cfg={cfg}
             onCfgChange={onCfgChange}
             onShowToast={onShowToast}

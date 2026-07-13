@@ -1,21 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 
 interface UseThemeOptions {
-  isConfigWindow: boolean;
-  isSettingsWindow: boolean;
   appSettingsTheme: 'light' | 'dark';
 }
 
-export function useTheme({ isConfigWindow, isSettingsWindow, appSettingsTheme }: UseThemeOptions) {
+export function useTheme({ appSettingsTheme }: UseThemeOptions) {
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-    if (typeof window === 'undefined') return 'light';
-    const params = new URLSearchParams(window.location.search);
-    const queryTheme = params.get('theme');
-    if (queryTheme === 'dark' || queryTheme === 'light') {
-      return queryTheme;
-    }
+    if (typeof window === 'undefined') return appSettingsTheme;
     const stored = localStorage.getItem('app_theme');
-    return stored === 'dark' || stored === 'light' ? stored : 'light';
+    return stored === 'dark' || stored === 'light' ? stored : appSettingsTheme;
   });
 
   const isFirstThemePaintRef = useRef(true);
@@ -53,14 +46,14 @@ export function useTheme({ isConfigWindow, isSettingsWindow, appSettingsTheme }:
         const currentWindow = getCurrentWindow();
         await currentWindow.setBackgroundColor(isDark ? '#1e1e1e' : '#f9fafb');
         await currentWindow.setTheme(isDark ? 'dark' : 'light');
-        if (!isConfigWindow && !isSettingsWindow && !hasShownMainWindowRef.current) {
+        if (!hasShownMainWindowRef.current) {
           await currentWindow.show();
           hasShownMainWindowRef.current = true;
         }
       } catch {
         // Ignore when running in browser mode.
         // If running in Tauri and the style sync failed, still try to show the main window once.
-        if (!isConfigWindow && !isSettingsWindow && !hasShownMainWindowRef.current) {
+        if (!hasShownMainWindowRef.current) {
           try {
             const { getCurrentWindow } = await import('@tauri-apps/api/window');
             await getCurrentWindow().show();
@@ -77,18 +70,16 @@ export function useTheme({ isConfigWindow, isSettingsWindow, appSettingsTheme }:
     return () => {
       if (transitionTimer) window.clearTimeout(transitionTimer);
     };
-  }, [theme, isConfigWindow, isSettingsWindow]);
+  }, [theme]);
 
-  // Keep main window theme synced with settings window changes.
+  // Keep the main window theme synced with persisted settings.
   useEffect(() => {
-    if (isConfigWindow || isSettingsWindow) return;
     if (appSettingsTheme !== theme) {
       setTheme(appSettingsTheme);
     }
-  }, [appSettingsTheme, theme, isConfigWindow, isSettingsWindow]);
+  }, [appSettingsTheme, theme]);
 
   return {
     theme,
-    setTheme,
   };
 }

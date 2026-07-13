@@ -1,10 +1,16 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { CloseLine, SquareLine, RestoreLine, MinimizeLine } from '@mingcute/react';
 
-export const WindowControls: React.FC = () => {
+interface WindowControlsProps {
+  enabled?: boolean;
+}
+
+export const WindowControls: React.FC<WindowControlsProps> = ({ enabled = true }) => {
   const [isMaximized, setIsMaximized] = useState(false);
 
   useEffect(() => {
+    if (!enabled) return;
+
     let unlisten: (() => void) | undefined;
 
     const setupWindowListener = async () => {
@@ -16,8 +22,8 @@ export const WindowControls: React.FC = () => {
         unlisten = await win.listen('tauri://resize', async () => {
           setIsMaximized(await win.isMaximized());
         });
-      } catch (e) {
-        console.error('Failed to setup window listener:', e);
+      } catch {
+        // Ignore when running outside Tauri.
       }
     };
 
@@ -26,7 +32,7 @@ export const WindowControls: React.FC = () => {
     return () => {
       if (unlisten) unlisten();
     };
-  }, []);
+  }, [enabled]);
 
   const runWindowAction = useCallback(async (action: 'minimize' | 'toggleMaximize' | 'close') => {
     try {

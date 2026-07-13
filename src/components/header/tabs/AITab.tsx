@@ -15,7 +15,7 @@ interface AITabProps {
   aiProviders: AIProvider[];
   selectedModel: { providerId: string; modelId: string } | null;
   onModelChange: (model: { providerId: string; modelId: string } | null) => void;
-  setShowAIConfig: (show: boolean) => void;
+  onOpenAIConfig: () => void;
   cfg: DocumentConfig;
   onCfgChange: (cfg: DocumentConfig) => void;
   onShowToast?: (message: string, type?: 'success' | 'error' | 'info') => void;
@@ -27,7 +27,7 @@ export const AITab: React.FC<AITabProps> = ({
   aiProviders,
   selectedModel,
   onModelChange,
-  setShowAIConfig,
+  onOpenAIConfig,
   cfg,
   onCfgChange,
   onShowToast,
@@ -41,7 +41,7 @@ export const AITab: React.FC<AITabProps> = ({
     cfg,
     onCfgChange,
     onShowToast,
-    onShowConfig: () => setShowAIConfig(true)
+    onShowConfig: onOpenAIConfig,
   });
 
   const handleGenerate = async () => {
@@ -61,7 +61,7 @@ export const AITab: React.FC<AITabProps> = ({
               aiProviders={aiProviders}
               selectedModel={selectedModel}
               onModelChange={onModelChange}
-              onConfigClick={() => setShowAIConfig(true)}
+              onConfigClick={onOpenAIConfig}
             />
           </div>
         </div>

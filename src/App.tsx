@@ -10,9 +10,8 @@ import { loadDocumentConfig, saveDocumentConfig } from './config/documentConfigS
 import { DocumentConfig } from './types/config';
 import { ViewMode } from './types';
 
-import { AIConfigWindow } from './components/ai/AIConfigWindow';
-import { SettingsWindow } from './components/settings/SettingsWindow';
-import { useAIConfigStore } from './features/ai/store';
+import { AIConfigPage } from './components/ai/AIConfigPage';
+import { SettingsPage } from './components/settings/SettingsPage';
 import { useSettingsStore } from './features/settings/store';
 import { Toaster } from '@/components/ui/sonner';
 import { DynamicContextMenu } from '@/components/ui/context-menu';
@@ -30,26 +29,12 @@ import { useClipboard } from './features/editor/useClipboard';
 import { useGlobalShortcuts } from './features/editor/useGlobalShortcuts';
 import { EditorHandle, EditorMode } from './types';
 
+type AppPage = 'editor' | 'ai-config' | 'settings';
+
 const App: React.FC = () => {
-  // Simple router based on URL search params
-  const [isConfigWindow] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      return params.get('window') === 'config';
-    }
-    return false;
-  });
-
-  const [isSettingsWindow] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      return params.get('window') === 'settings';
-    }
-    return false;
-  });
-
-  const { providers, updateProviders, selectedModel, updateSelectedModel } = useAIConfigStore();
+  const [activePage, setActivePage] = useState<AppPage>('editor');
   const { settings: appSettings } = useSettingsStore();
+  const isEditorPageActive = activePage === 'editor';
 
   const [previewStatusInfo, setPreviewStatusInfo] = useState<PreviewStatusInfo>({
     status: 'idle',
@@ -122,7 +107,7 @@ const App: React.FC = () => {
     editorRef,
     editorMode,
     showToast,
-    isConfigWindow,
+    enabled: isEditorPageActive,
   });
 
   const handleImport = useCallback((newContent: string) => {
@@ -130,7 +115,7 @@ const App: React.FC = () => {
   }, [updateContent]);
 
   const { isFileDragActive } = useFileDrop({
-    isConfigWindow,
+    enabled: isEditorPageActive,
     showToast,
     onImport: handleImport,
   });
@@ -140,17 +125,11 @@ const App: React.FC = () => {
 
   const { isExporting, handleExport } = useExport({ content, cfg, showToast });
 
-  const { theme, setTheme } = useTheme({
-    isConfigWindow,
-    isSettingsWindow,
+  const { theme } = useTheme({
     appSettingsTheme: appSettings.theme,
   });
 
   useEffect(() => {
-    if (isConfigWindow || isSettingsWindow) {
-      return;
-    }
-
     setCfg((prev) => ({
       ...prev,
       global: {
@@ -176,17 +155,11 @@ const App: React.FC = () => {
     appSettings.defaultFontSize,
     appSettings.defaultLineSpacing,
     appSettings.defaultSpaceAfter,
-    isConfigWindow,
-    isSettingsWindow,
   ]);
 
   useEffect(() => {
-    if (isConfigWindow || isSettingsWindow) {
-      return;
-    }
-
     saveDocumentConfig(cfg);
-  }, [cfg, isConfigWindow, isSettingsWindow]);
+  }, [cfg]);
 
   useScrollSync({
     enabled: appSettings.scrollSyncEnabled,
@@ -207,8 +180,7 @@ const App: React.FC = () => {
   useGlobalShortcuts({
     editorRef,
     editorMode,
-    isConfigWindow,
-    isSettingsWindow,
+    enabled: isEditorPageActive,
     showSearch,
     shortcuts: appSettings.keyboardShortcuts,
     setShowSearch,
@@ -231,35 +203,45 @@ const App: React.FC = () => {
       ? 'w-full opacity-100'
       : 'w-0 opacity-0 pointer-events-none';
 
-  return isSettingsWindow ? (
-    <SettingsWindow />
-  ) : isConfigWindow ? (
-    <AIConfigWindow />
-  ) : (
-    <>
-      <div
-        className="flex flex-col h-screen w-screen overflow-hidden bg-ui-app text-ui-text transition-colors"
-        onContextMenu={handleContextMenu}
+  const pageLayerClass = (page: AppPage) => (
+    `absolute inset-0 transition-opacity duration-200 ${
+      activePage === page
+        ? 'visible opacity-100 z-10'
+        : 'invisible opacity-0 z-0 pointer-events-none'
+    }`
+  );
+
+  return (
+    <div className="relative h-screen w-screen overflow-hidden bg-ui-app text-ui-text">
+      <section
+        className={pageLayerClass('editor')}
+        data-app-page="editor"
+        aria-hidden={!isEditorPageActive}
+        inert={!isEditorPageActive}
       >
-      <Header
-        isExporting={isExporting}
-        onExport={handleExport}
-        onImport={handleImport}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
-        theme={theme}
-        onThemeChange={setTheme}
-        cfg={cfg}
-        onCfgChange={setCfg}
-        onShowToast={showToast}
-        onSearchClick={() => setShowSearch(true)}
-        onUndo={undo}
-        onRedo={redo}
-        canUndo={canUndo}
-        canRedo={canRedo}
-        onCut={handleCut}
-        onCopy={handleCopy}
+        <div
+          className="flex flex-col h-screen w-screen overflow-hidden bg-ui-app text-ui-text transition-colors"
+          onContextMenu={handleContextMenu}
+        >
+          <Header
+            isExporting={isExporting}
+            onExport={handleExport}
+            onImport={handleImport}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+            cfg={cfg}
+            onCfgChange={setCfg}
+            onShowToast={showToast}
+            onSearchClick={() => setShowSearch(true)}
+            onUndo={undo}
+            onRedo={redo}
+            canUndo={canUndo}
+            canRedo={canRedo}
+            onCut={handleCut}
+            onCopy={handleCopy}
             onPaste={handlePaste}
+            onOpenAIConfig={() => setActivePage('ai-config')}
+            onOpenSettings={() => setActivePage('settings')}
             onReplaceClick={() => {
               setShowSearch(true);
               setShowReplace(true);
@@ -350,18 +332,43 @@ const App: React.FC = () => {
             </div>
           )}
 
-          <Toaster closeButton richColors position="top-center" />
         </div>
 
-      <DynamicContextMenu
-        visible={contextMenu.visible}
-        x={contextMenu.x}
-        y={contextMenu.y}
-        items={contextMenu.items}
-        onClose={closeContextMenu}
-      />
+        <DynamicContextMenu
+          visible={contextMenu.visible}
+          x={contextMenu.x}
+          y={contextMenu.y}
+          items={contextMenu.items}
+          onClose={closeContextMenu}
+        />
+      </section>
 
-    </>
+      <section
+        className={pageLayerClass('ai-config')}
+        data-app-page="ai-config"
+        aria-hidden={activePage !== 'ai-config'}
+        inert={activePage !== 'ai-config'}
+      >
+        <AIConfigPage
+          isActive={activePage === 'ai-config'}
+          onBack={() => setActivePage('editor')}
+        />
+      </section>
+
+      <section
+        className={pageLayerClass('settings')}
+        data-app-page="settings"
+        aria-hidden={activePage !== 'settings'}
+        inert={activePage !== 'settings'}
+      >
+        <SettingsPage
+          isActive={activePage === 'settings'}
+          onBack={() => setActivePage('editor')}
+        />
+      </section>
+
+      <Toaster closeButton richColors position="top-center" />
+    </div>
   );
 };
 

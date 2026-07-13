@@ -4,7 +4,6 @@ import { AIProvider } from '../../types/ai';
 import { persistedAIConfigSchema, type PersistedAIConfig } from './schemas';
 
 const AI_CONFIG_KEY = 'md2word_ai_config';
-const AI_CHANNEL = 'md2word_ai_channel';
 
 // Legacy storage keys (read for migration, written for backward compat)
 const BUILTIN_CONFIG_KEY = 'md2word_builtin_config';
@@ -175,9 +174,6 @@ function splitProviders(newProviders: AIProvider[]) {
  * Reads from old 3 keys when the new consolidated key is missing.
  * Writes to new key AND old keys (for backward compat / rollback).
  */
-// Tracks the last value written to each AI storage key (feedback loop prevention)
-const lastWrittenAI = new Map<string, string | null>();
-
 const aiStorage: PersistStorage<PersistedAIConfig> = {
   getItem: (name: string): StorageValue<PersistedAIConfig> | null => {
     // Try new consolidated key first
@@ -217,23 +213,18 @@ const aiStorage: PersistStorage<PersistedAIConfig> = {
   },
   setItem: (name: string, value: StorageValue<PersistedAIConfig>): void => {
     const mainStr = JSON.stringify(value);
-    lastWrittenAI.set(name, mainStr);
     localStorage.setItem(name, mainStr);
 
     // Write back to old keys for backward compat / rollback
     const { builtinConfig, customProviders, selectedModel } = value.state;
     const builtinStr = JSON.stringify(builtinConfig);
     const customStr = JSON.stringify(customProviders);
-    lastWrittenAI.set(BUILTIN_CONFIG_KEY, builtinStr);
-    lastWrittenAI.set(CUSTOM_PROVIDERS_KEY, customStr);
     localStorage.setItem(BUILTIN_CONFIG_KEY, builtinStr);
     localStorage.setItem(CUSTOM_PROVIDERS_KEY, customStr);
     if (selectedModel) {
       const modelStr = JSON.stringify(selectedModel);
-      lastWrittenAI.set(MODEL_STORAGE_KEY, modelStr);
       localStorage.setItem(MODEL_STORAGE_KEY, modelStr);
     } else {
-      lastWrittenAI.set(MODEL_STORAGE_KEY, null);
       localStorage.removeItem(MODEL_STORAGE_KEY);
     }
   },
@@ -251,12 +242,10 @@ export const useAIConfigStore = create<AIConfigStoreState>()(
       providers: DEFAULT_PROVIDERS,
       updateProviders: (providers) => {
         set({ providers });
-        aiChannel?.postMessage({});
       },
       selectedModel: null,
       updateSelectedModel: (selectedModel) => {
         set({ selectedModel });
-        aiChannel?.postMessage({});
       },
     }),
     {
@@ -302,23 +291,3 @@ export const useAIConfigStore = create<AIConfigStoreState>()(
     }
   )
 );
-
-// Cross-window adapter: BroadcastChannel (primary) + storage event (fallback)
-// Feedback loop prevention: skip storage events whose newValue matches our last write
-const AI_STORAGE_KEYS = [AI_CONFIG_KEY, BUILTIN_CONFIG_KEY, CUSTOM_PROVIDERS_KEY, MODEL_STORAGE_KEY];
-let aiChannel: BroadcastChannel | null = null;
-try {
-  aiChannel = new BroadcastChannel(AI_CHANNEL);
-  aiChannel.onmessage = () => {
-    useAIConfigStore.persist.rehydrate();
-  };
-} catch {
-  // BroadcastChannel unavailable — fall back to storage events
-}
-
-window.addEventListener('storage', (e: StorageEvent) => {
-  if (!e.key || !AI_STORAGE_KEYS.includes(e.key)) return;
-  // Skip if this is our own write echoing back (prevents feedback loop)
-  if (e.newValue === lastWrittenAI.get(e.key)) return;
-  useAIConfigStore.persist.rehydrate();
-});

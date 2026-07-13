@@ -1,8 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useSettingsStore } from '../../features/settings/store';
-import { useShowWindowAfterFirstRender } from '../shell/useShowWindowAfterFirstRender';
-import { WindowTitleBar } from '../shell/WindowTitleBar';
 import { Palette3Line, Edit4Line, Box3Line, KeyboardLine, InformationLine, Settings3Line } from '@mingcute/react';
 import { AppearanceSection } from './AppearanceSection';
 import { EditorSection } from './EditorSection';
@@ -10,6 +8,7 @@ import { DefaultStylesSection } from './DefaultStylesSection';
 import { ShortcutsSection } from './ShortcutsSection';
 import { AboutSection } from './AboutSection';
 import { fadeSlideYUp, motionTransition } from '../ui/motion';
+import { AppPageHeader } from '../shell/AppPageHeader';
 
 type SectionId = 'appearance' | 'editor' | 'styles' | 'shortcuts' | 'about';
 
@@ -21,55 +20,27 @@ const sectionOptions: Array<{ id: SectionId; label: string; desc: string; icon: 
   { id: 'about', label: '关于', desc: '版本与存储', icon: InformationLine },
 ];
 
-export const SettingsWindow: React.FC = () => {
+interface SettingsPageProps {
+  isActive: boolean;
+  onBack: () => void;
+}
+
+export const SettingsPage: React.FC<SettingsPageProps> = ({ isActive, onBack }) => {
   const { settings, updateSettings } = useSettingsStore();
   const [activeSection, setActiveSection] = useState<SectionId>('appearance');
-  const isFirstThemePaintRef = useRef(true);
-  useShowWindowAfterFirstRender();
-
-  useEffect(() => {
-    const root = document.documentElement;
-    let transitionTimer: number | undefined;
-
-    if (isFirstThemePaintRef.current) {
-      isFirstThemePaintRef.current = false;
-    } else {
-      root.classList.add('theme-switching');
-      transitionTimer = window.setTimeout(() => {
-        root.classList.remove('theme-switching');
-      }, 320);
-    }
-
-    root.classList.toggle('dark', settings.theme === 'dark');
-    (async () => {
-      try {
-        const { getCurrentWindow } = await import('@tauri-apps/api/window');
-        const win = getCurrentWindow();
-        const isDark = settings.theme === 'dark';
-        await win.setTheme(isDark ? 'dark' : 'light');
-        await win.setBackgroundColor(isDark ? '#1e1e1e' : '#f9fafb');
-      } catch {
-        // Ignore when running outside Tauri.
-      }
-    })();
-
-    return () => {
-      if (transitionTimer) window.clearTimeout(transitionTimer);
-    };
-  }, [settings.theme]);
 
   const activeSectionLabel = sectionOptions.find(s => s.id === activeSection)?.label ?? '设置';
 
   return (
     <div
-      className="flex h-screen w-screen flex-col overflow-hidden text-gray-800 dark:text-gray-100 select-none relative"
+      className="flex h-full w-full flex-col overflow-hidden text-gray-800 dark:text-gray-100 select-none relative bg-ui-app"
       onContextMenu={(e) => {
         const target = e.target as HTMLElement;
         const isInputElement = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT';
         if (!isInputElement) e.preventDefault();
       }}
     >
-      <WindowTitleBar />
+      <AppPageHeader title="设置" onBack={onBack} isActive={isActive} />
 
       <div className="flex-1 min-h-0 flex">
         <aside className="w-40 shrink-0 bg-gray-50 dark:bg-dark-bg border-r border-gray-200 dark:border-dark-border flex flex-col relative z-40">
@@ -104,8 +75,8 @@ export const SettingsWindow: React.FC = () => {
           </nav>
         </aside>
 
-        <motion.main key={activeSection} className="flex-1 min-w-0 flex flex-col bg-white dark:bg-dark-surface pt-12" variants={fadeSlideYUp} initial="initial" animate="enter" exit="exit" transition={motionTransition}>
-          <div className="px-6 pb-2 pt-2 ui-page-title shrink-0">
+        <motion.main key={activeSection} className="flex-1 min-w-0 flex flex-col bg-white dark:bg-dark-surface" variants={fadeSlideYUp} initial="initial" animate="enter" exit="exit" transition={motionTransition}>
+          <div className="px-6 pb-2 pt-4 ui-page-title shrink-0">
             {activeSectionLabel}
           </div>
           <div className="flex-1 overflow-y-auto px-6 pb-6 pt-2 space-y-6">
