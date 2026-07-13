@@ -1,18 +1,21 @@
 import type React from 'react';
 import type { DocumentConfig } from './config';
 
+export type EditorMode = 'edit' | 'preview';
+
+export interface EditorHandle {
+  textarea?: HTMLTextAreaElement;
+  textareaWarp?: HTMLDivElement;
+  container?: HTMLDivElement | null;
+}
+
 export interface EditorProps {
   value: string;
   onChange: (value: string) => void;
   onKeyDown?: (event: React.KeyboardEvent<HTMLTextAreaElement>) => void;
-  onSelectionChange?: () => void;
-  onEditorBlur?: () => void;
-  searchQuery?: string;
-  showSearch?: boolean;
-  currentMatchIndex?: number;
-  caseSensitive?: boolean;
-  wholeWord?: boolean;
-  useRegex?: boolean;
+  mode: EditorMode;
+  onModeChange: (mode: EditorMode) => void;
+  theme: 'light' | 'dark';
   fontSize?: number;
   lineHeight?: number;
   wordWrap?: boolean;

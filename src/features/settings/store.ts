@@ -27,6 +27,7 @@ export interface AppSettings {
   editorFontSize: number;
   editorLineHeight: number;
   editorWordWrap: boolean;
+  scrollSyncEnabled: boolean;
   showStatusBar: boolean;
   windowBarDisplayMode: WindowBarDisplayMode;
   keyboardShortcuts: KeyboardShortcutMap;
@@ -50,6 +51,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   editorFontSize: 15,
   editorLineHeight: 32,
   editorWordWrap: true,
+  scrollSyncEnabled: true,
   showStatusBar: true,
   windowBarDisplayMode: 'tabs',
   keyboardShortcuts: DEFAULT_KEYBOARD_SHORTCUTS,

@@ -1,15 +1,18 @@
 import { useCallback, RefObject } from 'react';
 import { ToastType } from '../../components/shell/Toast';
+import { EditorHandle, EditorMode } from '../../types';
 
 interface UseClipboardParams {
-  editorRef: RefObject<HTMLTextAreaElement | null>;
+  editorRef: RefObject<EditorHandle | null>;
+  editorMode: EditorMode;
   updateContent: (next: string) => void;
   showToast: (message: string, type?: ToastType) => void;
 }
 
-export function useClipboard({ editorRef, updateContent, showToast }: UseClipboardParams) {
+export function useClipboard({ editorRef, editorMode, updateContent, showToast }: UseClipboardParams) {
   const handleCopy = useCallback(async () => {
-    const textarea = editorRef.current;
+    if (editorMode !== 'edit') return;
+    const textarea = editorRef.current?.textarea;
     if (!textarea) return;
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
@@ -22,10 +25,11 @@ export function useClipboard({ editorRef, updateContent, showToast }: UseClipboa
       console.error('Failed to copy:', err);
       showToast('复制失败', 'error');
     }
-  }, [editorRef, showToast]);
+  }, [editorMode, editorRef, showToast]);
 
   const handleCut = useCallback(async () => {
-    const textarea = editorRef.current;
+    if (editorMode !== 'edit') return;
+    const textarea = editorRef.current?.textarea;
     if (!textarea) return;
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
@@ -44,10 +48,11 @@ export function useClipboard({ editorRef, updateContent, showToast }: UseClipboa
       console.error('Failed to cut:', err);
       showToast('剪切失败', 'error');
     }
-  }, [editorRef, updateContent, showToast]);
+  }, [editorMode, editorRef, updateContent, showToast]);
 
   const handlePaste = useCallback(async () => {
-    const textarea = editorRef.current;
+    if (editorMode !== 'edit') return;
+    const textarea = editorRef.current?.textarea;
     if (!textarea) return;
     try {
       const text = await navigator.clipboard.readText();
@@ -65,7 +70,7 @@ export function useClipboard({ editorRef, updateContent, showToast }: UseClipboa
       console.error('Failed to paste:', err);
       showToast('无法读取剪贴板', 'error');
     }
-  }, [editorRef, updateContent, showToast]);
+  }, [editorMode, editorRef, updateContent, showToast]);
 
   return { handleCopy, handleCut, handlePaste };
 }

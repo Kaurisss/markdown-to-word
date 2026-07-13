@@ -18,6 +18,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { DynamicContextMenu } from '@/components/ui/context-menu';
 
 import { useEditorState } from './features/editor/useEditorState';
+import { useEditorFormatting } from './features/editor/useEditorFormatting';
 import { useSearchReplace } from './features/editor/useSearchReplace';
 import { useContextMenu } from './features/editor/useContextMenu';
 import { useFileDrop } from './features/editor/useFileDrop';
@@ -25,11 +26,9 @@ import { useExport } from './features/export/useExport';
 import { useTheme } from './features/settings/useTheme';
 import { useScrollSync } from './features/editor/useScrollSync';
 import { useAutoSave } from './features/editor/useAutoSave';
-import { useSelectionToolbar } from './features/editor/useSelectionToolbar';
 import { useClipboard } from './features/editor/useClipboard';
 import { useGlobalShortcuts } from './features/editor/useGlobalShortcuts';
-import { SelectionToolbar } from './components/editor/SelectionToolbar';
-import { LinkDialog } from './components/editor/LinkDialog';
+import { EditorHandle, EditorMode } from './types';
 
 const App: React.FC = () => {
   // Simple router based on URL search params
@@ -96,18 +95,10 @@ const App: React.FC = () => {
     closeSearch,
   } = useSearchReplace({ content, updateContent });
 
-  const editorRef = useRef<HTMLTextAreaElement>(null);
+  const editorRef = useRef<EditorHandle>(null);
   const previewRef = useRef<HTMLDivElement>(null);
-
-  const {
-    toolbarState,
-    linkDialogState,
-    refreshSelectionToolbar,
-    hideSelectionToolbar,
-    applyFormat,
-    setLinkDialogOpen,
-    confirmLink,
-  } = useSelectionToolbar({
+  const [editorMode, setEditorMode] = useState<EditorMode>('edit');
+  const { applyFormat } = useEditorFormatting({
     editorRef,
     content,
     updateContent,
@@ -129,6 +120,7 @@ const App: React.FC = () => {
     undoStackRef,
     redoStackRef,
     editorRef,
+    editorMode,
     showToast,
     isConfigWindow,
   });
@@ -196,13 +188,25 @@ const App: React.FC = () => {
     saveDocumentConfig(cfg);
   }, [cfg, isConfigWindow, isSettingsWindow]);
 
-  useScrollSync({ viewMode, editorRef, previewRef });
+  useScrollSync({
+    enabled: appSettings.scrollSyncEnabled,
+    viewMode,
+    editorMode,
+    editorRef,
+    previewRef,
+  });
   useAutoSave({ content, autoSave: appSettings.autoSave });
 
-  const { handleCopy, handleCut, handlePaste } = useClipboard({ editorRef, updateContent, showToast });
+  const { handleCopy, handleCut, handlePaste } = useClipboard({
+    editorRef,
+    editorMode,
+    updateContent,
+    showToast,
+  });
 
   useGlobalShortcuts({
     editorRef,
+    editorMode,
     isConfigWindow,
     isSettingsWindow,
     showSearch,
@@ -295,14 +299,9 @@ const App: React.FC = () => {
                 value={content}
                 onChange={updateContent}
                 onKeyDown={handleEditorKeyDown}
-                onSelectionChange={refreshSelectionToolbar}
-                onEditorBlur={hideSelectionToolbar}
-                searchQuery={searchQuery}
-                showSearch={showSearch}
-                currentMatchIndex={currentMatchIndex}
-                caseSensitive={caseSensitive}
-                wholeWord={wholeWord}
-                useRegex={useRegex}
+                mode={editorMode}
+                onModeChange={setEditorMode}
+                theme={theme}
                 fontSize={appSettings.editorFontSize}
                 lineHeight={appSettings.editorLineHeight}
                 wordWrap={appSettings.editorWordWrap}
@@ -362,19 +361,6 @@ const App: React.FC = () => {
         onClose={closeContextMenu}
       />
 
-      <SelectionToolbar
-        visible={toolbarState.visible}
-        x={toolbarState.x}
-        y={toolbarState.y}
-        activeFormats={toolbarState.activeFormats}
-        onFormat={applyFormat}
-      />
-
-      <LinkDialog
-        open={linkDialogState.open}
-        onOpenChange={setLinkDialogOpen}
-        onConfirm={confirmLink}
-      />
     </>
   );
 };

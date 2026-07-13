@@ -50,6 +50,7 @@ describe('settingsStore', () => {
       editorFontSize: 15,
       editorLineHeight: 32,
       editorWordWrap: true,
+      scrollSyncEnabled: true,
       showStatusBar: true,
       keyboardShortcuts: {
         find: { ctrl: true, alt: false, shift: false, meta: false, key: 'F' },
@@ -92,6 +93,7 @@ describe('settingsStore', () => {
       editorFontSize: 15,
       editorLineHeight: 32,
       editorWordWrap: true,
+      scrollSyncEnabled: true,
       showStatusBar: true,
     });
   });
@@ -107,6 +109,7 @@ describe('settingsStore', () => {
         editorFontSize: 16,
         editorLineHeight: 34,
         editorWordWrap: false,
+        scrollSyncEnabled: false,
         showStatusBar: false,
       });
     });
@@ -119,6 +122,7 @@ describe('settingsStore', () => {
       editorFontSize: 16,
       editorLineHeight: 34,
       editorWordWrap: false,
+      scrollSyncEnabled: false,
       showStatusBar: false,
     });
     expect(stored.version).toBe(2);
@@ -143,6 +147,7 @@ describe('settingsStore', () => {
         editorFontSize: 15,
         editorLineHeight: 32,
         editorWordWrap: true,
+        scrollSyncEnabled: false,
         showStatusBar: true,
         windowBarDisplayMode: 'tabs',
         keyboardShortcuts: {},

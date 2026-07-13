@@ -3,6 +3,7 @@ import { ContextMenuActionItem } from '../../components/ui/context-menu';
 import { ToastType } from '../../components/shell/Toast';
 import { setEditableSelection as _setEditableSelection, computeEditableSelectionOffsets } from './contentEditableSelection';
 import { buildContextMenuItems } from './contextMenuItems';
+import { EditorHandle, EditorMode } from '../../types';
 
 interface ContextMenuState {
   visible: boolean;
@@ -18,7 +19,8 @@ interface UseContextMenuOptions {
   redo: () => void;
   undoStackRef: React.RefObject<string[]>;
   redoStackRef: React.RefObject<string[]>;
-  editorRef: React.RefObject<HTMLTextAreaElement | null>;
+  editorRef: React.RefObject<EditorHandle | null>;
+  editorMode: EditorMode;
   showToast: (message: string, type?: ToastType) => void;
   isConfigWindow: boolean;
 }
@@ -31,6 +33,7 @@ export function useContextMenu({
   undoStackRef,
   redoStackRef,
   editorRef,
+  editorMode,
   showToast,
   isConfigWindow,
 }: UseContextMenuOptions) {
@@ -73,7 +76,13 @@ export function useContextMenu({
     e.preventDefault();
     const selection = window.getSelection();
     const target = e.target as HTMLElement;
-    const textField = target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement ? target : null;
+    const editorTextarea = editorRef.current?.textarea ?? null;
+    const isEditorSurface = editorMode === 'edit' && target.closest('.w-md-editor') !== null;
+    const textField = target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement
+      ? target
+      : isEditorSurface
+        ? editorTextarea
+        : null;
     const editableRoot = target.closest('[contenteditable="true"]') as HTMLElement | null;
     const isEditable = editableRoot !== null || textField !== null;
     if (!isEditable) return;
@@ -152,7 +161,7 @@ export function useContextMenu({
       }
     };
 
-    const isEditorField = textField === editorRef.current;
+    const isEditorField = textField === editorTextarea;
     const canUndoMenu = isEditorField && undoStackRef.current.length > 0;
     const canRedoMenu = isEditorField && redoStackRef.current.length > 0;
 
@@ -191,7 +200,7 @@ export function useContextMenu({
         textField.setSelectionRange(selectionStart, selectionEnd);
       });
     }
-  }, [content, showToast, updateContent, undo, redo, editorRef, undoStackRef, redoStackRef]);
+  }, [content, showToast, updateContent, undo, redo, editorMode, editorRef, undoStackRef, redoStackRef]);
 
   return {
     contextMenu,

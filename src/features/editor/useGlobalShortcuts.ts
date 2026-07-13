@@ -6,13 +6,15 @@ import {
   KeyboardShortcutMap,
 } from '../settings/keyboardShortcuts';
 import { InlineFormatKind } from '../../utils/inlineFormat';
+import { EditorHandle, EditorMode } from '../../types';
 
 function isBareKey(shortcut: KeyboardShortcutBinding) {
   return !shortcut.ctrl && !shortcut.alt && !shortcut.meta;
 }
 
 interface UseGlobalShortcutsParams {
-  editorRef: RefObject<HTMLTextAreaElement | null>;
+  editorRef: RefObject<EditorHandle | null>;
+  editorMode: EditorMode;
   isConfigWindow: boolean;
   isSettingsWindow: boolean;
   showSearch: boolean;
@@ -28,6 +30,7 @@ interface UseGlobalShortcutsParams {
 
 export function useGlobalShortcuts({
   editorRef,
+  editorMode,
   isConfigWindow,
   isSettingsWindow,
   showSearch,
@@ -48,9 +51,9 @@ export function useGlobalShortcuts({
       const inEditable = isEditableShortcutTarget(e.target);
 
       if (isShortcutMatch(e, shortcuts.selectAll)) {
-        if (!inEditable) {
+        if (!inEditable && editorMode === 'edit') {
           e.preventDefault();
-          const editor = editorRef.current;
+          const editor = editorRef.current?.textarea;
           if (editor) {
             editor.focus();
             editor.setSelectionRange(0, editor.value.length);
@@ -98,8 +101,8 @@ export function useGlobalShortcuts({
         return;
       }
 
-      const editor = editorRef.current;
-      if (document.activeElement === editor) {
+      const editor = editorRef.current?.textarea;
+      if (editorMode === 'edit' && document.activeElement === editor) {
         if (isShortcutMatch(e, shortcuts.bold)) {
           e.preventDefault();
           onFormat('bold');
@@ -125,6 +128,7 @@ export function useGlobalShortcuts({
     isConfigWindow,
     isSettingsWindow,
     editorRef,
+    editorMode,
     shortcuts,
     setShowSearch,
     setShowReplace,

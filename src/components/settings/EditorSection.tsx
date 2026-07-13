@@ -1,7 +1,12 @@
 import React from 'react';
 import { Select } from '../ui/Select';
 import { Switch } from '../ui/switch';
-import { Save2Line, LayoutBottomLine, ScrollableListLine } from '@mingcute/react';
+import {
+  Save2Line,
+  LayoutBottomLine,
+  ScrollableListLine,
+  TransferHorizontalLine,
+} from '@mingcute/react';
 
 const labelClass = 'ui-field-label';
 const triggerClass = 'h-10 px-3 text-[14px] rounded-md';
@@ -14,6 +19,7 @@ interface EditorSectionProps {
     editorFontSize: number;
     editorLineHeight: number;
     editorWordWrap: boolean;
+    scrollSyncEnabled: boolean;
   };
   updateSettings: (patch: Record<string, unknown>) => void;
 }
@@ -46,6 +52,20 @@ export const EditorSection: React.FC<EditorSectionProps> = ({ settings, updateSe
           <Switch
             checked={settings.autoSave}
             onCheckedChange={(c) => updateSettings({ autoSave: c })}
+          />
+        </div>
+        <div className="flex items-center justify-between gap-4 border-b border-gray-200 px-3 py-3 dark:border-dark-border">
+          <div className="flex items-center gap-3">
+            <TransferHorizontalLine className="w-5 h-5 text-gray-500 dark:text-gray-400 shrink-0" />
+            <div>
+              <div className="text-sm text-gray-700 dark:text-gray-200">同步滚动</div>
+              <div className="text-xs text-gray-400 dark:text-gray-500">双栏视图中同步编辑器与导出预览的滚动位置</div>
+            </div>
+          </div>
+          <Switch
+            aria-label="同步滚动"
+            checked={settings.scrollSyncEnabled}
+            onCheckedChange={(c) => updateSettings({ scrollSyncEnabled: c })}
           />
         </div>
         <div className="flex items-center justify-between gap-4 px-3 py-3">

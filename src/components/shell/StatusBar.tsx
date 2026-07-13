@@ -70,7 +70,7 @@ export const StatusBar: React.FC<StatusBarProps> = ({
 
   return (
     <div className="h-6 flex-shrink-0 bg-[#f3f3f3] dark:bg-[#252526] border-t border-[#e5e5e5] dark:border-[#3c3c3c] flex items-center justify-between gap-3 px-3 text-xs text-gray-600 dark:text-gray-400 select-none">
-      <div className="flex min-w-0 items-center gap-4 overflow-hidden">
+      <div className="flex min-w-0 items-center gap-2 overflow-hidden">
         <span className="whitespace-nowrap">字符: {stats.chars}</span>
         <span className="hidden whitespace-nowrap sm:inline">字符(不含空格): {stats.charsNoSpace}</span>
         <span className="whitespace-nowrap">行数: {stats.lines}</span>

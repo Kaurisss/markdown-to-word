@@ -34,7 +34,7 @@ If a Markdown feature should also export to Word, update both preview rendering 
 
 ## Editor Surface
 
-`src/components/editor/Editor.tsx` uses a textarea plus a mirrored highlight overlay for search matches. The overlay must keep text layout properties synced with the textarea: font size, line height, padding, wrapping, scroll positions, and trailing-newline behavior.
+`src/components/editor/Editor.tsx` adapts `@uiw/react-md-editor` and keeps the Markdown value controlled by the app. The toolbar contains the formatting commands and the left-pane Markdown edit/preview toggle. The toggle command must use a `keyCommand` containing `preview` or `fullscreen`, because `@uiw/react-md-editor` disables other toolbar commands while its `preview` prop is `preview`.
 
 Selection formatting UI is split across:
 

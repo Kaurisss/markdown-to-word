@@ -52,3 +52,32 @@ Keep pure operations testable:
 - Keyboard shortcut parsing and conflict detection are in `keyboardShortcuts.ts`.
 
 Avoid embedding these transformations inside JSX handlers when they can be tested as pure functions.
+
+## DOM Listener Lifecycle
+
+### Common Mistake: Depending on `RefObject.current` Readiness
+
+**Symptom**: A DOM interaction works only after toggling a view or causing another render.
+
+**Cause**: Mutating `ref.current` does not trigger React effects. Third-party components may populate internal handles after the parent effect runs, and forwarded refs may later point to replacement nodes, such as the DOCX preview swapping its placeholder for the rendered scroll container.
+
+**Fix**: Hooks that bind listeners across component boundaries must detect both delayed node readiness and node identity changes. `useScrollSync.ts` performs an initial binding check, schedules a post-paint check, and observes subtree replacements so it can unbind old nodes and bind the current editor/preview scroll containers.
+
+```ts
+// Wrong: an early null permanently skips listener setup.
+useEffect(() => {
+  const node = ref.current;
+  if (!node) return;
+  node.addEventListener('scroll', handleScroll);
+}, [ref]);
+
+// Correct: resolve current nodes again when mounted DOM changes.
+const observer = new MutationObserver(scheduleBindingCheck);
+observer.observe(document.body, { childList: true, subtree: true });
+```
+
+Regression tests must cover:
+
+- editor handles becoming available after the hook's initial effect;
+- preview refs changing from an initial placeholder to the rendered DOCX scroll container;
+- old listeners being detached when node identities change.

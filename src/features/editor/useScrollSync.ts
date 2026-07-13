@@ -1,29 +1,44 @@
 import { useEffect, useRef } from 'react';
-import { ViewMode } from '../../types';
+import { EditorHandle, EditorMode, ViewMode } from '../../types';
 
 interface UseScrollSyncOptions {
+  enabled: boolean;
   viewMode: ViewMode;
-  editorRef: React.RefObject<HTMLTextAreaElement | null>;
+  editorMode: EditorMode;
+  editorRef: React.RefObject<EditorHandle | null>;
   previewRef: React.RefObject<HTMLDivElement | null>;
 }
 
-export function useScrollSync({ viewMode, editorRef, previewRef }: UseScrollSyncOptions) {
+export function useScrollSync({
+  enabled,
+  viewMode,
+  editorMode,
+  editorRef,
+  previewRef,
+}: UseScrollSyncOptions) {
   const isScrollingSyncRef = useRef<boolean>(false);
 
   useEffect(() => {
-    if (viewMode !== 'split') return;
+    if (!enabled || viewMode !== 'split') return;
 
-    const editor = editorRef.current;
-    const preview = previewRef.current;
-    if (!editor || !preview) return;
+    let boundEditor: HTMLElement | null = null;
+    let boundPreview: HTMLDivElement | null = null;
+    let animationFrame: number | null = null;
+
+    const resolveEditor = () => (
+      editorMode === 'edit'
+        ? editorRef.current?.textareaWarp ?? null
+        : editorRef.current?.container?.querySelector<HTMLElement>('.w-md-editor-preview') ?? null
+    );
 
     const handleEditorScroll = () => {
-      if (isScrollingSyncRef.current) return;
+      if (isScrollingSyncRef.current || !boundEditor || !boundPreview) return;
       isScrollingSyncRef.current = true;
 
-      const editorScrollRatio = editor.scrollTop / (editor.scrollHeight - editor.clientHeight || 1);
-      const previewMaxScroll = preview.scrollHeight - preview.clientHeight;
-      preview.scrollTop = editorScrollRatio * previewMaxScroll;
+      const editorScrollRatio = boundEditor.scrollTop
+        / (boundEditor.scrollHeight - boundEditor.clientHeight || 1);
+      const previewMaxScroll = boundPreview.scrollHeight - boundPreview.clientHeight;
+      boundPreview.scrollTop = editorScrollRatio * previewMaxScroll;
 
       requestAnimationFrame(() => {
         isScrollingSyncRef.current = false;
@@ -31,24 +46,60 @@ export function useScrollSync({ viewMode, editorRef, previewRef }: UseScrollSync
     };
 
     const handlePreviewScroll = () => {
-      if (isScrollingSyncRef.current) return;
+      if (isScrollingSyncRef.current || !boundEditor || !boundPreview) return;
       isScrollingSyncRef.current = true;
 
-      const previewScrollRatio = preview.scrollTop / (preview.scrollHeight - preview.clientHeight || 1);
-      const editorMaxScroll = editor.scrollHeight - editor.clientHeight;
-      editor.scrollTop = previewScrollRatio * editorMaxScroll;
+      const previewScrollRatio = boundPreview.scrollTop
+        / (boundPreview.scrollHeight - boundPreview.clientHeight || 1);
+      const editorMaxScroll = boundEditor.scrollHeight - boundEditor.clientHeight;
+      boundEditor.scrollTop = previewScrollRatio * editorMaxScroll;
 
       requestAnimationFrame(() => {
         isScrollingSyncRef.current = false;
       });
     };
 
-    editor.addEventListener('scroll', handleEditorScroll);
-    preview.addEventListener('scroll', handlePreviewScroll);
+    const unbind = () => {
+      boundEditor?.removeEventListener('scroll', handleEditorScroll);
+      boundPreview?.removeEventListener('scroll', handlePreviewScroll);
+    };
+
+    const bindCurrentElements = () => {
+      const nextEditor = resolveEditor();
+      const nextPreview = previewRef.current;
+      if (nextEditor === boundEditor && nextPreview === boundPreview) return;
+
+      unbind();
+      boundEditor = nextEditor;
+      boundPreview = nextPreview;
+
+      boundEditor?.addEventListener('scroll', handleEditorScroll);
+      boundPreview?.addEventListener('scroll', handlePreviewScroll);
+    };
+
+    const scheduleBindingCheck = () => {
+      if (animationFrame !== null) return;
+      animationFrame = requestAnimationFrame(() => {
+        animationFrame = null;
+        bindCurrentElements();
+      });
+    };
+
+    bindCurrentElements();
+    scheduleBindingCheck();
+
+    const observer = typeof MutationObserver === 'undefined'
+      ? null
+      : new MutationObserver(scheduleBindingCheck);
+    observer?.observe(document.body, { childList: true, subtree: true });
 
     return () => {
-      editor.removeEventListener('scroll', handleEditorScroll);
-      preview.removeEventListener('scroll', handlePreviewScroll);
+      observer?.disconnect();
+      if (animationFrame !== null) {
+        cancelAnimationFrame(animationFrame);
+      }
+      unbind();
+      isScrollingSyncRef.current = false;
     };
-  }, [viewMode, editorRef, previewRef]);
+  }, [enabled, viewMode, editorMode, editorRef, previewRef]);
 }

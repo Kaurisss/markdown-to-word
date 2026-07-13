@@ -40,6 +40,7 @@ describe('StatusBar', () => {
     expect(screen.queryByRole('button', { name: '双栏视图' })).toBeNull();
     expect(screen.queryByRole('button', { name: '预览视图' })).toBeNull();
     expect(screen.queryByRole('button', { name: '设置' })).toBeNull();
+    expect(screen.queryByRole('button', { name: '切换 Markdown 预览' })).toBeNull();
   });
 
   it('calls action callbacks from statusbar buttons', () => {
