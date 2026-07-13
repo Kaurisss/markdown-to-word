@@ -9,7 +9,7 @@ import { EditorSection } from './EditorSection';
 import { DefaultStylesSection } from './DefaultStylesSection';
 import { ShortcutsSection } from './ShortcutsSection';
 import { AboutSection } from './AboutSection';
-import { fadeSlideX, motionTransition } from '../ui/motion';
+import { fadeSlideYUp, motionTransition } from '../ui/motion';
 
 type SectionId = 'appearance' | 'editor' | 'styles' | 'shortcuts' | 'about';
 
@@ -104,7 +104,7 @@ export const SettingsWindow: React.FC = () => {
           </nav>
         </aside>
 
-        <motion.main key={activeSection} className="flex-1 min-w-0 flex flex-col bg-white dark:bg-dark-surface pt-12" variants={fadeSlideX} initial="initial" animate="enter" exit="exit" transition={motionTransition}>
+        <motion.main key={activeSection} className="flex-1 min-w-0 flex flex-col bg-white dark:bg-dark-surface pt-12" variants={fadeSlideYUp} initial="initial" animate="enter" exit="exit" transition={motionTransition}>
           <div className="px-6 pb-2 pt-2 ui-page-title shrink-0">
             {activeSectionLabel}
           </div>

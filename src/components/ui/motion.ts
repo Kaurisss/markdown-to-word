@@ -38,6 +38,15 @@ export const fadeSlideX: Variants = {
 }
 
 /**
+ * 淡入 + 从下往上滑动（设置面板内容切换类）。
+ */
+export const fadeSlideYUp: Variants = {
+  initial: { opacity: 0, y: 8 },
+  enter: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: 8 },
+}
+
+/**
  * 包裹 framer-motion 的 useReducedMotion。
  * 动画组件可通过此 hook 在用户启用「减少动态效果」时关闭或降级动效。
  *
