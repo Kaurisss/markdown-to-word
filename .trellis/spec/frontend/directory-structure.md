@@ -2,7 +2,7 @@
 
 ## Source Layout
 
-- `src/App.tsx` composes the main window, URL-param window routing, editor/preview panes, status bar, context menu, selection toolbar, and export wiring.
+- `src/App.tsx` composes the single main-window page switcher, editor/preview panes, status bar, context menu, and export wiring.
 - `src/components/` contains rendered UI. Subdirectories are grouped by surface: `header/`, `editor/`, `preview/`, `settings/`, `ai/`, `shell/`, and shared `ui/`.
 - `src/features/` contains behavior and state. Current feature groups are `editor`, `export`, `settings`, and `ai`.
 - `src/config/` contains document-style defaults and local-storage normalization for `DocumentConfig`.
@@ -21,7 +21,7 @@
 
 ## Naming
 
-- React component files use `PascalCase.tsx`: `Header.tsx`, `SettingsWindow.tsx`, `AIConfigWindow.tsx`.
+- React component files use `PascalCase.tsx`: `Header.tsx`, `SettingsPage.tsx`, `AIConfigPage.tsx`.
 - Hooks use `useX.ts`: `useEditorState.ts`, `useFileDrop.ts`, `useTheme.ts`.
 - Pure action modules use lower camel descriptive names: `modelActions.ts`, `providerActions.ts`, `keyboardShortcuts.ts`.
 - Tests mirror the source filename and use `.test.ts` or `.test.tsx`.

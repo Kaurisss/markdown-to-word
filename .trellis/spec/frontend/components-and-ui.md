@@ -1,14 +1,18 @@
 # Components And UI
 
-## App Shell And Windows
+## App Shell And Pages
 
-`src/App.tsx` uses URL search params to choose between the main editor, settings window, and AI config window. Keep that routing simple:
+`src/App.tsx` owns the single main-window page state:
 
-- `?window=settings` renders `src/components/settings/SettingsWindow.tsx`.
-- `?window=config` renders `src/components/ai/AIConfigWindow.tsx`.
-- The default route renders the editor, preview, header, status bar, context menu, selection toolbar, and link dialog.
+```ts
+type AppPage = 'editor' | 'ai-config' | 'settings';
+```
 
-When opening secondary windows, follow the dynamic import pattern in `Header.tsx` and `App.tsx`: import `@tauri-apps/api/webviewWindow` inside the click handler, set the theme and background color, and fall back to focusing an existing window on creation error.
+- Keep all three page layers mounted so editor DOM state, Ribbon state, AI provider selection, and settings section selection survive navigation.
+- Inactive layers must be `aria-hidden`, inert, invisible, and non-interactive while retaining layout dimensions.
+- `Header.tsx` receives `onOpenAIConfig` and `onOpenSettings`; it must not create Tauri Webview windows.
+- `AIConfigPage.tsx` and `SettingsPage.tsx` use `AppPageHeader.tsx` for back navigation, drag region, and main-window controls.
+- AI page exit must clear transient dialogs/forms and sensitive API-key visibility without changing persisted providers or the selected provider.
 
 ## Ribbon UI
 
@@ -47,9 +51,9 @@ Keep Markdown text mutations in utilities or hooks; components should not locall
 
 ## Dialogs And Forms
 
-Settings and AI config windows are dense utility surfaces, not marketing pages. Existing patterns:
+Settings and AI config pages are dense utility surfaces, not marketing pages. Existing patterns:
 
-- Sidebar navigation in `SettingsWindow.tsx` and `AIConfigWindow.tsx`.
+- Sidebar navigation in `SettingsPage.tsx` and `AIConfigPage.tsx`.
 - Field sections implemented as focused components such as `AppearanceSection.tsx`, `EditorSection.tsx`, and `ApiConfigFields.tsx`.
 - Dialog state and form normalization usually live in a feature hook (`useAIConfig.ts`) or the owning component, not in global state.
 

@@ -19,11 +19,58 @@ Persisted booleans must not use `z.coerce.boolean()`: `"false"` is truthy in Jav
 
 When adding persisted fields, include migration/default behavior and tests.
 
-## Multi-Window Sync
+## Scenario: Single-Main-Window Settings And AI Persistence
 
-Settings and AI config windows are separate Tauri webviews. Both stores use `BroadcastChannel` as the primary notification mechanism and browser `storage` events as a fallback; each notification calls the store's `persist.rehydrate()`.
+### 1. Scope / Trigger
 
-Do not assume React state in one window automatically updates another window. Persist before posting the channel notification, retain the storage-event adapter, and test both handler paths.
+- Trigger: settings and AI config moved from secondary Tauri Webviews into pages mounted by `App.tsx`.
+
+### 2. Signatures
+
+- `useSettingsStore().updateSettings(patch: Partial<AppSettings>): void`
+- `useAIConfigStore().updateProviders(providers: AIProvider[]): void`
+- `useAIConfigStore().updateSelectedModel(model: SelectedModel): void`
+
+### 3. Contracts
+
+- Settings persist under `md2word_settings`; `app_theme` remains a legacy compatibility key.
+- AI state persists under `md2word_ai_config`; legacy provider/model keys remain compatibility writes.
+- All pages consume the same in-memory Zustand Store instance.
+- No `BroadcastChannel`, `StorageEvent` listener, or secondary-window rehydration adapter is present.
+
+### 4. Validation & Error Matrix
+
+- Missing storage -> use defaults.
+- Legacy storage -> migrate through the existing Zod-backed parser/schema.
+- Malformed storage -> fall back to defaults without throwing during app startup.
+- Same-window Store update -> React subscribers update immediately; no explicit rehydrate call.
+
+### 5. Good/Base/Bad Cases
+
+- Good: update theme in `SettingsPage`; `useTheme` updates the shared DOM and main window immediately.
+- Base: restart the app; Zustand persist loads the last valid settings and AI provider data.
+- Bad: add `BroadcastChannel` notifications for same-window navigation; this duplicates state flow and can rehydrate stale storage over current state.
+
+### 6. Tests Required
+
+- Settings and AI Store tests assert defaults, legacy migration, malformed-data fallback, and persisted writes.
+- Main-window navigation tests assert page layers stay mounted and local selections survive navigation.
+- Browser verification checks that theme/navigation changes produce no console or page errors.
+
+### 7. Wrong vs Correct
+
+#### Wrong
+
+```ts
+set({ settings });
+settingsChannel.postMessage({});
+```
+
+#### Correct
+
+```ts
+set({ settings });
+```
 
 ## Error Mapping
 

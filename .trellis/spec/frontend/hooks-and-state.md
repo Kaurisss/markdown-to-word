@@ -20,26 +20,29 @@ This project uses Zustand only for app-wide persisted settings:
 - `src/features/settings/store.ts` stores app settings, migrates old keys, persists to `localStorage`, and broadcasts changes across windows.
 - `src/features/ai/store.ts` stores AI providers and selected model, splitting built-in provider config from custom providers in storage.
 
-Keep transient UI state local. Examples: `Header.tsx` keeps the active ribbon tab and active document style locally; `AIConfigWindow.tsx` keeps popover visibility locally.
+Keep transient UI state local. Examples: `Header.tsx` keeps the active ribbon tab and active document style locally; `AIConfigPage.tsx` keeps popover visibility locally.
 
-## Cross-Window Synchronization
+## Single-Window Persistence
 
-Settings must sync between the main window and secondary windows:
+Settings and AI config now run in the same React tree:
 
 - `settings/store.ts` writes `md2word_settings` and legacy `app_theme`.
-- Settings and AI stores use Zustand `persist`, then notify peers through `BroadcastChannel`.
-- Both stores retain a `storage` event fallback that calls `persist.rehydrate()`.
-- `useTheme.ts` reads settings changes in the main window and applies the theme to DOM and Tauri window APIs.
+- `ai/store.ts` writes `md2word_ai_config` and legacy AI keys for rollback compatibility.
+- Zustand state updates are immediately visible to every main-window page; do not add `BroadcastChannel` or `storage` event rehydration unless multi-window behavior is explicitly reintroduced.
+- `useTheme.ts` applies the settings Store theme to the shared DOM and main Tauri window.
 
 When adding persisted settings, update `AppSettings`, defaults, the relevant Zod schema/migration, tests in `test/features/settings/store.test.ts`, and relevant settings UI.
+
+## Page Activity Boundaries
+
+Editor-level document listeners must accept an explicit `enabled` flag. `useGlobalShortcuts`, `useFileDrop`, and `useContextMenu` are enabled only while the editor page is active, because their components stay mounted during settings/AI navigation.
 
 ## Tauri Dynamic Imports
 
 Do not statically import Tauri APIs in modules that should run in browser-mode tests. Existing modules dynamically import Tauri APIs inside functions or effects:
 
-- `App.tsx` and `Header.tsx` import `WebviewWindow` only when opening a window.
+- `WindowControls.tsx`, `WindowBar.tsx`, `AppPageHeader.tsx`, and `useTheme.ts` dynamically import main-window APIs at the interaction/effect boundary.
 - `useFileDrop.ts` imports `getCurrentWebview` and `readTextFile` inside setup.
-- `useShowWindowAfterFirstRender.ts` imports `@tauri-apps/api/window` inside an effect.
 - `pythonBackend.ts` is the exception for export-specific Tauri plugin APIs because it is tested through pure exported helpers rather than full sidecar execution.
 
 ## Pure Helpers

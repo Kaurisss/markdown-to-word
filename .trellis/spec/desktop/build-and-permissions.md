@@ -17,7 +17,6 @@ When changing backend dependencies, update `backend/requirements.txt` and verify
 `src-tauri/capabilities/default.json` grants:
 
 - Core window controls used by custom chrome.
-- `core:webview:allow-create-webview-window` for settings and AI config windows.
 - Dialog permissions for save/open confirmations.
 - Shell `open` for external links.
 - Shell sidecar execution for `binaries/md2word` with `--input`, `--output`, and `--config-file`.
@@ -25,6 +24,8 @@ When changing backend dependencies, update `backend/requirements.txt` and verify
 - Broad `$HOME/**` fs scope for user-selected file paths.
 
 Keep capability permissions as narrow as the actual API calls allow. If adding a new Tauri plugin call, add the matching permission and cite the front-end file that uses it.
+
+The default capability window scope is only `main`. Do not add `ai-config`, `settings`, or `core:webview:allow-create-webview-window` unless the product explicitly returns to a multi-window architecture.
 
 ## Export Temp Files
 

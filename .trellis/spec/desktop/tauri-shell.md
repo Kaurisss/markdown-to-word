@@ -14,15 +14,13 @@ Do not move product behavior into Rust unless it truly needs native APIs that ca
 The main Tauri window starts with `visible: false` in `tauri.conf.json`. Front-end hooks show windows after first paint to avoid flash:
 
 - Main window: `src/features/settings/useTheme.ts` calls `getCurrentWindow().show()` after syncing theme and background.
-- Secondary windows: `src/components/shell/useShowWindowAfterFirstRender.ts` shows settings and AI config windows after first render.
-
-When creating new windows, follow the current pattern: set background color at creation, use frameless decorations when matching existing settings/config windows, and show after first render.
+- Settings and AI config are pages inside the main window; no secondary Webview visibility hook exists.
 
 ## Dynamic Front-End Tauri APIs
 
 Most Tauri APIs are dynamically imported from React code so browser-mode tests do not fail:
 
-- `Header.tsx` and `App.tsx` dynamically import `WebviewWindow`.
+- `WindowControls.tsx`, `WindowBar.tsx`, `AppPageHeader.tsx`, and `useTheme.ts` dynamically import main-window APIs.
 - `Preview.tsx` dynamically imports dialog and shell plugins for external link confirmation/opening.
 - `useFileDrop.ts` dynamically imports webview and fs APIs.
 

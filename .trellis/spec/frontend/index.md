@@ -21,7 +21,7 @@ React + TypeScript front-end for the Markdown-to-Word desktop app. Read this lay
 
 ## Local Architecture Summary
 
-- `src/App.tsx` is the top-level orchestrator for the main editor window and the URL-param routed settings / AI config windows.
+- `src/App.tsx` is the top-level orchestrator for the editor, settings, and AI config pages inside the single main window.
 - `src/components/` owns UI surfaces. `src/features/` owns stateful behavior, pure feature operations, and custom hooks.
 - `DocumentConfig` from `src/types/config.ts` is the core front-end contract shared with preview and Python export.
 - Tauri APIs are dynamically imported at usage points so browser-mode tests and Vite builds do not eagerly require the desktop runtime.
