@@ -97,7 +97,7 @@ export const RemoteModelDialog: React.FC<RemoteModelDialogProps> = ({
         {/* 模型列表列表卡片 */}
         <div className="flex-1 overflow-y-auto min-h-[320px] border border-gray-200/80 dark:border-dark-border rounded-md divide-y divide-gray-100 dark:divide-dark-border bg-white dark:bg-dark-surface">
           {loading ? (
-            <div className="flex flex-col w-full">
+            <div className="flex flex-col w-full" data-testid="loading-skeleton">
               {['60%', '45%', '70%', '50%', '80%', '40%', '65%', '55%'].map((w, i) => (
                 <div key={i} className="flex items-center justify-between p-3.5 px-4">
                   <div className="h-4 bg-gray-100 dark:bg-dark-element rounded animate-pulse" style={{ width: w }} />

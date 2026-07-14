@@ -41,6 +41,7 @@ export const EditorSection: React.FC<EditorSectionProps> = ({ settings, updateSe
           <Switch
             checked={settings.autoSave}
             onCheckedChange={(c) => updateSettings({ autoSave: c })}
+            aria-label="自动保存"
           />
         </SettingItem>
 
@@ -51,6 +52,7 @@ export const EditorSection: React.FC<EditorSectionProps> = ({ settings, updateSe
           <Switch
             checked={settings.scrollSyncEnabled}
             onCheckedChange={(c) => updateSettings({ scrollSyncEnabled: c })}
+            aria-label="同步滚动"
           />
         </SettingItem>
 
@@ -61,6 +63,7 @@ export const EditorSection: React.FC<EditorSectionProps> = ({ settings, updateSe
           <Switch
             checked={settings.showStatusBar}
             onCheckedChange={(c) => updateSettings({ showStatusBar: c })}
+            aria-label="底部状态栏"
           />
         </SettingItem>
       </SettingCard>
@@ -106,6 +109,7 @@ export const EditorSection: React.FC<EditorSectionProps> = ({ settings, updateSe
           <Switch
             checked={settings.editorWordWrap}
             onCheckedChange={(c) => updateSettings({ editorWordWrap: c })}
+            aria-label="自动换行"
           />
         </SettingItem>
       </SettingCard>

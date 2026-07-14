@@ -23,12 +23,12 @@ describe('RemoteModelDialog', () => {
 
   it('should render loading state', () => {
     render(<RemoteModelDialog {...defaultProps} loading={true} />);
-    expect(screen.getByText('加载中...')).toBeTruthy();
+    expect(screen.getByTestId('loading-skeleton')).toBeTruthy();
   });
 
   it('should render error state', () => {
     render(<RemoteModelDialog {...defaultProps} error="Failed to load" />);
-    expect(screen.getByText('Failed to load')).toBeTruthy();
+    expect(screen.getByText(/Failed to load/)).toBeTruthy();
   });
 
   it('should filter models by search and allow adding one', () => {
@@ -77,7 +77,7 @@ describe('RemoteModelDialog', () => {
       />
     );
     
-    const addAllButton = screen.getByText('添加全部 (1)');
+    const addAllButton = screen.getByText('全部添加 (1)');
     fireEvent.click(addAllButton);
     expect(onAddAll).toHaveBeenCalledWith([{ id: 'gpt-4' }]);
   });

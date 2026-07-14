@@ -28,7 +28,7 @@ describe('AdvancedPageSettingsDialog', () => {
     // Switch to Header tab
     fireEvent.click(screen.getByText('页眉设置'));
 
-    fireEvent.change(screen.getByPlaceholderText('留空则不显示文字'), {
+    fireEvent.change(screen.getByPlaceholderText('请输入页眉文本'), {
       target: { value: '课程设计' },
     });
 
