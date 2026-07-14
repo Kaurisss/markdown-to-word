@@ -49,24 +49,13 @@ pnpm run build:backend   # PyInstaller backend -> src-tauri/binaries/
 ## Security & Configuration
 
 - Treat API keys as secrets. Keep them out of git; `.env*` is ignored.
-<!-- TRELLIS:START -->
-# Trellis Instructions
 
-These instructions are for AI assistants working in this project.
+## Development Workflow (AI Spec)
 
-This project is managed by Trellis. The working knowledge you need lives under `.trellis/`:
+This project uses a lightweight spec-driven workflow. Full guide: `docs/specs/README.md`.
 
-- `.trellis/workflow.md` — development phases, when to create tasks, skill routing
-- `.trellis/spec/` — package- and layer-scoped coding guidelines (read before writing code in a given layer)
-- `.trellis/workspace/` — per-developer journals and session traces
-- `.trellis/tasks/` — active and archived tasks (PRDs, research, jsonl context)
-
-If a Trellis command is available on your platform (e.g. `/trellis:finish-work`, `/trellis:continue`), prefer it over manual steps. Not every platform exposes every command.
-
-If you're using Codex or another agent-capable tool, additional project-scoped helpers may live in:
-- `.agents/skills/` — reusable Trellis skills
-- `.codex/agents/` — optional custom subagents
-
-Managed by Trellis. Edits outside this block are preserved; edits inside may be overwritten by a future `trellis update`.
-
-<!-- TRELLIS:END -->
+- Non-trivial changes: write a one-page spec at `docs/specs/<feature>.md` (copy `docs/specs/_template.md`) covering **Why / Scope / Acceptance / Layers**, then Plan → Implement (test-first) → Verify → Ship.
+- Trivial changes (copy, styling, small bug fixes): skip the spec and implement directly.
+- Pre-commit gate: `pnpm run typecheck && pnpm run lint && pnpm test` (add `python -m pytest backend/tests` when `backend/` changed).
+- Global skills (`grill-me`, `domain-modeling`, `implement`, `caveman-review`, `diagnosing-bugs`) are an optional toolbox, not mandatory gates.
+- Merged specs move to `docs/specs/archive/`.
