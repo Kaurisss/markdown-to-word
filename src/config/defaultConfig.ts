@@ -83,6 +83,10 @@ export const DEFAULT_CONFIG: DocumentConfig = {
     tableHeaderBold: false,
     normalizePunctuation: true,
   },
+  imageCaption: {
+    useAltText: false,
+    autoNumber: false,
+  },
   styles: {
     documentTitle: {
       fontFamily: 'SimHei',

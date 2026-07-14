@@ -12,6 +12,7 @@ from .errors import (
 )
 from .converters.code_block import flush_code_buffer, is_fence, process_code_buffer
 from .converters.table import flush_table_buffer, process_table_buffer
+from .converters.image import add_image
 from .converters.toc import add_toc
 from .document_layout import apply_document_layout
 from .elements import (
@@ -44,13 +45,15 @@ def _is_output_permission_error(error: Exception) -> bool:
     return any(marker in text for marker in locked_markers)
 
 
-def convert(input_path: str, output_path: str, conf: Dict[str, Any]) -> None:
+def convert(input_path: str, output_path: str, conf: Dict[str, Any], resource_root: str | None = None) -> None:
     """Convert Markdown file to Word document with proper error handling."""
     if not os.path.exists(input_path):
         raise FileError(
             "Input file not found",
             path=input_path
         )
+
+    resource_root = resource_root or os.path.dirname(os.path.abspath(input_path))
 
     output_dir = os.path.dirname(output_path) or '.'
     if not os.path.exists(output_dir):
@@ -102,6 +105,7 @@ def convert(input_path: str, output_path: str, conf: Dict[str, Any]) -> None:
     table_buf: list[str] = []
     seen_heading = False
     caption_counts = {"图": 0, "表": 0, "公式": 0}
+    image_caption_count = 0
 
     i = 0
     while i < len(lines):
@@ -127,6 +131,20 @@ def convert(input_path: str, output_path: str, conf: Dict[str, Any]) -> None:
             doc, line, in_table, table_buf, conf, next_line,
         )
         if consumed:
+            i += 1
+            continue
+
+        image_match = re.match(r"^\s*!\[([^\]]*)\]\(([^)]+)\)\s*$", line)
+        if image_match:
+            alt_text, image_reference = image_match.groups()
+            add_image(doc, image_reference.strip(), alt_text, resource_root, conf)
+            image_config = conf.get("imageCaption", {})
+            if image_config.get("useAltText") and alt_text.strip():
+                image_caption_count += 1
+                caption = alt_text.strip()
+                if image_config.get("autoNumber"):
+                    caption = f"图{image_caption_count} {caption}"
+                add_caption(doc, caption, conf)
             i += 1
             continue
 

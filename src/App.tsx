@@ -15,6 +15,7 @@ import { SettingsPage } from './components/settings/SettingsPage';
 import { useSettingsStore } from './features/settings/store';
 import { Toaster } from '@/components/ui/sonner';
 import { DynamicContextMenu } from '@/components/ui/context-menu';
+import { WorkspaceSheet } from '@/components/workspace/WorkspaceSheet';
 
 import { useEditorState } from './features/editor/useEditorState';
 import { useEditorFormatting } from './features/editor/useEditorFormatting';
@@ -27,6 +28,9 @@ import { useScrollSync } from './features/editor/useScrollSync';
 import { useAutoSave } from './features/editor/useAutoSave';
 import { useClipboard } from './features/editor/useClipboard';
 import { useGlobalShortcuts } from './features/editor/useGlobalShortcuts';
+import { createImageReferenceMarkdown } from './features/workspace/imageImport';
+import { getParentPath } from './features/workspace/pathUtils';
+import { useWorkspaceDocument } from './features/workspace/useWorkspaceDocument';
 import { EditorHandle, EditorMode } from './types';
 
 type AppPage = 'editor' | 'ai-config' | 'settings';
@@ -49,13 +53,34 @@ const App: React.FC = () => {
     content,
     canUndo,
     canRedo,
-    updateContent,
+    updateContent: updateEditorContent,
+    replaceContent,
     undo,
     redo,
     handleEditorKeyDown,
     undoStackRef,
     redoStackRef,
   } = useEditorState(appSettings.autoSave, appSettings.keyboardShortcuts);
+
+  const showToast = useCallback((message: string, type: ToastType = 'success') => {
+    showAppToast(message, type);
+  }, []);
+  const showWorkspaceError = useCallback((message: string) => {
+    showToast(message, 'error');
+  }, [showToast]);
+  const [cfg, setCfg] = useState<DocumentConfig>(() => loadDocumentConfig());
+  const workspaceDocument = useWorkspaceDocument({
+    autoSave: appSettings.autoSave,
+    updateEditorContent,
+    replaceEditorContent: replaceContent,
+    setConfig: setCfg,
+    showError: showWorkspaceError,
+  });
+  const updateContent = workspaceDocument.updateContent;
+  const importImage = workspaceDocument.importImage;
+  const resourceRoot = workspaceDocument.activeDocumentPath
+    ? getParentPath(workspaceDocument.activeDocumentPath)
+    : null;
 
   const {
     searchQuery,
@@ -89,10 +114,6 @@ const App: React.FC = () => {
     updateContent,
   });
 
-  const showToast = useCallback((message: string, type: ToastType = 'success') => {
-    showAppToast(message, type);
-  }, []);
-
   const {
     contextMenu,
     handleContextMenu,
@@ -114,16 +135,46 @@ const App: React.FC = () => {
     updateContent(newContent);
   }, [updateContent]);
 
+  const insertImportedImage = useCallback((reference: string, alt: string) => {
+    const markdownImage = createImageReferenceMarkdown(reference, alt);
+    const textarea = editorRef.current?.textarea;
+    const start = textarea?.selectionStart ?? content.length;
+    const end = textarea?.selectionEnd ?? content.length;
+    const prefix = start > 0 && content[start - 1] !== '\n' ? '\n' : '';
+    const suffix = end < content.length && content[end] !== '\n' ? '\n' : '';
+    updateContent(`${content.slice(0, start)}${prefix}${markdownImage}${suffix}${content.slice(end)}`);
+  }, [content, updateContent]);
+
+  const handleImportImage = useCallback(async (fileName: string, bytes: Uint8Array) => {
+    const reference = await importImage(fileName, bytes);
+    if (reference) {
+      insertImportedImage(reference, fileName.replace(/\.[^.]+$/, ''));
+      showToast(`已导入图片：${fileName}`);
+    }
+  }, [importImage, insertImportedImage, showToast]);
+
+  const handleImportImagePath = useCallback(async (filePath: string) => {
+    try {
+      const { readFile } = await import('@tauri-apps/plugin-fs');
+      const fileName = filePath.split(/[/\\]/).pop() ?? filePath;
+      await handleImportImage(fileName, await readFile(filePath));
+    } catch (error) {
+      console.error('Failed to read dropped image:', error);
+      showToast('图片导入失败：无法读取文件', 'error');
+    }
+  }, [handleImportImage, showToast]);
+
   const { isFileDragActive } = useFileDrop({
     enabled: isEditorPageActive,
     showToast,
     onImport: handleImport,
+    onImportImage: handleImportImage,
+    onImportImagePath: handleImportImagePath,
   });
 
-  const [cfg, setCfg] = useState<DocumentConfig>(() => loadDocumentConfig());
   const [viewMode, setViewMode] = useState<ViewMode>(() => appSettings.defaultViewMode || 'split');
 
-  const { isExporting, handleExport } = useExport({ content, cfg, showToast });
+  const { isExporting, handleExport } = useExport({ content, cfg, resourceRoot, showToast });
 
   const { theme } = useTheme({
     appSettingsTheme: appSettings.theme,
@@ -158,8 +209,10 @@ const App: React.FC = () => {
   ]);
 
   useEffect(() => {
-    saveDocumentConfig(cfg);
-  }, [cfg]);
+    if (!workspaceDocument.workspaceRoot) {
+      saveDocumentConfig(cfg);
+    }
+  }, [cfg, workspaceDocument.workspaceRoot]);
 
   useScrollSync({
     enabled: appSettings.scrollSyncEnabled,
@@ -168,13 +221,18 @@ const App: React.FC = () => {
     editorRef,
     previewRef,
   });
-  useAutoSave({ content, autoSave: appSettings.autoSave });
+  useAutoSave({
+    content,
+    autoSave: appSettings.autoSave,
+    onSave: workspaceDocument.autoSaveHandler,
+  });
 
   const { handleCopy, handleCut, handlePaste } = useClipboard({
     editorRef,
     editorMode,
     updateContent,
     showToast,
+    onImportImage: handleImportImage,
   });
 
   useGlobalShortcuts({
@@ -230,7 +288,7 @@ const App: React.FC = () => {
             viewMode={viewMode}
             onViewModeChange={setViewMode}
             cfg={cfg}
-            onCfgChange={setCfg}
+            onCfgChange={workspaceDocument.updateConfig}
             onShowToast={showToast}
             onSearchClick={() => setShowSearch(true)}
             onUndo={undo}
@@ -299,6 +357,7 @@ const App: React.FC = () => {
                 ref={previewRef}
                 markdown={content}
                 cfg={cfg}
+                resourceRoot={resourceRoot}
                 showStatusBar={appSettings.showStatusBar}
                 onPreviewStatusChange={handlePreviewStatusChange}
               />
@@ -367,6 +426,7 @@ const App: React.FC = () => {
         />
       </section>
 
+      <WorkspaceSheet />
       <Toaster closeButton richColors position="top-center" />
     </div>
   );

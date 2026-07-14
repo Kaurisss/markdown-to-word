@@ -14,6 +14,7 @@ export interface ExportPreviewState {
 interface UseExportPreviewOptions {
   markdown: string;
   cfg: DocumentConfig;
+  resourceRoot?: string | null;
   enabled?: boolean;
   debounceMs?: number;
 }
@@ -23,6 +24,7 @@ const DEFAULT_DEBOUNCE_MS = 1000;
 export function useExportPreview({
   markdown,
   cfg,
+  resourceRoot,
   enabled = true,
   debounceMs = DEFAULT_DEBOUNCE_MS,
 }: UseExportPreviewOptions): ExportPreviewState {
@@ -52,7 +54,7 @@ export function useExportPreview({
     }));
 
     const timer = window.setTimeout(() => {
-      void generateExportPreviewDocx({ markdown, config: cfg })
+      void generateExportPreviewDocx({ markdown, config: cfg, resourceRoot: resourceRoot ?? undefined })
         .then((result) => {
           if (!active || requestIdRef.current !== requestId) return;
 
@@ -87,7 +89,7 @@ export function useExportPreview({
       active = false;
       window.clearTimeout(timer);
     };
-  }, [markdown, cfg, enabled, debounceMs]);
+  }, [markdown, cfg, resourceRoot, enabled, debounceMs]);
 
   return state;
 }

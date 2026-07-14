@@ -79,6 +79,10 @@ export interface DocumentConfig {
     tableHeaderBold?: boolean;
     normalizePunctuation?: boolean;
   };
+  imageCaption: {
+    useAltText: boolean;
+    autoNumber: boolean;
+  };
   styles: {
     documentTitle?: ElementStyle;
     h1: ElementStyle;

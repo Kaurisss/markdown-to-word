@@ -25,6 +25,7 @@ export interface ExportOptions {
   outputPath: string;
   /** Document style configuration */
   config: DocumentConfig;
+  resourceRoot?: string;
 }
 
 /**
@@ -49,6 +50,7 @@ export interface ExportPreviewOptions {
   markdown: string;
   /** Document style configuration */
   config: DocumentConfig;
+  resourceRoot?: string;
 }
 
 /**
@@ -259,11 +261,13 @@ export async function exportWithPython(options: ExportOptions): Promise<ExportRe
 
     // Invoke the Python backend sidecar
     // Requirements: 1.1 - Invoke Python_Backend with Markdown_Content and Style_Config
-    const cmd = Command.sidecar('binaries/md2word', [
+    const args = [
       '--input', inputFiles.tempFilePath,
       '--output', outputPath,
-      '--config-file', inputFiles.configFilePath
-    ]);
+      '--config-file', inputFiles.configFilePath,
+      ...(options.resourceRoot ? ['--resource-root', options.resourceRoot] : []),
+    ];
+    const cmd = Command.sidecar('binaries/md2word', args);
 
     const result = await cmd.execute();
 
@@ -333,11 +337,13 @@ export async function generateExportPreviewDocx(options: ExportPreviewOptions): 
     const cacheDir = await appCacheDir();
     const docxPath = await join(cacheDir, docxFilename);
 
-    const cmd = Command.sidecar('binaries/md2word', [
+    const args = [
       '--input', inputFiles.tempFilePath,
       '--output', docxPath,
       '--config-file', inputFiles.configFilePath,
-    ]);
+      ...(options.resourceRoot ? ['--resource-root', options.resourceRoot] : []),
+    ];
+    const cmd = Command.sidecar('binaries/md2word', args);
 
     const result = await cmd.execute();
 

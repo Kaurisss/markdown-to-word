@@ -25,6 +25,7 @@
     "fs:allow-appcache-read-recursive",
     "fs:allow-appcache-write",
     "fs:allow-appcache-write-recursive",
+    "fs:allow-watch",
     {
       "identifier": "fs:scope",
       "allow": [

@@ -33,6 +33,13 @@ export function useEditorState(autoSave: boolean, shortcuts: KeyboardShortcutMap
     setCanRedo(redoStackRef.current.length > 0);
   }, []);
 
+  const replaceContent = useCallback((next: string) => {
+    undoStackRef.current = [];
+    redoStackRef.current = [];
+    applyContent(next);
+    syncHistoryState();
+  }, [applyContent, syncHistoryState]);
+
   const updateContent = useCallback((next: string) => {
     const prev = lastContentRef.current;
     if (next !== prev) {
@@ -85,6 +92,7 @@ export function useEditorState(autoSave: boolean, shortcuts: KeyboardShortcutMap
     canUndo,
     canRedo,
     updateContent,
+    replaceContent,
     undo,
     redo,
     handleEditorKeyDown,

@@ -18,10 +18,11 @@ function sanitizeFilename(input: string, fallback: string): string {
 interface UseExportOptions {
   content: string;
   cfg: DocumentConfig;
+  resourceRoot?: string | null;
   showToast: (message: string, type?: ToastType) => void;
 }
 
-export function useExport({ content, cfg, showToast }: UseExportOptions) {
+export function useExport({ content, cfg, resourceRoot, showToast }: UseExportOptions) {
   const [isExporting, setIsExporting] = useState<boolean>(false);
 
   const handleExport = useCallback(async () => {
@@ -43,7 +44,8 @@ export function useExport({ content, cfg, showToast }: UseExportOptions) {
       const result = await exportWithPython({
         markdown: content,
         outputPath: outPath,
-        config: cfg
+        config: cfg,
+        resourceRoot: resourceRoot ?? undefined,
       });
 
       if (!result.success) {
@@ -60,7 +62,7 @@ export function useExport({ content, cfg, showToast }: UseExportOptions) {
     } finally {
       setIsExporting(false);
     }
-  }, [content, cfg, showToast]);
+  }, [content, cfg, resourceRoot, showToast]);
 
   return {
     isExporting,

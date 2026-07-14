@@ -7,9 +7,10 @@ interface UseClipboardParams {
   editorMode: EditorMode;
   updateContent: (next: string) => void;
   showToast: (message: string, type?: ToastType) => void;
+  onImportImage?: (fileName: string, content: Uint8Array) => Promise<void>;
 }
 
-export function useClipboard({ editorRef, editorMode, updateContent, showToast }: UseClipboardParams) {
+export function useClipboard({ editorRef, editorMode, updateContent, showToast, onImportImage }: UseClipboardParams) {
   const handleCopy = useCallback(async () => {
     if (editorMode !== 'edit') return;
     const textarea = editorRef.current?.textarea;
@@ -55,6 +56,18 @@ export function useClipboard({ editorRef, editorMode, updateContent, showToast }
     const textarea = editorRef.current?.textarea;
     if (!textarea) return;
     try {
+      if (onImportImage && navigator.clipboard.read) {
+        const items = await navigator.clipboard.read();
+        const imageItem = items.find((item) => item.types.some((type) => type.startsWith('image/')));
+        if (imageItem) {
+          const imageType = imageItem.types.find((type) => type.startsWith('image/')) ?? 'image/png';
+          const blob = await imageItem.getType(imageType);
+          const extension = imageType.split('/')[1]?.replace('jpeg', 'jpg') ?? 'png';
+          await onImportImage(`clipboard.${extension}`, new Uint8Array(await blob.arrayBuffer()));
+          return;
+        }
+      }
+
       const text = await navigator.clipboard.readText();
       if (!text) return;
       const start = textarea.selectionStart;
@@ -70,7 +83,7 @@ export function useClipboard({ editorRef, editorMode, updateContent, showToast }
       console.error('Failed to paste:', err);
       showToast('无法读取剪贴板', 'error');
     }
-  }, [editorMode, editorRef, updateContent, showToast]);
+  }, [editorMode, editorRef, updateContent, showToast, onImportImage]);
 
   return { handleCopy, handleCut, handlePaste };
 }

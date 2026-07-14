@@ -75,11 +75,12 @@ def main():
     parser.add_argument("--output", "-o", required=True, help="输出的 .docx 文件路径")
     parser.add_argument("--config", "-c", help="JSON 字符串形式的样式配置")
     parser.add_argument("--config-file", "-f", help="JSON 配置文件路径")
+    parser.add_argument("--resource-root", help="Markdown 图片资源根目录")
     args = parser.parse_args()
 
     try:
         conf = load_config(args)
-        convert(args.input, args.output, conf)
+        convert(args.input, args.output, conf, resource_root=args.resource_root)
     except PermissionError_ as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(e.exit_code)

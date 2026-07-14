@@ -11,13 +11,14 @@ export interface PreviewStatusInfo {
 }
 
 interface ExtendedPreviewProps extends PreviewProps {
+  resourceRoot?: string | null;
   showStatusBar?: boolean;
   onPreviewStatusChange?: (info: PreviewStatusInfo) => void;
 }
 
 const Preview = forwardRef<HTMLDivElement, ExtendedPreviewProps>(
-  ({ markdown, cfg, showStatusBar = false, onPreviewStatusChange }, ref) => {
-    const exportPreview = useExportPreview({ markdown, cfg });
+  ({ markdown, cfg, resourceRoot, showStatusBar = false, onPreviewStatusChange }, ref) => {
+    const exportPreview = useExportPreview({ markdown, cfg, resourceRoot });
     const [docxRenderError, setDocxRenderError] = React.useState<string | null>(null);
     const [pageCount, setPageCount] = React.useState<number | null>(null);
     const [hasRenderedDocxPreview, setHasRenderedDocxPreview] = React.useState(false);

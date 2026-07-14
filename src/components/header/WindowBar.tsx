@@ -1,4 +1,6 @@
 import React, { useCallback } from 'react';
+import { LayoutLeftbarOpenLine } from '@mingcute/react';
+import { useWorkspaceStore } from '@/features/workspace/store';
 import { TabsList, TabsTrigger } from '../ui/tabs';
 
 export type TabType = 'file' | 'edit' | 'home' | 'layout' | 'ai';
@@ -26,6 +28,7 @@ export const WindowBar: React.FC<WindowBarProps> = ({
   onImport,
   fileInputRef,
 }) => {
+  const setWorkspaceSheetOpen = useWorkspaceStore((state) => state.setSheetOpen);
   const runWindowAction = useCallback(async () => {
     try {
       const { getCurrentWindow } = await import('@tauri-apps/api/window');
@@ -77,6 +80,15 @@ export const WindowBar: React.FC<WindowBarProps> = ({
       onDoubleClick={() => void runWindowAction()}
     >
       <div className="flex items-center pl-1.5" onMouseDown={(e) => e.stopPropagation()}>
+        <button
+          type="button"
+          onClick={() => setWorkspaceSheetOpen(true)}
+          className="mr-1 grid size-8 place-items-center rounded-md text-ui-text-muted transition-colors hover:bg-ui-control-hover hover:text-ui-text focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-500"
+          aria-label="打开工作区"
+          title="工作区"
+        >
+          <LayoutLeftbarOpenLine className="size-[17px]" />
+        </button>
         <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".md,.txt,.markdown" className="hidden" />
 
         {renderTabsList()}

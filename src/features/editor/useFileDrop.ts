@@ -5,15 +5,25 @@ interface UseFileDropOptions {
   enabled: boolean;
   showToast: (message: string, type?: ToastType) => void;
   onImport: (content: string) => void;
+  onImportImage: (fileName: string, content: Uint8Array) => Promise<void>;
+  onImportImagePath: (filePath: string) => Promise<void>;
 }
 
-export function useFileDrop({ enabled, showToast, onImport }: UseFileDropOptions) {
+export function useFileDrop({ enabled, showToast, onImport, onImportImage, onImportImagePath }: UseFileDropOptions) {
   const [isFileDragActive, setIsFileDragActive] = useState(false);
   const fileDragCounterRef = useRef(0);
 
   const isSupportedImportFile = useCallback((file: File) => {
     const name = file.name.toLowerCase();
     return name.endsWith('.md') || name.endsWith('.markdown') || name.endsWith('.txt');
+  }, []);
+
+  const isSupportedImageFile = useCallback((file: File) => {
+    return /\.(png|jpe?g|gif|webp)$/i.test(file.name);
+  }, []);
+
+  const isSupportedImagePath = useCallback((path: string) => {
+    return /\.(png|jpe?g|gif|webp)$/i.test(path);
   }, []);
 
   const isSupportedImportPath = useCallback((path: string) => {
@@ -73,6 +83,16 @@ export function useFileDrop({ enabled, showToast, onImport }: UseFileDropOptions
       const file = files && files.length > 0 ? files[0] : null;
       if (!file) return;
 
+      if (isSupportedImageFile(file)) {
+        try {
+          await onImportImage(file.name, new Uint8Array(await file.arrayBuffer()));
+        } catch (err) {
+          console.error('Failed to import dropped image:', err);
+          showToast('图片导入失败', 'error');
+        }
+        return;
+      }
+
       if (!isSupportedImportFile(file)) {
         showToast('仅支持拖入 .md / .markdown / .txt 文件', 'error');
         return;
@@ -119,6 +139,11 @@ export function useFileDrop({ enabled, showToast, onImport }: UseFileDropOptions
           const filePath = payload.paths?.[0];
           if (!filePath) return;
 
+          if (isSupportedImagePath(filePath)) {
+            await onImportImagePath(filePath);
+            return;
+          }
+
           if (!isSupportedImportPath(filePath)) {
             showToast('仅支持拖入 .md / .markdown / .txt 文件', 'error');
             return;
@@ -154,7 +179,7 @@ export function useFileDrop({ enabled, showToast, onImport }: UseFileDropOptions
       document.removeEventListener('drop', handleDrop, true);
       if (unlistenTauriDrop) unlistenTauriDrop();
     };
-  }, [enabled, showToast, onImport, isSupportedImportFile, isSupportedImportPath]);
+  }, [enabled, showToast, onImport, onImportImage, onImportImagePath, isSupportedImportFile, isSupportedImportPath, isSupportedImageFile, isSupportedImagePath]);
 
   return {
     isFileDragActive,

@@ -85,6 +85,11 @@ const bodyStartConfigSchema = z.object({
   pageNumberStart: numberSchema.optional(),
 }).strict();
 
+const imageCaptionConfigSchema = z.object({
+  useAltText: z.boolean(),
+  autoNumber: z.boolean(),
+}).strict();
+
 const globalConfigSchema = z.object({
   pageMargin: z.union([numberSchema, pageMarginSchema]),
   pageSize: pageSizeSchema.optional(),
@@ -114,6 +119,7 @@ const stylesSchema = z.object({
 
 export const documentConfigSchema = z.object({
   global: globalConfigSchema,
+  imageCaption: imageCaptionConfigSchema,
   styles: stylesSchema,
 }).strict();
 
@@ -165,11 +171,16 @@ function hasPatchValues(value: unknown): boolean {
   return Object.values(value).some(hasPatchValues);
 }
 
+const imageCaptionPatchSchema = imageCaptionConfigSchema.partial().strict();
+
 export const documentConfigPatchSchema = z.object({
   global: globalConfigPatchSchema.optional(),
+  imageCaption: imageCaptionPatchSchema.optional(),
   styles: stylesPatchSchema.optional(),
 }).strict().refine(
-  (patch) => hasPatchValues(patch.global) || hasPatchValues(patch.styles),
+  (patch) => hasPatchValues(patch.global)
+    || hasPatchValues(patch.imageCaption)
+    || hasPatchValues(patch.styles),
   { message: 'Document config patch must contain at least one supported value' },
 );
 
@@ -395,6 +406,13 @@ const storedDocumentConfigSchema = z.preprocess(
           storedBooleanSchema,
           defaultGlobal.normalizePunctuation!,
         ),
+      }),
+    ),
+    imageCaption: z.preprocess(
+      (value) => isPlainObject(value) ? value : {},
+      z.object({
+        useAltText: storedField(storedBooleanSchema, DEFAULT_CONFIG.imageCaption.useAltText),
+        autoNumber: storedField(storedBooleanSchema, DEFAULT_CONFIG.imageCaption.autoNumber),
       }),
     ),
     styles: z.preprocess(

@@ -15,10 +15,16 @@ def validate_config(conf: Dict[str, Any]) -> None:
 
     global_conf = conf.get("global")
     styles = conf.get("styles")
+    image_caption = conf.get("imageCaption", {})
     if not isinstance(global_conf, dict):
         raise ConfigError("Invalid configuration format", details="Missing or invalid 'global' section")
     if not isinstance(styles, dict):
         raise ConfigError("Invalid configuration format", details="Missing or invalid 'styles' section")
+    if not isinstance(image_caption, dict):
+        raise ConfigError("Invalid configuration format", details="'imageCaption' must be an object")
+    for key in ("useAltText", "autoNumber"):
+        if key in image_caption and not isinstance(image_caption[key], bool):
+            raise ConfigError("Invalid configuration format", details=f"imageCaption.{key} must be a boolean")
 
     missing = [key for key in REQUIRED_STYLE_KEYS if key not in styles]
     if missing:
@@ -87,6 +93,10 @@ def load_config(args) -> Dict[str, Any]:
             "pageMargin": 1.0,
             "baseFontCn": "SimSun",
             "baseFontEn": "",
+        },
+        "imageCaption": {
+            "useAltText": False,
+            "autoNumber": False,
         },
         "styles": {
             "h1": {"fontSize": 24, "color": "#1F2937", "bold": True, "italic": False, "lineSpacing": 1.2, "spaceBefore": 12, "spaceAfter": 6, "alignment": "left", "firstLineIndent": 0},
