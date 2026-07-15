@@ -118,6 +118,14 @@ export function WorkspaceTree({
     features: [syncDataLoaderFeature, selectionFeature, hotkeysCoreFeature],
   });
 
+  // headless-tree caches the item structure; rebuild it whenever directory data changes
+  // (refresh, create file/folder, watcher updates) so getItems() below reflects the latest
+  // entries. Run during render (not in an effect) so the same render pass shows fresh data.
+  useMemo(() => {
+    void directoryEntries; // invalidate on directory data changes
+    tree.rebuildTree();
+  }, [tree, directoryEntries]);
+
   if (!root) return null;
 
   const normalizedQuery = query.trim().toLocaleLowerCase();
