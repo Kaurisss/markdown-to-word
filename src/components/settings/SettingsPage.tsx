@@ -95,18 +95,20 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ isActive, onBack }) 
           transition={motionTransition}
         >
           {/* 大标题与副标题 */}
-          <div className="px-8 pb-3 pt-6 shrink-0 border-b border-gray-100/50 dark:border-dark-border/40">
-            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-50">
-              {activeSectionLabel}
-            </h1>
-            <p className="text-[12px] text-gray-400 dark:text-gray-500 mt-1 leading-relaxed">
-              {activeSectionDesc}
-            </p>
+          <div className="shrink-0 border-b border-gray-100/50 dark:border-dark-border/40">
+            <div className="max-w-4xl mx-auto px-8 pb-3 pt-6">
+              <h1 className="text-xl font-bold text-gray-900 dark:text-gray-50">
+                {activeSectionLabel}
+              </h1>
+              <p className="text-[12px] text-gray-400 dark:text-gray-500 mt-1 leading-relaxed">
+                {activeSectionDesc}
+              </p>
+            </div>
           </div>
 
           {/* 设置项包裹容器 */}
-          <div className="flex-1 overflow-y-auto px-8 pb-8 pt-6">
-            <div className="max-w-2xl space-y-6">
+          <div className="flex-1 overflow-y-auto">
+            <div className="max-w-4xl mx-auto px-8 pb-8 pt-6 space-y-6">
               {activeSection === 'appearance' && (
                 <AppearanceSection settings={settings} updateSettings={updateSettings} />
               )}

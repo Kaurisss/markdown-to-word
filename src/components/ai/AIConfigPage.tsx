@@ -173,24 +173,26 @@ export const AIConfigPage: React.FC<AIConfigPageProps> = ({ isActive, onBack }) 
           {selectedProvider ? (
             <>
               {/* 大标题与副标题 */}
-              <div className="px-8 pb-3 pt-6 shrink-0 border-b border-gray-100/50 dark:border-dark-border/40 flex items-center gap-3">
-                <ProviderIcon
-                  providerId={selectedProvider.id}
-                  name={selectedProvider.name}
-                  iconKey={selectedProvider.iconKey}
-                  size={24}
-                />
-                <div>
-                  <h1 className="text-xl font-bold text-gray-900 dark:text-gray-50">
-                    {selectedProvider.name}
-                  </h1>
-                  <p className="text-[12px] text-gray-400 dark:text-gray-500 mt-1 leading-relaxed">
-                    {selectedProvider.description || '配置该 AI 平台的 API 接入参数以使用智能分析及写作辅助功能。'}
-                  </p>
+              <div className="shrink-0 border-b border-gray-100/50 dark:border-dark-border/40">
+                <div className="max-w-4xl mx-auto px-8 pb-3 pt-6 flex items-center gap-3">
+                  <ProviderIcon
+                    providerId={selectedProvider.id}
+                    name={selectedProvider.name}
+                    iconKey={selectedProvider.iconKey}
+                    size={24}
+                  />
+                  <div>
+                    <h1 className="text-xl font-bold text-gray-900 dark:text-gray-50">
+                      {selectedProvider.name}
+                    </h1>
+                    <p className="text-[12px] text-gray-400 dark:text-gray-500 mt-1 leading-relaxed">
+                      {selectedProvider.description || '配置该 AI 平台的 API 接入参数以使用智能分析及写作辅助功能。'}
+                    </p>
+                  </div>
                 </div>
               </div>
-              <div className="flex-1 overflow-y-auto px-8 pb-8 pt-6">
-                <div className="max-w-2xl space-y-6">
+              <div className="flex-1 overflow-y-auto">
+                <div className="max-w-4xl mx-auto px-8 pb-8 pt-6 space-y-6">
                   <ApiConfigFields
                     provider={selectedProvider}
                     onUpdate={handleUpdateProvider}
