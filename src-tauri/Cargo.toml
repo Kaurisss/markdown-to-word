@@ -25,5 +25,5 @@ tauri = { version = "2.11", features = [] }
 tauri-plugin-log = "2"
 tauri-plugin-shell = "2"
 tauri-plugin-dialog = "2.7"
-tauri-plugin-fs = "2.5"
+tauri-plugin-fs = { version = "2.5", features = ["watch"] }
 trash = "=5.2.3"
