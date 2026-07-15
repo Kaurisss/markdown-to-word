@@ -1,8 +1,8 @@
 import {
-  EmojiLine as CircleCheckIcon,
+  CheckCircleLine,
   InformationLine as InfoIcon,
   LoadingLine as Loader2Icon,
-  ConfusedLine as OctagonXIcon,
+  CloseCircleLine,
   AlertLine as TriangleAlertIcon,
 } from "@mingcute/react"
 import { useTheme } from "next-themes"
@@ -17,10 +17,10 @@ const Toaster = ({ ...props }: ToasterProps) => {
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
       icons={{
-        success: <CircleCheckIcon className="size-5" />,
+        success: <CheckCircleLine className="size-5" />,
         info: <InfoIcon className="size-5" />,
         warning: <TriangleAlertIcon className="size-5" />,
-        error: <OctagonXIcon className="size-5" />,
+        error: <CloseCircleLine className="size-5" />,
         loading: <Loader2Icon className="size-5 animate-spin" />,
       }}
       style={
